@@ -7,6 +7,7 @@ import Projects from "./components/projects/Projects";
 import Users from "./components/users/Users";
 import Absences from "./components/absences/Absences";
 import Vocations from "./components/vocations/Vocations";
+import ModifyAbsences from "./components/modify-absences/ModifyAbsences";
 
 export default function AdminClient() {
   const searchParams = useSearchParams();
@@ -23,6 +24,7 @@ export default function AdminClient() {
       {tab === "projects" && <Projects />}
       {tab === "users" && <Users />}
       {tab === "absences" && <Absences />}
+      {tab === "modify-absences" && <ModifyAbsences />}
       {tab === "holidays" && <Vocations />}
     </section>
   );

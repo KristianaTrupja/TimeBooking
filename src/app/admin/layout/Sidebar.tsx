@@ -7,7 +7,8 @@ const sidebarItems = [
   { title: "Raport", tab: "raport" },
   { title: "Projektet", tab: "projects" },
   { title: "Userat", tab: "users" },
-  { title: "Lejet", tab: "absences" },
+  { title: "Sheno Lejet", tab: "absences" },
+  { title: "Modifiko Lejet", tab: "modify-absences" },
   { title: "Pushimet", tab: "holidays" }
 ];
 

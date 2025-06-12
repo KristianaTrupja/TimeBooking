@@ -37,9 +37,9 @@ export default function WorkDay({
   const normalizedKey = normalizeProjectKey(projectKey);
   const dayData = getDayData(workHours, date, userId, normalizedKey);
 
-  // Load from localStorage
+  // Load from sessionStorage
   const localKey = `workhours_${userId}_${projectKey}_${date}`;
-  const localDataRaw = typeof window !== "undefined" ? localStorage.getItem(localKey) : null;
+  const localDataRaw = typeof window !== "undefined" ? sessionStorage.getItem(localKey) : null;
   const localData = localDataRaw ? JSON.parse(localDataRaw) : null;
 
   const isPending = !!localData;
@@ -49,7 +49,7 @@ export default function WorkDay({
 
   const handleSave = async (hours: number, note: string) => {
     const data = { hours, note };
-    localStorage.setItem(localKey, JSON.stringify(data));
+    sessionStorage.setItem(localKey, JSON.stringify(data));
     setIsModalOpen(false);
   };
 

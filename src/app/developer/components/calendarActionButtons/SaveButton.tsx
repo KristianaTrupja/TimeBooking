@@ -12,12 +12,12 @@ export default function SaveButton() {
   const handleClick = async () => {
     const keysToRemove: string[] = [];
 
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
+    for (let i = 0; i < sessionStorage.length; i++) {
+      const key = sessionStorage.key(i);
       if (key?.startsWith("workhours_")) {
         const parts = key.split("_");
         const [, userId, projectKey, date] = parts;
-        const value = localStorage.getItem(key);
+        const value = sessionStorage.getItem(key);
         if (!value) continue;
 
         const { hours, note } = JSON.parse(value);
@@ -36,7 +36,7 @@ export default function SaveButton() {
       }
     }
 
-    keysToRemove.forEach((key) => localStorage.removeItem(key));
+    keysToRemove.forEach((key) => sessionStorage.removeItem(key));
     alert("All work hours saved!");
   };
 

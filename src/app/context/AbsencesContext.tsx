@@ -2,14 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
-
-export type Absence = {
-  id: number;
-  startDate: string;
-  endDate: string;
-  type: string;
-  userId: number;
-};
+import { Absence } from "@/types/absence";
 
 type AbsenceContextType = [Absence[], boolean];
 
