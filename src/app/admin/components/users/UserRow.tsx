@@ -8,7 +8,9 @@ type Props = {
   index: number;
   isEditing: boolean;
   formData: UserFormData;
-  onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
+  onChange: (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => void;
   onEdit: (user: User) => void;
   onDelete: (user: User) => void;
   onSave: () => void;
@@ -26,6 +28,7 @@ export function UserRow({
   onDelete,
   onSave,
 }: Props) {
+  console.log(emp, "emp in UserRow");
   return (
     <tr className="border-t border-[#d1d1d1] font-semibold text-lg bg-[#E3F0FF]">
       <td className="px-4 py-2 bg-[#244B77] text-white font-semibold rounded-sm text-xl">
@@ -34,7 +37,7 @@ export function UserRow({
 
       {isEditing ? (
         <>
-          {["username", "email", "role"].map((field) => (
+          {["username", "email", "role", "password"].map((field) => (
             <td key={field} className="px-4 py-2 rounded-sm bg-yellow-100">
               {field === "role" ? (
                 <select
@@ -53,14 +56,20 @@ export function UserRow({
                 <input
                   name={field}
                   value={(formData as any)[field]}
+                  type={field === "password" ? "password" : "text"}
                   onChange={onChange}
                   className="border px-2 py-1 rounded w-full bg-white text-black font-normal"
+                  placeholder={
+                    field === "password" ? "Leave blank to keep unchanged" : ""
+                  }
                 />
               )}
             </td>
           ))}
           <td className="px-4 py-2 rounded-sm">
-            <Button size="sm" onClick={onSave}>Save</Button>
+            <Button size="sm" onClick={onSave}>
+              Save
+            </Button>
           </td>
         </>
       ) : (
@@ -68,11 +77,21 @@ export function UserRow({
           <td className="px-4 py-2 rounded-sm">{emp.username}</td>
           <td className="px-4 py-2 rounded-sm">{emp.email}</td>
           <td className="px-4 py-2 rounded-sm">{emp.role}</td>
+          <td
+            className="px-4 py-2 rounded-sm max-w-[150px] overflow-hidden text-ellipsis whitespace-nowrap"
+            title={emp.password}
+          >
+            {emp.password}
+          </td>
           <td className="px-4 py-2 rounded-sm text-green-800">
-            <button onClick={() => onEdit(emp)}><FilePenLine /></button>
+            <button onClick={() => onEdit(emp)}>
+              <FilePenLine />
+            </button>
           </td>
           <td className="px-4 py-2 rounded-sm text-red-800">
-            <button onClick={() => onDelete(emp)}><Delete /></button>
+            <button onClick={() => onDelete(emp)}>
+              <Delete />
+            </button>
           </td>
         </>
       )}

@@ -33,7 +33,9 @@ export default function Users() {
     fetchUser();
   }, []);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
@@ -47,7 +49,7 @@ export default function Users() {
           method: "DELETE",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ id: emp.id }),
-          cache: "no-store"
+          cache: "no-store",
         });
 
         if (res.ok) {
@@ -79,26 +81,30 @@ export default function Users() {
   };
 
   const saveChanges = async () => {
-    const { id, username, email, role } = formData;
+    const { id, username, email, role, password } = formData;
     if (!id || !username || !email || !role) {
       toast.error("Ju lutem plotësoni të gjitha fushat përveç fjalëkalimit.");
       return;
     }
-
+    const payload: any = { id, username, email, role };
+    if (password.trim()) {
+      payload.password = password;
+    }
     try {
       const res = await fetch("/api/user", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id, username, email, role }),
-        cache: "no-store"
+         body: JSON.stringify(payload),
+        cache: "no-store",
       });
 
       if (res.ok) {
         const updated = await res.json();
         setUser((prev) => ({
-          users: prev?.users.map((u) =>
-            u.id === updated.user.id ? updated.user : u
-          ) || [],
+          users:
+            prev?.users.map((u) =>
+              u.id === updated.user.id ? updated.user : u
+            ) || [],
         }));
         toast.success("Përdoruesi u përditësua me sukses.");
         setEditingId(null);
@@ -123,7 +129,7 @@ export default function Users() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(formData),
-      cache: "no-store"
+      cache: "no-store",
     });
 
     if (response.ok) {
@@ -132,11 +138,13 @@ export default function Users() {
       window.location.reload();
     } else {
       const err = await response.json();
-      toast.error(err.message || "Registrimi dështoi. Ju lutem provoni përsëri.");
+      toast.error(
+        err.message || "Registrimi dështoi. Ju lutem provoni përsëri."
+      );
     }
   };
 
-  if(isLoading) return <Spinner/>
+  if (isLoading) return <Spinner />;
 
   return (
     <section className="overflow-auto max-h-[500px] 2xl:max-h-[700px] rounded-md pb-10">
@@ -158,7 +166,13 @@ export default function Users() {
         open={open}
         onClose={() => {
           setOpen(false);
-          setFormData({ id: 0, username: "", email: "", password: "", role: "" });
+          setFormData({
+            id: 0,
+            username: "",
+            email: "",
+            password: "",
+            role: "",
+          });
         }}
         formData={formData}
         onChange={handleInputChange}
