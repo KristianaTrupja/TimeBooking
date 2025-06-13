@@ -6,7 +6,7 @@ type Props = {
   employees: User[];
   editingId: number | null;
   formData: UserFormData;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
   onEdit: (user: User) => void;
   onDelete: (user: User) => void;
   onSave: () => void;

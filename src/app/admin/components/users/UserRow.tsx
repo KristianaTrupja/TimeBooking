@@ -8,11 +8,13 @@ type Props = {
   index: number;
   isEditing: boolean;
   formData: UserFormData;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
   onEdit: (user: User) => void;
   onDelete: (user: User) => void;
   onSave: () => void;
 };
+
+const ROLE_OPTIONS = ["Dev", "Admin"];
 
 export function UserRow({
   emp,
@@ -29,16 +31,32 @@ export function UserRow({
       <td className="px-4 py-2 bg-[#244B77] text-white font-semibold rounded-sm text-xl">
         {index + 1}.
       </td>
+
       {isEditing ? (
         <>
           {["username", "email", "role"].map((field) => (
-            <td key={field} className="px-4 py-2 rounded-sm">
-              <input
-                name={field}
-                value={(formData as any)[field]}
-                onChange={onChange}
-                className="border px-2 py-1 rounded w-full bg-yellow-100 text-black font-normal"
-              />
+            <td key={field} className="px-4 py-2 rounded-sm bg-yellow-100">
+              {field === "role" ? (
+                <select
+                  name="role"
+                  value={formData.role}
+                  onChange={onChange}
+                  className="border px-2 py-1 rounded w-full text-black font-normal"
+                >
+                  {ROLE_OPTIONS.map((role) => (
+                    <option key={role} value={role}>
+                      {role}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <input
+                  name={field}
+                  value={(formData as any)[field]}
+                  onChange={onChange}
+                  className="border px-2 py-1 rounded w-full bg-white text-black font-normal"
+                />
+              )}
             </td>
           ))}
           <td className="px-4 py-2 rounded-sm">

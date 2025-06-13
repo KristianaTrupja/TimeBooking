@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { FilePenLine, Delete } from "lucide-react";
 import { User } from "@/types/user";
-import Spinner from "@/components/ui/Spinner";
 import { Absence } from "@/types/absence";
+import Spinner from "@/components/ui/Spinner";
+
+const ABSENCE_TYPES = ["VACATION", "SICK", "PERSONAL", "PARENTAL"];
 
 export default function ModifyAbsences() {
   const [employees, setEmployees] = useState<User[]>([]);
@@ -47,9 +49,7 @@ export default function ModifyAbsences() {
     if (!confirm("Are you sure you want to delete this absence?")) return;
 
     try {
-      const res = await fetch(`/api/absences?id=${id}`, {
-        method: "DELETE",
-      });
+      const res = await fetch(`/api/absences?id=${id}`, { method: "DELETE" });
 
       if (res.ok) {
         setAbsences((prev) => prev.filter((a) => a.id !== id));
@@ -75,7 +75,9 @@ export default function ModifyAbsences() {
       if (res.ok) {
         const updated = await res.json();
         setAbsences((prev) =>
-          prev.map((a) => (a.id === updated.absence.id ? updated.absence : a))
+          prev.map((a) =>
+            a.id === updated.absence.id ? updated.absence : a
+          )
         );
         setEditingAbsence(null);
       } else {
@@ -97,15 +99,16 @@ export default function ModifyAbsences() {
       >
         <thead className="bg-[#6C99CB] text-white">
           <tr className="text-left">
-            <th className="px-4 py-2 w-16 rounded-sm">Nr</th>
-            <th className="px-4 py-2 w-1/4 rounded-sm">Punonjesit</th>
-            <th className="px-4 py-2 w-1/4 rounded-sm">Data e fillimit</th>
-            <th className="px-4 py-2 w-1/4 rounded-sm">Data e mbarimit</th>
-            <th className="px-4 py-2 w-1/4 rounded-sm">Tipi</th>
-            <th className="px-4 py-2 w-1/4 rounded-sm">Edito</th>
-            <th className="px-4 py-2 w-1/4 rounded-sm">Fshij</th>
+            <th className="px-4 py-2 w-16">Nr</th>
+            <th className="px-4 py-2 w-1/4">Punonjesit</th>
+            <th className="px-4 py-2 w-1/4">Data e fillimit</th>
+            <th className="px-4 py-2 w-1/4">Data e mbarimit</th>
+            <th className="px-4 py-2 w-1/4">Tipi</th>
+            <th className="px-4 py-2 w-1/4">Edito</th>
+            <th className="px-4 py-2 w-1/4">Fshij</th>
           </tr>
         </thead>
+
         <tbody>
           {absences.map((absence, index) =>
             editingAbsence?.id === absence.id ? (
@@ -137,7 +140,7 @@ export default function ModifyAbsences() {
                   />
                 </td>
                 <td className="px-4 py-2">
-                  <input
+                  <select
                     value={editingAbsence.type}
                     onChange={(e) =>
                       setEditingAbsence({
@@ -145,7 +148,14 @@ export default function ModifyAbsences() {
                         type: e.target.value,
                       })
                     }
-                  />
+                    className="p-1 border border-gray-300 rounded-md w-full"
+                  >
+                    {ABSENCE_TYPES.map((type) => (
+                      <option key={type} value={type}>
+                        {type}
+                      </option>
+                    ))}
+                  </select>
                 </td>
                 <td className="px-4 py-2 text-blue-800">
                   <button onClick={handleEditSubmit}>Save</button>
@@ -162,16 +172,10 @@ export default function ModifyAbsences() {
                 <td className="px-4 py-2 bg-[#244B77] text-white font-semibold rounded-sm text-xl">
                   {index + 1}.
                 </td>
-                <td className="px-4 py-2 rounded-sm">
-                  {getUsername(absence.userId)}
-                </td>
-                <td className="px-4 py-2 rounded-sm">
-                  {formatDate(absence.startDate)}
-                </td>
-                <td className="px-4 py-2 rounded-sm">
-                  {formatDate(absence.endDate)}
-                </td>
-                <td className="px-4 py-2 rounded-sm">{absence.type}</td>
+                <td className="px-4 py-2">{getUsername(absence.userId)}</td>
+                <td className="px-4 py-2">{formatDate(absence.startDate)}</td>
+                <td className="px-4 py-2">{formatDate(absence.endDate)}</td>
+                <td className="px-4 py-2">{absence.type}</td>
                 <td className="px-4 py-2 text-green-800">
                   <button onClick={() => setEditingAbsence(absence)}>
                     <FilePenLine />
