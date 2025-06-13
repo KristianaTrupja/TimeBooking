@@ -29,7 +29,6 @@ export default function RootLayout({
       <body
         className={`${keanianOne.variable} ${anekBangla.variable} antialiased`}
       >
-        
         {children}
       </body>
     </html>

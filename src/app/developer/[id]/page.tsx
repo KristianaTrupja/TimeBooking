@@ -8,6 +8,8 @@ import TotalBar from "../components/calendar/TotalBar";
 import { useWorkHours } from "@/app/context/WorkHoursContext";
 import { usePathname } from "next/navigation";
 import { useCalendar } from "@/app/context/CalendarContext";
+import { PendingWorkPrompt } from "../components/pendingHoursPrompt/PendingWorkPrompt";
+import { Toaster } from "sonner";
 
 export default function Developer() {
   const { reloadWorkHours } = useWorkHours();
@@ -31,10 +33,12 @@ export default function Developer() {
         className="relative flex flex-col justify-between"
       >
         <div className="flex min-h-[500px]">
+          <PendingWorkPrompt/>
           <Calendar />
           <TotalBar />
         </div>
         <BottomBar />
+        <Toaster position="top-center"/>
       </section>
   );
 }
