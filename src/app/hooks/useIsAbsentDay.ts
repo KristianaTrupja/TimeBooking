@@ -1,4 +1,4 @@
-import { Absence } from "@/app/context/AbsencesContext";
+import { Absence } from "@/types/absence";
 
 export function useIsAbsentDay(absences: Absence[], date: string): {
   isAbsentDay: boolean;
