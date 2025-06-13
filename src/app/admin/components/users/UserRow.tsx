@@ -37,7 +37,7 @@ export function UserRow({
                 name={field}
                 value={(formData as any)[field]}
                 onChange={onChange}
-                className="border px-2 py-1 rounded w-full bg-white"
+                className="border px-2 py-1 rounded w-full bg-yellow-100 text-black font-normal"
               />
             </td>
           ))}
