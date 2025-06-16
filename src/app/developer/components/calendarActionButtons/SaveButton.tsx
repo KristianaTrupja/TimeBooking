@@ -7,7 +7,7 @@ import { useSaveWorkHours } from "@/app/hooks/useSaveWorkHours";
 import { toast } from "sonner";
 
 export default function SaveButton() {
-  const { year, month } = useCalendar();
+  const { year, month, setIsSaved } = useCalendar();
   const { setWorkHoursForProject, reloadWorkHours } = useWorkHours();
 
   const handleClick = async () => {
@@ -39,6 +39,7 @@ export default function SaveButton() {
 
     keysToRemove.forEach((key) => sessionStorage.removeItem(key));
     toast.success("All work hours have been saved!");
+    setIsSaved(true);
   };
 
   return <Button onClick={handleClick}>Ruaj</Button>;

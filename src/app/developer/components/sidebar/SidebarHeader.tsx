@@ -5,6 +5,7 @@ import { useCalendar } from "@/app/context/CalendarContext";
 import { useEffect, useMemo } from "react";
 import { useWorkHours } from "@/app/context/WorkHoursContext";
 import { usePathname } from "next/navigation";
+import WorkStatus from "../status/workStatus";
 
 export default function SidebarHeader() {
   const pathname = usePathname();
@@ -13,12 +14,12 @@ export default function SidebarHeader() {
     return segments[2];
   }, [pathname]);
 
-  const { year, month, goToNextMonth, goToPreviousMonth, loading } = useCalendar();
+  const { year, month, goToNextMonth, goToPreviousMonth, loading, } = useCalendar();
   const { reloadWorkHours } = useWorkHours();
 
   useEffect(() => {
     if (userId) {
-      reloadWorkHours(userId, month+1, year);
+      reloadWorkHours(userId, month + 1, year);
     }
   }, [userId, month, year]);
 
@@ -28,7 +29,7 @@ export default function SidebarHeader() {
   });
 
   return (
-    <div className="w-64 mt-4 relative"> {/* Added relative for loading overlay */}
+    <div className="flex justify-between mt-4 relative"> {/* Added relative for loading overlay */}
       {loading && (
         <div className="absolute inset-0 flex items-center justify-center bg-white/70 z-10">
           <div className="border rounded shadow px-4 py-2 bg-white flex items-center space-x-2">
@@ -37,7 +38,7 @@ export default function SidebarHeader() {
           </div>
         </div>
       )}
-      <div className="flex items-center justify-between w-full">
+      <div className="w-64 flex items-center justify-between">
         <button className="cursor-pointer" onClick={goToPreviousMonth}>
           <ChevronLeft className="text-[#244B77]" />
         </button>
@@ -48,6 +49,7 @@ export default function SidebarHeader() {
           <ChevronRight className="text-[#244B77]" />
         </button>
       </div>
+      <WorkStatus />
     </div>
   );
 }

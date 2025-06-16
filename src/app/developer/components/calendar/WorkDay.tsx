@@ -23,7 +23,7 @@ export default function WorkDay({
   setHoveredColIndex,
   setHoveredProjectKey,
 }: DayBoxProps) {
-  const { year, month } = useCalendar();
+  const { year, month, refreshPendingStatus } = useCalendar();
   const [holidays, loading] = useHolidayContext();
   const [absences, absenceLoading] = useAbsenceContext();
   const { workHours, setWorkHoursForProject } = useWorkHours();
@@ -50,6 +50,7 @@ export default function WorkDay({
   const handleSave = async (hours: number, note: string) => {
     const data = { hours, note };
     sessionStorage.setItem(localKey, JSON.stringify(data));
+    refreshPendingStatus();
     setIsModalOpen(false);
   };
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Modal } from "@/app/components/ui/Modal";
 import { useSaveWorkHours } from "@/app/hooks/useSaveWorkHours";
@@ -10,11 +10,13 @@ import { toast } from "sonner";
 
 export const PendingWorkPrompt = () => {
   const [pendingKeys, setPendingKeys] = useState<string[]>([]);
-  const { year, month, } = useCalendar();
+  const { year, month, refreshPendingStatus, showPendingDataModal, setShowPendingDataModal, isPending, setIsSaved } = useCalendar();
   const { setWorkHoursForProject, reloadWorkHours } = useWorkHours();
-  const { showPendingModal, setShowPendingModal } = useCalendar();
+
+  const hasPrompted = useRef(false);
 
   useEffect(() => {
+    if (hasPrompted.current) return;
     function getAllPendingWorkKeys(): string[] {
       return Object.keys(sessionStorage).filter((key) =>
         key.startsWith("workhours_")
@@ -31,15 +33,18 @@ export const PendingWorkPrompt = () => {
     const keys = getPendingWorkData().map((w) => w.key);
     if (keys.length > 0) {
       setPendingKeys(keys);
-      setShowPendingModal(true);
+      setShowPendingDataModal(true);
+      hasPrompted.current = true;
     }
-  }, [showPendingModal]);
+  }, [showPendingDataModal]);
 
   const discardPending = () => {
+    hasPrompted.current = true;
+    refreshPendingStatus()
     pendingKeys.forEach((key) => {
       sessionStorage.removeItem(key)
     });
-    setShowPendingModal(false);
+    setShowPendingDataModal(false);
   };
 
   const handleClick = async () => {
@@ -71,10 +76,12 @@ export const PendingWorkPrompt = () => {
 
     keysToRemove.forEach((key) => sessionStorage.removeItem(key));
     toast.success("All work hours have been saved!");
-    setShowPendingModal(false);
+    refreshPendingStatus();
+    setShowPendingDataModal(false);
+    setIsSaved(true)
   };
   return (
-    <Modal isOpen={showPendingModal} onClose={() => setShowPendingModal(false)} title="Pending Hours">
+    <Modal isOpen={showPendingDataModal} onClose={() => setShowPendingDataModal(false)} title="Pending Hours">
       <p className="mb-4">You have unsaved work hours. Do you want to keep them for now or discard them?</p>
       <div className="flex justify-end gap-2">
         <Button variant="outline" onClick={discardPending}>
