@@ -6,13 +6,27 @@ import { signIn, getSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
+import { cn } from "@/lib/utils";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function Login() {
   const [data, setData] = useState({ email: "", password: "" });
   const router = useRouter();
+  const [showPassword, setShowPassword] = useState(false);
+
+  const isPasswordStrong = (password: string) => {
+    const strongRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_\-+=.]).{8,}$/;
+    return strongRegex.test(password);
+  };
+
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    if (!isPasswordStrong(data.password)) {
+      return;
+    }
+
 
     const res = await signIn("credentials", {
       redirect: false,
@@ -23,7 +37,7 @@ export default function Login() {
     if (res?.error) {
       toast.error("Oops! Dicka shkoi gabim. Ju lutem provoni përsëri!");
     } else {
-      // Get session to check role
+
       const session = await getSession();
 
       const role = session?.user?.role;
@@ -63,15 +77,32 @@ export default function Login() {
           </div>
           <div className="flex flex-col mb-8 lg:mb-12">
             <label htmlFor="password" className="text-base sm:text-lg text-[#244B77] font-medium">Password:</label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={data.password}
-              onChange={handleChange}
-              className="p-2 bg-[#E7E7E7] text-[#244B77] rounded-sm"
-              required
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                id="password"
+                name="password"
+                value={data.password}
+                onChange={handleChange}
+                className={cn("p-2 bg-[#E7E7E7] text-[#244B77] rounded-sm w-full pr-14", !isPasswordStrong(data.password) && data.password && "text-red-600 border border-red-600 outline-red-600")}
+                required
+              />
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowPassword((prev) => !prev)}
+                className="absolute right-2 top-1/2 -translate-y-1/2 px-2 text-[20px] py-1 text-[#363636] font-medium"
+              >
+                {showPassword ? <EyeOff /> : <Eye />}
+              </Button>
+
+            </div>
+            {data.password && !isPasswordStrong(data.password) && (
+              <p className="text-sm text-red-600 mt-1">
+                Password must contain at least 8 characters, one uppercase letter A-Z, one number, and one special symbol (! @ # $ % ^ & * ( ) . _ - + =).
+              </p>
+            )}
           </div>
           <div className="flex justify-center">
             <Button size="lg">Sign In</Button>
