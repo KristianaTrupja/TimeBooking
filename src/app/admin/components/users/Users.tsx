@@ -19,6 +19,9 @@ export default function Users() {
   });
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState<{ users: User[] } | null>(null);
+  const isPasswordStrong = (password: string) => {
+    return /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_\-+=.]).{8,}$/.test(password);
+  };
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -94,7 +97,7 @@ export default function Users() {
       const res = await fetch("/api/user", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-         body: JSON.stringify(payload),
+        body: JSON.stringify(payload),
         cache: "no-store",
       });
 
@@ -120,11 +123,16 @@ export default function Users() {
 
   const addNewEmployee = async () => {
     const { username, email, password, role } = formData;
+
     if (!username || !email || !password || !role) {
       alert("Ju lutem plotësoni të gjitha fushat.");
       return;
     }
 
+    if (!isPasswordStrong(formData.password)) {
+      toast.error("Password nuk është i sigurt. Kontrolloni kërkesat.");
+      return;
+    }
     const response = await fetch("/api/user", {
       method: "POST",
       headers: { "Content-Type": "application/json" },

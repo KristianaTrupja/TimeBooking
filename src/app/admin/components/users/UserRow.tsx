@@ -28,7 +28,6 @@ export function UserRow({
   onDelete,
   onSave,
 }: Props) {
-  console.log(emp, "emp in UserRow");
   return (
     <tr className="border-t border-[#d1d1d1] font-semibold text-lg bg-[#E3F0FF]">
       <td className="px-4 py-2 bg-[#244B77] text-white font-semibold rounded-sm text-xl">
