@@ -8,6 +8,9 @@ import Users from "./components/users/Users";
 import Absences from "./components/absences/Absences";
 import Vocations from "./components/vocations/Vocations";
 import ModifyAbsences from "./components/modify-absences/ModifyAbsences";
+import { WorkHoursProvider } from "@/app/context/WorkHoursContext";
+import { CalendarProvider } from "@/app/context/CalendarContext";
+import { ProjectProvider } from "@/app/context/ProjectContext";
 
 export default function AdminClient() {
   const searchParams = useSearchParams();
@@ -20,7 +23,15 @@ export default function AdminClient() {
 
   return (
     <section className="m-10 h-[66vh]" style={{ fontFamily: "var(--font-anek-bangla)" }}>
-      {tab === "raport" && <Raport />}
+      {tab === "raport" && (
+        <CalendarProvider>
+          <ProjectProvider>
+            <WorkHoursProvider>
+              <Raport />
+            </WorkHoursProvider>
+          </ProjectProvider>
+        </CalendarProvider>
+      )}
       {tab === "projects" && <Projects />}
       {tab === "users" && <Users />}
       {tab === "absences" && <Absences />}

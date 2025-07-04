@@ -39,6 +39,11 @@ type WorkHoursContextType = {
     month: number,
     year: number
   ) => number;
+  getTotalHoursForUserInMonth: (
+    userId: string,
+    month: number,
+    year: number
+  ) => number;
   reloadWorkHours: (
     userId: string,
     month?: number,
@@ -90,7 +95,19 @@ export function WorkHoursProvider({ children }: { children: ReactNode }) {
           };
         }
 
-        setWorkHours(transformed);
+        setWorkHours((prev) => {
+          const merged = { ...prev };
+          for (const date in transformed) {
+            if (!merged[date]) merged[date] = {};
+            for (const uid in transformed[date]) {
+              merged[date][uid] = {
+                ...merged[date][uid],
+                ...transformed[date][uid],
+              };
+            }
+          }
+          return merged;
+        });
       } catch (error) {
         console.error("Error fetching work hours:", error);
       } finally {
@@ -100,106 +117,127 @@ export function WorkHoursProvider({ children }: { children: ReactNode }) {
     []
   );
 
+  const getTotalHoursForUserInMonth = (
+    userId: string,
+    month: number,
+    year: number
+  ): number => {
+    let total = 0;
+    for (const [dateStr, users] of Object.entries(workHours)) {
+      const date = new Date(dateStr);
+      if (date.getMonth() === month - 1 && date.getFullYear() === year) {
+        const userData = users[userId];
+        if (userData) {
+          for (const entry of Object.values(userData)) {
+            total += entry.hours;
+          }
+        }
+      }
+    }
+    return total;
+  };
+
+  
   useEffect(() => {
     fetchWorkHours("1");
   }, [fetchWorkHours]);
 
-const setWorkHoursForProject = async (
-  date: string,
-  userId: string,
-  projectKey: string,
-  hours: number,
-  note?: string
-) => {
-  const projectId = Number(projectKey.replace(/^PID-/, ""));
-  const normalizedKey = normalizeProjectKey(projectKey);
-  const userData = workHours[date]?.[userId];
-  const entryExists = userData?.[normalizedKey] !== undefined;
+  const setWorkHoursForProject = async (
+    date: string,
+    userId: string,
+    projectKey: string,
+    hours: number,
+    note?: string
+  ) => {
+    const projectId = Number(projectKey.replace(/^PID-/, ""));
+    const normalizedKey = normalizeProjectKey(projectKey);
+    const userData = workHours[date]?.[userId];
+    const entryExists = userData?.[normalizedKey] !== undefined;
 
-  // If setting 0 hours
-  if (hours === 0) {
-    if (!entryExists) {
-      alert("Cannot add 0 hours to an empty cell.");
-      return;
-    }
-
-    // Delete from database
-    try {
-    const res = await fetch(
-  `/api/workhours?date=${encodeURIComponent(date)}&userId=${userId}&projectId=${projectId}`,
-  {
-    method: "DELETE",
-  }
-);
-      if (!res.ok) {
-        console.error("Failed to delete work hours",date, userId, normalizedKey);
+    // If setting 0 hours
+    if (hours === 0) {
+      if (!entryExists) {
+        alert("Cannot add 0 hours to an empty cell.");
         return;
       }
-      // Remove from local state
-      setWorkHours((prev) => {
-  const updated = { ...prev };
 
-  if (
-    updated[date] &&
-    updated[date][userId] &&
-    updated[date][userId][normalizedKey]
-  ) {
-    delete updated[date][userId][normalizedKey];
+      // Delete from database
+      try {
+        const res = await fetch(
+          `/api/workhours?date=${encodeURIComponent(date)}&userId=${userId}&projectId=${projectId}`,
+          {
+            method: "DELETE",
+          }
+        );
+        if (!res.ok) {
+          console.error("Failed to delete work hours", date, userId, normalizedKey);
+          return;
+        }
+        // Remove from local state
+        setWorkHours((prev) => {
+          const updated = { ...prev };
 
-    if (Object.keys(updated[date][userId]).length === 0) {
-      delete updated[date][userId];
-    }
+          if (
+            updated[date] &&
+            updated[date][userId] &&
+            updated[date][userId][normalizedKey]
+          ) {
+            delete updated[date][userId][normalizedKey];
 
-    if (Object.keys(updated[date]).length === 0) {
-      delete updated[date];
-    }
-  }
+            if (Object.keys(updated[date][userId]).length === 0) {
+              delete updated[date][userId];
+            }
 
-  return updated;
-});
-    } catch (error) {
-      console.error("Error deleting work hours:", error);
-    }
-    return;
-  }
+            if (Object.keys(updated[date]).length === 0) {
+              delete updated[date];
+            }
+          }
 
-  // If hours > 0, POST or PUT
-  const payload = {
-    date,
-    userId: Number(userId),
-    projectId,
-    hours,
-    note: note ?? null,
-  };
-
-  const method = entryExists ? "PUT" : "POST";
-
-  try {
-    const res = await fetch("/api/workhours", {
-      method,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-
-    if (!res.ok) {
-      console.error(`${method} work hours failed`);
+          return updated;
+        });
+      } catch (error) {
+        console.error("Error deleting work hours:", error);
+      }
       return;
     }
 
-    setWorkHours((prev) => ({
-      ...prev,
-      [date]: {
-        ...prev[date],
-        [userId]: {
-          ...prev[date]?.[userId],
-          [normalizedKey]: { hours, note },
+    // If hours > 0, POST or PUT
+    const payload = {
+      date,
+      userId: Number(userId),
+      projectId,
+      hours,
+      note: note ?? null,
+    };
+
+    const method = entryExists ? "PUT" : "POST";
+
+    try {
+      const res = await fetch("/api/workhours", {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        console.error(`${method} work hours failed`);
+        return;
+      }
+
+      setWorkHours((prev) => ({
+        ...prev,
+        [date]: {
+          ...prev[date],
+          [userId]: {
+            ...prev[date]?.[userId],
+            [normalizedKey]: { hours, note },
+          },
         },
-      },
-    }));
-  } catch (error) {
-    console.error("Error saving work hours:", error);
-  }
-};
+      }));
+    } catch (error) {
+      console.error("Error saving work hours:", error);
+    }
+  };
 
 
   const getTotalHoursForDay = (date: string, userId: string): number => {
@@ -239,6 +277,7 @@ const setWorkHoursForProject = async (
         setWorkHoursForProject,
         getTotalHoursForDay,
         getTotalHoursForProjectInMonth,
+        getTotalHoursForUserInMonth,
         reloadWorkHours,
         loading,
       }}
