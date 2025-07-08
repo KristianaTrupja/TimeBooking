@@ -14,6 +14,7 @@ interface CalendarContextProps {
   refreshPendingStatus: () => void;
   isSaved: boolean
   setIsSaved: (v: boolean) => void;
+  setMonthAndYear: (month: number, year: number,animation?: boolean) => void;
 }
 
 const CalendarContext = createContext<CalendarContextProps | undefined>(undefined);
@@ -47,6 +48,14 @@ export const CalendarProvider = ({ children }: { children: React.ReactNode }) =>
     const interval = setInterval(refreshPendingStatus, 500); // Polling approach
     return () => clearInterval(interval);
   }, []);
+
+  const setMonthAndYear = async (newMonth: number, newYear: number, animation = false) => {
+    animation && setLoading(true);
+    await simulateLoad();
+    setMonth(newMonth);
+    setYear(newYear);
+    animation && setLoading(false);
+  };
 
   const goToPreviousMonth = async () => {
     if (hasWorkHoursInSession()) {
@@ -92,7 +101,7 @@ export const CalendarProvider = ({ children }: { children: React.ReactNode }) =>
 
   return (
     <CalendarContext.Provider
-      value={{ month, year, loading, goToPreviousMonth, goToNextMonth, showPendingDataModal, setShowPendingDataModal, isPending, refreshPendingStatus, isSaved, setIsSaved }}
+      value={{ month, year, loading, goToPreviousMonth, goToNextMonth, showPendingDataModal, setShowPendingDataModal, isPending, refreshPendingStatus, isSaved, setIsSaved, setMonthAndYear, }}
     >
       {children}
     </CalendarContext.Provider>

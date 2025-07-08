@@ -9,9 +9,6 @@ import { WorkHoursProvider } from "../../context/WorkHoursContext";
 import SidebarHeader from "../components/sidebar/SidebarHeader";
 import SignOutButton from "../components/signoutbutton/SignOutButton";
 import { HolidayProvider } from "@/app/context/HolidayContext";
-import { UserRoundPen } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
 import { AbsenceProvider } from "@/app/context/AbsencesContext";
 import AdminBackButton from "@/app/components/AdminBackButton";
 import ConfirmButton from "../components/calendarActionButtons/ConfirmButton";
@@ -32,9 +29,10 @@ export default async function DashboardLayout({
     redirect("/login");
   }
 
-  const currentUserId = session.user?.id;
   let displayedUsername = session.user?.username || "User";
   let displayedRole = session.user?.role || "developer";
+  const currentUserId = String(session.user.id);
+  const currentUserRole = session.user.role;
 
   if (id !== currentUserId) {
     const otherUser = await db.user.findUnique({
@@ -47,6 +45,11 @@ export default async function DashboardLayout({
       displayedRole = otherUser.role || displayedRole;
     }
   }
+
+  if (id !== currentUserId && currentUserRole?.toLowerCase() !== "admin") {
+    redirect(`/developer/${currentUserId}`);
+  }
+
   return (
     <HolidayProvider>
       <AbsenceProvider>
@@ -54,7 +57,7 @@ export default async function DashboardLayout({
           <CalendarProvider>
             <ProjectProvider>
               <section
-                className="transition-opacity duration-300 2xl:mx-50 mt-11 min-h-screen w-auto 2xl:container"
+                className="transition-opacity duration-300 2xl:mx-50 pt-11 min-h-screen w-auto 2xl:container"
                 style={{ fontFamily: "var(--font-anek-bangla)" }}
               >
                 <div className="flex justify-between mb-6 items-center">
@@ -73,19 +76,18 @@ export default async function DashboardLayout({
                       )
                     </h4>
                     <AdminBackButton />
-                    <SignOutButton/>
+                    <SignOutButton />
                   </div>
                 </div>
                 <SidebarHeader />
                 <main className="2xl:w-fit flex">
                   <Sidebar />
                   {children}
-                  
                 </main>
-                  <div  className="flex justify-end items-center gap-4 p-4 mt-5">
-                    <ConfirmButton/>
-                    <SaveButton/>
-                  </div>
+                <div className="flex justify-end items-center gap-4 p-4 mt-5">
+                  <ConfirmButton />
+                  <SaveButton />
+                </div>
               </section>
             </ProjectProvider>
           </CalendarProvider>

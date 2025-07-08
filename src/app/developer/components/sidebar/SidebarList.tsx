@@ -1,13 +1,20 @@
 import { ProjectData } from "@/types/project";
 import SidebarItem from "./SidebarItem";
+import { useProjects } from "@/app/context/ProjectContext";
 
 interface SidebarListProps {
   sidebarProjects: ProjectData[];
 }
 
 export default function SidebarList({ sidebarProjects }: SidebarListProps) {
+  const { loading } = useProjects();
+
   if (sidebarProjects.length === 0) {
     return <p className="text-center text-gray-500 p-4">Nuk ka projekte</p>;
+  }
+
+  if (loading) {
+    return null
   }
 
   return (

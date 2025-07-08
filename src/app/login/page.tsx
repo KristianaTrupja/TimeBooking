@@ -6,8 +6,6 @@ import { signIn, getSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
-import { cn } from "@/lib/utils";
-import { Eye, EyeOff } from "lucide-react";
 import { InputField } from "../components/ui/InputField";
 
 export default function Login() {

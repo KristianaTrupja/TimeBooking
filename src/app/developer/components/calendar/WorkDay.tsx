@@ -65,7 +65,7 @@ export default function WorkDay({
   return (
     <>
       <div
-        onClick={() => setIsModalOpen(true)}
+        onClick={() => !isAbsentDay && setIsModalOpen(true)}
         onMouseEnter={() => {
           setHoveredColIndex(colIndex);
           setHoveredProjectKey(projectKey);
@@ -76,7 +76,7 @@ export default function WorkDay({
         }}
         title={title ?? undefined}
         className={`relative w-9 h-9 flex items-center justify-center text-sm cursor-pointer border-r border-b border-gray-300
-          ${isHoliday ? "bg-green-100" : isAbsentDay ? "bg-orange-100" : isWeekendDay ? "bg-gray-100" : "bg-white hover:bg-gray-100"}
+          ${isHoliday ? "bg-green-100" : isAbsentDay ? "bg-orange-100 cursor-default" : isWeekendDay ? "bg-gray-100" : "bg-white hover:bg-gray-100"}
           ${isHovered && !isWeekendDay && !isHoliday && !isAbsentDay && "!bg-[#f1f7fde7]"}
           ${isPending ? " font-bold text-blue-900 border-blue-400" : ""}
         `}

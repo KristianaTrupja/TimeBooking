@@ -4,7 +4,6 @@ import React, {
   createContext,
   useContext,
   useState,
-  useEffect,
   ReactNode,
   useCallback,
 } from "react";
@@ -137,10 +136,10 @@ export function WorkHoursProvider({ children }: { children: ReactNode }) {
     return total;
   };
 
-  
-  useEffect(() => {
-    fetchWorkHours("1");
-  }, [fetchWorkHours]);
+
+  // useEffect(() => {
+  //   fetchWorkHours("1");
+  // }, [fetchWorkHours]);
 
   const setWorkHoursForProject = async (
     date: string,

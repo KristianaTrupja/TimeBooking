@@ -1,11 +1,12 @@
 'use client';
 
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, CalendarDays } from "lucide-react";
 import { useCalendar } from "@/app/context/CalendarContext";
-import { useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useWorkHours } from "@/app/context/WorkHoursContext";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import WorkStatus from "../status/workStatus";
+import MonthYearPicker from "../monthYear/MonthYearPicker";
 
 export default function SidebarHeader() {
   const pathname = usePathname();
@@ -17,11 +18,24 @@ export default function SidebarHeader() {
   const { year, month, goToNextMonth, goToPreviousMonth, loading, } = useCalendar();
   const { reloadWorkHours } = useWorkHours();
 
+  const searchParams = useSearchParams();
+  const passedMonth = parseInt(searchParams.get("month") || "", 10);
+  const passedYear = parseInt(searchParams.get("year") || "", 10);
+  const { setMonthAndYear } = useCalendar();
+  const [showPicker, setShowPicker] = useState(false);
+
   useEffect(() => {
     if (userId) {
       reloadWorkHours(userId, month + 1, year);
     }
   }, [userId, month, year]);
+
+  useEffect(() => {
+    if (!isNaN(passedMonth) && !isNaN(passedYear)) {
+      setMonthAndYear(passedMonth - 1, passedYear);
+    }
+  }, [passedMonth, passedYear]);
+
 
   const formattedDate = new Date(year, month).toLocaleString("default", {
     month: "long",
@@ -29,22 +43,32 @@ export default function SidebarHeader() {
   });
 
   return (
-    <div className="flex justify-between mt-4 relative"> {/* Added relative for loading overlay */}
-      {loading && (
-        <div className="absolute inset-0 flex items-center justify-center bg-white/70 z-10">
-          <div className="border rounded shadow px-4 py-2 bg-white flex items-center space-x-2">
-            <div className="animate-spin w-4 h-4 border-2 border-gray-500 border-t-transparent rounded-full"></div>
-            <span className="text-gray-700 text-sm">Loading in progress</span>
+    <div className="flex justify-between mt-4 relative">
+      <div className="w-64 flex items-center justify-between relative">
+        {loading && (
+          <div className="absolute inset-0 flex items-center justify-center bg-white/70 z-10">
+            <div className="border rounded shadow px-4 py-2 bg-white flex items-center space-x-2">
+              <div className="animate-spin w-4 h-4 border-2 border-gray-500 border-t-transparent rounded-full"></div>
+              <span className="text-gray-700 text-sm">Loading in progress</span>
+            </div>
           </div>
-        </div>
-      )}
-      <div className="w-64 flex items-center justify-between">
+        )}
         <button className="cursor-pointer" onClick={goToPreviousMonth}>
           <ChevronLeft className="text-[#244B77]" />
         </button>
-        <p className="text-[#244B77] font-semibold text-center min-w-[100px]">
+        <p className="text-[#244B77] font-semibold text-center min-w-28">
           {formattedDate}
         </p>
+        <div className="flex items-center space-x-2 relative">
+          <button onClick={() => setShowPicker((v) => !v)}>
+            <CalendarDays className="text-[#244B77]" />
+          </button>
+          {showPicker && (
+            <div className="absolute top-6 left-0 z-10">
+              <MonthYearPicker onClose={() => setShowPicker(false)} />
+            </div>
+          )}
+        </div>
         <button className="cursor-pointer" onClick={goToNextMonth}>
           <ChevronRight className="text-[#244B77]" />
         </button>

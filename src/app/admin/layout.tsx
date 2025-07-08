@@ -11,7 +11,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   return (
     <section
-      className="2xl:mx-40 mt-11 min-h-screen"
+      className="2xl:mx-40 pt-11 min-h-screen"
       style={{ fontFamily: "var(--font-anek-bangla)" }}
     >
       <div className="flex justify-between mb-6 items-center">

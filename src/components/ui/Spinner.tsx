@@ -4,7 +4,7 @@ import React from 'react'
 
 export default function Spinner() {
     return (
-        <div className="inset-0 h-[100%] z-50 flex items-center justify-center bg-white/60">
+        <div className="w-full inset-0 h-[100%] z-50 flex items-center justify-center bg-white/60">
           <div className="text-center">
             <img
               src="/loading-gif.gif"
