@@ -85,8 +85,8 @@ export default function Users() {
 
   const saveChanges = async () => {
     const { id, username, email, role, password } = formData;
-    if (!id || !username || !email || !role) {
-      toast.error("Ju lutem plotësoni të gjitha fushat përveç fjalëkalimit.");
+    if (!id || !username || !email || !role || (!isPasswordStrong(password) && password)) {
+      toast.error("Ju lutem plotësoni të gjitha fushat.");
       return;
     }
     const payload: any = { id, username, email, role };

@@ -64,13 +64,12 @@ export default function SidebarHeader() {
     <div className="flex justify-between mt-4 relative">
       <div className="w-64 flex items-center justify-between relative min-h-6">
         {loading || loadingProjects && isInitialized && <LoadingSpinner />}
-
         {!loadingProjects && isInitialized && (
           <>
             <button className="cursor-pointer" onClick={goToPreviousMonth}>
               <ChevronLeft className="text-[#244B77]" />
             </button>
-            <p className="text-[#244B77] font-semibold text-center min-w-28">
+            <p className="text-[#244B77] font-semibold text-center min-w-28 text-lg">
               {formattedDate}
             </p>
             <MonthYearPicker />
@@ -78,8 +77,7 @@ export default function SidebarHeader() {
               <ChevronRight className="text-[#244B77]" />
             </button>
           </>
-        )
-        }
+        )}
       </div>
       <WorkStatus />
     </div>

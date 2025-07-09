@@ -2,6 +2,7 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { Delete, FilePenLine } from "lucide-react";
 import { User, UserFormData } from "@/types/user";
+import { InputField } from "@/app/components/ui/InputField";
 
 type Props = {
   emp: User;
@@ -17,6 +18,11 @@ type Props = {
 };
 
 const ROLE_OPTIONS = ["Dev", "Admin"];
+
+const isPasswordStrong = (password: string) => {
+  const strongRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_\-+=.]).{8,}$/;
+  return strongRegex.test(password);
+};
 
 export function UserRow({
   emp,
@@ -45,22 +51,24 @@ export function UserRow({
                   onChange={onChange}
                   className="border px-2 py-1 rounded w-full text-black font-normal"
                 >
-                  {ROLE_OPTIONS.map((role) => (
-                    <option key={role} value={role}>
+                  {ROLE_OPTIONS.map((role, index) => (
+                    <option key={index} value={role}>
                       {role}
                     </option>
                   ))}
                 </select>
               ) : (
-                <input
+                <InputField
                   name={field}
-                  value={(formData as any)[field]}
                   type={field === "password" ? "password" : "text"}
+                  value={(formData as any)[field]}
                   onChange={onChange}
-                  className="border px-2 py-1 rounded w-full bg-white text-black font-normal"
                   placeholder={
                     field === "password" ? "Leave blank to keep unchanged" : ""
                   }
+                  tooltipMessage={true}
+                  autoComplete="off"
+                  error={field === "password" && !isPasswordStrong((formData as any)[field]) && (formData as any)[field] ? "Password must contain at least 8 characters, one uppercase letter A-Z, one number, and one special symbol (! @ # $ % ^ & * ( ) . _ - + =)." : undefined}
                 />
               )}
             </td>

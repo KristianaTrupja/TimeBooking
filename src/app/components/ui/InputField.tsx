@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import { Eye, EyeOff } from "lucide-react"; // eye icons
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 type InputFieldProps = {
-  label: string;
+  label?: string;
   name: string;
   value: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
@@ -12,6 +13,7 @@ type InputFieldProps = {
   formId?: string | number;
   autoComplete?: string;
   error?: string;
+  tooltipMessage?: boolean
 };
 
 export const InputField = ({
@@ -23,7 +25,8 @@ export const InputField = ({
   placeholder,
   formId,
   autoComplete,
-  error
+  error,
+  tooltipMessage = true
 }: InputFieldProps) => {
   const [showPassword, setShowPassword] = useState(false);
   const id = `${name}-${formId ?? "new"}`;
@@ -43,7 +46,7 @@ export const InputField = ({
             type={inputType}
             value={value}
             onChange={onChange}
-            className="w-full border bg-[#D9D9D9] p-2 rounded-sm pr-10"
+            className={cn("w-full border bg-[#D9D9D9] p-2 rounded-sm pr-10", error && "border-red-500 outline-red-500 text-red-500")}
             placeholder={placeholder}
             autoComplete={autoComplete ?? "off"}
           />
@@ -59,20 +62,24 @@ export const InputField = ({
               {showPassword ? <EyeOff /> : <Eye />}
             </Button>
           )}
+          {error && (
+            <p className={cn("text-sm text-red-500 mt-1", tooltipMessage && "bg-white absolute top-full left-0 w-full p-2 shadow-sm z-10")}>{error}</p>
+          )}
         </div>
-        {error && (
-          <p className="text-sm text-red-500 mt-1">{error}</p>
-        )}
       </>)
         :
         (
           <select
+            id={id}
             name="role"
             value={value}
             onChange={onChange}
 
             className="border px-2 py-1 rounded w-full text-black font-normal"
           >
+            <option value="" disabled>
+              Zgjidh rolin
+            </option>
             {ROLE_OPTIONS.map((role) => (
               <option key={role} value={role}>
                 {role}
