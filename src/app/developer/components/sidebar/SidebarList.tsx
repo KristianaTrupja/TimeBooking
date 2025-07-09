@@ -7,13 +7,13 @@ interface SidebarListProps {
 }
 
 export default function SidebarList({ sidebarProjects }: SidebarListProps) {
-  const { loading } = useProjects();
+  const { loadingProjects } = useProjects();
 
   if (sidebarProjects.length === 0) {
     return <p className="text-center text-gray-500 p-4">Nuk ka projekte</p>;
   }
 
-  if (loading) {
+  if (loadingProjects) {
     return null
   }
 

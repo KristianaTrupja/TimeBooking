@@ -7,12 +7,13 @@ import Spinner from "@/components/ui/Spinner";
 import { useSearchParams } from "next/navigation";
 import { useCalendar } from "@/app/context/CalendarContext";
 import { useWorkHours } from "@/app/context/WorkHoursContext";
+import MonthYearPicker from "@/app/developer/components/monthYear/MonthYearPicker";
 
 export default function Raport() {
   const searchParams = useSearchParams();
   const adminId = searchParams.get("adminId");
   const { reloadWorkHours, loading, getTotalHoursForUserInMonth } = useWorkHours();
-  const { year, month, goToPreviousMonth, goToNextMonth } = useCalendar();
+  const { year, month, goToPreviousMonth, goToNextMonth, setMonthAndYear } = useCalendar();
 
   const [employee, setEmployee] = useState<{ users: User[] } | null>(null);
   const [isLoadingUsers, setIsLoadingUsers] = useState(true);
@@ -52,6 +53,11 @@ export default function Raport() {
     }
     loadAllWorkHours();
   }, [month, year, employee, reloadWorkHours]);
+
+  const handleClick = (m: number, y: number) => {
+    setMonthAndYear(m, y);
+  };
+
   if (isLoadingUsers || loading) return <Spinner />;
 
   return (
@@ -62,6 +68,7 @@ export default function Raport() {
           <ChevronLeft />
         </Button>
         <h2 className="text-xl font-bold text-[#244B77]">{formattedDate}</h2>
+        <MonthYearPicker />
         <Button variant="ghost" onClick={goToNextMonth}>
           <ChevronRight />
         </Button>
@@ -81,7 +88,7 @@ export default function Raport() {
           </tr>
         </thead>
         <tbody>
-          {employee?.users.map((emp, index: any) => {
+          {employee?.users?.map((emp, index: any) => {
             return (
               <tr
                 key={emp.id}
@@ -93,10 +100,11 @@ export default function Raport() {
                 <td className="px-4 py-2 rounded-sm">{emp.username}</td>
                 <td className="px-4 py-2 rounded-sm">{getTotalHoursForUserInMonth(emp.id.toString(), month + 1, year).toFixed(2)}</td>
                 <td className="px-4 py-2 rounded-sm">
-                  <Link href={`/developer/${emp.id}?adminId=${adminId}`}>
+                  <Link href={`/developer/${emp.id}?adminId=${adminId}&month=${month + 1}&year=${year}`}>
                     <Button
                       variant="secondary"
                       className="font-semibold w-full justify-start pl-10"
+                      onClick={() => handleClick(month, year)}
                     >
                       Shiko orët
                     </Button>

@@ -16,7 +16,7 @@ type ProjectContextType = {
   setSidebarProjects: (projects: ProjectData[]) => void;
   allProjectKeys: string[];
   removeProject: (projectKey: string) => void;
-  loading: boolean;
+  loadingProjects: boolean;
 };
 
 const ProjectContext = createContext<ProjectContextType | undefined>(undefined);
@@ -28,11 +28,11 @@ export const ProjectProvider = ({ children }: { children: ReactNode }) => {
 
   const { month, year } = useCalendar();
   const [sidebarProjects, setSidebarProjectsState] = useState<ProjectData[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loadingProjects, setLoadingProjects] = useState(false);
 
   const fetchSidebarProjects = useCallback(async () => {
     if (!userId) return;
-    setLoading(true)
+    setLoadingProjects(true)
 
     try {
       const res = await fetch(`/api/sidebarProjects?userId=${userId}&month=${month}&year=${year}`);
@@ -40,11 +40,11 @@ export const ProjectProvider = ({ children }: { children: ReactNode }) => {
       const data: ProjectData[] = await res.json();
       setSidebarProjectsState(data);
       setTimeout(() => {
-        setLoading(false)
+        setLoadingProjects(false)
       }, 1000);
     } catch (error) {
       console.error("Error fetching sidebar projects:", error);
-      setLoading(false)
+      setLoadingProjects(false)
     }
   }, [userId, month, year]);
 
@@ -85,7 +85,7 @@ export const ProjectProvider = ({ children }: { children: ReactNode }) => {
         setSidebarProjects,
         allProjectKeys,
         removeProject,
-        loading
+        loadingProjects
       }}
     >
       {children}

@@ -11,7 +11,7 @@ export default function TotalBar() {
   const userId = pathname.split("/")[2];
   const { month, year } = useCalendar();
   const { getTotalHoursForProjectInMonth } = useWorkHours();
-  const { sidebarProjects, removeProject, loading } = useProjects();
+  const { sidebarProjects, removeProject, loadingProjects } = useProjects();
 
   const sum = useMemo(() => {
     if (!userId) return 0;
@@ -29,7 +29,7 @@ export default function TotalBar() {
     return <div className="p-4 text-red-600">User ID not found in URL.</div>;
   }
 
-  if (loading) return null;
+  if (loadingProjects) return null;
 
   return (
     <div className="flex flex-col justify-between border-gray-300 bg-blue-50 min-w-[70px]">

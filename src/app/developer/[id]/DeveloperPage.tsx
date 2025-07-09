@@ -16,7 +16,7 @@ export default function Developer() {
     const { reloadWorkHours } = useWorkHours();
     const pathname = usePathname();
     const { month, year } = useCalendar();
-    const { loading } = useProjects();
+    const { loadingProjects } = useProjects();
 
     const userId = useMemo(() => {
         const segments = pathname?.split("/") || [];
@@ -35,7 +35,7 @@ export default function Developer() {
             className="relative flex flex-col justify-between"
         >
             <div className="flex min-h-[500px]">
-                {loading ? (
+                {loadingProjects ? (
                     <div className="fixed left-0 top-0 w-full h-full">
                         <Spinner />
                     </div>
