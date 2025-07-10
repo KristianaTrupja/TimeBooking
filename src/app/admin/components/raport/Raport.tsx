@@ -31,7 +31,10 @@ export default function Raport() {
       try {
         const res = await fetch("/api/user", { cache: "no-store" });
         const data = await res.json();
-        setEmployee(data);
+         const sortedUsers = data.users.sort((a: User, b: User) =>
+        a.username.localeCompare(b.username)
+      );
+      setEmployee({ users: sortedUsers });
       } catch (err) {
         console.error("Failed to fetch users:", err);
       } finally {
@@ -64,12 +67,12 @@ export default function Raport() {
     <section className="overflow-auto max-h-[450px] 2xl:max-h-[700px] pb-10 rounded-md">
       {/* Month Navigation Bar */}
       <div className="flex items-center justify-center gap-5 mb-4 px-4">
-        <Button variant="ghost" onClick={goToPreviousMonth}>
+        <Button variant="ghost" className="border border-accent" onClick={goToPreviousMonth}>
           <ChevronLeft />
         </Button>
         <h2 className="text-xl font-bold text-[#244B77]">{formattedDate}</h2>
         <MonthYearPicker />
-        <Button variant="ghost" onClick={goToNextMonth}>
+        <Button variant="ghost" className="border border-accent" onClick={goToNextMonth}>
           <ChevronRight />
         </Button>
       </div>
