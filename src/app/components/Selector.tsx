@@ -97,7 +97,8 @@ export default function Selector({
 
       <button
         onClick={onToggle}
-        className={` p-2 px-5 rounded-sm w-full flex justify-between items-center ${
+        id={label}
+        className={`p-2 px-5 rounded-sm w-full flex justify-between items-center ${
           className || "bg-[#244B77] text-[#FFFF]"
         }`}
       >
@@ -111,7 +112,7 @@ export default function Selector({
 
       {isOpen && variant !== "absences" && (
         <ul className="absolute bg-[#E7E7E7] border border-gray-300 rounded-md mt-1 w-full z-10 max-h-60 overflow-y-auto">
-          {options.map((option, index) => (
+          {options.sort((a, b) => a.localeCompare(b)).map((option, index) => (
             <li
               key={index}
               onClick={() => handleSelect(option)}

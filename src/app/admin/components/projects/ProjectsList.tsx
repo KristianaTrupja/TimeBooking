@@ -20,7 +20,7 @@ export default function ProjectList({
       <h2 className="text-2xl text-[#244B77] font-bold text-left mb-3 mt-5">
         Lista e projekteve
       </h2>
-      {Object.keys(selectors).map((company) => (
+      {Object.keys(selectors).sort((a, b) => a.localeCompare(b)).map((company) => (
         <div key={company} className="mb-3">
           <Selector
             label={company}

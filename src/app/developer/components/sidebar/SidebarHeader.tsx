@@ -8,6 +8,7 @@ import { usePathname, useSearchParams } from "next/navigation";
 import WorkStatus from "../status/workStatus";
 import MonthYearPicker from "../monthYear/MonthYearPicker";
 import { useProjects } from "@/app/context/ProjectContext";
+import { Button } from "@/components/ui/button";
 
 const LoadingSpinner = () => (
   <div className="absolute inset-0 flex items-center justify-center bg-white/70 z-10">
@@ -66,16 +67,16 @@ export default function SidebarHeader() {
         {loading || loadingProjects && isInitialized && <LoadingSpinner />}
         {!loadingProjects && isInitialized && (
           <>
-            <button className="cursor-pointer" onClick={goToPreviousMonth}>
+            <Button variant="ghost" onClick={goToPreviousMonth}>
               <ChevronLeft className="text-[#244B77]" />
-            </button>
-            <p className="text-[#244B77] font-semibold text-center min-w-28 text-lg">
+            </Button>
+            <p className="text-[#244B77] font-semibold text-center text-lg">
               {formattedDate}
             </p>
             <MonthYearPicker />
-            <button className="cursor-pointer" onClick={goToNextMonth}>
+            <Button variant="ghost" onClick={goToNextMonth}>
               <ChevronRight className="text-[#244B77]" />
-            </button>
+            </Button>
           </>
         )}
       </div>

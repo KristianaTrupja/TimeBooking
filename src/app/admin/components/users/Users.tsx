@@ -27,7 +27,10 @@ export default function Users() {
     const fetchUser = async () => {
       const res = await fetch("/api/user", { cache: "no-store" });
       const data = await res.json();
-      setUser(data);
+      const sortedUsers = data.users.sort((a: User, b: User) =>
+        a.username.localeCompare(b.username)
+      );
+      setUser({ users: sortedUsers });
       setTimeout(() => {
         setIsLoading(false);
       }, 500);
