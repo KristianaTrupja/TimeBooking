@@ -20,6 +20,15 @@ export default function VocationTable({
   onChange,
   onSave,
 }: Props) {
+  // Group vocations by year
+  const groupedByYear = vocations
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+    .reduce<Record<string, Holiday[]>>((acc, curr) => {
+      const year = new Date(curr.date).getFullYear();
+      if (!acc[year]) acc[year] = [];
+      acc[year].push(curr);
+      return acc;
+    }, {});
   return (
     <>
       {vocations?.length === 0 ? (
@@ -33,38 +42,51 @@ export default function VocationTable({
           </thead>
         </table>
       ) : (
-        <table className="w-full text-[#244B77] border-separate mb-10" style={{ borderSpacing: "10px" }}>
-          <thead className="bg-[#6C99CB] text-white">
-            <tr className="text-left">
-              <th className="px-4 py-2 w-16 rounded-sm">Nr</th>
-              <th className="px-4 py-2 w-1/3 rounded-sm">Data</th>
-              <th className="px-4 py-2 rounded-sm">Festa</th>
-              <th className="px-4 py-2 rounded-sm">Edito</th>
-              <th className="px-4 py-2 rounded-sm">Fshij</th>
-            </tr>
-          </thead>
-          <tbody>
-            {vocations?.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()).map((emp, index) =>
-              editingId === emp.id ? (
-                <VocationEditRow
-                  key={emp.id}
-                  index={index}
-                  editedData={editedData}
-                  onChange={onChange}
-                  onSave={() => onSave(emp.id)}
-                />
-              ) : (
-                <VocationRow
-                  key={emp.id}
-                  index={index}
-                  emp={emp}
-                  onEdit={() => onEdit(emp.id)}
-                  onDelete={() => onDelete(emp.id)}
-                />
-              )
-            )}
-          </tbody>
-        </table>
+        <>
+          {Object.entries(groupedByYear).map(([year, yearVocations]) => (
+            <table
+              key={year}
+              className="w-full text-[#244B77] border-separate mb-10"
+              style={{ borderSpacing: "10px" }}
+            >
+              <thead className="bg-[#6C99CB] text-white">
+                <tr>
+                  <th colSpan={5} className="bg-[#244B77] text-center font-bold text-lg py-2 text-white">
+                    Viti {year}
+                  </th>
+                </tr>
+                <tr className="text-left">
+                  <th className="px-4 py-2 w-16 rounded-sm">Nr</th>
+                  <th className="px-4 py-2 w-1/3 rounded-sm">Data</th>
+                  <th className="px-4 py-2 rounded-sm">Festa</th>
+                  <th className="px-4 py-2 rounded-sm">Edito</th>
+                  <th className="px-4 py-2 rounded-sm">Fshij</th>
+                </tr>
+              </thead>
+              <tbody>
+                {yearVocations.map((emp, index) =>
+                  editingId === emp.id ? (
+                    <VocationEditRow
+                      key={emp.id}
+                      index={index}
+                      editedData={editedData}
+                      onChange={onChange}
+                      onSave={() => onSave(emp.id)}
+                    />
+                  ) : (
+                    <VocationRow
+                      key={emp.id}
+                      index={index}
+                      emp={emp}
+                      onEdit={() => onEdit(emp.id)}
+                      onDelete={() => onDelete(emp.id)}
+                    />
+                  )
+                )}
+              </tbody>
+            </table>
+          ))}
+        </>
       )}
     </>
   );

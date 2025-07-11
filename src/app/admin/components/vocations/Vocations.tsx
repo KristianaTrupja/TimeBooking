@@ -127,8 +127,8 @@ export default function Vocations() {
 
   if (isLoading) return <Spinner />;
   return (
-    <section className="rounded-md mb-5">
-      <div className="overflow-y-auto max-h-[400px] 2xl:max-h-[520px]">
+    <section className="rounded-md">
+      <div className="overflow-y-auto max-h-[66vh]">
         <VocationTable
           vocations={vocations}
           editingId={editingId}

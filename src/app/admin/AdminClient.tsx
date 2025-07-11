@@ -22,7 +22,7 @@ export default function AdminClient() {
   }, [searchParams]);
 
   return (
-    <section className="m-10 h-[66vh]" style={{ fontFamily: "var(--font-anek-bangla)" }}>
+    <section className="mx-10 h-[66vh]" style={{ fontFamily: "var(--font-anek-bangla)" }}>
       {tab === "raport" && (
         <CalendarProvider>
           <ProjectProvider>
