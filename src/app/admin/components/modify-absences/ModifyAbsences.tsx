@@ -124,7 +124,6 @@ export default function ModifyAbsences() {
             <tbody>
               {/* User Absences */}
               {userAbsences.map((absence, index) =>
-                {userAbsences.map((absence, index) =>
                 editingAbsence?.id === absence.id ? (
                   <tr key={absence.id} className="bg-yellow-100">
                     <td className="px-4 py-2">{index + 1}.</td>
