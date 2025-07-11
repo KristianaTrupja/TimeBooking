@@ -27,7 +27,7 @@ export default function VocationTable({
           <thead>
             <tr>
               <th colSpan={5} className="text-[#244B77] text-center py-4 text-xl">
-                Nuk ka pushime për momentin.
+                Nuk ka pushime.
               </th>
             </tr>
           </thead>
