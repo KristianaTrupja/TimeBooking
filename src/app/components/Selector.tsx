@@ -176,7 +176,7 @@ export default function Selector({
       )}
       {isOpen && variant === "absences" && (
         <ul className="absolute bg-white border border-gray-300 rounded-md mt-1 w-full z-10 max-h-60 overflow-y-auto">
-          {options.map((option, index) => (
+          {options.sort((a, b) => a.localeCompare(b)).map((option, index) => (
             <li
               key={index}
               onClick={() => handleSelect(option)}
