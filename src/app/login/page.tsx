@@ -58,7 +58,7 @@ export default function Login() {
 
   return (
     <section className="m-5 sm:m-auto sm:max-w-2/3 lg:max-w-1/3 pt-32">
-      <h2 className="text-5xl sm:text-7xl text-[#244B77] text-center">ClockIn 2</h2>
+      <h2 className="text-5xl sm:text-7xl text-[#244B77] text-center">ClockIn</h2>
       <TestDbConnection />
 
       <div className="bg-[#F6F6F6] mt-5 p-8 lg:p-20 rounded-md shadow-sm border-b-5 border-[#244B77]">
