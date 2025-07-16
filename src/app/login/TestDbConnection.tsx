@@ -1,19 +1,22 @@
-import { useState } from 'react';
+import { useState } from "react";
+
+type Result = {
+  status: string;
+  message: string;
+} | null;
 
 export default function TestDbConnection() {
-  const [result, setResult] = useState(null);
+  const [result, setResult] = useState<Result>(null);
 
   const testConnection = async () => {
     try {
       const res = await fetch('/api/testdb');
       const data = await res.json();
       setResult(data);
-    } catch (err) {
+    } catch (err: any) {
       setResult({ status: 'error', message: err.message });
     }
   };
-
-  
 
   return (
     <div>
