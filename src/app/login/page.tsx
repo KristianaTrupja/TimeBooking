@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
 import { InputField } from "../components/ui/InputField";
+import TestDbConnection from "./TestDbConnection";
 
 export default function Login() {
   const [data, setData] = useState({ email: "", password: "" });
@@ -61,6 +62,8 @@ export default function Login() {
   return (
     <section className="m-5 sm:m-auto sm:max-w-2/3 lg:max-w-1/3 pt-32">
       <h2 className="text-5xl sm:text-7xl text-[#244B77] text-center">ClockIn</h2>
+      <TestDbConnection />
+      
       <div className="bg-[#F6F6F6] mt-5 p-8 lg:p-20 rounded-md shadow-sm border-b-5 border-[#244B77]">
         <h3 className="text-3xl sm:text-4xl text-[#244B77]">Sign In</h3>
         <form className="mt-8 space-y-6" onSubmit={onSubmit}>
