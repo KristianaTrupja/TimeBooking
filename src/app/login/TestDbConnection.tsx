@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import { useState } from "react";
 
 type Result = {
@@ -17,14 +18,14 @@ export default function TestDbConnection() {
       setResult({ status: 'error', message: err.message });
     }
   };
-  
+
   return (
-    <div>
-      <button onClick={testConnection} style={{ padding: '8px 16px' }}>
+    <div className="flex flex-col items-center justify-center my-4">
+      <Button onClick={testConnection} className="px-8 py-5">
         Test MySQL Connection
-      </button>
+      </Button>
       {result && (
-        <div style={{ marginTop: 10 }}>
+        <div className="mt-3">
           <strong>Status:</strong> {result.status} <br />
           <strong>Message:</strong> {result.message}
         </div>
