@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Modal } from "@/app/components/ui/Modal";
 import { Button } from "@/components/ui/button";
 import { InputField } from "@/app/components/ui/InputField";
+import { isPasswordStrong } from "@/lib/utils";
 
 type Props = {
   open: boolean;
@@ -12,11 +13,6 @@ type Props = {
 };
 
 export function AddUserModal({ open, onClose, formData, onChange, onSubmit }: Props) {
-
-  const isPasswordStrong = (password: string) => {
-    return /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_\-+=.]).{8,}$/.test(password);
-  };
-
   return (
     <Modal
       isOpen={open}

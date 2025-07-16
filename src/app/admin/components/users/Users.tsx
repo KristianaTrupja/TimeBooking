@@ -6,6 +6,7 @@ import { UserTable } from "./UserTable";
 import { toast, Toaster } from "sonner";
 import { User, UserFormData } from "@/types/user";
 import Spinner from "@/components/ui/Spinner";
+import { isPasswordStrong } from "@/lib/utils";
 
 export default function Users() {
   const [open, setOpen] = useState(false);
@@ -19,9 +20,6 @@ export default function Users() {
   });
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState<{ users: User[] } | null>(null);
-  const isPasswordStrong = (password: string) => {
-    return /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_\-+=.]).{8,}$/.test(password);
-  };
 
   useEffect(() => {
     const fetchUser = async () => {

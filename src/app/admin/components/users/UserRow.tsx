@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Delete, FilePenLine } from "lucide-react";
 import { User, UserFormData } from "@/types/user";
 import { InputField } from "@/app/components/ui/InputField";
+import { isPasswordStrong } from "@/lib/utils";
 
 type Props = {
   emp: User;
@@ -18,11 +19,6 @@ type Props = {
 };
 
 const ROLE_OPTIONS = ["Dev", "Admin"];
-
-const isPasswordStrong = (password: string) => {
-  const strongRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_\-+=.]).{8,}$/;
-  return strongRegex.test(password);
-};
 
 export function UserRow({
   emp,
