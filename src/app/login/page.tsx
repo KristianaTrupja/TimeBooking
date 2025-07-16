@@ -32,7 +32,10 @@ export default function Login() {
       password: data.password,
     });
 
+    console.log("SignIn", res);
+    
     if (res?.error) {
+      console.log("SignIn Error", res.error);
       toast.error("Oops! Dicka shkoi gabim. Ju lutem provoni përsëri!");
     } else {
 
