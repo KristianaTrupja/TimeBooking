@@ -17,8 +17,6 @@ export default function TestDbConnection() {
       setResult({ status: 'error', message: err.message });
     }
   };
-
-
   
   return (
     <div>
