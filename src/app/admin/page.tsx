@@ -16,8 +16,7 @@ export default async function AdminPage() {
   }
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      
-      <AdminClient/>
+      <AdminClient />
     </Suspense>
   );
 }

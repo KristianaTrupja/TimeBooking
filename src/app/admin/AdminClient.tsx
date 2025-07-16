@@ -11,6 +11,9 @@ import ModifyAbsences from "./components/modify-absences/ModifyAbsences";
 import { WorkHoursProvider } from "@/app/context/WorkHoursContext";
 import { CalendarProvider } from "@/app/context/CalendarContext";
 import { ProjectProvider } from "@/app/context/ProjectContext";
+import Notifications from "./components/notifications/Notifications";
+import Settings from "./components/settings/Settings";
+import { SessionProvider } from "next-auth/react";
 
 export default function AdminClient() {
   const searchParams = useSearchParams();
@@ -22,7 +25,7 @@ export default function AdminClient() {
   }, [searchParams]);
 
   return (
-    <section className="mx-10 h-[66vh]" style={{ fontFamily: "var(--font-anek-bangla)" }}>
+    <section className="mx-10 mt-5 h-[66vh]" style={{ fontFamily: "var(--font-anek-bangla)" }}>
       {tab === "raport" && (
         <CalendarProvider>
           <ProjectProvider>
@@ -37,6 +40,8 @@ export default function AdminClient() {
       {tab === "absences" && <Absences />}
       {tab === "modify-absences" && <ModifyAbsences />}
       {tab === "holidays" && <Vocations />}
+      {tab === "notifications" && <Notifications/>}
+      {tab === "settings" && <SessionProvider><Settings /></SessionProvider>}
     </section>
   );
 }
