@@ -6,7 +6,7 @@ export default function Notifications() {
   // Sample static notifications
   const notifications = [
     { id: 1, message: "U shtua një pushim i ri për 05 July.", date: "2025-07-08" },
-    { id: 2, message: "Një përdorues i ri u shtua: Arlind Leka.", date: "2025-07-07" },
+    { id: 2, message: "Një përdorues i ri u shtua: Emiliano Duraku.", date: "2025-07-07" },
   ];
 
   return (
