@@ -18,6 +18,8 @@ export default function TestDbConnection() {
     }
   };
 
+
+  
   return (
     <div>
       <button onClick={testConnection} style={{ padding: '8px 16px' }}>
