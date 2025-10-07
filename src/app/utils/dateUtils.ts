@@ -55,3 +55,59 @@ export function getEndOfMonth(input: Date | string):Date {
   return endOfMonth
 }
 
+
+export function getBusinessDays( startDate: Date, endDate: Date, holidays: string[] = []): number {
+  if (endDate < startDate) return 0;
+
+  const start = new Date(startDate);
+  start.setHours(0, 0, 0, 0);
+  
+  const end = new Date(endDate);
+  end.setHours(23, 59, 59, 999);
+
+  // Calculate total days
+  const millisecondsPerDay = 86400 * 1000;
+  const diff = end.getTime() - start.getTime();
+  let days = Math.ceil(diff / millisecondsPerDay);
+
+  // Calculate full weeks and subtract weekend days
+  const weeks = Math.floor(days / 7);
+  days = days - (weeks * 2);
+
+  // Handle partial weeks
+  const startDay = start.getDay();
+  const endDay = end.getDay();
+
+  // Remove weekend days not previously removed
+  if (startDay - endDay > 1) {
+    days = days - 2;
+  }
+
+  // Remove start day if span starts on Sunday but ends before Saturday
+  if (startDay === 0 && endDay !== 6) {
+    days = days - 1;
+  }
+
+  // Remove end day if span ends on Saturday but starts after Sunday
+  if (endDay === 6 && startDay !== 0) {
+    days = days - 1;
+  }
+
+  // Subtract holidays that fall on business days
+  const holidaySet = new Set(holidays);
+  const current = new Date(start);
+  
+  while (current <= end) {
+    const dayOfWeek = current.getDay();
+    const dateString = current.toISOString().split('T')[0];
+    
+    if (dayOfWeek !== 0 && dayOfWeek !== 6 && holidaySet.has(dateString)) {
+      days--;
+    }
+    
+    current.setDate(current.getDate() + 1);
+  }
+
+  return Math.max(0, days);
+}
+

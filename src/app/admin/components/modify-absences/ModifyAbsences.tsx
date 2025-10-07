@@ -1,53 +1,82 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { FilePenLine, Delete } from "lucide-react";
 import { User } from "@/types/user";
-import { Absence } from "@/types/absence";
+import { Absence, AbsenceType, ExtAbsence, Filters } from "@/types/absence";
 import Spinner from "@/components/ui/Spinner";
-import DateFilter from "../date-filter/DateFilter";
+import FilterAbsences from "../absence-filters/FilterAbsences";
 import { getEndOfMonth } from "@/app/utils/dateUtils";
 
-const ABSENCE_TYPES = ["VACATION", "SICK", "PERSONAL", "PARENTAL"];
+const ABSENCE_TYPES: (keyof typeof AbsenceType)[] = ["VACATION", "SICK", "PERSONAL", "PARENTAL"]
+
+function getInitialFiltersState(): Filters {
+  const now = new Date();
+  return {
+    selectedAbsenceType: null,
+    selectedEmployee: null,
+    startDate: new Date(now.getFullYear(), 0, 1),
+    endDate: getEndOfMonth(now)
+  }
+}
+
 
 export default function ModifyAbsences() {
   const now = new Date()
-  const january = new Date(now.getFullYear(), 0, 1)
-  const currentMonth = new Date(getEndOfMonth(now))
-  const currentYear = { startDate: january, endDate: currentMonth}
 
   const [employees, setEmployees] = useState<User[]>([]);
-  const [absences, setAbsences] = useState<Absence[]>([]);
+  const [absences, setAbsences] = useState<ExtAbsence[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [editingAbsence, setEditingAbsence] = useState<Absence | null>(null);
-  const [period, setPeriod] = useState<{startDate:Date, endDate:Date}>(currentYear)
+  const [filters, setFilters] = useState<Filters>(getInitialFiltersState())
+
+  const fetchData = useCallback(async () => {
+    try {
+      const start = filters.startDate.toISOString().slice(0, 10)
+      const end = filters.endDate.toISOString().slice(0, 10)
+      const params: URLSearchParams = new URLSearchParams()
+      params.append("startDate", start)
+      params.append("endDate", end)
+      params.append("userId", filters.selectedEmployee?.id ? String(filters.selectedEmployee.id) :  "")
+      params.append("absenceType", filters.selectedAbsenceType || "")
+
+      const [absRes, userRes] = await Promise.all([
+        fetch(`/api/absences?${params.toString()}`, { cache: "no-store" }),
+        fetch("/api/user", { cache: "no-store" }),
+      ]);
+
+      const absData = await absRes.json();
+      const userData = await userRes.json();
+
+      setAbsences(absData.absences || []);
+      setEmployees(userData.users || []);
+    } catch (err) {
+      console.error("Failed to fetch data:", err);
+    } finally {
+      setTimeout(() => setIsLoading(false), 300);
+    }
+  }, [filters])
+
 
   useEffect(() => {
-    const fetchData = async () => {
-        try {
-          const start = period.startDate.toISOString().slice(0, 10)
-          const end = period.endDate.toISOString().slice(0, 10)
-          const [absRes, userRes] = await Promise.all([
-            fetch(`/api/absences?startDate=${start}&endDate=${end}`, { cache: "no-store" }),
-            fetch("/api/user", { cache: "no-store" }),
-          ]);
-  
-          const absData = await absRes.json();
-          const userData = await userRes.json();
-  
-          setAbsences(absData.absences || []);
-          setEmployees(userData.users || []);
-        } catch (err) {
-          console.error("Failed to fetch data:", err);
-        } finally {
-          setTimeout(() => setIsLoading(false), 300);
-        }
-    };
-
     fetchData()
-  }, [period])
+  }, [filters])
 
-  const handleDateChange = useCallback((range: { startDate: Date; endDate: Date }) => {
-    setPeriod(range);
-  }, []);
+  function handleOnFiltersChange(filters:Filters) {
+    setFilters(filters)
+  }
+
+  function handleFiltersReset(){
+    setFilters(getInitialFiltersState())
+  }
+
+  const hasFiltersApplied = useCallback(() => {
+    const initial = getInitialFiltersState();
+    return (
+      filters.selectedAbsenceType !== null ||
+      filters.selectedEmployee !== null ||
+      filters.startDate.getTime() !== initial.startDate.getTime() ||
+      filters.endDate.getTime() !== initial.endDate.getTime()
+    );
+  }, [filters])
 
   const formatDate = (dateStr: string) =>
     new Date(dateStr).toLocaleDateString("sq-AL", {
@@ -56,8 +85,8 @@ export default function ModifyAbsences() {
       year: "numeric",
     });
 
-  const getUsername = (userId: string | number) =>
-    employees.find((user) => user.id === Number(userId))?.username || "—";
+  // const getUsername = (userId: string | number) =>
+  //   employees.find((user) => user.id === Number(userId))?.username || "—";
 
   const handleDelete = async (id: number) => {
     if (!confirm("Are you sure you want to delete this absence?")) return;
@@ -101,16 +130,23 @@ export default function ModifyAbsences() {
     } catch (err) {
       console.error("Update error:", err);
     }
-  };
-
-  // if (isLoading) return <Spinner />;
+  }
 
   return (
     <section>
-      <section className="Filters flex justify-end">
-        <DateFilter onChange={handleDateChange}/>
+      <section className="Filters">
+        <FilterAbsences
+          absences={absences}
+          employees={employees} 
+          absenceTypes={ABSENCE_TYPES}
+          filters={filters}
+          hasFilters={hasFiltersApplied()}
+          onReset={handleFiltersReset}
+          onFiltersChange={handleOnFiltersChange}
+        />
       </section>
       {isLoading ? <Spinner /> : <section className="ReportedDate overflow-y-auto max-h-[450px] 2xl:max-h-[700px] pb-10 rounded-md">
+        {!absences.length && <h2 className="font-bold text-[#244B77] italic text-2xl bg-slate-100 rounded-md text-center mt-10">No absences</h2>}
         {employees.sort((a, b) => a.username.localeCompare(b.username)).map((user, index) => {
           const userAbsences = absences.filter((a) => a.userId === user.id);
           if (userAbsences.length === 0) return null;

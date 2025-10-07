@@ -1,4 +1,6 @@
+import { getBusinessDays } from "@/app/utils/dateUtils";
 import { db } from "@/lib/db";
+import { AbsenceType } from "@/types/absence";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
@@ -54,23 +56,45 @@ export async function GET(req: Request) {
     const userId = searchParams.get("userId");
     const startDate = searchParams.get("startDate")
     const endDate = searchParams.get("endDate")
-    const absences = await db.absence.findMany({
-      where: {
-        userId: userId ? Number(userId) : undefined,
-        startDate: {
-          gte: startDate ? new Date(startDate) : new Date(today.getFullYear(), 0, 1),
-        },
-        endDate: {
-          lte: endDate ? new Date(endDate) : new Date(today.getFullYear(), 11, 31),
-        }
-      },
-      include: { user: true },
-    });
+    const absenceType = searchParams.get("absenceType") as (AbsenceType | null)
+    const queryStartDate = startDate ? new Date(startDate) : new Date(today.getFullYear(), 0, 1)
+    const queryEndDate = endDate ? new Date(endDate) : new Date(today.getFullYear(), 11, 31)
 
-    return NextResponse.json({ absences }, { status: 200 });
+    const [holidays, absences] = await Promise.all([
+      db.holidays.findMany({
+        select: { date: true }
+      }),
+      db.absence.findMany({
+        where: {
+          userId: userId ? Number(userId) : undefined,
+          type: absenceType ? absenceType : undefined,
+          AND: [
+            {startDate: { lte: queryEndDate }},
+            {endDate: { gte: queryStartDate }}
+          ]
+        },
+        include: { user: true },
+      })
+    ])
+    
+    const holidayDates = holidays.map(h => h.date)
+    console.log(holidayDates)
+
+    const extendedAbsences = absences.map(absence => {
+      const overlapStart = absence.startDate > queryStartDate ? absence.startDate : queryStartDate
+      const overlapEnd = absence.endDate < queryEndDate ? absence.endDate : queryEndDate
+
+      return {
+        ...absence, 
+        businessDays: getBusinessDays(absence.startDate, absence.endDate, holidayDates),
+        overlapBusinessDays: getBusinessDays(overlapStart, overlapEnd, holidayDates)
+      }
+    })
+
+    return NextResponse.json({ absences: extendedAbsences }, { status: 200 })
   } catch (error) {
-    console.error("Error fetching absences:", error);
-    return NextResponse.json({ message: "Failed to fetch absences" }, { status: 500 });
+    console.error("Error fetching absences:", error)
+    return NextResponse.json({ message: "Failed to fetch absences" }, { status: 500 })
   }
 }
 

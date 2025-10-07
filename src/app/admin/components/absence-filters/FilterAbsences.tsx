@@ -1,0 +1,70 @@
+"use client";
+import Dropdown from "@/app/components/Dropdown";
+import { AbsenceType, ExtAbsence, Filters } from "@/types/absence";
+import { User } from "@/types/user";
+import { Funnel, FunnelX } from "lucide-react";
+import DateFilter from "../date-filter/DateFilter";
+import { useMemo } from "react";
+
+type PropTypes = { 
+  employees:User[]
+  absences: ExtAbsence[]
+  absenceTypes: (keyof typeof AbsenceType)[]
+  filters:Filters
+  onFiltersChange: (filters: Filters) => void
+  onReset: () => void
+  hasFilters: boolean
+}
+
+export default function FilterAbsences({
+  absences, 
+  employees,
+  absenceTypes,
+  filters,
+  onFiltersChange,
+  onReset,
+  hasFilters
+}:PropTypes) {
+  function handleSelectedAbsence(value: keyof typeof AbsenceType | null){
+    onFiltersChange({...filters, selectedAbsenceType:value})
+  }
+
+  function handleSelectedEmployee(value: User | null){
+    onFiltersChange({...filters, selectedEmployee:value})
+  }
+
+  function handleDateChange(range: { startDate: Date; endDate: Date }) {
+    onFiltersChange({...filters, startDate:range.startDate, endDate:range.endDate})
+  }
+
+  const totalAbsenceDays = useMemo(() => absences.reduce((acc, absence) => acc + absence.businessDays, 0), [absences])
+
+  return (
+    <section className="flex justify-between">
+      <div className="AbsenceUserFilter flex items-center w-fit">
+        {hasFilters ? <button title="Clear all filters" onClick={onReset}>
+          <FunnelX className="bg-red-500 py-1 rounded text-sm font-semibold hover:shadow-lg text-white" />
+        </button> :
+        <Funnel className="inline-block text-[#244B77]" />
+        }
+        <Dropdown 
+        values={employees} 
+        value={filters.selectedEmployee}
+        formatValues={employee => employee.username} 
+        selectedValue={employee => employee ? employee.username : "All Employees"} 
+        onSelect={handleSelectedEmployee} 
+        />
+        <Dropdown 
+        values={absenceTypes}
+        value={filters.selectedAbsenceType} 
+        formatValues={absence => absence} 
+        selectedValue={absence => absence ? absence : "All Absences"}
+        onSelect={handleSelectedAbsence}
+        />
+        
+        <div className="text-sm border-b-2 border-b-[#6C99CB] px-1 text-[#244B77]">Days Off: <strong>{totalAbsenceDays}</strong></div>
+      </div>
+      <DateFilter onChange={handleDateChange} startDate={filters.startDate} endDate={filters.endDate} />
+    </section>
+  )
+}
