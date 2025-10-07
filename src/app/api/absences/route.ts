@@ -4,49 +4,70 @@ import { AbsenceType } from "@/types/absence";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
-    try {
-      const body = await req.json();
-      const { startDate, endDate, type, userId } = body;
-  
-      // Convert to Date objects
-      const start = new Date(startDate);
-      const end = new Date(endDate);
-  
-      if (isNaN(start.getTime()) || isNaN(end.getTime())) {
-        return NextResponse.json(
-          { message: "Invalid date format" },
-          { status: 400 }
-        );
-      }
-  
-      if (start > end) {
-        return NextResponse.json(
-          { message: "Start date must be before end date" },
-          { status: 400 }
-        );
-      }
-  
-      const newAbsence = await db.absence.create({
-        data: {
-          startDate: start,
-          endDate: end,
-          type,
-          userId,
-        },
-      });
-  
+  try {
+    const body = await req.json();
+    const { startDate, endDate, type, userId } = body;
+
+    // Convert to Date objects
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    if (isNaN(start.getTime()) || isNaN(end.getTime())) {
       return NextResponse.json(
-        { absence: newAbsence, message: "Absence created successfully" },
-        { status: 201 }
-      );
-    } catch (error: any) {
-      console.error("Error creating absence:", error.message || error);
-      return NextResponse.json(
-        { message: error.message || "Something went wrong!" },
-        { status: 500 }
+        { message: "Invalid date format" },
+        { status: 400 }
       );
     }
+
+    if (start > end) {
+      return NextResponse.json(
+        { message: "Start date must be before end date" },
+        { status: 400 }
+      );
+    }
+
+    const [holidays, absences] = await Promise.all([
+      db.holidays.findMany({
+        select: { date: true }
+      }),
+      db.absence.findMany({
+        where: { 
+          userId: Number(userId),
+          startDate: { lte: end },
+          endDate: { gte: start }
+        }
+      })
+    ])      
+    if(absences.length){
+      return NextResponse.json(
+        { message: "The selected absence range overlaps with other absences for this employee!" },
+        { status: 409 }
+      )
+    }
+
+    const newAbsence = await db.absence.create({
+      data: {
+        startDate: start,
+        endDate: end,
+        type,
+        userId,
+      },
+    })
+
+    const holidayDates = holidays.map(h => h.date)
+
+    return NextResponse.json(
+      { absence: newAbsence, message: `${getBusinessDays(start, end, holidayDates)} days off granted successfully.` },
+      { status: 201 }
+    );
+  } catch (error: any) {
+    console.error("Error creating absence:", error.message || error);
+    return NextResponse.json(
+      { message: error.message || "Something went wrong!" },
+      { status: 500 }
+    );
   }
+}
   
 
 export async function GET(req: Request) {
@@ -78,7 +99,6 @@ export async function GET(req: Request) {
     ])
     
     const holidayDates = holidays.map(h => h.date)
-    console.log(holidayDates)
 
     const extendedAbsences = absences.map(absence => {
       const overlapStart = absence.startDate > queryStartDate ? absence.startDate : queryStartDate

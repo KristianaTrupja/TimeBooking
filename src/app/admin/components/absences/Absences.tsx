@@ -3,17 +3,18 @@ import { Button } from "@/components/ui/button";
 import Selector from "@/app/components/Selector";
 import { User } from "@/types/user";
 import Spinner from "@/components/ui/Spinner";
+import { Absence, AbsenceType } from "@/types/absence";
 
 export default function Absences() {
   const [openSelectorId, setOpenSelectorId] = useState<string | null>(null);
 
   const [selectedEmployee, setSelectedEmployee] = useState<string | null>(null);
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+  const [startDate, setStartDate] = useState<Date|null>(null);
+  const [endDate, setEndDate] = useState<Date|null>(null);
   const [absenceType, setAbsenceType] = useState<string | null>(null);
   const [employee, setEmployee] = useState<{ users: User[] } | null>(null);
-  const [absences, setAbsences] = useState<any[]>([]);
-  const absenceTypes = useMemo(() => ["VACATION", "SICK", "PERSONAL", "PARENTAL"], []);
+  const [absences, setAbsences] = useState<Absence[]>([]);
+  const absenceTypes: (keyof typeof AbsenceType)[] = useMemo(() => ["VACATION", "SICK", "PERSONAL", "PARENTAL"], []);
   const selectorStyle = "bg-[#E3F0FF] text-[#244B77] border-[1px] border-[#244B77]";
   const [isLoading, setIsLoading] = useState(true);
 
@@ -61,27 +62,27 @@ export default function Absences() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           userId: user.id,
-          startDate,
-          endDate,
+          startDate: startDate.toISOString(),
+          endDate: endDate.toISOString(),
           type: absenceType,
         }),
       });
 
-      if (!response.ok) throw new Error("Failed to create absence");
-
       const data = await response.json();
+      if (!response.ok) throw new Error(data.message || "Failed to create absence");
+
       setAbsences((prev) => [...prev, data.absence]);
 
       // Reset form
       setSelectedEmployee(null);
-      setStartDate("");
-      setEndDate("");
+      setStartDate(null);
+      setEndDate(null)
       setAbsenceType(null);
 
-      alert("Absence created successfully!");
-    } catch (error) {
-      console.error("Error creating absence:", error);
-      alert("Error creating absence");
+      alert(data.message || "Absence created successfully!");
+    } catch (error:any) {
+      console.error( "Error creating absence:", error);
+      alert(error?.message || "Error creating absence");
     }
   };
 
@@ -120,8 +121,8 @@ export default function Absences() {
             type="date"
             id="start-date"
             className="bg-white text-[#244B77] px-3 py-2 text-sm w-2/3"
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
+            value={startDate?.toString()}
+            onChange={(e) => setStartDate(new Date(e.target.value))}
           />
         </div>
         <div className="flex items-baseline w-full gap-5 justify-between">
@@ -132,8 +133,8 @@ export default function Absences() {
             type="date"
             id="end-date"
             className="bg-white text-[#244B77] px-3 py-2 text-sm w-2/3"
-            value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
+            value={endDate?.toString()}
+            onChange={(e) => setEndDate(new Date(e.target.value))}
           />
         </div>
       </div>

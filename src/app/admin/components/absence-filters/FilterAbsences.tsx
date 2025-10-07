@@ -1,5 +1,5 @@
 "use client";
-import Dropdown from "@/app/components/Dropdown";
+import Dropdown from "@/components/ui/Dropdown";
 import { AbsenceType, ExtAbsence, Filters } from "@/types/absence";
 import { User } from "@/types/user";
 import { Funnel, FunnelX } from "lucide-react";
