@@ -1,11 +1,15 @@
 import { getBusinessDays } from "@/app/utils/dateUtils";
 import { db } from "@/lib/db";
+<<<<<<< HEAD
 import { notifyUsersByRole } from "@/lib/notificationsLib";
+=======
+import { withLogging } from "@/lib/withLogging";
+>>>>>>> 113a2b0 (feat: added restriction when granting a new absence from Admin, for ranges already overlapping with other previous granted absences)
 import { AbsenceType } from "@/types/absence";
 import { NotificationType } from "@prisma/client";
 import { NextResponse } from "next/server";
 
-export async function POST(req: Request) {
+async function Post(req: Request) {
   try {
     const body = await req.json();
     const { startDate, endDate, type, userId:employeeId } = body;
@@ -28,7 +32,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const [holidays, absences] = await Promise.all([
+    const [holidays, absences, employee] = await Promise.all([
       db.holidays.findMany({
         select: { date: true }
       }),
@@ -38,11 +42,30 @@ export async function POST(req: Request) {
           startDate: { lte: end },
           endDate: { gte: start }
         }
+      }),
+      db.user.findFirst({
+        where: { 
+          id: Number(userId)
+        }
       })
-    ])      
-    if(absences.length){
+    ])
+
+    if(!employee){
       return NextResponse.json(
-        { message: "The selected absence range overlaps with other absences for this employee!" },
+        { message: `Employee with id: ${userId} was not found!` },
+        { status: 404 }
+      )
+    }
+
+    function niceDate(date:Date):string{
+      return date.toLocaleDateString('en-GB', {day: 'numeric',month: 'short',year: 'numeric'})
+    }
+
+    if(absences.length){
+      const selectedRange = niceDate(start) + " to " + niceDate(end)
+      const prevAbsences = absences.map(a => `[${a.type}: ${niceDate(a.startDate)} -  ${niceDate(a.endDate)}]`).join(", ")
+      return NextResponse.json(
+        { message: `Selected date range "${selectedRange}" overlaps with other absences for this employee: ${prevAbsences}` },
         { status: 409 }
       )
     }
@@ -73,7 +96,7 @@ export async function POST(req: Request) {
     const holidayDates = holidays.map(h => h.date)
 
     return NextResponse.json(
-      { absence: newAbsence, message: `${getBusinessDays(start, end, holidayDates)} days off granted successfully.` },
+      { absence: newAbsence, message: `${getBusinessDays(start, end, holidayDates)} days off successfully granted to ${employee.username}.` },
       { status: 201 }
     );
   } catch (error: any) {
@@ -86,7 +109,7 @@ export async function POST(req: Request) {
 }
   
 
-export async function GET(req: Request) {
+async function Get(req: Request) {
   const today = new Date()
   try {
     const { searchParams } = new URL(req.url);
@@ -135,7 +158,7 @@ export async function GET(req: Request) {
 }
 
 
-export async function PUT(req: Request) {
+async function Put(req: Request) {
   try {
     const body = await req.json();
     const { id, startDate, endDate, type } = body;
@@ -157,7 +180,7 @@ export async function PUT(req: Request) {
 }
 
 
-export async function DELETE(req: Request) {
+async function Delete(req: Request) {
     try {
       const { searchParams } = new URL(req.url);
       const id = searchParams.get("id");
@@ -175,6 +198,10 @@ export async function DELETE(req: Request) {
       console.error("Error deleting absence:", error);
       return NextResponse.json({ message: "Failed to delete absence" }, { status: 500 });
     }
-  }
+}
 
 
+export const POST = withLogging(Post);
+export const GET = withLogging(Get);
+export const PUT = withLogging(Put);
+export const DELETE = withLogging(Delete);

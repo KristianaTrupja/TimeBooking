@@ -1,7 +1,8 @@
 import { db } from "@/lib/db";
+import { withLogging } from "@/lib/withLogging";
 import { NextResponse } from "next/server";
 
-export async function POST(req: Request) {
+async function Post(req: Request) {
   try {
     const body = await req.json();
     const { company, project } = body;
@@ -23,7 +24,7 @@ export async function POST(req: Request) {
   }
 }
 
-export async function GET() {
+async function Get() {
   try {
     const projects = await db.projects.findMany({
       select: {
@@ -43,32 +44,7 @@ export async function GET() {
   }
 }
 
-export async function DELETE(req: Request) {
-  try {
-    const { id } = await req.json();
-    if (!id) {
-      return NextResponse.json(
-        { message: "Project ID is required" },
-        { status: 400 }
-      );
-    }
-
-    await db.projects.delete({ where: { id } });
-    return NextResponse.json(
-      { message: "Project deleted successfully" },
-      { status: 200 }
-    );
-  } catch (error) {
-    console.error("Error deleting project:", error);
-    return NextResponse.json(
-      { message: "Failed to delete project" },
-      { status: 500 }
-    );
-  }
-}
-
-
-export async function PUT(req: Request) {
+async function Put(req: Request) {
   try {
     const body = await req.json();
     const { id, company, project } = body;
@@ -97,3 +73,33 @@ export async function PUT(req: Request) {
     );
   }
 }
+
+async function Delete(req: Request) {
+  try {
+    const { id } = await req.json();
+    if (!id) {
+      return NextResponse.json(
+        { message: "Project ID is required" },
+        { status: 400 }
+      );
+    }
+
+    await db.projects.delete({ where: { id } });
+    return NextResponse.json(
+      { message: "Project deleted successfully" },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Error deleting project:", error);
+    return NextResponse.json(
+      { message: "Failed to delete project" },
+      { status: 500 }
+    );
+  }
+}
+
+
+export const POST = withLogging(Post);
+export const GET = withLogging(Get);
+export const PUT = withLogging(Put);
+export const DELETE = withLogging(Delete);

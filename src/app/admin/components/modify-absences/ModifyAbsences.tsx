@@ -83,6 +83,7 @@ export default function ModifyAbsences() {
       day: "2-digit",
       month: "2-digit",
       year: "numeric",
+      timeZone: "UTC"
     });
 
   // const getUsername = (userId: string | number) =>
@@ -145,7 +146,7 @@ export default function ModifyAbsences() {
           onFiltersChange={handleOnFiltersChange}
         />
       </section>
-      {isLoading ? <Spinner /> : <section className="ReportedDate overflow-y-auto max-h-[450px] 2xl:max-h-[700px] pb-10 rounded-md">
+      {isLoading ? <Spinner /> : <section className="ReportedDate overflow-y-auto  2xl:max-h-[700px] pb-10 rounded-md">
         {!absences.length && <h2 className="font-bold text-[#244B77] italic text-2xl bg-slate-100 rounded-md text-center mt-10">No absences</h2>}
         {employees.sort((a, b) => a.username.localeCompare(b.username)).map((user, index) => {
           const userAbsences = absences.filter((a) => a.userId === user.id);

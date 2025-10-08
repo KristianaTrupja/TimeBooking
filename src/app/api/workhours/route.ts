@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from "@/lib/db";
+import { withLogging } from '@/lib/withLogging';
 
 // GET: Fetch work hours
-export async function GET(req: NextRequest) {
+async function Get(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const userId = searchParams.get('userId');
   const month = searchParams.get('month');
@@ -46,7 +47,7 @@ export async function GET(req: NextRequest) {
 }
 
 // POST: Create new work entry
-export async function POST(req: NextRequest) {
+async function Post(req: NextRequest) {
   const body = await req.json();
   const { date, hours, note, userId, projectId } = body;
 
@@ -85,7 +86,7 @@ export async function POST(req: NextRequest) {
 
 
 // PUT: Update hours or note for existing entry
-export async function PUT(req: NextRequest) {
+async function Put(req: NextRequest) {
   const body = await req.json();
   const { date, userId, projectId, hours, note } = body;
 
@@ -123,7 +124,7 @@ export async function PUT(req: NextRequest) {
 }
 
 // DELETE: Remove a work entry
-export async function DELETE(req: NextRequest) {
+async function Delete(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const userId = searchParams.get('userId');
   const date = searchParams.get('date');
@@ -150,3 +151,9 @@ export async function DELETE(req: NextRequest) {
     return NextResponse.json({ error: 'Could not delete work entry' }, { status: 500 });
   }
 }
+
+
+export const POST = withLogging(Post);
+export const GET = withLogging(Get);
+export const PUT = withLogging(Put);
+export const DELETE = withLogging(Delete);

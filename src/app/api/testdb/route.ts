@@ -1,8 +1,9 @@
 // app/api/testdb/route.ts
 import { db } from "@/lib/db"; // or wherever you saved it
+import { withLogging } from "@/lib/withLogging";
 import { NextResponse } from "next/server";
 
-export async function GET() {
+export async function Get() {
   try {
     await db.$connect();
     return NextResponse.json({ status: "success", message: "DB connected!" });
@@ -12,3 +13,5 @@ export async function GET() {
     await db.$disconnect();
   }
 }
+
+export const GET = withLogging(Get);

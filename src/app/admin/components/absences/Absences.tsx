@@ -1,56 +1,48 @@
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import Selector from "@/app/components/Selector";
 import { User } from "@/types/user";
 import Spinner from "@/components/ui/Spinner";
-import { Absence, AbsenceType } from "@/types/absence";
+import { AbsenceType } from "@/types/absence";
+import { MessageSquareWarning, Sparkles, X } from "lucide-react";
+
+const absenceTypes: (keyof typeof AbsenceType)[] = ["VACATION", "SICK", "PERSONAL", "PARENTAL"]
+const selectorStyle = "bg-[#E3F0FF] text-[#244B77] border-[1px] border-[#244B77]"
 
 export default function Absences() {
-  const [openSelectorId, setOpenSelectorId] = useState<string | null>(null);
-
-  const [selectedEmployee, setSelectedEmployee] = useState<string | null>(null);
-  const [startDate, setStartDate] = useState<Date|null>(null);
-  const [endDate, setEndDate] = useState<Date|null>(null);
-  const [absenceType, setAbsenceType] = useState<string | null>(null);
-  const [employee, setEmployee] = useState<{ users: User[] } | null>(null);
-  const [absences, setAbsences] = useState<Absence[]>([]);
-  const absenceTypes: (keyof typeof AbsenceType)[] = useMemo(() => ["VACATION", "SICK", "PERSONAL", "PARENTAL"], []);
-  const selectorStyle = "bg-[#E3F0FF] text-[#244B77] border-[1px] border-[#244B77]";
-  const [isLoading, setIsLoading] = useState(true);
-
-  const handleToggle = useCallback((id: string) => {
-    setOpenSelectorId((prev) => (prev === id ? null : id));
-  }, []);
-
-  useEffect(() => {
-    fetch("/api/absences")
-      .then((res) => res.json())
-      .then((data) => setAbsences(data.absences || []))
-      .catch((err) => console.error("Failed to fetch absences:", err))
-      .finally(() => { setTimeout(() => { setIsLoading(false);}, 500);});
-  }, []);
-
+  const [selectedEmployee, setSelectedEmployee] = useState<string | null>(null)
+  const [startDate, setStartDate] = useState<Date|null>(null)
+  const [endDate, setEndDate] = useState<Date|null>(null)
+  const [absenceType, setAbsenceType] = useState<string | null>(null)
+  const [employees, setEmployees] = useState<User[]| null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [infoMessage, setInfoMessage] = useState<string | null>(null)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await fetch("/api/user", { cache: "no-store" });
+        const res = await fetch("/api/user", { cache: "no-store" })
         const data = await res.json();
-        setEmployee(data);
+        setEmployees(data.users);
       } catch (err) {
-        console.error("Failed to fetch users:", err);
+        console.error("Failed to fetch users:", err)
       }
-    };
+      finally {
+        setIsLoading(false)
+      }
+    }
 
-    fetchUser();
-  }, []);
+    fetchUser()
+  }, [])
 
   const handleCreateAbsence = async () => {
     if (!selectedEmployee || !startDate || !endDate || !absenceType) {
-      alert("Please fill in all fields");
-      return;
+      alert("Please fill in all fields")
+      return
     }
 
-    const user = employee?.users.find((u) => u.username === selectedEmployee);
+    const user = employees?.find((u) => u.username === selectedEmployee)
     if (!user) {
       alert("Selected employee not found");
       return;
@@ -70,19 +62,18 @@ export default function Absences() {
 
       const data = await response.json();
       if (!response.ok) throw new Error(data.message || "Failed to create absence");
-
-      setAbsences((prev) => [...prev, data.absence]);
-
       // Reset form
       setSelectedEmployee(null);
       setStartDate(null);
       setEndDate(null)
       setAbsenceType(null);
 
-      alert(data.message || "Absence created successfully!");
+      setErrorMessage(null)
+      setInfoMessage(data.message || "Absence created successfully!");
     } catch (error:any) {
       console.error( "Error creating absence:", error);
-      alert(error?.message || "Error creating absence");
+      setInfoMessage(null)
+      setErrorMessage(error?.message || "Error creating absence");
     }
   };
 
@@ -99,15 +90,11 @@ export default function Absences() {
         <Selector
           id="selector-employee"
           label="Selekto emrin e punonjësit"
-          variant="absences"
-          isOpen={openSelectorId === "selector-employee"}
-          onToggle={() => handleToggle("selector-employee")}
-          options={employee?.users.map((user) => user.username) || []}
+          options={employees?.map((user) => user.username) || []}
           onChange={setSelectedEmployee}
-          defaultValue="Punonjësit"
+          placeholder="Punonjësit"
           className={selectorStyle}
           value={selectedEmployee || ""}
-          handleDelete={() => {}}
         />
       </div>
 
@@ -121,8 +108,8 @@ export default function Absences() {
             type="date"
             id="start-date"
             className="bg-white text-[#244B77] px-3 py-2 text-sm w-2/3"
-            value={startDate?.toString()}
-            onChange={(e) => setStartDate(new Date(e.target.value))}
+            value={startDate?.toISOString()?.split('T')[0] || ""}
+            onChange={(e) => setStartDate(e.target.value ? new Date(e.target.value) : null)}
           />
         </div>
         <div className="flex items-baseline w-full gap-5 justify-between">
@@ -133,26 +120,42 @@ export default function Absences() {
             type="date"
             id="end-date"
             className="bg-white text-[#244B77] px-3 py-2 text-sm w-2/3"
-            value={endDate?.toString()}
-            onChange={(e) => setEndDate(new Date(e.target.value))}
+            value={endDate?.toISOString().split('T')[0] || ""}
+            onChange={(e) => setEndDate(e.target.value ? new Date(e.target.value) : null)}
           />
         </div>
       </div>
+
+      {infoMessage && <div className="Info gap-2 my-4 border-4 border-[#244B77] text-[#244B77] bg-[#E3F0FF] rounded-md py-1 px-2">
+        <div className="InfoHeader flex justify-between">
+            <Sparkles />
+          <button onClick={() => setInfoMessage(null)}>
+            <X />
+          </button>
+        </div>
+        <span className="block px-8 pb-4">{infoMessage}</span>
+      </div>}
+
+      {errorMessage && <div className="Error gap-2 my-4 border-4 border-red-500 text-red-500 bg-red-100 rounded-md py-1 px-2">
+        <div className="InfoHeader flex justify-between">
+            <MessageSquareWarning />
+          <button onClick={() => setErrorMessage(null)}>
+            <X />
+          </button>
+        </div>
+        <span className="block px-8 pb-4">{errorMessage}</span>
+      </div>}
 
       {/* Absence Type Selector */}
       <div className="w-1/2 mt-5">
         <Selector
           id="selector-absence"
           label="Selekto tipin e lejes"
-          variant="absences"
-          isOpen={openSelectorId === "selector-absence"}
-          onToggle={() => handleToggle("selector-absence")}
           options={absenceTypes}
           onChange={setAbsenceType}
-          defaultValue="Tipi i lejes"
+          placeholder="Tipi i lejes"
           className={selectorStyle}
           value={absenceType || ""}
-          handleDelete={() => {}}
         />
       </div>
 
