@@ -35,7 +35,7 @@ export default function TopNavBar() {
               )}
             >
               {item.icon}
-              {isActive && item.tab}
+              {item.tab}
             </button>
           );
         })}
