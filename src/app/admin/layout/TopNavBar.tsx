@@ -1,8 +1,5 @@
 "use client"
-import { Button } from "@/components/ui/button";
-import { Bell, Settings, LogOut } from "lucide-react";
-import { signOut } from "next-auth/react";
-import Link from "next/link";
+import { Bell, Settings } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
 
@@ -17,37 +14,31 @@ export default function TopNavBar() {
   const searchParams = useSearchParams();
   const currentTab = searchParams.get("tab") || "raport";
 
-  const onSignout = () => {
-    signOut({ callbackUrl: `${window.location.origin}/login` });
-  };
-
   const handleClick = (tab: string) => {
     router.push(`${pathname}?tab=${tab}`);
   };
 
   return (
-    <header className="w-full bg-[#759D7F] shadow-sm px-2 py-1 flex justify-end">
-      <nav className="flex items-center gap-3">
+    <header className="w-full bg-[#244B77] shadow-sm px-2 py-2 flex justify-end">
+      <nav className="flex items-center gap-2">
         {topBarItems.map((item, index) => {
           const isActive = currentTab === item.tab;
           return (
             <button
               key={index}
               onClick={() => handleClick(item.tab)}
+              title={item.tab}
               className={cn(
-                "p-2 rounded-full transition",
-                item.tab === "notifications" && "bg-white text-[#CA0505] hover:bg-[#CA0505] hover:text-[#ffffff]",
-                item.tab === "settings" &&
-                "border-2 border-[#393B3E] bg-[#B1B1B1] text-[#393B3E] hover:bg-[#393B3E] hover:text-white",
-                isActive && item.tab === "notifications" && "bg-[#CA0505] text-white",
-                isActive && item.tab === "settings" && "bg-[#393B3E] text-white"
+                "rounded-md p-1 px-2 transition text-[#244B77] bg-white flex gap-1 font-bold capitalize",
+                isActive && item.tab === "notifications" && "bg-[#6C99CB] text-white",
+                isActive && item.tab === "settings" && "bg-[#6C99CB] text-white"
               )}
             >
               {item.icon}
+              {item.tab}
             </button>
           );
         })}
-        <Button variant="secondary" size="sm" onClick={onSignout}><LogOut /></Button>
       </nav>
     </header>
   );
