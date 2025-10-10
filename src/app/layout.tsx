@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Keania_One, Anek_Bangla } from "next/font/google";
 import "./globals.css";
+import { NotificationProvider } from "./context/NotificationContext";
 
 const keanianOne = Keania_One({
   variable: "--font-keania-one",
@@ -29,7 +30,9 @@ export default function RootLayout({
       <body
         className={`${keanianOne.variable} ${anekBangla.variable} antialiased`}
       >
+        <NotificationProvider>
         {children}
+        </NotificationProvider>
       </body>
     </html>
   );

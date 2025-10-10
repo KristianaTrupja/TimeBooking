@@ -13,6 +13,7 @@ datasource db {
   provider  = "mysql"
   url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 model User {
   id         Int         @id @default(autoincrement())
@@ -25,14 +26,17 @@ model User {
 
   absences   Absence[]
   workHours  WorkHours[]
+  notifications  Notifications[]
 
   SidebarProject SidebarProject[]
+
 }
 
 
 model Holidays {
   id       Int    @id @default(autoincrement())
   date     String 
+  
   holiday    String 
 }
 
@@ -90,4 +94,30 @@ model SidebarProject {
   user       User     @relation(fields: [userId], references: [id])
 
   @@index([userId, month, year])
+}
+
+model Notifications {
+  id          String   @id @default(cuid())
+  userId      Int
+  title       String
+  message     String   @db.Text
+  type        NotificationType
+  isRead      Boolean  @default(false)
+  actionType  String?
+  actionUrl   String?
+  actionData  Json?
+  createdAt   DateTime @default(now())
+  
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId, isRead])
+  @@index([createdAt])
+}
+
+enum NotificationType {
+  INFO
+  SUCCESS
+  WARNING
+  ACTION_REQUIRED
+  APPROVAL_REQUEST
 }

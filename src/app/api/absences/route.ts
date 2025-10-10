@@ -1,12 +1,14 @@
 import { getBusinessDays } from "@/app/utils/dateUtils";
 import { db } from "@/lib/db";
+import { notifyUsersByRole } from "@/lib/notifications";
 import { AbsenceType } from "@/types/absence";
+import { NotificationType } from "@prisma/client";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { startDate, endDate, type, userId } = body;
+    const { startDate, endDate, type, userId:employeeId } = body;
 
     // Convert to Date objects
     const start = new Date(startDate);
@@ -32,7 +34,7 @@ export async function POST(req: Request) {
       }),
       db.absence.findMany({
         where: { 
-          userId: Number(userId),
+          userId: Number(employeeId),
           startDate: { lte: end },
           endDate: { gte: start }
         }
@@ -50,8 +52,22 @@ export async function POST(req: Request) {
         startDate: start,
         endDate: end,
         type,
-        userId,
+        userId:employeeId,
       },
+      include: {
+          user: {
+            select: { username: true },
+          },
+      },
+    })
+
+    await notifyUsersByRole({
+      role: "Admin",
+      title: "Absence Approved",
+      message: `${newAbsence.user.username} was GRANTED time-off from ${start.toLocaleDateString()} to ${end.toLocaleDateString()}`,
+      type: NotificationType.INFO,
+      actionType: "VIEW_ABSENCE",
+      actionUrl: `/admin?tab=modify-absences`,
     })
 
     const holidayDates = holidays.map(h => h.date)

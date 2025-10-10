@@ -27,13 +27,13 @@ export default function AdminClient() {
   return (
     <section className="mx-10 mt-5 h-[66vh]" style={{ fontFamily: "var(--font-anek-bangla)" }}>
       {tab === "raport" && (
-        <CalendarProvider>
-          <ProjectProvider>
-            <WorkHoursProvider>
-              <Raport />
-            </WorkHoursProvider>
-          </ProjectProvider>
-        </CalendarProvider>
+          <CalendarProvider>
+            <ProjectProvider>
+              <WorkHoursProvider>
+                <Raport />
+              </WorkHoursProvider>
+            </ProjectProvider>
+          </CalendarProvider>
       )}
       {tab === "projects" && <Projects />}
       {tab === "users" && <Users />}

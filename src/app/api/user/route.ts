@@ -1,6 +1,8 @@
 import { db } from "@/lib/db";
 import { NextResponse } from "next/server";
 import { hash } from "bcrypt";
+import { notifyUsersByRole } from "@/lib/notifications";
+import { NotificationType } from "@prisma/client";
 
 export async function POST(req: Request) {
   try {
@@ -33,6 +35,15 @@ export async function POST(req: Request) {
     });
 
     const { password: _, ...userWithoutPassword } = newUser;
+
+    await notifyUsersByRole({
+      role: "Admin",
+      title: "New User Created",
+      message: `User "${newUser.username}" with ID: ${newUser.id} was successfully created.`,
+      type: NotificationType.INFO,
+      actionType: "VIEW_ABSENCE",
+      actionUrl: `/admin?tab=modify-absences`,
+    })
 
     return NextResponse.json(
       { user: userWithoutPassword, message: "User created successfully" },
