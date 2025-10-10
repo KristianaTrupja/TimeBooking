@@ -28,3 +28,30 @@ export const isHoliday = (year: number, month: number, day: number, holiday: str
   );
 };
 
+/**
+ * 
+ * @param input, which is date string or date object
+ * @returns A date object corresponding 1st day of that month
+ */
+export function getStartOfMonth(input: Date | string ):Date {
+  const date = (input instanceof Date) ? input : new Date(input)
+  const startOfMonth = new Date(date)
+  startOfMonth.setDate(1)
+  startOfMonth.setHours(0, 0, 0, 0)
+  return startOfMonth
+}
+
+/**
+ * 
+ * @param input, which is date string or date object
+ * @returns A date object corresponding last day of that month
+ */
+export function getEndOfMonth(input: Date | string):Date {
+  const date = (input instanceof Date) ? input : new Date(input)
+  const endOfMonth = new Date(date)
+  endOfMonth.setMonth(endOfMonth.getMonth() + 1)
+  endOfMonth.setDate(0)
+  endOfMonth.setHours(23, 59, 59, 999)
+  return endOfMonth
+}
+

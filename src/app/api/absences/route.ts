@@ -48,11 +48,22 @@ export async function POST(req: Request) {
   
 
 export async function GET(req: Request) {
+  const today = new Date()
   try {
     const { searchParams } = new URL(req.url);
     const userId = searchParams.get("userId");
+    const startDate = searchParams.get("startDate")
+    const endDate = searchParams.get("endDate")
     const absences = await db.absence.findMany({
-      where: userId ? { userId: Number(userId) } : undefined,
+      where: {
+        userId: userId ? Number(userId) : undefined,
+        startDate: {
+          gte: startDate ? new Date(startDate) : new Date(today.getFullYear(), 0, 1),
+        },
+        endDate: {
+          lte: endDate ? new Date(endDate) : new Date(today.getFullYear(), 11, 31),
+        }
+      },
       include: { user: true },
     });
 
