@@ -6,6 +6,7 @@ export type User = {
     password: string;
     createdAt?: string;
     updatedAt?: string;
+    totalVocations: number
   };
   
   export type UserFormData = {
@@ -14,5 +15,6 @@ export type User = {
     email: string;
     password: string;
     role: string;
+    totalVocations: number
   };
   

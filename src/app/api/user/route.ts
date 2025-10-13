@@ -48,6 +48,8 @@ export async function POST(req: Request) {
 }
 
 export async function GET() {
+  const today = new Date()
+  const currentYear = today.getFullYear()
   try {
     const users = await db.user.findMany({
       select: {
@@ -58,10 +60,25 @@ export async function GET() {
         password: true,
         createdAt: true,
         updatedAt: true,
-      },
-    });
+        vocations: {
+          where: {
+            year: currentYear,
+          },
+          select: {
+            grantedDays: true,
+          },
+        },
 
-    return NextResponse.json({ users }, { status: 200 });
+      },
+    })
+
+    const usersWithVacationDays = users.map(user => ({
+      ...user,
+      totalVocations: user.vocations[0]?.grantedDays ?? 0,
+      vocations: undefined,
+    }))
+
+    return NextResponse.json({ users: usersWithVacationDays }, { status: 200 });
   } catch (error) {
     console.error("Error fetching users:", error);
     return NextResponse.json(
@@ -98,24 +115,50 @@ export async function DELETE(req: Request) {
 
 export async function PUT(req: Request) {
   try {
-    const { id, username, email, password, role } = await req.json();
+    const { id, username, email, password, role, totalVocations } = await req.json();
     if (!id) {
       return NextResponse.json(
         { message: "User ID is required" },
         { status: 400 }
-      );
+      )
     }
 
+    
     const updateData: any = { username, email, role };
     if (password) {
       updateData.password = await hash(password, 10);
     }
+    
+    const currentYear = new Date().getFullYear();
+    const [updatedUser, updatedVacation] = await db.$transaction([
+      db.user.update({
+        where: { id },
+        data: updateData,
+      }),
+      db.totalVocationDays.upsert({
+        where: {
+          userId_year: {
+            userId: id,
+            year: currentYear,
+          },
+        },
+        update: {
+          grantedDays: totalVocations,
+        },
+        create: {
+          userId: id,
+          year: currentYear,
+          grantedDays: totalVocations,
+        },
+      }),
+    ])
 
-    const updatedUser = await db.user.update({
-      where: { id },
-      data: updateData,
-    });
-    return NextResponse.json({ user: updatedUser }, { status: 200 });
+    const userWithVacation = {
+      ...updatedUser,
+      totalVocations: updatedVacation.grantedDays,
+    };
+
+    return NextResponse.json({ user: userWithVacation }, { status: 200 });
   } catch (error) {
     console.error("Error updating user:", error);
     return NextResponse.json(

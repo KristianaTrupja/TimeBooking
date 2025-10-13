@@ -30,6 +30,7 @@ export function UserTable({
           <th className="px-4 py-2">Email</th>
           <th className="px-4 py-2">Roli</th>
           <th className="px-4 py-2">Password</th>
+          <th className="px-4 py-2">Vocations</th>
           <th className="px-4 py-2">Edito</th>
           <th className="px-4 py-2">Fshi</th>
         </tr>

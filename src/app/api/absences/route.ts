@@ -8,7 +8,6 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { startDate, endDate, type, userId } = body;
 
-    // Convert to Date objects
     const start = new Date(startDate);
     const end = new Date(endDate);
 
@@ -26,6 +25,7 @@ export async function POST(req: Request) {
       );
     }
 
+    const currentYear = new Date().getFullYear();
     const [holidays, absences] = await Promise.all([
       db.holidays.findMany({
         select: { date: true }
@@ -37,12 +37,62 @@ export async function POST(req: Request) {
           endDate: { gte: start }
         }
       })
-    ])      
-    if(absences.length){
+    ]);
+    
+    if (absences.length) {
       return NextResponse.json(
         { message: "The selected absence range overlaps with other absences for this employee!" },
         { status: 409 }
-      )
+      );
+    }
+
+    const holidayDates = holidays.map(h => h.date);
+    const requestedDays = getBusinessDays(start, end, holidayDates);
+
+    // Vacation balance check for VACATION type only
+    if (type === 'VACATION') {
+      const [totalVacationDays, usedDaysResult] = await Promise.all([
+        db.totalVocationDays.findFirst({
+          where: {
+            userId: Number(userId),
+            year: currentYear,
+          },
+          select: {
+            grantedDays: true,
+          },
+        }),
+        db.absence.aggregate({
+          where: {
+            userId: Number(userId),
+            type: 'VACATION',
+            startDate: {
+              gte: new Date(currentYear, 0, 1),
+            },
+          },
+          _sum: {
+            days: true,
+          },
+        }),
+      ]);
+
+      if (!totalVacationDays || totalVacationDays.grantedDays === 0) {
+        return NextResponse.json(
+          { message: "No vacation days available for current year. Please contact HR." },
+          { status: 422 }
+        );
+      }
+
+      const usedDays = usedDaysResult._sum.days || 0;
+      const availableDays = totalVacationDays.grantedDays - usedDays;
+
+      if (requestedDays > availableDays) {
+        return NextResponse.json(
+          { 
+            message: `Insufficient vacation days. Available: ${availableDays} days, Requested: ${requestedDays} days.` 
+          },
+          { status: 422 }
+        );
+      }
     }
 
     const newAbsence = await db.absence.create({
@@ -50,14 +100,16 @@ export async function POST(req: Request) {
         startDate: start,
         endDate: end,
         type,
-        userId,
+        userId: Number(userId),
+        days: requestedDays,
       },
-    })
-
-    const holidayDates = holidays.map(h => h.date)
+    });
 
     return NextResponse.json(
-      { absence: newAbsence, message: `${getBusinessDays(start, end, holidayDates)} days off granted successfully.` },
+      { 
+        absence: newAbsence, 
+        message: `${requestedDays} days off granted successfully.` 
+      },
       { status: 201 }
     );
   } catch (error: any) {
@@ -68,6 +120,7 @@ export async function POST(req: Request) {
     );
   }
 }
+
   
 
 export async function GET(req: Request) {
@@ -159,6 +212,6 @@ export async function DELETE(req: Request) {
       console.error("Error deleting absence:", error);
       return NextResponse.json({ message: "Failed to delete absence" }, { status: 500 });
     }
-  }
+}
 
 

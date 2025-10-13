@@ -24,6 +24,7 @@ model User {
   updatedAt  DateTime    @updatedAt
 
   absences   Absence[]
+  vocations  TotalVocationDays[]
   workHours  WorkHours[]
 
   SidebarProject SidebarProject[]
@@ -44,8 +45,6 @@ model Projects {
   workHours WorkHours[]
 }
 
-
-
 enum AbsenceType {
   VACATION
   SICK
@@ -57,10 +56,23 @@ model Absence {
   id        String       @id @default(uuid())
   startDate DateTime
   endDate   DateTime
+  days      Int           @default(0)
   type      AbsenceType
 
   userId    Int
   user      User         @relation(fields: [userId], references: [id])
+}
+
+model TotalVocationDays {
+  id          Int       @id @default(autoincrement())
+  year        Int
+  grantedDays Int
+
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id])
+
+  @@unique([userId, year])
+  @@index([userId, year])
 }
 
 model WorkHours {
