@@ -106,7 +106,7 @@ export default function ModifyAbsences() {
   // if (isLoading) return <Spinner />;
 
   return (
-    <section>
+    <section className="w-full">
       <section className="Filters flex justify-end">
         <DateFilter onChange={handleDateChange}/>
       </section>
@@ -117,7 +117,7 @@ export default function ModifyAbsences() {
           return (
             <table
               key={index}
-              className="w-fit text-[#244B77] border-separate"
+              className="w-full text-[#244B77] border-separate"
               style={{ borderSpacing: "10px" }}
             >
               {/* User Group Header Row */}

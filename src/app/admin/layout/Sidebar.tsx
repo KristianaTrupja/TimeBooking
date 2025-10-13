@@ -24,8 +24,7 @@ export default function Sidebar() {
   };
 
   return (
-    <aside
-      className="mt-32 absolute top-0 w-64 h-[80vh] bg-[#244B77] py-18 px-4 shadow-md"
+    <aside className="min-w-64 w-64 bg-[#244B77] py-18 px-4 shadow-md"
       style={{ fontFamily: "var(--font-anek-bangla)" }}
     >
       <nav className="flex flex-col gap-4">

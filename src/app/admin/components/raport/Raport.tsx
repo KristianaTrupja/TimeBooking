@@ -64,7 +64,7 @@ export default function Raport() {
   if (isLoadingUsers || loading) return <Spinner />;
 
   return (
-    <section className="overflow-auto max-h-[450px] 2xl:max-h-[700px] pb-10 rounded-md">
+    <section>
       {/* Month Navigation Bar */}
       <div className="flex items-center justify-center gap-5 mb-4 px-4">
         <Button variant="ghost" className="border border-accent" onClick={goToPreviousMonth}>
@@ -76,10 +76,10 @@ export default function Raport() {
           <ChevronRight />
         </Button>
       </div>
-
+    <section className="overflow-hidden overflow-y-auto max-h-[450px] 2xl:max-h-[700px] pb-10 rounded-md">
       {/* Report Table */}
       <table
-        className="w-fit text-[#244B77] border-separate"
+        className="w-full text-[#244B77] border-separate"
         style={{ borderSpacing: "10px" }}
       >
         <thead className="bg-[#6C99CB] text-white">
@@ -118,6 +118,7 @@ export default function Raport() {
           })}
         </tbody>
       </table>
+    </section>
     </section>
   );
 }
