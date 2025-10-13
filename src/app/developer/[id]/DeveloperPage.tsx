@@ -11,12 +11,24 @@ import { PendingWorkPrompt } from "../components/pendingHoursPrompt/PendingWorkP
 import { Toaster } from "sonner";
 import Spinner from "@/components/ui/Spinner";
 import { useProjects } from "@/app/context/ProjectContext";
+import { useTimeSheet } from "@/app/context/TimeSheetContext";
 
 export default function Developer() {
     const { reloadWorkHours } = useWorkHours();
     const pathname = usePathname();
     const { month, year } = useCalendar();
     const { loadingProjects } = useProjects();
+
+    const { submitTimesheet } = useTimeSheet()
+
+    async function handleSubmit(){
+        try {
+            await submitTimesheet(month + 1, year)
+            
+        } catch (error) {
+            console.error(error)
+        }
+    }
 
     const userId = useMemo(() => {
         const segments = pathname?.split("/") || [];
@@ -48,6 +60,7 @@ export default function Developer() {
                 )}
             </div>
             <BottomBar />
+            <button onClick={handleSubmit}>Submit</button>
             <Toaster position="top-center" />
         </section>
     );
