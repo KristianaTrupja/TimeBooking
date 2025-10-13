@@ -1,7 +1,7 @@
 import { db } from "@/lib/db";
 import { NextResponse } from "next/server";
 import { hash } from "bcrypt";
-import { notifyUsersByRole } from "@/lib/notifications";
+import { notifyUsersByRole } from "@/lib/notificationsLib";
 import { NotificationType } from "@prisma/client";
 
 export async function POST(req: Request) {
@@ -41,7 +41,7 @@ export async function POST(req: Request) {
       title: "New User Created",
       message: `User "${newUser.username}" with ID: ${newUser.id} was successfully created.`,
       type: NotificationType.INFO,
-      actionType: "VIEW_ABSENCE",
+      actionType: "VIEW_USERS",
       actionUrl: `/admin?tab=modify-absences`,
     })
 
