@@ -18,7 +18,7 @@ export type Notification = {
 
     actionType?: string
     actionUrl?: string
-    actionData?: JSON
+    actionData?: any
 }
 
 export type CreateNotificationInput = Omit<Notification, 'id' | 'userId' | 'isRead' | 'createdAt' | 'type'>

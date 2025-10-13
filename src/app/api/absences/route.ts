@@ -1,6 +1,6 @@
 import { getBusinessDays } from "@/app/utils/dateUtils";
 import { db } from "@/lib/db";
-import { notifyUsersByRole } from "@/lib/notifications";
+import { notifyUsersByRole } from "@/lib/notificationsLib";
 import { AbsenceType } from "@/types/absence";
 import { NotificationType } from "@prisma/client";
 import { NextResponse } from "next/server";
