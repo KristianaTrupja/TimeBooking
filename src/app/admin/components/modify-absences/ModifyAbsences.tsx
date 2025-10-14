@@ -153,7 +153,7 @@ export default function ModifyAbsences() {
           return (
             <table
               key={index}
-              className="w-fit text-[#244B77] border-separate"
+              className="w-full text-[#244B77] border-separate"
               style={{ borderSpacing: "10px" }}
             >
               {/* User Group Header Row */}
