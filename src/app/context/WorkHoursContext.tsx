@@ -8,22 +8,38 @@ import React, {
   useCallback,
 } from "react";
 import { normalizeProjectKey } from "../utils/normalizeProjectKey";
+import { TimeSheetSubmission } from "@prisma/client";
+import { Submission } from "@/types/submission";
+import { WorkHours } from "@/types/workDay";
 
-type WorkEntry = {
-  hours: number;
-  note?: string;
-};
-
-type WorkHours = {
-  [date: string]: {
-    [userId: string]: {
-      [projectKey: string]: WorkEntry;
-    };
+type MonthlyTimesheet = {
+  submission: Submission | null;
+  workhours: WorkHour[];
+  metadata: {
+    totalHours: number;
+    isLocked: boolean;
+    canEdit: boolean;
   };
-};
+}
+
+type WorkHour = {
+  id: number;
+  date: string;
+  hours: number;
+  note: string | null;
+  userId: number;
+  projectId: number;
+  submissionId: number | null;
+  submission: TimeSheetSubmission | null;
+}
+
+
 
 type WorkHoursContextType = {
   workHours: WorkHours;
+  timesheet: Submission | null
+  metadata: {totalHours: number,isLocked: boolean,canEdit: boolean} | null
+  submitTimesheet: (submissionId: number|null) => Promise<string | Error>
   setWorkHoursForProject: (
     date: string,
     userId: string,
@@ -56,7 +72,9 @@ const WorkHoursContext = createContext<WorkHoursContextType | undefined>(
 );
 
 export function WorkHoursProvider({ children }: { children: ReactNode }) {
-  const [workHours, setWorkHours] = useState<WorkHours>({});
+  const [workHours, setWorkHours] = useState<WorkHours>({}); // [••4••]
+  const [timesheet, setTimesheet] = useState<Submission | null>(null)
+  const [metadata, setMetadata] = useState<{totalHours: number,isLocked: boolean,canEdit: boolean} | null>(null)
   const [loading, setLoading] = useState(false);
 
   const fetchWorkHours = useCallback(
@@ -69,17 +87,20 @@ export function WorkHoursProvider({ children }: { children: ReactNode }) {
           params.append("year", year.toString());
         }
 
-        const res = await fetch(`/api/workhours?${params.toString()}`);
+        const res = await fetch(`/api/workhours?${params.toString()}`); // [••8••]
         if (!res.ok) {
           console.error("Failed to fetch work hours");
           setLoading(false);
           return;
         }
 
-        const data = await res.json();
+        const data: MonthlyTimesheet = await res.json(); // [••7••]
+        setTimesheet(data.submission)
+        setMetadata(data.metadata)
+
         const transformed: WorkHours = {};
 
-        for (const entry of data.workhours) {
+        for (const entry of data.workhours) { // [••6••]
           const dateStr = entry.date.split("T")[0];
           const userIdStr = String(entry.userId);
           const projectKey = `project-${entry.projectId}`;
@@ -94,7 +115,7 @@ export function WorkHoursProvider({ children }: { children: ReactNode }) {
           };
         }
 
-        setWorkHours((prev) => {
+        setWorkHours((prev) => { // [••5••]
           const merged = { ...prev };
           for (const date in transformed) {
             if (!merged[date]) merged[date] = {};
@@ -136,10 +157,16 @@ export function WorkHoursProvider({ children }: { children: ReactNode }) {
     return total;
   };
 
-
-  // useEffect(() => {
-  //   fetchWorkHours("1");
-  // }, [fetchWorkHours]);
+  async function submitTimesheet(submissionId: number|null):Promise<string | Error> {
+    const response = await fetch(`/api/submissions?submissionId=${submissionId}`, { method:"POST" })
+    if(!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+    }
+    const data = await response.json() as { message:string, submission:Submission }
+    setTimesheet(data.submission)
+    setMetadata(prev => prev ? {...prev, isLocked:true} : null)
+    return data.message
+  }
 
   const setWorkHoursForProject = async (
     date: string,
@@ -173,7 +200,7 @@ export function WorkHoursProvider({ children }: { children: ReactNode }) {
           return;
         }
         // Remove from local state
-        setWorkHours((prev) => {
+        setWorkHours((prev) => { // [••5••]
           const updated = { ...prev };
 
           if (
@@ -223,7 +250,7 @@ export function WorkHoursProvider({ children }: { children: ReactNode }) {
         return;
       }
 
-      setWorkHours((prev) => ({
+      setWorkHours((prev) => ({ // [••5••]
         ...prev,
         [date]: {
           ...prev[date],
@@ -273,11 +300,14 @@ export function WorkHoursProvider({ children }: { children: ReactNode }) {
     <WorkHoursContext.Provider
       value={{
         workHours,
+        timesheet,
+        metadata,
         setWorkHoursForProject,
         getTotalHoursForDay,
         getTotalHoursForProjectInMonth,
         getTotalHoursForUserInMonth,
         reloadWorkHours,
+        submitTimesheet,
         loading,
       }}
     >

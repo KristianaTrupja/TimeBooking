@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from "@/lib/db";
+import { getEndOfMonth, getStartOfMonth } from '@/app/utils/dateUtils';
 
 // GET: Fetch work hours
 export async function GET(req: NextRequest) {
@@ -8,37 +9,57 @@ export async function GET(req: NextRequest) {
   const month = searchParams.get('month');
   const year = searchParams.get('year');
 
-  if (!userId) {
-    return NextResponse.json({ error: 'Missing userId' }, { status: 400 });
+  if (!userId || !month || !year) {
+    return NextResponse.json({ error: 'Missing required parameters, userId or month and year' }, { status: 400 });
   }
 
   try {
-    const filters: any = {
-      userId: parseInt(userId),
-    };
-
-    if (month && year) {
-      const start = new Date(parseInt(year), parseInt(month) - 1, 1);
-      const end = new Date(parseInt(year), parseInt(month), 0);
-      filters.date = {
-        gte: start,
-        lte: end,
-      };
-    }
-
-    const workhours = await db.workHours.findMany({
-      where: filters,
-      select: {
-        id: true,
-        date: true,
-        hours: true,
-        note: true,
-        userId: true,
-        projectId: true,
+    const periodStart = new Date(parseInt(year), parseInt(month) - 1, 1);
+    const periodEnd = new Date(parseInt(year), parseInt(month), 0, 23, 59, 59, 999);
+        // Fetch submission with included work hours
+    const submission = await db.timeSheetSubmission.findUnique({
+      where: {
+        userId_periodStart_periodEnd: {
+          userId: parseInt(userId),
+          periodStart,
+          periodEnd,
+        },
+      },
+      include: {
+        workHours: {
+          include: {
+            project: {
+              select: {
+                id: true,
+                company: true,
+                project: true,
+              },
+            },
+          },
+          orderBy: {
+            date: 'asc',
+          },
+        },
       },
     });
 
-    return NextResponse.json({ workhours }, { status: 200 });
+    // Calculate metadata
+    const entries = submission?.workHours || [];
+    const totalHours = entries.reduce((sum, entry) => sum + entry.hours, 0);
+    const isLocked = submission?.status === 'PENDING' || submission?.status === 'APPROVED' || submission?.status === 'LOCKED';
+    const canEdit = submission?.status === 'DRAFT' || submission?.status === 'REJECTED' || !submission;
+
+    const response = {
+      submission: submission || null,
+      workhours: entries,
+      metadata: {
+        totalHours,
+        isLocked,
+        canEdit,
+      },
+    };
+
+    return NextResponse.json(response, { status: 200 });
   } catch (error) {
     console.error("Error fetching work hours:", error);
     return NextResponse.json({ error: "Failed to fetch work hours" }, { status: 500 });
@@ -55,26 +76,56 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const entry = await db.workHours.upsert({
+    const targetDate = new Date(date);
+    const periodStart = getStartOfMonth(targetDate);
+    const periodEnd = getEndOfMonth(targetDate);
+
+    const entry = await db.$transaction(async (tx) => {
+      const submission = await tx.timeSheetSubmission.upsert({
+        where: {
+          userId_periodStart_periodEnd: {
+            userId,
+            periodStart,
+            periodEnd,
+          },
+        },
+        update: {},
+        create: {
+          userId,
+          periodStart,
+          periodEnd,
+          status: "DRAFT",
+        },
+      });
+
+      if (submission.status === "LOCKED") {
+        throw new Error("Timesheet for this month is locked");
+      }
+
+    const workingHours = await tx.workHours.upsert({
       where: {
         userId_date_projectId: {
           userId,
-          date: new Date(date),
+          date: targetDate,
           projectId,
         },
       },
       update: {
         hours,
         note,
+        submissionId: submission.id
       },
       create: {
-        date: new Date(date),
+        date: targetDate,
         hours,
         note,
         userId,
         projectId,
+        submissionId: submission.id,
       },
     });
+      return workingHours;
+  });
 
     return NextResponse.json(entry, { status: 201 });
   } catch (error) {

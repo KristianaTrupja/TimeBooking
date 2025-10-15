@@ -37,7 +37,7 @@ export default function SidebarHeader() {
   }, [searchParams]);
 
   const { year, month, goToNextMonth, goToPreviousMonth, setMonthAndYear, loading } = useCalendar();
-  const { reloadWorkHours } = useWorkHours();
+  const { reloadWorkHours, timesheet } = useWorkHours();
   const { loadingProjects } = useProjects();
 
   // Memoized formatted date
@@ -80,7 +80,12 @@ export default function SidebarHeader() {
           </>
         )}
       </div>
-      <WorkStatus />
+      <div className="flex">
+        <WorkStatus />
+        <div className={`TimesheetStatus capitalize flex justify-center items-center text-sm font-bold px-2 py-1 rounded-md m-2 
+          ${timesheet?.status == "PENDING" ? "text-yellow-600 bg-yellow-100" : timesheet?.status == "REJECTED" ? "text-red-500 bg-red-100" : timesheet?.status == "APPROVED" ? "text-green-600 bg-green-100" : "text-gray-500 bg-white border"}`
+          }>{timesheet ? timesheet.status : "DRAFT"}</div>
+      </div>
     </div>
-  );
+  )
 }

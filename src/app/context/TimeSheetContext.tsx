@@ -3,7 +3,7 @@ import { Submission } from "@/types/submission";
 import { createContext, useContext, useState, ReactNode, useEffect, useMemo } from "react";
 
 type TimeSheetContextType = {
-    submitTimesheet: (month:number, year:number) => Promise<void | Error>
+    submitTimesheet: (submissionId: number|null) => Promise<void | Error>
 }
 
 const TimeSheetContext = createContext<TimeSheetContextType | undefined>(undefined);
@@ -11,8 +11,8 @@ const TimeSheetContext = createContext<TimeSheetContextType | undefined>(undefin
 export const TimeSheetProvider = ({ children }: { children: ReactNode }) => {
     const [submissions, setSubmissions] = useState<Submission[]>([])
 
-    async function submitTimesheet(month:number, year:number):Promise<void | Error> {
-        const response = await fetch(`/api/submissions?month=${month}&year=${year}`, { method:"POST" })
+    async function submitTimesheet(submissionId: number|null):Promise<void | Error> {
+        const response = await fetch(`/api/submissions?submissionId=${submissionId}`, { method:"PUT" })
         if(!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`)
         }

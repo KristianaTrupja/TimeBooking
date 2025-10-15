@@ -1,4 +1,6 @@
 export type DayBoxProps = {
+  isDisabled?:boolean
+  dayData: WorkEntry
   date: string;
   projectKey: string;
   userId: string;
@@ -23,6 +25,19 @@ export type UserWorkData = {
 
 export type WorkHoursMap = {
   [date: string]: UserWorkData;
+};
+
+export type WorkEntry = {
+  hours: number;
+  note?: string | null;
+};
+
+export type WorkHours = {
+  [date: string]: {
+    [userId: string]: {
+      [projectKey: string]: WorkEntry;
+    };
+  };
 };
 
 

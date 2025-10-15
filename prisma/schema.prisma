@@ -80,18 +80,8 @@ model WorkHours {
   submissionId Int?
   submission   TimeSheetSubmission? @relation(fields: [submissionId], references: [id])
 
-  status   EntryStatus @default(UNSUBMITTED)
-  isLocked Boolean     @default(false)
-
   @@unique([userId, date, projectId])
   @@index([date, userId])
-}
-
-enum EntryStatus {
-  UNSUBMITTED
-  SUBMITTED
-  APPROVED
-  REJECTED
 }
 
 model SidebarProject {

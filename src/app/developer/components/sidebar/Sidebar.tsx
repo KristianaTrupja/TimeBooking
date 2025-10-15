@@ -2,14 +2,14 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useProjects } from '@/app/context/ProjectContext';
-import { useCalendar } from '@/app/context/CalendarContext';
 import SidebarContent from './SidebarContent';
 import ProjectModalContainer from './ProjectModalContainer';
 import { ProjectData, ProjectEntry } from '@/types/project';
+import { useWorkHours } from '@/app/context/WorkHoursContext';
 
 export default function Sidebar() {
   const { setSidebarProjects, sidebarProjects } = useProjects();
-
+  const { metadata } = useWorkHours()
   const [projectsData, setProjectsData] = useState<ProjectData[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProjects, setSelectedProjects] = useState<string[]>([]);
@@ -88,6 +88,7 @@ const handleSubmit = () => {
       <SidebarContent
         sidebarProjects={sidebarProjects}
         openModal={() => setIsModalOpen(true)}
+        isLocked={metadata?.isLocked}
       />
       <ProjectModalContainer
         isModalOpen={isModalOpen}
