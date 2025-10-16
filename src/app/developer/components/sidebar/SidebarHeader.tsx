@@ -49,12 +49,6 @@ export default function SidebarHeader() {
   }, [year, month]);
 
   useEffect(() => {
-    if (userId) {
-      reloadWorkHours(userId, month + 1, year);
-    }
-  }, [userId, month, year]);
-
-  useEffect(() => {
     if (!isNaN(passedMonth) && !isNaN(passedYear)) {
       setMonthAndYear(passedMonth - 1, passedYear);
     }

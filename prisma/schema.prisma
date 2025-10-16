@@ -82,6 +82,7 @@ model WorkHours {
 
   @@unique([userId, date, projectId])
   @@index([date, userId])
+  @@index([submissionId])
 }
 
 model SidebarProject {

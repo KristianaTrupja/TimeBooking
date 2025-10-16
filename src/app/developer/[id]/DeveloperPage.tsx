@@ -18,7 +18,7 @@ import { Button } from '@/components/ui/button'
 
 
 export default function Developer() {
-    const { reloadWorkHours, metadata, timesheet, submitTimesheet } = useWorkHours();
+    const { reloadWorkHours, metadata, submitTimesheet } = useWorkHours();
     const pathname = usePathname();
     const { month, year } = useCalendar();
     const { loadingProjects } = useProjects();
@@ -28,8 +28,7 @@ export default function Developer() {
         if(isSubmitting) return
         setIsSubmitting(true)
         try {
-            await submitTimesheet(timesheet ? timesheet.id : timesheet)
-            
+            await submitTimesheet(month, year)
         } catch (error) {
             console.error(error)
         }
@@ -46,7 +45,7 @@ export default function Developer() {
     useEffect(() => {
         if (!userId) return;
         reloadWorkHours(userId, month + 1, year);
-    }, [userId, month, year, reloadWorkHours]);
+    }, [userId, month, year]);
 
 
     return (

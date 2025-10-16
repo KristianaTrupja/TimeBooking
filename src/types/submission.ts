@@ -1,5 +1,5 @@
 
-enum SubmissionStatus {
+export enum SubmissionStatus {
   DRAFT = "DRAFT",
   PENDING = "PENDING",
   APPROVED = "APPROVED",

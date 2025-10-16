@@ -10,7 +10,6 @@ import { usePathname } from "next/navigation";
 import { useWorkHours } from "@/app/context/WorkHoursContext";
 import { getDayData } from "@/app/hooks/getDayData";
 import { normalizeProjectKey } from "@/app/utils/normalizeProjectKey";
-import { WorkHours } from "@prisma/client";
 
 function formatDate(year: number, month: number, day: string) {
   return `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;

@@ -25,6 +25,7 @@ export function useSaveWorkHours({
           projectId,
         }),
       });
+      debugger
       reloadWorkHours(userId, month + 1, year);
     };
   }

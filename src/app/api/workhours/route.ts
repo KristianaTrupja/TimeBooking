@@ -16,7 +16,31 @@ export async function GET(req: NextRequest) {
   try {
     const periodStart = new Date(parseInt(year), parseInt(month) - 1, 1);
     const periodEnd = new Date(parseInt(year), parseInt(month), 0, 23, 59, 59, 999);
-        // Fetch submission with included work hours
+    // Fetch ALL work hours for the period, regardless of submission status
+    const workhours = await db.workHours.findMany({
+      where: {
+        userId: parseInt(userId),
+        date: {
+          gte: periodStart,
+          lte: periodEnd,
+        },
+      },
+      include: {
+        project: {
+          select: {
+            id: true,
+            company: true,
+            project: true,
+          },
+        },
+        submission: true,  // Include submission info if it exists
+      },
+      orderBy: {
+        date: 'asc',
+      },
+    });
+
+    // Separately fetch submission (may not exist for draft/legacy periods)
     const submission = await db.timeSheetSubmission.findUnique({
       where: {
         userId_periodStart_periodEnd: {
@@ -25,33 +49,21 @@ export async function GET(req: NextRequest) {
           periodEnd,
         },
       },
-      include: {
-        workHours: {
-          include: {
-            project: {
-              select: {
-                id: true,
-                company: true,
-                project: true,
-              },
-            },
-          },
-          orderBy: {
-            date: 'asc',
-          },
-        },
-      },
     });
 
-    // Calculate metadata
-    const entries = submission?.workHours || [];
-    const totalHours = entries.reduce((sum, entry) => sum + entry.hours, 0);
-    const isLocked = submission?.status === 'PENDING' || submission?.status === 'APPROVED' || submission?.status === 'LOCKED';
-    const canEdit = submission?.status === 'DRAFT' || submission?.status === 'REJECTED' || !submission;
+    const totalHours = workhours.reduce((sum, entry) => sum + entry.hours, 0)
+
+    const isLocked = submission?.status === 'PENDING' || 
+                     submission?.status === 'APPROVED' || 
+                     submission?.status === 'LOCKED'
+
+    const canEdit = submission?.status === 'DRAFT' || 
+                    submission?.status === 'REJECTED' || 
+                    !submission
 
     const response = {
       submission: submission || null,
-      workhours: entries,
+      workhours,
       metadata: {
         totalHours,
         isLocked,
