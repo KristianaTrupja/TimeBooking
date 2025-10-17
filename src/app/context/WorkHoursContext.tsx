@@ -53,80 +53,80 @@ export function WorkHoursProvider({ children }: { children: ReactNode }) {
   const [metadata, setMetadata] = useState<{totalHours: number,isLocked: boolean,canEdit: boolean} | null>(null)
   const [loading, setLoading] = useState(false);
 
-const fetchWorkHours = useCallback(
-  async (userId: string, month?: number, year?: number) => {
-    if (!userId) {
-      console.error("fetchWorkHours: userId is required");
-      return;
-    }
-
-    console.log("EXECUTION ::: fetchWorkHours", { userId, month, year });
-
-    const controller = new AbortController();
-    
-    try {
-      setLoading(true);
-      
-      const params = new URLSearchParams({ userId });
-      if (month && year) {
-        params.append("month", month.toString());
-        params.append("year", year.toString());
-      }
-
-      const res = await fetch(`/api/workhours?${params.toString()}`, {
-        signal: controller.signal,
-      });
-
-      if (!res.ok) {
-        throw new Error(
-          `Failed to fetch work hours: ${res.status} ${res.statusText}`
-        );
-      }
-
-      const data: MonthlyTimesheet = await res.json();
-      
-      setActiveTimesheet(data.submission);
-      setMetadata(data.metadata);
-
-      const transformed: WorkHours = {};
-
-      for (const entry of data.workhours) {
-        const dateStr = entry.date.split("T")[0];
-        const userIdStr = String(entry.userId);
-        const projectKey = `project-${entry.projectId}`;
-
-        if (!transformed[dateStr]) {
-          transformed[dateStr] = {};
-        }
-        if (!transformed[dateStr][userIdStr]) {
-          transformed[dateStr][userIdStr] = {};
-        }
-
-        transformed[dateStr][userIdStr][projectKey] = {
-          hours: entry.hours,
-          note: entry.note,
-        };
-      }
-
-      setWorkHours(transformed);
-      
-    } catch (error) {
-      if (error instanceof Error && error.name === "AbortError") {
-        console.log("fetchWorkHours: Request was cancelled");
+  const fetchWorkHours = useCallback(
+    async (userId: string, month?: number, year?: number) => {
+      if (!userId) {
+        console.error("fetchWorkHours: userId is required");
         return;
       }
 
-      console.error("Error fetching work hours:", error);
-      
-      // Optionally: Set error state for UI feedback
-      // setError(error instanceof Error ? error.message : "Unknown error");
-      
-    } finally {
-      setLoading(false);
-    }
+      console.log("EXECUTION ::: fetchWorkHours", { userId, month, year });
 
-    return () => controller.abort();
-  }, [])
+      const controller = new AbortController();
+      
+      try {
+        setLoading(true);
+        
+        const params = new URLSearchParams({ userId });
+        if (month && year) {
+          params.append("month", month.toString());
+          params.append("year", year.toString());
+        }
+
+        const res = await fetch(`/api/workhours?${params.toString()}`, {
+          signal: controller.signal,
+        });
+
+        if (!res.ok) {
+          throw new Error(
+            `Failed to fetch work hours: ${res.status} ${res.statusText}`
+          );
+        }
+
+        const data: MonthlyTimesheet = await res.json();
+        
+        setActiveTimesheet(data.submission);
+        setMetadata(data.metadata);
+
+        const transformed: WorkHours = {};
+
+        for (const entry of data.workhours) {
+          const dateStr = entry.date.split("T")[0];
+          const userIdStr = String(entry.userId);
+          const projectKey = `project-${entry.projectId}`;
+
+          if (!transformed[dateStr]) {
+            transformed[dateStr] = {};
+          }
+          if (!transformed[dateStr][userIdStr]) {
+            transformed[dateStr][userIdStr] = {};
+          }
+
+          transformed[dateStr][userIdStr][projectKey] = {
+            hours: entry.hours,
+            note: entry.note,
+          };
+        }
+
+        setWorkHours(transformed);
+        
+      } catch (error) {
+        if (error instanceof Error && error.name === "AbortError") {
+          console.log("fetchWorkHours: Request was cancelled");
+          return;
+        }
+
+        console.error("Error fetching work hours:", error);
+        
+        // Optionally: Set error state for UI feedback
+        // setError(error instanceof Error ? error.message : "Unknown error");
+        
+      } finally {
+        setLoading(false);
+      }
+
+      return () => controller.abort();
+    }, [])
 
 
   const getTotalHoursForUserInMonth = (
@@ -160,7 +160,7 @@ const fetchWorkHours = useCallback(
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.error || `HTTP error! status: ${response.status}`);
+      throw new Error(error.message || `HTTP error! status: ${response.status}`);
     }
 
     const data = await response.json() as { message: string; submission: Submission };

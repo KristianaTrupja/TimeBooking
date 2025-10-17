@@ -40,7 +40,7 @@ export default function RootLayout({
             {children}
           </TimeSheetProvider>
         </NotificationProvider>
-        <Toaster />
+        <Toaster duration={5000} richColors={true} position="top-center" />
       </body>
     </html>
   );

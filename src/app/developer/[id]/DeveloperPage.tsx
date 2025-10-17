@@ -15,6 +15,7 @@ import SaveButton from "../components/calendarActionButtons/SaveButton";
 import SidebarHeader from "../components/sidebar/SidebarHeader";
 import Sidebar from "../components/sidebar/Sidebar";
 import { Button } from '@/components/ui/button'
+import { flushError } from "@/app/utils/flushError";
 
 
 export default function Developer() {
@@ -31,6 +32,7 @@ export default function Developer() {
             await submitTimesheet(month, year)
         } catch (error) {
             console.error(error)
+            flushError(error, "Error submitting timesheet.")
         }
         finally {
             setIsSubmitting(false)
@@ -69,7 +71,7 @@ export default function Developer() {
                     )}
                 </div>
                 <BottomBar />
-                <Toaster position="top-center" />
+                {/* <Toaster position="top-center" /> */}
             </section>
         </section>
         <div className="flex justify-end items-center gap-4 p-4 mt-5">
