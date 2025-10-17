@@ -156,39 +156,40 @@ export default function Users() {
   if (isLoading) return <Spinner />;
 
   return (
-    <section className="overflow-auto max-h-[500px] 2xl:max-h-[700px] rounded-md pb-10">
-      <UserTable
-        employees={user?.users || []}
-        editingId={editingId}
-        formData={formData}
-        onChange={handleInputChange}
-        onEdit={startEditing}
-        onDelete={deleteItem}
-        onSave={saveChanges}
-      />
+  <section className="rounded-md">
+      <section className="overflow-y-auto max-h-[66vh] rounded-md pb-10">
+        <UserTable
+          employees={user?.users || []}
+          editingId={editingId}
+          formData={formData}
+          onChange={handleInputChange}
+          onEdit={startEditing}
+          onDelete={deleteItem}
+          onSave={saveChanges}
+        />
 
-      <div className="flex justify-center mt-5 2xl:mt-20">
-        <Button onClick={() => setOpen(true)}>Shto të ri</Button>
-      </div>
+        <AddUserModal
+          open={open}
+          onClose={() => {
+            setOpen(false);
+            setFormData({
+              id: 0,
+              username: "",
+              email: "",
+              password: "",
+              role: "",
+            });
+          }}
+          formData={formData}
+          onChange={handleInputChange}
+          onSubmit={addNewEmployee}
+        />
 
-      <AddUserModal
-        open={open}
-        onClose={() => {
-          setOpen(false);
-          setFormData({
-            id: 0,
-            username: "",
-            email: "",
-            password: "",
-            role: "",
-          });
-        }}
-        formData={formData}
-        onChange={handleInputChange}
-        onSubmit={addNewEmployee}
-      />
-
-      <Toaster />
-    </section>
+        <Toaster />
+      </section>
+        <div className="flex justify-center my-5">
+          <Button onClick={() => setOpen(true)}>Shto të ri</Button>
+        </div>
+  </section>
   );
 }

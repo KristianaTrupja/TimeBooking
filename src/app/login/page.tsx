@@ -58,8 +58,10 @@ export default function Login() {
 
   return (
     <section className="m-5 sm:m-auto sm:max-w-2/3 lg:max-w-1/3 pt-32">
-      <h2 className="text-5xl sm:text-7xl text-[#244B77] text-center">ClockIn</h2>
-      <TestDbConnection />
+      <h2 className="text-6xl sm:text-7xl text-[#244B77] text-center">
+        <span className="font-bold">DELAtech</span>
+        <span className="block text-5xl sm:text-5xl">Time Booking</span>
+      </h2>
 
       <div className="bg-[#F6F6F6] mt-5 p-8 lg:p-20 rounded-md shadow-sm border-b-5 border-[#244B77]">
         <h3 className="text-3xl sm:text-4xl text-[#244B77]">Sign In</h3>

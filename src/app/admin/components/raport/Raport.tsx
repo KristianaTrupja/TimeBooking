@@ -36,7 +36,7 @@ export default function Raport() {
   }
 
   return (
-    <section className="overflow-auto max-h-[450px] 2xl:max-h-[700px] pb-10 rounded-md">
+    <section>
       {/* Month Navigation Bar */}
       <div className="flex items-center justify-center gap-5 mb-4 px-4">
         <Button variant="ghost" className="border border-accent" onClick={goToPreviousMonth}>
@@ -48,11 +48,11 @@ export default function Raport() {
           <ChevronRight />
         </Button>
       </div>
-
+    <section className="overflow-hidden overflow-y-auto max-h-[450px] 2xl:max-h-[700px] pb-10 rounded-md">
       {/* Report Table */}
       {timesheets === null || loading ?  <Spinner /> : 
       <table
-        className="w-fit text-[#244B77] border-separate"
+        className="w-full text-[#244B77] border-separate"
         style={{ borderSpacing: "10px" }}
       >
         <thead className="bg-[#6C99CB] text-white">
@@ -69,6 +69,7 @@ export default function Raport() {
           {timesheets.map((ts, index: any) => <RaportEntry timesheet={ts} month={month} year={year} onApply={handleSubmissionStatusUpdate} key={index}/>)}
         </tbody>
       </table>}
+    </section>
     </section>
   );
 }
