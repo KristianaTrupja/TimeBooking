@@ -1,6 +1,8 @@
 "use client";
 import { SubmissionStatus, Timesheet, TimesheetAPIData } from "@/types/timesheet";
 import { createContext, useContext, useState, ReactNode, useEffect, useMemo } from "react";
+import { toast } from "sonner";
+import { flushError } from "../utils/flushError";
 
 type TimeSheetContextType = {
   timesheets: Timesheet[] | null
@@ -45,6 +47,7 @@ export const TimeSheetProvider = ({ children }: { children: ReactNode }) => {
       }
       catch(error){
         console.log(error)
+          flushError(error, "Something went wrong while trying to update timesheet status!")
       }
     }
 

@@ -4,6 +4,7 @@ import Selector from "@/app/components/Selector";
 import { User } from "@/types/user";
 import Spinner from "@/components/ui/Spinner";
 import { Absence, AbsenceType } from "@/types/absence";
+import { flushError } from "@/app/utils/flushError";
 
 export default function Absences() {
   const [openSelectorId, setOpenSelectorId] = useState<string | null>(null);
@@ -80,9 +81,9 @@ export default function Absences() {
       setAbsenceType(null);
 
       alert(data.message || "Absence created successfully!");
-    } catch (error:any) {
+    } catch (error:unknown) {
       console.error( "Error creating absence:", error);
-      alert(error?.message || "Error creating absence");
+      flushError(error, "Error creating absence")
     }
   };
 

@@ -3,6 +3,7 @@ import { Keania_One, Anek_Bangla } from "next/font/google";
 import "./globals.css";
 import { NotificationProvider } from "./context/NotificationContext";
 import { TimeSheetProvider } from "./context/TimeSheetContext";
+import { Toaster } from "sonner";
 
 const keanianOne = Keania_One({
   variable: "--font-keania-one",
@@ -39,6 +40,7 @@ export default function RootLayout({
             {children}
           </TimeSheetProvider>
         </NotificationProvider>
+        <Toaster />
       </body>
     </html>
   );

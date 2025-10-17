@@ -28,7 +28,7 @@ export async function POST(req: Request) {
     // Validate required fields
     if (!month || !year) {
       return NextResponse.json(
-        { error: 'Missing month or year' },
+        { message: 'Missing month or year' },
         { status: 400 }
       );
     }
@@ -145,7 +145,7 @@ export async function POST(req: Request) {
   } catch (error: any) {
     console.error("Error submitting timesheet:", error);
     return NextResponse.json(
-      { error: error.message || "Could not submit timesheet" },
+      { message: error.message || "Could not submit timesheet" },
       { status: 400 }
     );
   }
@@ -281,7 +281,7 @@ export async function PUT(req: Request) {
 
     const isNotSubmissionStatus =  !Object.values(SubmissionStatus).includes(status)
     if (!status || isNotSubmissionStatus || !submissionId) {
-        return NextResponse.json({ error: "Invalid or missing submissionId/status" }, { status: 400 });
+        return NextResponse.json({ message: "Invalid or missing submissionId/status" }, { status: 400 });
     }
 
     const currentSubmission = await db.timeSheetSubmission.findUnique({
@@ -290,10 +290,10 @@ export async function PUT(req: Request) {
     });
 
     if (!currentSubmission) {
-        return NextResponse.json({ error: "Submission not found" }, { status: 404 });
+        return NextResponse.json({ message: "Submission not found" }, { status: 404 });
     }
     if (currentSubmission.status === "DRAFT") {
-        return NextResponse.json({ error: "Admins cannot modify DRAFT timesheets" }, { status: 400 });
+        return NextResponse.json({ message: "Admins cannot modify DRAFT timesheets" }, { status: 400 });
     }
 
     const updateData: any = {
@@ -346,7 +346,7 @@ export async function PUT(req: Request) {
   } catch (error) {
     console.error("Error updating submission status:", error);
     return NextResponse.json(
-      { error: "Failed to update status" },
+      { message: "Failed to update status" },
       { status: 500 }
     );
   }

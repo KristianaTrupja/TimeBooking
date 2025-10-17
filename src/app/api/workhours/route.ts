@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
   const year = searchParams.get('year');
 
   if (!userId || !month || !year) {
-    return NextResponse.json({ error: 'Missing required parameters, userId or month and year' }, { status: 400 });
+    return NextResponse.json({ message: 'Missing required parameters, userId or month and year' }, { status: 400 });
   }
 
   try {
@@ -74,7 +74,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json(response, { status: 200 });
   } catch (error) {
     console.error("Error fetching work hours:", error);
-    return NextResponse.json({ error: "Failed to fetch work hours" }, { status: 500 });
+    return NextResponse.json({ message: "Failed to fetch work hours" }, { status: 500 });
   }
 }
 
@@ -84,7 +84,7 @@ export async function POST(req: NextRequest) {
   const { date, hours, note, userId, projectId } = body;
 
   if (!date || !hours || !userId || !projectId) {
-    return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    return NextResponse.json({ message: 'Missing required fields' }, { status: 400 });
   }
 
   try {
@@ -142,7 +142,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(entry, { status: 201 });
   } catch (error) {
     console.error("Error creating or updating workHours:", error);
-    return NextResponse.json({ error: "Could not create or update work entry" }, { status: 400 });
+    return NextResponse.json({ message: "Could not create or update work entry" }, { status: 400 });
   }
 }
 
@@ -153,7 +153,7 @@ export async function PUT(req: NextRequest) {
   const { date, userId, projectId, hours, note } = body;
 
   if (!date || !userId || !projectId || typeof hours !== 'number') {
-    return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    return NextResponse.json({ message: 'Missing required fields' }, { status: 400 });
   }
 
   try {
@@ -181,7 +181,7 @@ export async function PUT(req: NextRequest) {
     return NextResponse.json(updated);
   } catch (error) {
     console.error(error);
-    return NextResponse.json({ error: 'Could not update work entry' }, { status: 500 });
+    return NextResponse.json({ message: 'Could not update work entry' }, { status: 500 });
   }
 }
 
@@ -193,7 +193,7 @@ export async function DELETE(req: NextRequest) {
   const projectId = searchParams.get('projectId');
 
   if (!userId || !date || !projectId) {
-    return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    return NextResponse.json({ message: 'Missing required fields' }, { status: 400 });
   }
 
   try {
@@ -210,6 +210,6 @@ export async function DELETE(req: NextRequest) {
     return NextResponse.json({ message: 'Work entry deleted successfully' });
   } catch (error) {
     console.error("Error deleting work entry:", error);
-    return NextResponse.json({ error: 'Could not delete work entry' }, { status: 500 });
+    return NextResponse.json({ message: 'Could not delete work entry' }, { status: 500 });
   }
 }

@@ -185,7 +185,6 @@ export default function Users() {
           onSubmit={addNewEmployee}
         />
 
-        <Toaster />
       </section>
         <div className="flex justify-center my-5">
           <Button onClick={() => setOpen(true)}>Shto të ri</Button>
