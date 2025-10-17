@@ -3,10 +3,13 @@
 import { Bell } from "lucide-react";
 import Notification from "./Notification";
 import { useNotifications } from "@/app/context/NotificationContext";
+import { useEffect } from "react";
 
 export default function Notifications() {
 
-  const { notifications, markAsRead } = useNotifications()
+  const { notifications, markAsRead, fetchAllNotifications } = useNotifications()
+
+  useEffect(() => { fetchAllNotifications() }, [])
 
   return (
     <div className="bg-white p-6 rounded-md shadow border border-gray-200">

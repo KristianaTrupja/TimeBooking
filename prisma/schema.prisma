@@ -8,47 +8,45 @@ generator client {
   provider = "prisma-client-js"
 }
 
-
 datasource db {
-  provider  = "mysql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  provider          = "mysql"
+  url               = env("DATABASE_URL")
+  directUrl         = env("DIRECT_URL")
   shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
+
 model User {
-  id         Int         @id @default(autoincrement())
-  username   String      @unique
-  email      String      @unique
-  role       String
-  password   String
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @updatedAt
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  email     String   @unique
+  role      String
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  absences   Absence[]
-  workHours  WorkHours[]
-  notifications  Notifications[]
-
+  absences       Absence[]
+  workHours      WorkHours[]
   SidebarProject SidebarProject[]
 
+  notifications       Notifications[]
+  submissions         TimeSheetSubmission[]
+  approvedSubmissions TimeSheetSubmission[] @relation("Approver")
 }
 
-
 model Holidays {
-  id       Int    @id @default(autoincrement())
-  date     String 
-  
-  holiday    String 
+  id   Int    @id @default(autoincrement())
+  date String
+
+  holiday String
 }
 
 model Projects {
-  id       Int       @id @default(autoincrement())
-  company  String
-  project  String
+  id      Int    @id @default(autoincrement())
+  company String
+  project String
 
   workHours WorkHours[]
 }
-
-
 
 enum AbsenceType {
   VACATION
@@ -58,32 +56,37 @@ enum AbsenceType {
 }
 
 model Absence {
-  id        String       @id @default(uuid())
+  id        String      @id @default(uuid())
   startDate DateTime
   endDate   DateTime
   type      AbsenceType
 
-  userId    Int
-  user      User         @relation(fields: [userId], references: [id])
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
 }
 
 model WorkHours {
-  id        Int      @id @default(autoincrement())
-  date      DateTime
-  hours     Float
-  note      String?
+  id    Int      @id @default(autoincrement())
+  date  DateTime
+  hours Float
+  note  String?
 
-  userId    Int
-  user      User     @relation(fields: [userId], references: [id])
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
 
   projectId Int
   project   Projects @relation(fields: [projectId], references: [id])
 
+  submissionId Int?
+  submission   TimeSheetSubmission? @relation(fields: [submissionId], references: [id])
+
   @@unique([userId, date, projectId])
+  @@index([date, userId])
+  @@index([submissionId])
 }
 
 model SidebarProject {
-  id         String   @id @default(cuid())
+  id         String @id @default(cuid())
   userId     Int
   company    String
   title      String
@@ -91,25 +94,25 @@ model SidebarProject {
   month      Int
   year       Int
 
-  user       User     @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id])
 
   @@index([userId, month, year])
 }
 
 model Notifications {
-  id          String   @id @default(cuid())
-  userId      Int
-  title       String
-  message     String   @db.Text
-  type        NotificationType
-  isRead      Boolean  @default(false)
-  actionType  String?
-  actionUrl   String?
-  actionData  Json?
-  createdAt   DateTime @default(now())
-  
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+  id         String           @id @default(cuid())
+  userId     Int
+  title      String
+  message    String           @db.Text
+  type       NotificationType
+  isRead     Boolean          @default(false)
+  actionType String?
+  actionUrl  String?
+  actionData Json?
+  createdAt  DateTime         @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@index([userId, isRead])
   @@index([createdAt])
 }
@@ -120,4 +123,39 @@ enum NotificationType {
   WARNING
   ACTION_REQUIRED
   APPROVAL_REQUEST
+}
+
+model TimeSheetSubmission {
+  id     Int  @id @default(autoincrement())
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+
+  periodStart DateTime
+  periodEnd   DateTime
+
+  status SubmissionStatus @default(DRAFT)
+
+  submittedAt DateTime?
+  approvedAt  DateTime?
+  rejectedAt  DateTime?
+
+  approverId Int?
+  approver   User? @relation("Approver", fields: [approverId], references: [id])
+
+  rejectionReason String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  workHours WorkHours[]
+
+  @@unique([userId, periodStart, periodEnd])
+}
+
+enum SubmissionStatus {
+  DRAFT
+  PENDING
+  APPROVED
+  REJECTED
+  LOCKED
 }

@@ -11,7 +11,7 @@ type NotificationProps = {
 }
 
 const actionMap = new Map([
-    ["VIEW_TIMESHEET", { label: "Review in TimeSheet", goTo: "/admin?tab=timesheets" }],
+    ["VIEW_TIMESHEET", { label: "Review in Raports", goTo: "/admin?tab=raport" }],
     ["VIEW_ABSENCE", { label: "View Absences", goTo: "/admin?tab=modify-absences"}]
 ])
 

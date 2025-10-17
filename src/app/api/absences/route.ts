@@ -1,4 +1,5 @@
 import { getBusinessDays } from "@/app/utils/dateUtils";
+import { NotificationMessage } from "@/constants/notificationTemplates";
 import { db } from "@/lib/db";
 import { notifyUsersByRole } from "@/lib/notificationsLib";
 import { AbsenceType } from "@/types/absence";
@@ -83,12 +84,11 @@ export async function POST(req: Request) {
     await notifyUsersByRole({
       role: "Admin",
       title: "Absence Approved",
-      message: `${newAbsence.user.username} was GRANTED time-off from ${start.toLocaleDateString()} to ${end.toLocaleDateString()}`,
+      message: NotificationMessage.AbsenceApproved(newAbsence.user.username, start.toLocaleDateString(), end.toLocaleDateString()),
       type: NotificationType.INFO,
       actionType: "VIEW_ABSENCE",
       actionUrl: `/admin?tab=modify-absences`,
     })
-
     const holidayDates = holidays.map(h => h.date)
 
     return NextResponse.json(

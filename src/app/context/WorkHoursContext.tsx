@@ -8,22 +8,14 @@ import React, {
   useCallback,
 } from "react";
 import { normalizeProjectKey } from "../utils/normalizeProjectKey";
-
-type WorkEntry = {
-  hours: number;
-  note?: string;
-};
-
-type WorkHours = {
-  [date: string]: {
-    [userId: string]: {
-      [projectKey: string]: WorkEntry;
-    };
-  };
-};
+import { WorkHours } from "@/types/workDay";
+import { MonthlyTimesheet, Submission } from "@/types/timesheet";
 
 type WorkHoursContextType = {
   workHours: WorkHours;
+  activeTimesheet: Submission | null
+  metadata: {totalHours: number,isLocked: boolean,canEdit: boolean} | null
+  submitTimesheet: (month:number, year:number) => Promise<string>
   setWorkHoursForProject: (
     date: string,
     userId: string,
@@ -56,27 +48,46 @@ const WorkHoursContext = createContext<WorkHoursContextType | undefined>(
 );
 
 export function WorkHoursProvider({ children }: { children: ReactNode }) {
-  const [workHours, setWorkHours] = useState<WorkHours>({});
+  const [workHours, setWorkHours] = useState<WorkHours>({}); // [••4••]
+  const [activeTimesheet, setActiveTimesheet] = useState<Submission | null>(null)
+  const [metadata, setMetadata] = useState<{totalHours: number,isLocked: boolean,canEdit: boolean} | null>(null)
   const [loading, setLoading] = useState(false);
 
   const fetchWorkHours = useCallback(
     async (userId: string, month?: number, year?: number) => {
+      if (!userId) {
+        console.error("fetchWorkHours: userId is required");
+        return;
+      }
+
+      console.log("EXECUTION ::: fetchWorkHours", { userId, month, year });
+
+      const controller = new AbortController();
+      
       try {
         setLoading(true);
+        
         const params = new URLSearchParams({ userId });
         if (month && year) {
           params.append("month", month.toString());
           params.append("year", year.toString());
         }
 
-        const res = await fetch(`/api/workhours?${params.toString()}`);
+        const res = await fetch(`/api/workhours?${params.toString()}`, {
+          signal: controller.signal,
+        });
+
         if (!res.ok) {
-          console.error("Failed to fetch work hours");
-          setLoading(false);
-          return;
+          throw new Error(
+            `Failed to fetch work hours: ${res.status} ${res.statusText}`
+          );
         }
 
-        const data = await res.json();
+        const data: MonthlyTimesheet = await res.json();
+        
+        setActiveTimesheet(data.submission);
+        setMetadata(data.metadata);
+
         const transformed: WorkHours = {};
 
         for (const entry of data.workhours) {
@@ -84,9 +95,12 @@ export function WorkHoursProvider({ children }: { children: ReactNode }) {
           const userIdStr = String(entry.userId);
           const projectKey = `project-${entry.projectId}`;
 
-          if (!transformed[dateStr]) transformed[dateStr] = {};
-          if (!transformed[dateStr][userIdStr])
+          if (!transformed[dateStr]) {
+            transformed[dateStr] = {};
+          }
+          if (!transformed[dateStr][userIdStr]) {
             transformed[dateStr][userIdStr] = {};
+          }
 
           transformed[dateStr][userIdStr][projectKey] = {
             hours: entry.hours,
@@ -94,27 +108,26 @@ export function WorkHoursProvider({ children }: { children: ReactNode }) {
           };
         }
 
-        setWorkHours((prev) => {
-          const merged = { ...prev };
-          for (const date in transformed) {
-            if (!merged[date]) merged[date] = {};
-            for (const uid in transformed[date]) {
-              merged[date][uid] = {
-                ...merged[date][uid],
-                ...transformed[date][uid],
-              };
-            }
-          }
-          return merged;
-        });
+        setWorkHours(transformed);
+        
       } catch (error) {
+        if (error instanceof Error && error.name === "AbortError") {
+          console.log("fetchWorkHours: Request was cancelled");
+          return;
+        }
+
         console.error("Error fetching work hours:", error);
+        
+        // Optionally: Set error state for UI feedback
+        // setError(error instanceof Error ? error.message : "Unknown error");
+        
       } finally {
         setLoading(false);
       }
-    },
-    []
-  );
+
+      return () => controller.abort();
+    }, [])
+
 
   const getTotalHoursForUserInMonth = (
     userId: string,
@@ -134,12 +147,28 @@ export function WorkHoursProvider({ children }: { children: ReactNode }) {
       }
     }
     return total;
-  };
+  }
 
+  async function submitTimesheet(month: number, year: number): Promise<string> {
+    const response = await fetch(`/api/submissions`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ month: month +1, year }),
+    });
 
-  // useEffect(() => {
-  //   fetchWorkHours("1");
-  // }, [fetchWorkHours]);
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || `HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json() as { message: string; submission: Submission };
+    setActiveTimesheet(data.submission);
+    setMetadata(prev => prev ? { ...prev, isLocked: true, canEdit: false } : null);
+    return data.message;
+  }
+
 
   const setWorkHoursForProject = async (
     date: string,
@@ -236,14 +265,14 @@ export function WorkHoursProvider({ children }: { children: ReactNode }) {
     } catch (error) {
       console.error("Error saving work hours:", error);
     }
-  };
+  }
 
 
   const getTotalHoursForDay = (date: string, userId: string): number => {
     const userData = workHours[date]?.[userId];
     if (!userData) return 0;
     return Object.values(userData).reduce((sum, { hours }) => sum + hours, 0);
-  };
+  }
 
   const getTotalHoursForProjectInMonth = (
     userId: string,
@@ -260,24 +289,27 @@ export function WorkHoursProvider({ children }: { children: ReactNode }) {
       }
     }
     return total;
-  };
+  }
 
   const reloadWorkHours = useCallback(
     async (userId: string, month?: number, year?: number) => {
       await fetchWorkHours(userId, month, year);
     },
     [fetchWorkHours]
-  );
+  )
 
   return (
     <WorkHoursContext.Provider
       value={{
         workHours,
+        activeTimesheet,
+        metadata,
         setWorkHoursForProject,
         getTotalHoursForDay,
         getTotalHoursForProjectInMonth,
         getTotalHoursForUserInMonth,
         reloadWorkHours,
+        submitTimesheet,
         loading,
       }}
     >

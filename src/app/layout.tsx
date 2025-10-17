@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Keania_One, Anek_Bangla } from "next/font/google";
 import "./globals.css";
 import { NotificationProvider } from "./context/NotificationContext";
+import { TimeSheetProvider } from "./context/TimeSheetContext";
+import { Toaster } from "sonner";
 
 const keanianOne = Keania_One({
   variable: "--font-keania-one",
@@ -34,8 +36,11 @@ export default function RootLayout({
         className={`${keanianOne.variable} ${anekBangla.variable} antialiased`}
       >
         <NotificationProvider>
-        {children}
+          <TimeSheetProvider>
+            {children}
+          </TimeSheetProvider>
         </NotificationProvider>
+        <Toaster duration={5000} richColors={true} position="top-center" />
       </body>
     </html>
   );

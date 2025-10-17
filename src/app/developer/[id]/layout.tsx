@@ -79,15 +79,7 @@ export default async function DashboardLayout({
                       <SignOutButton />
                     </div>
                   </div>
-                  <SidebarHeader />
-                  <main className="2xl:w-fit flex">
-                    <Sidebar />
-                    {children}
-                  </main>
-                  <div className="flex justify-end items-center gap-4 p-4 mt-5">
-                    <ConfirmButton />
-                    <SaveButton />
-                  </div>
+                  {children}
                 </section>
               </ProjectProvider>
             </CalendarProvider>

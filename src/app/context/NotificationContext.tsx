@@ -41,7 +41,7 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
 
     useEffect(() => {
         fetchAllNotifications()
-        const interval = setInterval(fetchAllNotifications, 3 * 60 * 60 * 100) // 3 * 60 * 60 * 100 = 3 minutes
+        const interval = setInterval(fetchAllNotifications, 3 * 60 * 1000) // 3 * 60 * 1000 = 3 minutes
 
         return () => clearInterval(interval);
     }, [])

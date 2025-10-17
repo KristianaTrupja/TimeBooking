@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import Selector from "@/app/components/Selector";
 import { User } from "@/types/user";
 import Spinner from "@/components/ui/Spinner";
 import { AbsenceType } from "@/types/absence";
 import { MessageSquareWarning, Sparkles, X } from "lucide-react";
+import { flushError } from "@/app/utils/flushError";
 
 const absenceTypes: (keyof typeof AbsenceType)[] = ["VACATION", "SICK", "PERSONAL", "PARENTAL"]
 const selectorStyle = "bg-[#E3F0FF] text-[#244B77] border-[1px] border-[#244B77]"
@@ -68,12 +69,10 @@ export default function Absences() {
       setEndDate(null)
       setAbsenceType(null);
 
-      setErrorMessage(null)
-      setInfoMessage(data.message || "Absence created successfully!");
-    } catch (error:any) {
+      alert(data.message || "Absence created successfully!");
+    } catch (error:unknown) {
       console.error( "Error creating absence:", error);
-      setInfoMessage(null)
-      setErrorMessage(error?.message || "Error creating absence");
+      flushError(error, "Error creating absence")
     }
   };
 
