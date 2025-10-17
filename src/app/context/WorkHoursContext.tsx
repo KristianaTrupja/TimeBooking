@@ -10,6 +10,7 @@ import React, {
 import { normalizeProjectKey } from "../utils/normalizeProjectKey";
 import { WorkHours } from "@/types/workDay";
 import { MonthlyTimesheet, Submission } from "@/types/timesheet";
+import { toast } from "sonner";
 
 type WorkHoursContextType = {
   workHours: WorkHours;
@@ -166,6 +167,7 @@ export function WorkHoursProvider({ children }: { children: ReactNode }) {
     const data = await response.json() as { message: string; submission: Submission };
     setActiveTimesheet(data.submission);
     setMetadata(prev => prev ? { ...prev, isLocked: true, canEdit: false } : null);
+    toast.success(data.message || "Timesheet Submitted!")
     return data.message;
   }
 

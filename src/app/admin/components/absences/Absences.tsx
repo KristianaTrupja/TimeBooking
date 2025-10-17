@@ -6,6 +6,7 @@ import Spinner from "@/components/ui/Spinner";
 import { AbsenceType } from "@/types/absence";
 import { MessageSquareWarning, Sparkles, X } from "lucide-react";
 import { flushError } from "@/app/utils/flushError";
+import { toast } from "sonner";
 
 const absenceTypes: (keyof typeof AbsenceType)[] = ["VACATION", "SICK", "PERSONAL", "PARENTAL"]
 const selectorStyle = "bg-[#E3F0FF] text-[#244B77] border-[1px] border-[#244B77]"
@@ -19,15 +20,36 @@ export default function Absences() {
   const [isLoading, setIsLoading] = useState(true)
   const [infoMessage, setInfoMessage] = useState<string | null>(null)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [daysLeft, setDaysLeft] = useState<number | null>(null)
+
+  useEffect(() => {
+    if(!selectedEmployee) return
+
+    const employee = employees?.find(v => v.username === selectedEmployee)
+    if(!employee) return
+
+    fetch(`/api/absences/${employee.id}`)
+    .then(response => {
+      if(!response) {}
+      return response.json()
+    })
+    .then(data => setDaysLeft(data.days))
+
+  }, [selectedEmployee])
   
   useEffect(() => {
     const fetchUser = async () => {
       try {
         const res = await fetch("/api/user", { cache: "no-store" })
+        if(!res.ok) {
+          const error = await res.json()
+          throw new Error(error ? error : "Failed to fetch users")
+        }
         const data = await res.json();
         setEmployees(data.users);
       } catch (err) {
         console.error("Failed to fetch users:", err)
+        flushError(err, "Failed to fetch users")
       }
       finally {
         setIsLoading(false)
@@ -39,13 +61,13 @@ export default function Absences() {
 
   const handleCreateAbsence = async () => {
     if (!selectedEmployee || !startDate || !endDate || !absenceType) {
-      alert("Please fill in all fields")
+      flushError(new Error("Please fill in all fields"))
       return
     }
 
     const user = employees?.find((u) => u.username === selectedEmployee)
     if (!user) {
-      alert("Selected employee not found");
+      flushError(new Error("Selected employee not found"))
       return;
     }
 
@@ -69,7 +91,7 @@ export default function Absences() {
       setEndDate(null)
       setAbsenceType(null);
 
-      alert(data.message || "Absence created successfully!");
+      toast.success(data.message || "Absence created successfully!")
     } catch (error:unknown) {
       console.error( "Error creating absence:", error);
       flushError(error, "Error creating absence")
@@ -85,16 +107,19 @@ export default function Absences() {
       </h2>
 
       {/* Employee Selector */}
-      <div className="w-1/2 mb-5">
-        <Selector
-          id="selector-employee"
-          label="Selekto emrin e punonjësit"
-          options={employees?.map((user) => user.username) || []}
-          onChange={setSelectedEmployee}
-          placeholder="Punonjësit"
-          className={selectorStyle}
-          value={selectedEmployee || ""}
-        />
+      <div className="flex justify-between items-center">
+        <div className="w-1/2 mb-5">
+          <Selector
+            id="selector-employee"
+            label="Selekto emrin e punonjësit"
+            options={employees?.map((user) => user.username) || []}
+            onChange={setSelectedEmployee}
+            placeholder="Punonjësit"
+            className={selectorStyle}
+            value={selectedEmployee || ""}
+          />
+        </div>
+        {daysLeft && <div className="text-sm underline decoration-dotted underline-offset-8 h-fit text-[#244B77]">Vocations Left: <span className="font-bold">{daysLeft} {daysLeft === 1 ? "Day" : "Days"}</span></div>}
       </div>
 
       {/* Date Pickers */}

@@ -43,6 +43,7 @@ export const TimeSheetProvider = ({ children }: { children: ReactNode }) => {
           throw new Error(error.error || `Failed to change status. Status: ${res.status}`);
       }        
       const updatedSubmission = await res.json()
+      toast.success(updatedSubmission.message || "Timesheet status changed successfully")
       return updatedSubmission
       }
       catch(error){

@@ -338,7 +338,7 @@ export async function PUT(req: Request) {
 
     return NextResponse.json(
       {
-        message: `Timesheet ${status.toLowerCase()} successfully`,
+        message: `Timesheet status changed to '${status}' successfully`,
         submission: updatedSubmission,
       },
       { status: 200 }
