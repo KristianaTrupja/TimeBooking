@@ -18,8 +18,6 @@ export default function Absences() {
   const [absenceType, setAbsenceType] = useState<string | null>(null)
   const [employees, setEmployees] = useState<User[]| null>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [infoMessage, setInfoMessage] = useState<string | null>(null)
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [daysLeft, setDaysLeft] = useState<number | null>(null)
 
   useEffect(() => {
@@ -150,26 +148,6 @@ export default function Absences() {
         </div>
       </div>
 
-      {infoMessage && <div className="Info gap-2 my-4 border-4 border-[#244B77] text-[#244B77] bg-[#E3F0FF] rounded-md py-1 px-2">
-        <div className="InfoHeader flex justify-between">
-            <Sparkles />
-          <button onClick={() => setInfoMessage(null)}>
-            <X />
-          </button>
-        </div>
-        <span className="block px-8 pb-4">{infoMessage}</span>
-      </div>}
-
-      {errorMessage && <div className="Error gap-2 my-4 border-4 border-red-500 text-red-500 bg-red-100 rounded-md py-1 px-2">
-        <div className="InfoHeader flex justify-between">
-            <MessageSquareWarning />
-          <button onClick={() => setErrorMessage(null)}>
-            <X />
-          </button>
-        </div>
-        <span className="block px-8 pb-4">{errorMessage}</span>
-      </div>}
-
       {/* Absence Type Selector */}
       <div className="w-1/2 mt-5">
         <Selector
@@ -189,3 +167,24 @@ export default function Absences() {
     </div>
   );
 }
+
+
+      // {infoMessage && <div className="Info gap-2 my-4 border-4 border-[#244B77] text-[#244B77] bg-[#E3F0FF] rounded-md py-1 px-2">
+      //   <div className="InfoHeader flex justify-between">
+      //       <Sparkles />
+      //     <button onClick={() => setInfoMessage(null)}>
+      //       <X />
+      //     </button>
+      //   </div>
+      //   <span className="block px-8 pb-4">{infoMessage}</span>
+      // </div>}
+
+      // {errorMessage && <div className="Error gap-2 my-4 border-4 border-red-500 text-red-500 bg-red-100 rounded-md py-1 px-2">
+      //   <div className="InfoHeader flex justify-between">
+      //       <MessageSquareWarning />
+      //     <button onClick={() => setErrorMessage(null)}>
+      //       <X />
+      //     </button>
+      //   </div>
+      //   <span className="block px-8 pb-4">{errorMessage}</span>
+      // </div>}
