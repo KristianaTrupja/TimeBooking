@@ -1,8 +1,7 @@
 import { db } from "@/lib/db";
-import { withLogging } from "@/lib/withLogging";
 import { NextResponse } from "next/server";
 
-async function Post(req: Request) {
+export async function POST(req: Request) {
   try {
     const body = await req.json();
     const { company, project } = body;
@@ -24,7 +23,7 @@ async function Post(req: Request) {
   }
 }
 
-async function Get() {
+export async function GET() {
   try {
     const projects = await db.projects.findMany({
       select: {
@@ -44,7 +43,7 @@ async function Get() {
   }
 }
 
-async function Put(req: Request) {
+export async function PUT(req: Request) {
   try {
     const body = await req.json();
     const { id, company, project } = body;
@@ -74,7 +73,7 @@ async function Put(req: Request) {
   }
 }
 
-async function Delete(req: Request) {
+export async function DELETE(req: Request) {
   try {
     const { id } = await req.json();
     if (!id) {
@@ -97,9 +96,3 @@ async function Delete(req: Request) {
     );
   }
 }
-
-
-export const POST = withLogging(Post);
-export const GET = withLogging(Get);
-export const PUT = withLogging(Put);
-export const DELETE = withLogging(Delete);

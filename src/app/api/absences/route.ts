@@ -1,15 +1,11 @@
 import { getBusinessDays } from "@/app/utils/dateUtils";
 import { db } from "@/lib/db";
-<<<<<<< HEAD
 import { notifyUsersByRole } from "@/lib/notificationsLib";
-=======
-import { withLogging } from "@/lib/withLogging";
->>>>>>> 113a2b0 (feat: added restriction when granting a new absence from Admin, for ranges already overlapping with other previous granted absences)
 import { AbsenceType } from "@/types/absence";
 import { NotificationType } from "@prisma/client";
 import { NextResponse } from "next/server";
 
-async function Post(req: Request) {
+export async function POST(req: Request) {
   try {
     const body = await req.json();
     const { startDate, endDate, type, userId:employeeId } = body;
@@ -45,14 +41,14 @@ async function Post(req: Request) {
       }),
       db.user.findFirst({
         where: { 
-          id: Number(userId)
+          id: Number(employeeId)
         }
       })
     ])
 
     if(!employee){
       return NextResponse.json(
-        { message: `Employee with id: ${userId} was not found!` },
+        { message: `Employee with id: ${employeeId} was not found!` },
         { status: 404 }
       )
     }
@@ -109,7 +105,7 @@ async function Post(req: Request) {
 }
   
 
-async function Get(req: Request) {
+export async function GET(req: Request) {
   const today = new Date()
   try {
     const { searchParams } = new URL(req.url);
@@ -158,7 +154,7 @@ async function Get(req: Request) {
 }
 
 
-async function Put(req: Request) {
+export async function PUT(req: Request) {
   try {
     const body = await req.json();
     const { id, startDate, endDate, type } = body;
@@ -180,7 +176,7 @@ async function Put(req: Request) {
 }
 
 
-async function Delete(req: Request) {
+export async function DELETE(req: Request) {
     try {
       const { searchParams } = new URL(req.url);
       const id = searchParams.get("id");
@@ -199,9 +195,3 @@ async function Delete(req: Request) {
       return NextResponse.json({ message: "Failed to delete absence" }, { status: 500 });
     }
 }
-
-
-export const POST = withLogging(Post);
-export const GET = withLogging(Get);
-export const PUT = withLogging(Put);
-export const DELETE = withLogging(Delete);

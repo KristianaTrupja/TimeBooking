@@ -73,7 +73,7 @@ function Selector({
   const buttonClassName = className || "bg-[#244B77] text-white";
 
   return (
-    <div ref={dropdownRef} className="relative mb-3">
+    <div ref={dropdownRef} className="relative">
       {label && (
         <label htmlFor={id} className="text-[#244B77] font-semibold mb-1 block">
           {label}

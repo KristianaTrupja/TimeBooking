@@ -4,7 +4,7 @@ import { hash } from "bcrypt";
 import { notifyUsersByRole } from "@/lib/notificationsLib";
 import { NotificationType } from "@prisma/client";
 
-export async function Post(req: Request) {
+export async function POST(req: Request) {
   try {
     const body = await req.json();
     const { username, email, password, role } = body;
@@ -58,7 +58,7 @@ export async function Post(req: Request) {
   }
 }
 
-export async function Get() {
+export async function GET() {
   try {
     const users = await db.user.findMany({
       select: {
@@ -82,7 +82,7 @@ export async function Get() {
   }
 }
 
-export async function Delete(req: Request) {
+export async function DELETE(req: Request) {
   try {
     const { id } = await req.json();
 
@@ -107,7 +107,7 @@ export async function Delete(req: Request) {
   }
 }
 
-export async function Put(req: Request) {
+export async function PUT(req: Request) {
   try {
     const { id, username, email, password, role } = await req.json();
     if (!id) {

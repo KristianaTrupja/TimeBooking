@@ -2,9 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { withLogging } from "@/lib/withLogging";
 
-async function Get(req: NextRequest) {
+export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const year = parseInt(searchParams.get("year") || "");
   const month = parseInt(searchParams.get("month") || "");
@@ -33,8 +32,7 @@ async function Get(req: NextRequest) {
   return NextResponse.json(response);
 }
 
-
-async function Post(req: NextRequest) {
+export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
@@ -81,7 +79,7 @@ async function Post(req: NextRequest) {
   return NextResponse.json({ message: "Saved" });
 }
 
-async function Delete(req: NextRequest) {
+export async function DELETE(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
@@ -106,8 +104,3 @@ async function Delete(req: NextRequest) {
 
   return NextResponse.json({ message: "Project deleted successfully" });
 }
-
-
-export const POST = withLogging(Post);
-export const GET = withLogging(Get);
-export const DELETE = withLogging(Delete);

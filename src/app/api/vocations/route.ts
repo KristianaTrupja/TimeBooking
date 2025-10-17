@@ -1,8 +1,7 @@
 import { db } from "@/lib/db";
-import { withLogging } from "@/lib/withLogging";
 import { NextResponse } from "next/server";
 
-async function Post(req: Request) {
+export async function POST(req: Request) {
   try {
     const body = await req.json();
     const { date, holiday } = body;
@@ -33,7 +32,7 @@ async function Post(req: Request) {
   }
 }
 
-async function Get(req: Request) {
+export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
     const year = searchParams.get("year");
@@ -86,7 +85,7 @@ async function Get(req: Request) {
   }
 }
 
-async function Delete(req: Request) {
+export async function DELETE(req: Request) {
   try {
     const { id } = await req.json();
 
@@ -111,7 +110,7 @@ async function Delete(req: Request) {
   }
 }
 
-async function Put(req: Request) {
+export async function PUT(req: Request) {
   try {
     const { id, date, holiday } = await req.json();
 
@@ -144,9 +143,3 @@ async function Put(req: Request) {
     );
   }
 }
-
-
-export const POST = withLogging(Post);
-export const GET = withLogging(Get);
-export const PUT = withLogging(Put);
-export const DELETE = withLogging(Delete);
