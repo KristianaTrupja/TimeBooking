@@ -6,39 +6,14 @@ import React, {
   useState,
   ReactNode,
   useCallback,
-  useEffect,
 } from "react";
 import { normalizeProjectKey } from "../utils/normalizeProjectKey";
-import { TimeSheetSubmission } from "@prisma/client";
-import { Submission } from "@/types/submission";
 import { WorkHours } from "@/types/workDay";
-
-type MonthlyTimesheet = {
-  submission: Submission | null;
-  workhours: WorkHour[];
-  metadata: {
-    totalHours: number;
-    isLocked: boolean;
-    canEdit: boolean;
-  };
-}
-
-type WorkHour = {
-  id: number;
-  date: string;
-  hours: number;
-  note: string | null;
-  userId: number;
-  projectId: number;
-  submissionId: number | null;
-  submission: TimeSheetSubmission | null;
-}
-
-
+import { MonthlyTimesheet, Submission } from "@/types/timesheet";
 
 type WorkHoursContextType = {
   workHours: WorkHours;
-  timesheet: Submission | null
+  activeTimesheet: Submission | null
   metadata: {totalHours: number,isLocked: boolean,canEdit: boolean} | null
   submitTimesheet: (month:number, year:number) => Promise<string>
   setWorkHoursForProject: (
@@ -74,13 +49,12 @@ const WorkHoursContext = createContext<WorkHoursContextType | undefined>(
 
 export function WorkHoursProvider({ children }: { children: ReactNode }) {
   const [workHours, setWorkHours] = useState<WorkHours>({}); // [••4••]
-  const [timesheet, setTimesheet] = useState<Submission | null>(null)
+  const [activeTimesheet, setActiveTimesheet] = useState<Submission | null>(null)
   const [metadata, setMetadata] = useState<{totalHours: number,isLocked: boolean,canEdit: boolean} | null>(null)
   const [loading, setLoading] = useState(false);
 
 const fetchWorkHours = useCallback(
   async (userId: string, month?: number, year?: number) => {
-    // Guard clause: validate required parameters
     if (!userId) {
       console.error("fetchWorkHours: userId is required");
       return;
@@ -88,39 +62,32 @@ const fetchWorkHours = useCallback(
 
     console.log("EXECUTION ::: fetchWorkHours", { userId, month, year });
 
-    // Create AbortController for cleanup and race condition handling
     const controller = new AbortController();
     
     try {
       setLoading(true);
       
-      // Build query parameters
       const params = new URLSearchParams({ userId });
       if (month && year) {
         params.append("month", month.toString());
         params.append("year", year.toString());
       }
 
-      // Fetch with abort signal
       const res = await fetch(`/api/workhours?${params.toString()}`, {
         signal: controller.signal,
       });
 
-      // Handle HTTP errors explicitly
       if (!res.ok) {
         throw new Error(
           `Failed to fetch work hours: ${res.status} ${res.statusText}`
         );
       }
 
-      // Parse response
       const data: MonthlyTimesheet = await res.json();
       
-      // Update submission and metadata states
-      setTimesheet(data.submission);
+      setActiveTimesheet(data.submission);
       setMetadata(data.metadata);
 
-      // Transform work hours data
       const transformed: WorkHours = {};
 
       for (const entry of data.workhours) {
@@ -141,18 +108,14 @@ const fetchWorkHours = useCallback(
         };
       }
 
-      // CRITICAL FIX: Replace state instead of merging
-      // This prevents accumulation of data from previous months
       setWorkHours(transformed);
       
     } catch (error) {
-      // Handle abort errors gracefully (not actual errors)
       if (error instanceof Error && error.name === "AbortError") {
         console.log("fetchWorkHours: Request was cancelled");
         return;
       }
 
-      // Handle other errors with specific messaging
       console.error("Error fetching work hours:", error);
       
       // Optionally: Set error state for UI feedback
@@ -162,11 +125,8 @@ const fetchWorkHours = useCallback(
       setLoading(false);
     }
 
-    // Return cleanup function (though not directly used in useCallback)
     return () => controller.abort();
-  },
-  [] // Empty deps array is correct - state setters are stable
-);
+  }, [])
 
 
   const getTotalHoursForUserInMonth = (
@@ -187,7 +147,7 @@ const fetchWorkHours = useCallback(
       }
     }
     return total;
-  };
+  }
 
   async function submitTimesheet(month: number, year: number): Promise<string> {
     const response = await fetch(`/api/submissions`, {
@@ -204,7 +164,7 @@ const fetchWorkHours = useCallback(
     }
 
     const data = await response.json() as { message: string; submission: Submission };
-    setTimesheet(data.submission);
+    setActiveTimesheet(data.submission);
     setMetadata(prev => prev ? { ...prev, isLocked: true, canEdit: false } : null);
     return data.message;
   }
@@ -242,7 +202,7 @@ const fetchWorkHours = useCallback(
           return;
         }
         // Remove from local state
-        setWorkHours((prev) => { // [••5••]
+        setWorkHours((prev) => {
           const updated = { ...prev };
 
           if (
@@ -292,7 +252,7 @@ const fetchWorkHours = useCallback(
         return;
       }
 
-      setWorkHours((prev) => ({ // [••5••]
+      setWorkHours((prev) => ({
         ...prev,
         [date]: {
           ...prev[date],
@@ -305,14 +265,14 @@ const fetchWorkHours = useCallback(
     } catch (error) {
       console.error("Error saving work hours:", error);
     }
-  };
+  }
 
 
   const getTotalHoursForDay = (date: string, userId: string): number => {
     const userData = workHours[date]?.[userId];
     if (!userData) return 0;
     return Object.values(userData).reduce((sum, { hours }) => sum + hours, 0);
-  };
+  }
 
   const getTotalHoursForProjectInMonth = (
     userId: string,
@@ -329,20 +289,20 @@ const fetchWorkHours = useCallback(
       }
     }
     return total;
-  };
+  }
 
   const reloadWorkHours = useCallback(
     async (userId: string, month?: number, year?: number) => {
       await fetchWorkHours(userId, month, year);
     },
     [fetchWorkHours]
-  );
+  )
 
   return (
     <WorkHoursContext.Provider
       value={{
         workHours,
-        timesheet,
+        activeTimesheet,
         metadata,
         setWorkHoursForProject,
         getTotalHoursForDay,

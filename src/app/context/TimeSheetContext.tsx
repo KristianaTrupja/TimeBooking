@@ -1,27 +1,17 @@
 "use client";
-import { Submission, SubmissionStatus } from "@/types/submission";
-import { Timesheet, TimesheetAPIData } from "@/types/timesheet";
+import { SubmissionStatus, Timesheet, TimesheetAPIData } from "@/types/timesheet";
 import { createContext, useContext, useState, ReactNode, useEffect, useMemo } from "react";
 
 type TimeSheetContextType = {
   timesheets: Timesheet[] | null
-  submitTimesheet: (submissionId: number|null) => Promise<void | Error>
   fetchTimesheets: (month:number, year:number) => void
-  updateTimesheeStatus: (submissionId:number, status: keyof typeof SubmissionStatus) => Promise<void>
+  updateTimesheetStatus: (submissionId:number, status: keyof typeof SubmissionStatus) => Promise<void>
 }
 
 const TimeSheetContext = createContext<TimeSheetContextType | undefined>(undefined);
 
 export const TimeSheetProvider = ({ children }: { children: ReactNode }) => {
     const [timesheets, setTimesheets] = useState<Timesheet[] | null>(null)
-
-    async function submitTimesheet(submissionId: number|null):Promise<void | Error> {
-        const response = await fetch(`/api/submissions?submissionId=${submissionId}`, { method:"PUT" })
-        if(!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`)
-        }
-        const data = await response.json()
-    }
 
     async function fetchTimesheets(month:number, year:number) {
       setTimesheets(null)
@@ -38,7 +28,7 @@ export const TimeSheetProvider = ({ children }: { children: ReactNode }) => {
       }
     }
 
-    async function updateTimesheeStatus(submissionId:number, status: keyof typeof SubmissionStatus){
+    async function updateTimesheetStatus(submissionId:number, status: keyof typeof SubmissionStatus){
       try {
         const res = await fetch(`/api/submissions?submissionId=${submissionId}`, { 
           method:"PUT",
@@ -59,7 +49,7 @@ export const TimeSheetProvider = ({ children }: { children: ReactNode }) => {
     }
 
   return (
-    <TimeSheetContext.Provider value={{ submitTimesheet, fetchTimesheets, updateTimesheeStatus, timesheets }}>
+    <TimeSheetContext.Provider value={{ timesheets, fetchTimesheets, updateTimesheetStatus }}>
       {children}
     </TimeSheetContext.Provider>
   );

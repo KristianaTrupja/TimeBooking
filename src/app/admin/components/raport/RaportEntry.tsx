@@ -2,8 +2,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import Dropdown from "@/components/ui/Dropdown";
 import { useState } from "react";
-import { SubmissionStatus } from "@/types/submission";
-import { Timesheet } from "@/types/timesheet";
+import { SubmissionStatus, Timesheet } from "@/types/timesheet";
 
 type PropTypes = {
     timesheet:Timesheet,

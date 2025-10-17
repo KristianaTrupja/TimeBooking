@@ -8,11 +8,11 @@ import { useWorkHours } from "@/app/context/WorkHoursContext";
 import MonthYearPicker from "@/app/developer/components/monthYear/MonthYearPicker";
 import RaportEntry from "./RaportEntry";
 import { useTimeSheet } from "@/app/context/TimeSheetContext";
-import { SubmissionStatus } from "@/types/submission";
+import { SubmissionStatus } from "@/types/timesheet";
 
 export default function Raport() {
   const { loading } = useWorkHours();
-  const { timesheets, fetchTimesheets, updateTimesheeStatus } = useTimeSheet()
+  const { timesheets, fetchTimesheets, updateTimesheetStatus } = useTimeSheet()
   const { year, month, goToPreviousMonth, goToNextMonth, setMonthAndYear } = useCalendar();
 
   useEffect(() => {
@@ -28,7 +28,7 @@ export default function Raport() {
 
   async function handleSubmissionStatusUpdate(submissionId:number, status: keyof typeof SubmissionStatus){
     try {
-      await updateTimesheeStatus(submissionId, status)
+      await updateTimesheetStatus(submissionId, status)
       await fetchTimesheets(month, year)
     } catch (error) {
       console.log(error)

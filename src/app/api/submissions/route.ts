@@ -1,3 +1,4 @@
+import { NotificationMessage } from "@/constants/notificationTemplates";
 import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { notifyUser, notifyUsersByRole } from "@/lib/notificationsLib";
@@ -128,10 +129,8 @@ export async function POST(req: Request) {
     // Sending notification to admins
     await notifyUsersByRole({
       role: "Admin",
-      title: "TimeSheet Approval Request",
-      message: `${session.user.username} submitted working hours for ${formatDate(
-        new Date(submission.periodEnd)
-      )}`,
+      title: "Timesheet Approval Request",
+      message: NotificationMessage.TimesheetSubmitted(session.user.username, formatDate(new Date(submission.periodEnd))),
       type: NotificationType.APPROVAL_REQUEST,
       actionType: "VIEW_TIMESHEET",
     });
@@ -322,12 +321,11 @@ export async function PUT(req: Request) {
         },
       },
     });
-
     // Notify user of status change
     await notifyUsersByRole({
       role: "Admin",
-      title: "TimeSheet Approval Request",
-      message: `Admin ${session.user.username} ${updatedSubmission.status} the ${formatDate(new Date(updatedSubmission.periodEnd))} timesheet of ${updatedSubmission.user.username}`,
+      title: "Timesheet Approval Request",
+      message: NotificationMessage.TimesheetStatusChange(session.user.username, updatedSubmission.user.username, formatDate(new Date(updatedSubmission.periodEnd)), status),
       type: NotificationType.APPROVAL_REQUEST,
       actionType: "VIEW_TIMESHEET",
     });
