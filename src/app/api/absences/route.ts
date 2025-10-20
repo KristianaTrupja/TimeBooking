@@ -1,13 +1,17 @@
 import { getBusinessDays } from "@/app/utils/dateUtils";
+import { NotificationMessage } from "@/constants/notificationTemplates";
 import { db } from "@/lib/db";
+import { notifyUsersByRole } from "@/lib/notificationsLib";
 import { AbsenceType } from "@/types/absence";
+import { NotificationType } from "@prisma/client";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { startDate, endDate, type, userId } = body;
+    const { startDate, endDate, type, userId:employeeId } = body;
 
+    // Convert to Date objects
     const start = new Date(startDate);
     const end = new Date(endDate);
 
@@ -25,74 +29,42 @@ export async function POST(req: Request) {
       );
     }
 
-    const currentYear = new Date().getFullYear();
-    const [holidays, absences] = await Promise.all([
+    const [holidays, absences, employee] = await Promise.all([
       db.holidays.findMany({
         select: { date: true }
       }),
       db.absence.findMany({
         where: { 
-          userId: Number(userId),
+          userId: Number(employeeId),
           startDate: { lte: end },
           endDate: { gte: start }
         }
+      }),
+      db.user.findFirst({
+        where: { 
+          id: Number(employeeId)
+        }
       })
-    ]);
-    
-    if (absences.length) {
+    ])
+
+    if(!employee){
       return NextResponse.json(
-        { message: "The selected absence range overlaps with other absences for this employee!" },
-        { status: 409 }
-      );
+        { message: `Employee with id: ${employeeId} was not found!` },
+        { status: 404 }
+      )
     }
 
-    const holidayDates = holidays.map(h => h.date);
-    const requestedDays = getBusinessDays(start, end, holidayDates);
+    function niceDate(date:Date):string{
+      return date.toLocaleDateString('en-GB', {day: 'numeric',month: 'short',year: 'numeric'})
+    }
 
-    // Vacation balance check for VACATION type only
-    if (type === 'VACATION') {
-      const [totalVacationDays, usedDaysResult] = await Promise.all([
-        db.totalVocationDays.findFirst({
-          where: {
-            userId: Number(userId),
-            year: currentYear,
-          },
-          select: {
-            grantedDays: true,
-          },
-        }),
-        db.absence.aggregate({
-          where: {
-            userId: Number(userId),
-            type: 'VACATION',
-            startDate: {
-              gte: new Date(currentYear, 0, 1),
-            },
-          },
-          _sum: {
-            days: true,
-          },
-        }),
-      ]);
-
-      if (!totalVacationDays || totalVacationDays.grantedDays === 0) {
-        return NextResponse.json(
-          { message: "No vacation days available for current year. Please contact HR." },
-          { status: 422 }
-        );
-      }
-
-      const usedDays = usedDaysResult._sum.days || 0;
-      const availableDays = totalVacationDays.grantedDays - usedDays;
-
-      if (requestedDays > availableDays) {
-        return NextResponse.json(
-          { 
-            message: `Insufficient vacation days. Available: ${availableDays} days, Requested: ${requestedDays} days.` 
-          },
-          { status: 422 }
-        );
-      }
+    if(absences.length){
+      const selectedRange = niceDate(start) + " to " + niceDate(end)
+      const prevAbsences = absences.map(a => `[${a.type}: ${niceDate(a.startDate)} -  ${niceDate(a.endDate)}]`).join(", ")
+      return NextResponse.json(
+        { message: `Selected date range "${selectedRange}" overlaps with other absences for this employee: ${prevAbsences}` },
+        { status: 409 }
+      )
     }
 
     const newAbsence = await db.absence.create({
@@ -100,16 +72,27 @@ export async function POST(req: Request) {
         startDate: start,
         endDate: end,
         type,
-        userId: Number(userId),
-        days: requestedDays,
+        userId:employeeId,
       },
-    });
+      include: {
+          user: {
+            select: { username: true },
+          },
+      },
+    })
+
+    await notifyUsersByRole({
+      role: "Admin",
+      title: "Absence Approved",
+      message: NotificationMessage.AbsenceApproved(newAbsence.user.username, start.toLocaleDateString(), end.toLocaleDateString()),
+      type: NotificationType.INFO,
+      actionType: "VIEW_ABSENCE",
+      actionUrl: `/admin?tab=modify-absences`,
+    })
+    const holidayDates = holidays.map(h => h.date)
 
     return NextResponse.json(
-      { 
-        absence: newAbsence, 
-        message: `${requestedDays} days off granted successfully.` 
-      },
+      { absence: newAbsence, message: `${getBusinessDays(start, end, holidayDates)} days off successfully granted to ${employee.username}.` },
       { status: 201 }
     );
   } catch (error: any) {
@@ -120,7 +103,6 @@ export async function POST(req: Request) {
     );
   }
 }
-
   
 
 export async function GET(req: Request) {
@@ -213,5 +195,3 @@ export async function DELETE(req: Request) {
       return NextResponse.json({ message: "Failed to delete absence" }, { status: 500 });
     }
 }
-
-

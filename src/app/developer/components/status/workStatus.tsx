@@ -8,7 +8,7 @@ export default function WorkStatus() {
 
   if (isPending) {
     return (
-      <div className={`bg-yellow-100 text-yellow-900 px-3 py-1 rounded shadow text-sm font-semibold`}>
+      <div className={`bg-yellow-100 text-yellow-900 px-3 py-1 m-2 rounded shadow text-sm font-semibold`}>
         Unsaved changes
       </div>
     );
@@ -16,7 +16,7 @@ export default function WorkStatus() {
 
   if (isSaved) {
     return (
-      <div className={`bg-green-500 text-white px-3 py-1 rounded shadow text-sm font-semibold`}>
+      <div className={`bg-green-500 text-white px-3 py-1 m-2 rounded shadow text-sm font-semibold`}>
         Saved
       </div>
     );

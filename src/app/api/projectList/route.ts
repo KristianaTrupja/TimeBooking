@@ -43,31 +43,6 @@ export async function GET() {
   }
 }
 
-export async function DELETE(req: Request) {
-  try {
-    const { id } = await req.json();
-    if (!id) {
-      return NextResponse.json(
-        { message: "Project ID is required" },
-        { status: 400 }
-      );
-    }
-
-    await db.projects.delete({ where: { id } });
-    return NextResponse.json(
-      { message: "Project deleted successfully" },
-      { status: 200 }
-    );
-  } catch (error) {
-    console.error("Error deleting project:", error);
-    return NextResponse.json(
-      { message: "Failed to delete project" },
-      { status: 500 }
-    );
-  }
-}
-
-
 export async function PUT(req: Request) {
   try {
     const body = await req.json();
@@ -93,6 +68,30 @@ export async function PUT(req: Request) {
     console.error("Error updating project:", error);
     return NextResponse.json(
       { message: "Failed to update project" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(req: Request) {
+  try {
+    const { id } = await req.json();
+    if (!id) {
+      return NextResponse.json(
+        { message: "Project ID is required" },
+        { status: 400 }
+      );
+    }
+
+    await db.projects.delete({ where: { id } });
+    return NextResponse.json(
+      { message: "Project deleted successfully" },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Error deleting project:", error);
+    return NextResponse.json(
+      { message: "Failed to delete project" },
       { status: 500 }
     );
   }

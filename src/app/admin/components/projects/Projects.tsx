@@ -157,7 +157,7 @@ export default function Projects() {
 
   return (
     <section className="flex gap-10 font-[var(--font-anek-bangla)]">
-      <Toaster position="top-center" />
+      {/* <Toaster position="top-center" /> */}
       <div className="bg-[#E3F0FF] w-1/2 2xl:w-1/3 h-[70vh] flex justify-center shadow-xl">
         <ProjectList
           selectors={selectors}

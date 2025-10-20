@@ -17,7 +17,6 @@ export default function Users() {
     email: "",
     password: "",
     role: "",
-    totalVocations: 0
   });
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState<{ users: User[] } | null>(null);
@@ -82,17 +81,16 @@ export default function Users() {
       email: emp.email,
       password: "",
       role: emp.role,
-      totalVocations: emp.totalVocations
     });
   };
 
   const saveChanges = async () => {
-    const { id, username, email, role, password, totalVocations } = formData;
-    if (!id || !username || !email || !role || !totalVocations || (!isPasswordStrong(password) && password)) {
+    const { id, username, email, role, password } = formData;
+    if (!id || !username || !email || !role || (!isPasswordStrong(password) && password)) {
       toast.error("Ju lutem plotësoni të gjitha fushat.");
       return;
     }
-    const payload: any = { id, username, email, role, totalVocations: Number(totalVocations) };
+    const payload: any = { id, username, email, role };
     if (password.trim()) {
       payload.password = password;
     }
@@ -114,7 +112,7 @@ export default function Users() {
         }));
         toast.success("Përdoruesi u përditësua me sukses.");
         setEditingId(null);
-        setFormData({ id: 0, username: "", email: "", password: "", role: "", totalVocations: 0 });
+        setFormData({ id: 0, username: "", email: "", password: "", role: "" });
       } else {
         const err = await res.json();
         toast.error(err.message || "Përditësimi dështoi.");
@@ -158,40 +156,39 @@ export default function Users() {
   if (isLoading) return <Spinner />;
 
   return (
-    <section className="overflow-auto max-h-[500px] 2xl:max-h-[700px] rounded-md pb-10">
-      <UserTable
-        employees={user?.users || []}
-        editingId={editingId}
-        formData={formData}
-        onChange={handleInputChange}
-        onEdit={startEditing}
-        onDelete={deleteItem}
-        onSave={saveChanges}
-      />
+  <section className="rounded-md">
+      <section className="overflow-y-auto max-h-[66vh] rounded-md pb-10">
+        <UserTable
+          employees={user?.users || []}
+          editingId={editingId}
+          formData={formData}
+          onChange={handleInputChange}
+          onEdit={startEditing}
+          onDelete={deleteItem}
+          onSave={saveChanges}
+        />
 
-      <div className="flex justify-center mt-5 2xl:mt-20">
-        <Button onClick={() => setOpen(true)}>Shto të ri</Button>
-      </div>
+        <AddUserModal
+          open={open}
+          onClose={() => {
+            setOpen(false);
+            setFormData({
+              id: 0,
+              username: "",
+              email: "",
+              password: "",
+              role: "",
+            });
+          }}
+          formData={formData}
+          onChange={handleInputChange}
+          onSubmit={addNewEmployee}
+        />
 
-      <AddUserModal
-        open={open}
-        onClose={() => {
-          setOpen(false);
-          setFormData({
-            id: 0,
-            username: "",
-            email: "",
-            password: "",
-            role: "",
-            totalVocations: 0
-          });
-        }}
-        formData={formData}
-        onChange={handleInputChange}
-        onSubmit={addNewEmployee}
-      />
-
-      <Toaster />
-    </section>
+      </section>
+        <div className="flex justify-center my-5">
+          <Button onClick={() => setOpen(true)}>Shto të ri</Button>
+        </div>
+  </section>
   );
 }

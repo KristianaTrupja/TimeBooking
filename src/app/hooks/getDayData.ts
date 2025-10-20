@@ -1,11 +1,11 @@
-import { WorkHoursMap, DayWorkEntry } from "@/types/workDay";
+import { WorkHoursMap, DayWorkEntry, WorkHours, WorkEntry } from "@/types/workDay";
 
 export function getDayData(
-  workHours: WorkHoursMap,
+  workHours: WorkHours,
   date: string,
   userId: string,
   projectKey: string
-): DayWorkEntry {
+): WorkEntry {
   const key = projectKey.toLowerCase().replace(/\s+/g, "-");
   return workHours[date]?.[userId]?.[key] ?? { hours: 0, note: "" };
 }

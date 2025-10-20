@@ -1,19 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import { useWorkHours } from "@/app/context/WorkHoursContext";
 import { useCalendar } from "@/app/context/CalendarContext";
 import { isWeekend } from "@/app/utils/dateUtils";
-import { normalizeProjectKey } from "@/app/utils/normalizeProjectKey";
 import { WorkHoursModal } from "@/app/components/WorkHoursModal";
 import { DayBoxProps } from "@/types/workDay";
 import { useDayHoliday } from "@/app/hooks/useDayHoliday";
-import { getDayData } from "@/app/hooks/getDayData";
 import { useAbsenceContext } from "@/app/context/AbsencesContext";
 import { useIsAbsentDay } from "@/app/hooks/useIsAbsentDay";
 import { useHolidayContext } from "@/app/context/HolidayContext";
 
 export default function WorkDay({
+  dayData,
+  isDisabled,
   date,
   projectKey,
   userId,
@@ -26,7 +25,6 @@ export default function WorkDay({
   const { year, month, refreshPendingStatus } = useCalendar();
   const [holidays, loading] = useHolidayContext();
   const [absences, absenceLoading] = useAbsenceContext();
-  const { workHours, setWorkHoursForProject } = useWorkHours();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const day = parseInt(date.split("-")[2], 10);
@@ -34,16 +32,13 @@ export default function WorkDay({
   const { isHoliday, holidayTitle } = useDayHoliday(year, month, day, holidays);
   const { isAbsentDay, absenceType } = useIsAbsentDay(absences, date);
 
-  const normalizedKey = normalizeProjectKey(projectKey);
-  const dayData = getDayData(workHours, date, userId, normalizedKey);
-
   // Load from sessionStorage
   const localKey = `workhours_${userId}_${projectKey}_${date}`;
   const localDataRaw = typeof window !== "undefined" ? sessionStorage.getItem(localKey) : null;
-  const localData = localDataRaw ? JSON.parse(localDataRaw) : null;
+  const localData = localDataRaw ? JSON.parse(localDataRaw) : null; // [••2••]
 
   const isPending = !!localData;
-  const displayData = localData ?? dayData;
+  const displayData = localData ?? dayData; // [••1••]
 
   if (loading || absenceLoading) return null;
 
@@ -65,7 +60,7 @@ export default function WorkDay({
   return (
     <>
       <div
-        onClick={() => !isAbsentDay && setIsModalOpen(true)}
+        onClick={() => !isAbsentDay && !isDisabled && setIsModalOpen(true)}
         onMouseEnter={() => {
           setHoveredColIndex(colIndex);
           setHoveredProjectKey(projectKey);
@@ -75,9 +70,9 @@ export default function WorkDay({
           setHoveredProjectKey(null);
         }}
         title={title ?? undefined}
-        className={`relative w-9 h-9 flex items-center justify-center text-sm cursor-pointer border-r border-b border-gray-300
-          ${isHoliday ? "bg-green-100" : isAbsentDay ? "bg-orange-100 cursor-default" : isWeekendDay ? "bg-gray-100" : "bg-white hover:bg-gray-100"}
-          ${isHovered && !isWeekendDay && !isHoliday && !isAbsentDay && "!bg-[#f1f7fde7]"}
+        className={`relative w-9 h-9 flex items-center justify-center text-sm border-r border-b border-gray-300
+          ${isHoliday ? "bg-green-100" : isDisabled ? "bg-slate-100 text-slate-400 font-bold !border-gray-200" : isAbsentDay ? "bg-orange-100 cursor-default" : isWeekendDay ? "bg-gray-100" : "bg-white hover:bg-gray-100 cursor-pointer"}
+          ${isHovered && !isDisabled && !isWeekendDay && !isHoliday && !isAbsentDay && "!bg-[#f1f7fde7]"}
           ${isPending ? " font-bold text-blue-900 border-blue-400" : ""}
         `}
       >

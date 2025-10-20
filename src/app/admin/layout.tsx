@@ -8,10 +8,10 @@ import SignOutButton from "../developer/components/signoutbutton/SignOutButton";
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
  
   const session = await getServerSession(authOptions);
-
+  
   return (
     <section
-      className="2xl:mx-40 pt-11 min-h-screen"
+      className="2xl:mx-40 pt-11 h-screen flex flex-col"
       style={{ fontFamily: "var(--font-anek-bangla)" }}
     >
       <div className="flex justify-between mb-6 items-center">
@@ -29,10 +29,12 @@ export default async function DashboardLayout({ children }: { children: React.Re
         </div>
       </div>
       <TopNavBar />
-      <Suspense fallback={<div>Loading sidebar...</div>}>
-        <Sidebar />
-      </Suspense>
-      <main className="ml-64">{children}</main>
+      <div className="flex w-full grow">
+        <Suspense fallback={<div>Loading sidebar...</div>}>
+          <Sidebar />
+        </Suspense>
+        <main className="grow overflow-hidden">{children}</main>
+      </div>
     </section>
   );
 }

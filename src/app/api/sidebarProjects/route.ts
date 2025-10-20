@@ -32,7 +32,6 @@ export async function GET(req: NextRequest) {
   return NextResponse.json(response);
 }
 
-
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {

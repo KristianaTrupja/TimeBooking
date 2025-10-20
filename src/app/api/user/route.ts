@@ -1,8 +1,17 @@
 import { db } from "@/lib/db";
 import { NextResponse } from "next/server";
 import { hash } from "bcrypt";
+import { notifyUsersByRole } from "@/lib/notificationsLib";
+import { NotificationType } from "@prisma/client";
+import { NotificationMessage } from "@/constants/notificationTemplates";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 export async function POST(req: Request) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  }
   try {
     const body = await req.json();
     const { username, email, password, role } = body;
@@ -33,6 +42,14 @@ export async function POST(req: Request) {
     });
 
     const { password: _, ...userWithoutPassword } = newUser;
+
+    await notifyUsersByRole({
+      role: "Admin",
+      title: "New User Created",
+      message: NotificationMessage.UserCreated(newUser.username, session.user.username),
+      type: NotificationType.INFO,
+      actionType: "VIEW_USERS",
+    })
 
     return NextResponse.json(
       { user: userWithoutPassword, message: "User created successfully" },

@@ -41,7 +41,7 @@ export default function FilterAbsences({
 
   return (
     <section className="flex justify-between">
-      <div className="AbsenceUserFilter flex items-center w-fit">
+      <div className="AbsenceUserFilter flex items-center w-fit text-[#244B77]">
         {hasFilters ? <button title="Clear all filters" onClick={onReset}>
           <FunnelX className="bg-red-500 py-1 rounded text-sm font-semibold hover:shadow-lg text-white" />
         </button> :

@@ -51,48 +51,40 @@ export default async function DashboardLayout({
   }
 
   return (
-    <HolidayProvider>
-      <AbsenceProvider>
-        <WorkHoursProvider>
-          <CalendarProvider>
-            <ProjectProvider>
-              <section
-                className="transition-opacity duration-300 2xl:mx-50 pt-11 min-h-screen w-auto 2xl:container"
-                style={{ fontFamily: "var(--font-anek-bangla)" }}
-              >
-                <div className="flex justify-between mb-6 items-center">
-                  <h2
-                    className="text-4xl sm:text-6xl text-[#244B77] text-center"
-                    style={{ fontFamily: "var(--font-keania-one)" }}
-                  >
-                    ClockIn
-                  </h2>
-                  <div className="user-name flex items-center pr-5 2xl:pr-0">
-                    <h4 className="text-[#116B16] font-semibold text-xl mr-10">
-                      {displayedUsername} (
-                      {displayedRole?.toLowerCase() === "admin"
-                        ? "Admin"
-                        : "Developer"}
-                      )
-                    </h4>
-                    <AdminBackButton />
-                    <SignOutButton />
+      <HolidayProvider>
+        <AbsenceProvider>
+          <WorkHoursProvider>
+            <CalendarProvider>
+              <ProjectProvider>
+                <section
+                  className="transition-opacity duration-300 2xl:mx-50 pt-11 min-h-screen w-auto 2xl:container"
+                  style={{ fontFamily: "var(--font-anek-bangla)" }}
+                >
+                  <div className="flex justify-between mb-6 items-center">
+                    <h2
+                      className="text-4xl sm:text-6xl text-[#244B77] text-center"
+                      style={{ fontFamily: "var(--font-keania-one)" }}
+                    >
+                      ClockIn
+                    </h2>
+                    <div className="user-name flex items-center pr-5 2xl:pr-0">
+                      <h4 className="text-[#116B16] font-semibold text-xl mr-10">
+                        {displayedUsername} (
+                        {displayedRole?.toLowerCase() === "admin"
+                          ? "Admin"
+                          : "Developer"}
+                        )
+                      </h4>
+                      <AdminBackButton />
+                      <SignOutButton />
+                    </div>
                   </div>
-                </div>
-                <SidebarHeader />
-                <main className="2xl:w-fit flex">
-                  <Sidebar />
                   {children}
-                </main>
-                <div className="flex justify-end items-center gap-4 p-4 mt-5">
-                  <ConfirmButton />
-                  <SaveButton />
-                </div>
-              </section>
-            </ProjectProvider>
-          </CalendarProvider>
-        </WorkHoursProvider>
-      </AbsenceProvider>
-    </HolidayProvider>
+                </section>
+              </ProjectProvider>
+            </CalendarProvider>
+          </WorkHoursProvider>
+        </AbsenceProvider>
+      </HolidayProvider>
   );
 }

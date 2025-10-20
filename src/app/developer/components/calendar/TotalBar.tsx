@@ -10,7 +10,7 @@ export default function TotalBar() {
   const pathname = usePathname();
   const userId = pathname.split("/")[2];
   const { month, year } = useCalendar();
-  const { getTotalHoursForProjectInMonth } = useWorkHours();
+  const { getTotalHoursForProjectInMonth, metadata } = useWorkHours();
   const { sidebarProjects, removeProject, loadingProjects } = useProjects();
 
   const sum = useMemo(() => {
@@ -48,10 +48,10 @@ export default function TotalBar() {
                   key={proj.projectKey}
                 >
                   <div>{total.toFixed(2)}</div>
-                  <Delete
+                  {!metadata?.isLocked && <Delete
                     className="w-5 h-5 text-red-500 cursor-pointer"
                     onClick={() => removeProject(proj.projectKey)}
-                  />
+                  />}
                 </div>
               );
             })}

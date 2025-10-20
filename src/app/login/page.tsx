@@ -59,7 +59,7 @@ export default function Login() {
   return (
     <section className="m-5 sm:m-auto sm:max-w-2/3 lg:max-w-1/3 pt-32">
       <h2 className="text-6xl sm:text-7xl text-[#244B77] text-center">
-        <span className="font-bold">DelaTech</span>
+        <span className="font-bold">DELAtech</span>
         <span className="block text-5xl sm:text-5xl">Time Booking</span>
       </h2>
 
@@ -106,7 +106,6 @@ export default function Login() {
           </div>
         </form>
       </div>
-      <Toaster />
     </section>
   );
 }

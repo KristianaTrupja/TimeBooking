@@ -24,7 +24,14 @@ interface DropdownProps<T> {
   selectedValue: (value: T | null) => string
   values: T[]
   value: T | null
-  onSelect: (value: T | null) => void
+  onSelect?: (value: T | null) => void
+  /**
+   * If you want to include an option which represents Select All options, but sometimes you might not need this option
+   * then provide hasAll: false
+   * This options `returns` `NULL`, so selectAll = `NULL` value so you should handle it properly
+   */
+  hasAllOption?:boolean
+  isDisabled?:boolean
 }
 
 export default function Dropdown<T>({ 
@@ -32,23 +39,25 @@ export default function Dropdown<T>({
   value,
   formatValues, 
   selectedValue, 
-  onSelect 
+  onSelect,
+  hasAllOption = true,
+  isDisabled
 }: DropdownProps<T>) {
 
   function handleSelect(newValue: T | null) {
-    onSelect(newValue)
+    if(onSelect) onSelect(newValue)
   }
 
   return (
     <div className="Dropdown flex w-fit ">
-      <Menu as="div" className="relative inline-block text-[#244B77]">
-        <MenuButton className="inline-flex w-full outline-1 outline-black/5 justify-center data-closed:text-red-400 gap-x-1.5 px-3 py-2 text-sm font-semibold inset-ring-1 inset-ring-white/5">
+      <Menu as="div" className="relative inline-block text-inherit">
+        <MenuButton disabled={isDisabled} className="inline-flex w-full outline-1 outline-black/5 justify-center data-closed:text-red-400 gap-x-1.5 px-3 py-2 text-sm font-semibold inset-ring-1 inset-ring-white/5">
           {selectedValue(value)}
         </MenuButton>
 
         <MenuItems className="absolute left-0 z-50 min-w-40 w-fit origin-top-left rounded-md bg-white shadow-[1px_2px_4px_rgba(0,0,0,0.25)] outline-none transition data-closed:scale-95 data-closed:transform data-closed:opacity-0 data-enter:duration-100 data-enter:ease-out data-leave:duration-75 data-leave:ease-in">
           <div className="py-1">
-            <MenuItem>
+            {hasAllOption && <MenuItem>
               <a
                 href="#"
                 onClick={() => handleSelect(null)}
@@ -58,7 +67,7 @@ export default function Dropdown<T>({
               >
                 All
               </a>
-            </MenuItem>
+            </MenuItem>}
             {values.map((v, i) => (
               <MenuItem key={i}>
                 <a

@@ -2,6 +2,7 @@
 import { Bell, Settings } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { useNotifications } from "@/app/context/NotificationContext";
 
 const topBarItems = [
   { icon: <Bell className="w-6 h-6" />, tab: "notifications" },
@@ -13,6 +14,7 @@ export default function TopNavBar() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const currentTab = searchParams.get("tab") || "raport";
+  const { unreadNotificationsCount } = useNotifications()
 
   const handleClick = (tab: string) => {
     router.push(`${pathname}?tab=${tab}`);
@@ -29,11 +31,14 @@ export default function TopNavBar() {
               onClick={() => handleClick(item.tab)}
               title={item.tab}
               className={cn(
-                "rounded-md p-1 px-2 transition text-[#244B77] bg-white flex gap-1 font-bold capitalize",
+                "relative rounded-md p-1 px-2 transition text-[#244B77] bg-white flex gap-1 font-bold capitalize",
                 isActive && item.tab === "notifications" && "bg-[#6C99CB] text-white",
                 isActive && item.tab === "settings" && "bg-[#6C99CB] text-white"
               )}
             >
+              {item.tab === "notifications" &&
+              unreadNotificationsCount > 0 &&
+              <span className="UnreadNotificationCount inline-block px-1 rounded-full text-sm text-white top-[-7] left-[-7] absolute bg-red-500">{unreadNotificationsCount}</span>}
               {item.icon}
               {item.tab}
             </button>
