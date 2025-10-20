@@ -1,7 +1,7 @@
 import { getBusinessDays } from "@/app/utils/dateUtils";
 import { NotificationMessage } from "@/constants/notificationTemplates";
 import { db } from "@/lib/db";
-import { notifyUsersByRole } from "@/lib/notificationsLib";
+import { notifyUser, notifyUsersByRole } from "@/lib/notificationsLib";
 import { AbsenceType } from "@/types/absence";
 import { NotificationType } from "@prisma/client";
 import { NextResponse } from "next/server";
@@ -81,13 +81,25 @@ export async function POST(req: Request) {
       },
     })
 
+    const formatDate = (date: Date) => {
+        const day = String(date.getUTCDate()).padStart(2, '0');
+        const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+        const year = date.getUTCFullYear();
+        return `${day}/${month}/${year}`;
+    }
+    // Here I am sending Notifications to both Admins and Employee
     await notifyUsersByRole({
       role: "Admin",
       title: "Absence Approved",
-      message: NotificationMessage.AbsenceApproved(newAbsence.user.username, start.toLocaleDateString(), end.toLocaleDateString()),
+      message: NotificationMessage.AbsenceApproved(newAbsence.user.username, formatDate(start), formatDate(end)),
       type: NotificationType.INFO,
       actionType: "VIEW_ABSENCE",
-      actionUrl: `/admin?tab=modify-absences`,
+    })
+    await notifyUser(employeeId, {
+      title: "Absence Approved",
+      message: NotificationMessage.AbsenceApproved(newAbsence.user.username, formatDate(start), formatDate(end)),
+      type: NotificationType.INFO,
+      actionType: "VIEW_ABSENCE",
     })
     const holidayDates = holidays.map(h => h.date)
 

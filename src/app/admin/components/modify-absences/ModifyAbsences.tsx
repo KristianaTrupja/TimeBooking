@@ -78,13 +78,13 @@ export default function ModifyAbsences() {
     );
   }, [filters])
 
-  const formatDate = (dateStr: string) =>
-    new Date(dateStr).toLocaleDateString("sq-AL", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-      timeZone: "UTC"
-    });
+  const formatDate = (dateStr: string) => {
+    const date = new Date(dateStr);
+    const day = String(date.getUTCDate()).padStart(2, '0');
+    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+    const year = date.getUTCFullYear();
+    return `${day}/${month}/${year}`;
+  };
 
   // const getUsername = (userId: string | number) =>
   //   employees.find((user) => user.id === Number(userId))?.username || "—";
