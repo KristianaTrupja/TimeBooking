@@ -116,7 +116,7 @@ export default function Absences() {
             value={selectedEmployee || ""}
           />
         </div>
-        {daysLeft && <div className="border-b-2 border-dotted border-b-[#244B77] text-sm h-fit text-[#244B77]">Vocations Left: <span className="font-bold">{daysLeft} {daysLeft === 1 ? "Day" : "Days"}</span></div>}
+        {typeof daysLeft === "number" && <div className="border-b-2 border-dotted border-b-[#244B77] text-sm h-fit text-[#244B77]">Vocations Left: <span className="font-bold">{daysLeft} {daysLeft === 1 ? "Day" : "Days"}</span></div>}
       </div>
 
       {/* Date Pickers */}
