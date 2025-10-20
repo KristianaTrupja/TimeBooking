@@ -11,16 +11,16 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { startDate, endDate, type, userId:employeeId } = body;
 
-    // Convert to Date objects
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-
-    if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+    if (!dateRegex.test(startDate) || !dateRegex.test(endDate)) {
       return NextResponse.json(
-        { message: "Invalid date format" },
+        { message: "Invalid date format. Expected YYYY-MM-DD" },
         { status: 400 }
       );
     }
+
+    const start = new Date(startDate + 'T00:00:00.000Z');
+    const end = new Date(endDate + 'T00:00:00.000Z');
 
     if (start > end) {
       return NextResponse.json(
@@ -29,7 +29,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const [holidays, absences, employee] = await Promise.all([
+    const [holidays, previousAbsences, employee] = await Promise.all([
       db.holidays.findMany({
         select: { date: true }
       }),
@@ -55,14 +55,14 @@ export async function POST(req: Request) {
     }
 
     function niceDate(date:Date):string{
-      return date.toLocaleDateString('en-GB', {day: 'numeric',month: 'short',year: 'numeric'})
+      return date.toLocaleDateString('en-GB', {day: 'numeric',month: 'short',year: 'numeric', timeZone: 'UTC'})
     }
 
-    if(absences.length){
+    if(previousAbsences.length){
       const selectedRange = niceDate(start) + " to " + niceDate(end)
-      const prevAbsences = absences.map(a => `[${a.type}: ${niceDate(a.startDate)} -  ${niceDate(a.endDate)}]`).join(", ")
+      const beautifiedAbsences = previousAbsences.map(a => `[${a.type}: ${niceDate(a.startDate)} -  ${niceDate(a.endDate)}]`).join(", ")
       return NextResponse.json(
-        { message: `Selected date range "${selectedRange}" overlaps with other absences for this employee: ${prevAbsences}` },
+        { message: `Selected date range "${selectedRange}" overlaps with other absences for this employee: ${beautifiedAbsences}` },
         { status: 409 }
       )
     }

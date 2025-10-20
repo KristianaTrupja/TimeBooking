@@ -4,7 +4,6 @@ import Selector from "@/app/components/Selector";
 import { User } from "@/types/user";
 import Spinner from "@/components/ui/Spinner";
 import { AbsenceType } from "@/types/absence";
-import { MessageSquareWarning, Sparkles, X } from "lucide-react";
 import { flushError } from "@/app/utils/flushError";
 import { toast } from "sonner";
 
@@ -13,8 +12,8 @@ const selectorStyle = "bg-[#E3F0FF] text-[#244B77] border-[1px] border-[#244B77]
 
 export default function Absences() {
   const [selectedEmployee, setSelectedEmployee] = useState<string | null>(null)
-  const [startDate, setStartDate] = useState<Date|null>(null)
-  const [endDate, setEndDate] = useState<Date|null>(null)
+  const [startDate, setStartDate] = useState<string>("")
+  const [endDate, setEndDate] = useState<string>("")
   const [absenceType, setAbsenceType] = useState<string | null>(null)
   const [employees, setEmployees] = useState<User[]| null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -75,8 +74,8 @@ export default function Absences() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           userId: user.id,
-          startDate: startDate.toISOString(),
-          endDate: endDate.toISOString(),
+          startDate: startDate,
+          endDate: endDate,
           type: absenceType,
         }),
       });
@@ -85,8 +84,8 @@ export default function Absences() {
       if (!response.ok) throw new Error(data.message || "Failed to create absence");
       // Reset form
       setSelectedEmployee(null);
-      setStartDate(null);
-      setEndDate(null)
+      setStartDate("");
+      setEndDate("")
       setAbsenceType(null);
 
       toast.success(data.message || "Absence created successfully!")
@@ -117,7 +116,7 @@ export default function Absences() {
             value={selectedEmployee || ""}
           />
         </div>
-        {daysLeft && <div className="text-sm underline decoration-dotted underline-offset-8 h-fit text-[#244B77]">Vocations Left: <span className="font-bold">{daysLeft} {daysLeft === 1 ? "Day" : "Days"}</span></div>}
+        {daysLeft && <div className="border-b-2 border-dotted border-b-[#244B77] text-sm h-fit text-[#244B77]">Vocations Left: <span className="font-bold">{daysLeft} {daysLeft === 1 ? "Day" : "Days"}</span></div>}
       </div>
 
       {/* Date Pickers */}
@@ -130,8 +129,8 @@ export default function Absences() {
             type="date"
             id="start-date"
             className="bg-white text-[#244B77] px-3 py-2 text-sm w-2/3"
-            value={startDate ? startDate.toISOString().split('T')[0] : ""}
-            onChange={(e) => setStartDate(e.target.value ? new Date(e.target.value) : null)}
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
           />
         </div>
         <div className="flex items-baseline w-full gap-5 justify-between">
@@ -142,8 +141,8 @@ export default function Absences() {
             type="date"
             id="end-date"
             className="bg-white text-[#244B77] px-3 py-2 text-sm w-2/3"
-            value={endDate ? endDate.toISOString().split('T')[0] : ""}
-            onChange={(e) => setEndDate(e.target.value ? new Date(e.target.value) : null)}
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
           />
         </div>
       </div>

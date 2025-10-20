@@ -56,39 +56,50 @@ export function getEndOfMonth(input: Date | string):Date {
 }
 
 
-export function getBusinessDays( startDate: Date, endDate: Date, holidays: string[] = []): number {
+export function getBusinessDays(
+  startDate: Date,
+  endDate: Date,
+  holidays: string[] = []
+): number {
   if (endDate < startDate) return 0;
 
-  const start = new Date(startDate);
-  start.setHours(0, 0, 0, 0);
+  // Work with UTC dates to avoid timezone issues
+  const start = new Date(Date.UTC(
+    startDate.getUTCFullYear(),
+    startDate.getUTCMonth(),
+    startDate.getUTCDate()
+  ));
   
-  const end = new Date(endDate);
-  end.setHours(23, 59, 59, 999);
+  const end = new Date(Date.UTC(
+    endDate.getUTCFullYear(),
+    endDate.getUTCMonth(),
+    endDate.getUTCDate()
+  ));
 
-  // Calculate total days
+  // Calculate total days (including both start and end dates)
   const millisecondsPerDay = 86400 * 1000;
   const diff = end.getTime() - start.getTime();
-  let days = Math.ceil(diff / millisecondsPerDay);
+  let days = Math.floor(diff / millisecondsPerDay) + 1; // +1 to include both start and end
 
   // Calculate full weeks and subtract weekend days
   const weeks = Math.floor(days / 7);
   days = days - (weeks * 2);
 
   // Handle partial weeks
-  const startDay = start.getDay();
-  const endDay = end.getDay();
+  const startDay = start.getUTCDay();
+  const endDay = end.getUTCDay();
 
   // Remove weekend days not previously removed
   if (startDay - endDay > 1) {
     days = days - 2;
   }
 
-  // Remove start day if span starts on Sunday but ends before Saturday
+  // Remove start day if it's Sunday
   if (startDay === 0 && endDay !== 6) {
     days = days - 1;
   }
 
-  // Remove end day if span ends on Saturday but starts after Sunday
+  // Remove end day if it's Saturday
   if (endDay === 6 && startDay !== 0) {
     days = days - 1;
   }
@@ -98,16 +109,19 @@ export function getBusinessDays( startDate: Date, endDate: Date, holidays: strin
   const current = new Date(start);
   
   while (current <= end) {
-    const dayOfWeek = current.getDay();
+    const dayOfWeek = current.getUTCDay();
     const dateString = current.toISOString().split('T')[0];
     
+    // Only count holidays on weekdays (Monday-Friday)
     if (dayOfWeek !== 0 && dayOfWeek !== 6 && holidaySet.has(dateString)) {
       days--;
     }
     
-    current.setDate(current.getDate() + 1);
+    // Use UTC date manipulation to avoid timezone shifts
+    current.setUTCDate(current.getUTCDate() + 1);
   }
 
   return Math.max(0, days);
 }
+
 

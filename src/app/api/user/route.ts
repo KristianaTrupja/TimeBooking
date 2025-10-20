@@ -137,42 +137,53 @@ export async function PUT(req: Request) {
       return NextResponse.json(
         { message: "User ID is required" },
         { status: 400 }
-      )
+      );
     }
 
-    
     const updateData: any = { username, email, role };
     if (password) {
       updateData.password = await hash(password, 10);
     }
-    
+
+    const isValidVacation = typeof totalVocations === 'number' && !isNaN(totalVocations);
+
     const currentYear = new Date().getFullYear();
-    const [updatedUser, updatedVacation] = await db.$transaction([
+
+    const txOperation: any[] = [
       db.user.update({
         where: { id },
         data: updateData,
-      }),
-      db.totalVocationDays.upsert({
-        where: {
-          userId_year: {
+      })
+    ];
+
+    if (isValidVacation) {
+      txOperation.push(
+        db.totalVocationDays.upsert({
+          where: {
+            userId_year: {
+              userId: id,
+              year: currentYear,
+            },
+          },
+          update: {
+            grantedDays: totalVocations,
+          },
+          create: {
             userId: id,
             year: currentYear,
+            grantedDays: totalVocations,
           },
-        },
-        update: {
-          grantedDays: totalVocations,
-        },
-        create: {
-          userId: id,
-          year: currentYear,
-          grantedDays: totalVocations,
-        },
-      }),
-    ])
+        })
+      );
+    }
+
+    const results = await db.$transaction(txOperation);
+    const updatedUser = results[0]
+    const updatedVacation = results[1]
 
     const userWithVacation = {
       ...updatedUser,
-      totalVocations: updatedVacation.grantedDays,
+      ...(updatedVacation && { totalVocations: updatedVacation.grantedDays }),
     };
 
     return NextResponse.json({ user: userWithVacation }, { status: 200 });
