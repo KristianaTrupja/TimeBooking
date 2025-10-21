@@ -2,11 +2,13 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth"; // Adjust path as needed
 import { db } from "@/lib/db";
+import { AuthenticationError } from "@/lib/errors/errors";
+import { handleApiError } from "@/lib/errors/handlers";
 
 export async function GET(req: Request, { params }: { params: Promise<{ userId: string }>}) {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
-        return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+      throw new AuthenticationError("Unauthorized")
     }
     
     const { userId } = await params;
@@ -14,8 +16,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ userId: 
     const currentYear = new Date().getFullYear();
     
     try {
-        // Get granted vacation days for the current year
-        const grantedDaysRecord = await db.totalVocationDays.findUnique({
+        const grantedDaysRecord = await db.totalVacationDays.findUnique({
             where: {
                 userId_year: {
                     userId: userIdInt,
@@ -24,40 +25,42 @@ export async function GET(req: Request, { params }: { params: Promise<{ userId: 
             }
         });
 
-        // If no granted days record exists, return 0
         if (!grantedDaysRecord) {
             return NextResponse.json({ days: 0 }, { status: 200 });
         }
 
-        // Query all VACATION absences for the user
         const vacationAbsences = await db.absence.findMany({
             where: {
                 userId: userIdInt,
-                type: "VACATION" // Note: It's VACATION, not VOCATION in your enum
+                type: "VACATION"
             }
         });
 
-        // Calculate total days used
         let totalDaysUsed = 0;
         for (const absence of vacationAbsences) {
             const startDate = new Date(absence.startDate);
             const endDate = new Date(absence.endDate);
             
-            // Calculate difference in milliseconds
-            const diffInMs = endDate.getTime() - startDate.getTime();
+            const utcStart = Date.UTC(
+                startDate.getFullYear(),
+                startDate.getMonth(),
+                startDate.getDate()
+            );
+            const utcEnd = Date.UTC(
+                endDate.getFullYear(),
+                endDate.getMonth(),
+                endDate.getDate()
+            );
             
-            // Convert to days (add 1 to include both start and end dates)
-            const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24)) + 1;
+            const diffInDays = Math.floor((utcEnd - utcStart) / (1000 * 60 * 60 * 24)) + 1;
             
             totalDaysUsed += diffInDays;
         }
 
-        // Calculate remaining days
-        const remainingDays = Math.max(0, grantedDaysRecord.grantedDays - totalDaysUsed);
+        const remainingDays = grantedDaysRecord.grantedDays - totalDaysUsed;
 
         return NextResponse.json({ days: remainingDays }, { status: 200 });
     } catch (error) {
-        console.error("Error fetching absences:", error);
-        return NextResponse.json({ message: "Failed to fetch absences" }, { status: 500 });
+      handleApiError(error)
     }
 }

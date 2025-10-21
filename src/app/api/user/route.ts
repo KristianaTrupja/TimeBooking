@@ -77,7 +77,7 @@ export async function GET() {
         password: true,
         createdAt: true,
         updatedAt: true,
-        vocations: {
+        vacations: {
           where: {
             year: currentYear,
           },
@@ -91,8 +91,8 @@ export async function GET() {
 
     const usersWithVacationDays = users.map(user => ({
       ...user,
-      totalVocations: user.vocations[0]?.grantedDays ?? 0,
-      vocations: undefined,
+      totalVacations: user.vacations[0]?.grantedDays ?? 0,
+      vacations: undefined,
     }))
 
     return NextResponse.json({ users: usersWithVacationDays }, { status: 200 });
@@ -132,7 +132,7 @@ export async function DELETE(req: Request) {
 
 export async function PUT(req: Request) {
   try {
-    const { id, username, email, password, role, totalVocations } = await req.json();
+    const { id, username, email, password, role, totalVacations } = await req.json();
     if (!id) {
       return NextResponse.json(
         { message: "User ID is required" },
@@ -145,7 +145,7 @@ export async function PUT(req: Request) {
       updateData.password = await hash(password, 10);
     }
 
-    const isValidVacation = typeof totalVocations === 'number' && !isNaN(totalVocations);
+    const isValidVacation = typeof totalVacations === 'number' && !isNaN(totalVacations);
 
     const currentYear = new Date().getFullYear();
 
@@ -158,7 +158,7 @@ export async function PUT(req: Request) {
 
     if (isValidVacation) {
       txOperation.push(
-        db.totalVocationDays.upsert({
+        db.totalVacationDays.upsert({
           where: {
             userId_year: {
               userId: id,
@@ -166,12 +166,12 @@ export async function PUT(req: Request) {
             },
           },
           update: {
-            grantedDays: totalVocations,
+            grantedDays: totalVacations,
           },
           create: {
             userId: id,
             year: currentYear,
-            grantedDays: totalVocations,
+            grantedDays: totalVacations,
           },
         })
       );
@@ -183,7 +183,7 @@ export async function PUT(req: Request) {
 
     const userWithVacation = {
       ...updatedUser,
-      ...(updatedVacation && { totalVocations: updatedVacation.grantedDays }),
+      ...(updatedVacation && { totalVacations: updatedVacation.grantedDays }),
     };
 
     return NextResponse.json({ user: userWithVacation }, { status: 200 });

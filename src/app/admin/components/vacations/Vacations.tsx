@@ -2,13 +2,13 @@
 
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import VocationTable from "./VocationTable";
-import AddVocationModal from "./AddVocationModal";
+import VacationTable from "./VacationTable";
+import AddVacationModal from "./AddVacationModal";
 import { Holiday } from "@/types/holiday";
 import Spinner from "@/components/ui/Spinner";
 
-export default function Vocations() {
-  const [vocations, setVocations] = useState<Holiday[]>([]);
+export default function Vacations() {
+  const [vacations, setVacations] = useState<Holiday[]>([]);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editedData, setEditedData] = useState({ date: "", holiday: "" });
   const [modalOpen, setModalOpen] = useState(false);
@@ -16,9 +16,9 @@ export default function Vocations() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/vocations")
+    fetch("/api/vacations")
       .then((res) => res.json())
-      .then((data) => setVocations(data))
+      .then((data) => setVacations(data))
       .catch((err) => console.error("Failed to fetch holidays", err))
       .finally(() => {
         setTimeout(() => {
@@ -28,7 +28,7 @@ export default function Vocations() {
   }, []);
 
   const handleEdit = (id: number) => {
-    const emp = vocations.find((v) => v.id === id);
+    const emp = vacations.find((v) => v.id === id);
     if (emp) {
       setEditingId(id);
       setEditedData({ date: emp.date, holiday: emp.title });
@@ -44,7 +44,7 @@ export default function Vocations() {
 
   const handleSave = async (id: number) => {
     try {
-      const res = await fetch("/api/vocations", {
+      const res = await fetch("/api/vacations", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id, ...editedData }),
@@ -58,7 +58,7 @@ export default function Vocations() {
         title: updated.holiday.holiday,
       };
 
-      setVocations((prev) => prev.map((v) => (v.id === id ? updatedItem : v)));
+      setVacations((prev) => prev.map((v) => (v.id === id ? updatedItem : v)));
       setEditingId(null);
     } catch (error) {
       console.error(error);
@@ -67,21 +67,21 @@ export default function Vocations() {
   };
 
   const handleDelete = async (id: number) => {
-    const emp = vocations.find((v) => v.id === id);
+    const emp = vacations.find((v) => v.id === id);
     const confirmed = window.confirm(
       `A jeni i sigurt që doni të fshini pushimin më datë ${emp?.date}?`
     );
     if (!confirmed) return;
 
     try {
-      const res = await fetch("/api/vocations", {
+      const res = await fetch("/api/vacations", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id }),
       });
       if (!res.ok) throw new Error("Failed to delete");
 
-      setVocations((prev) => prev.filter((v) => v.id !== id));
+      setVacations((prev) => prev.filter((v) => v.id !== id));
     } catch (error) {
       console.error(error);
       alert("Failed to delete holiday");
@@ -102,7 +102,7 @@ export default function Vocations() {
     }
 
     try {
-      const res = await fetch("/api/vocations", {
+      const res = await fetch("/api/vacations", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newHoliday),
@@ -116,7 +116,7 @@ export default function Vocations() {
         date: data.holiday.date,
         title: data.holiday.holiday,
       };
-      setVocations((prev) => [...prev, newItem]);
+      setVacations((prev) => [...prev, newItem]);
       setNewHoliday({ date: "", holiday: "" });
       setModalOpen(false);
     } catch (error) {
@@ -129,8 +129,8 @@ export default function Vocations() {
   return (
     <section className="rounded-md">
       <div className="overflow-y-auto max-h-[66vh]">
-        <VocationTable
-          vocations={vocations}
+        <VacationTable
+          vacations={vacations}
           editingId={editingId}
           editedData={editedData}
           onEdit={handleEdit}
@@ -146,7 +146,7 @@ export default function Vocations() {
         </Button>
       </div>
 
-      <AddVocationModal
+      <AddVacationModal
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
         onChange={handleNewChange}

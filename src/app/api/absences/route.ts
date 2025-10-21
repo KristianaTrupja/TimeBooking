@@ -1,35 +1,38 @@
 import { getBusinessDays } from "@/app/utils/dateUtils";
 import { NotificationMessage } from "@/constants/notificationTemplates";
+import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { AbsenceOverlapError, AuthenticationError, InvalidDateRangeError, RecordNotFoundError, ValidationError, WorkHoursConflictError } from "@/lib/errors/errors";
+import { handleApiError } from "@/lib/errors/handlers";
 import { notifyUser, notifyUsersByRole } from "@/lib/notificationsLib";
 import { AbsenceType } from "@/types/absence";
 import { NotificationType } from "@prisma/client";
+import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) {
+    throw new AuthenticationError("Unauthorized")
+  }
+
   try {
     const body = await req.json();
     const { startDate, endDate, type, userId:employeeId } = body;
 
     const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
     if (!dateRegex.test(startDate) || !dateRegex.test(endDate)) {
-      return NextResponse.json(
-        { message: "Invalid date format. Expected YYYY-MM-DD" },
-        { status: 400 }
-      );
+      throw new ValidationError("Invalid date format. Expected YYYY-MM-DD", 'startDate/endDate')
     }
 
     const start = new Date(startDate + 'T00:00:00.000Z');
     const end = new Date(endDate + 'T00:00:00.000Z');
 
     if (start > end) {
-      return NextResponse.json(
-        { message: "Start date must be before end date" },
-        { status: 400 }
-      );
+      throw new InvalidDateRangeError()
     }
 
-    const [holidays, previousAbsences, employee] = await Promise.all([
+    const [holidays, previousAbsences, employee, existingWorkHours] = await Promise.all([
       db.holidays.findMany({
         select: { date: true }
       }),
@@ -44,27 +47,39 @@ export async function POST(req: Request) {
         where: { 
           id: Number(employeeId)
         }
+      }),
+      db.workHours.findFirst({
+        where: {
+          userId: Number(employeeId),
+          date: {
+            gte: start,
+            lte: end
+          }
+        },
+        select: {
+          id: true,
+          date: true
+        }
       })
     ])
 
     if(!employee){
-      return NextResponse.json(
-        { message: `Employee with id: ${employeeId} was not found!` },
-        { status: 404 }
-      )
+      throw new RecordNotFoundError("Employee", employeeId)
     }
 
     function niceDate(date:Date):string{
       return date.toLocaleDateString('en-GB', {day: 'numeric',month: 'short',year: 'numeric', timeZone: 'UTC'})
     }
 
+    if(existingWorkHours){
+      const selectedRange = niceDate(start) + " to " + niceDate(end)
+      throw new WorkHoursConflictError(selectedRange)
+    }
+
     if(previousAbsences.length){
       const selectedRange = niceDate(start) + " to " + niceDate(end)
-      const beautifiedAbsences = previousAbsences.map(a => `[${a.type}: ${niceDate(a.startDate)} -  ${niceDate(a.endDate)}]`).join(", ")
-      return NextResponse.json(
-        { message: `Selected date range "${selectedRange}" overlaps with other absences for this employee: ${beautifiedAbsences}` },
-        { status: 409 }
-      )
+      const existingAbsences = previousAbsences.map(a => `[${a.type}: ${niceDate(a.startDate)} -  ${niceDate(a.endDate)}]`).join(", ")
+      throw new AbsenceOverlapError(existingAbsences, selectedRange)
     }
 
     const newAbsence = await db.absence.create({
@@ -107,18 +122,19 @@ export async function POST(req: Request) {
       { absence: newAbsence, message: `${getBusinessDays(start, end, holidayDates)} days off successfully granted to ${employee.username}.` },
       { status: 201 }
     );
-  } catch (error: any) {
-    console.error("Error creating absence:", error.message || error);
-    return NextResponse.json(
-      { message: error.message || "Something went wrong!" },
-      { status: 500 }
-    );
+  } catch (error: unknown) {
+    return handleApiError(error)
   }
 }
   
 
 export async function GET(req: Request) {
   const today = new Date()
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) {
+    throw new AuthenticationError("Unauthorized")
+  }
+
   try {
     const { searchParams } = new URL(req.url);
     const userId = searchParams.get("userId");
@@ -160,13 +176,17 @@ export async function GET(req: Request) {
 
     return NextResponse.json({ absences: extendedAbsences }, { status: 200 })
   } catch (error) {
-    console.error("Error fetching absences:", error)
-    return NextResponse.json({ message: "Failed to fetch absences" }, { status: 500 })
+    return handleApiError(error)
   }
 }
 
 
 export async function PUT(req: Request) {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) {
+      throw new AuthenticationError("Unauthorized")
+    }
+
   try {
     const body = await req.json();
     const { id, startDate, endDate, type } = body;
@@ -182,8 +202,7 @@ export async function PUT(req: Request) {
 
     return NextResponse.json({ absence: updatedAbsence, message: "Absence updated" }, { status: 200 });
   } catch (error) {
-    console.error("Error updating absence:", error);
-    return NextResponse.json({ message: "Failed to update absence" }, { status: 500 });
+    return handleApiError(error)
   }
 }
 
@@ -194,7 +213,7 @@ export async function DELETE(req: Request) {
       const id = searchParams.get("id");
   
       if (!id) {
-        return NextResponse.json({ message: "Absence ID is required" }, { status: 400 });
+        throw new ValidationError("Absence ID is required", 'id')
       }
   
       await db.absence.delete({
@@ -203,7 +222,6 @@ export async function DELETE(req: Request) {
   
       return NextResponse.json({ message: "Absence deleted" }, { status: 200 });
     } catch (error) {
-      console.error("Error deleting absence:", error);
-      return NextResponse.json({ message: "Failed to delete absence" }, { status: 500 });
+      return handleApiError(error)
     }
 }

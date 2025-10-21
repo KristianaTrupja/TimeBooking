@@ -25,7 +25,7 @@ model User {
   updatedAt DateTime @updatedAt
 
   absences       Absence[]
-  vocations      TotalVocationDays[]
+  vacations     TotalVacationDays[]
   workHours      WorkHours[]
   SidebarProject SidebarProject[]
 
@@ -39,14 +39,23 @@ model Holidays {
   date String
 
   holiday String
+
+  @@unique([date])
+  @@index([date])
 }
 
 model Projects {
   id      Int    @id @default(autoincrement())
   company String
   project String
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   workHours WorkHours[]
+
+  @@unique([company, project])
+  @@index([isActive])
 }
 
 enum AbsenceType {
@@ -58,40 +67,48 @@ enum AbsenceType {
 
 model Absence {
   id        String      @id @default(uuid())
-  startDate DateTime @db.Date
-  endDate   DateTime @db.Date
+  startDate DateTime    @db.Date
+  endDate   DateTime    @db.Date
   type      AbsenceType
 
   userId Int
-  user   User @relation(fields: [userId], references: [id])
+  user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@unique([userId, startDate, endDate])
+  @@index([userId, type])
+  @@index([startDate, endDate, type])
 }
 
-model TotalVocationDays {
+model TotalVacationDays {
   id          Int       @id @default(autoincrement())
   year        Int
   grantedDays Int
+  usedDays    Int @default(0)
 
   userId      Int
-  user        User     @relation(fields: [userId], references: [id])
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([userId, year])
   @@index([userId, year])
+  @@index([year])
 }
 
 model WorkHours {
-  id    Int      @id @default(autoincrement())
+  id    Int @id @default(autoincrement())
   date  DateTime
   hours Float
   note  String?
 
   userId Int
-  user   User @relation(fields: [userId], references: [id])
+  user  User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   projectId Int
-  project   Projects @relation(fields: [projectId], references: [id])
+  project   Projects @relation(fields: [projectId], references: [id], onDelete: Restrict)
 
   submissionId Int?
-  submission   TimeSheetSubmission? @relation(fields: [submissionId], references: [id])
+  submission   TimeSheetSubmission? @relation(fields: [submissionId], references: [id], onDelete: SetNull)
 
   @@unique([userId, date, projectId])
   @@index([date, userId])
@@ -141,7 +158,7 @@ enum NotificationType {
 model TimeSheetSubmission {
   id     Int  @id @default(autoincrement())
   userId Int
-  user   User @relation(fields: [userId], references: [id])
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   periodStart DateTime
   periodEnd   DateTime
@@ -153,7 +170,7 @@ model TimeSheetSubmission {
   rejectedAt  DateTime?
 
   approverId Int?
-  approver   User? @relation("Approver", fields: [approverId], references: [id])
+  approver   User? @relation("Approver", fields: [approverId], references: [id], onDelete: SetNull)
 
   rejectionReason String?
 
@@ -163,6 +180,8 @@ model TimeSheetSubmission {
   workHours WorkHours[]
 
   @@unique([userId, periodStart, periodEnd])
+  @@index([userId, status])
+  @@index([status, periodStart])
 }
 
 enum SubmissionStatus {

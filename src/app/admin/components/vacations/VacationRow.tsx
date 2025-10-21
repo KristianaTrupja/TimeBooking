@@ -7,7 +7,7 @@ type Props = {
   onDelete: () => void;
 };
 
-export default function VocationRow({ emp, index, onEdit, onDelete }: Props) {
+export default function VacationRow({ emp, index, onEdit, onDelete }: Props) {
   function formatToDayMonth(dateStr: string): string {
     const date = new Date(dateStr); // e.g., "2025-06-05"
     return date.toLocaleDateString("en-GB", {

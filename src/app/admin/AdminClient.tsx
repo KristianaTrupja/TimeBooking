@@ -6,7 +6,7 @@ import Raport from "./components/raport/Raport";
 import Projects from "./components/projects/Projects";
 import Users from "./components/users/Users";
 import Absences from "./components/absences/Absences";
-import Vocations from "./components/vocations/Vocations";
+import Vacations from "./components/vacations/Vacations";
 import ModifyAbsences from "./components/modify-absences/ModifyAbsences";
 import { WorkHoursProvider } from "@/app/context/WorkHoursContext";
 import { CalendarProvider } from "@/app/context/CalendarContext";
@@ -39,7 +39,7 @@ export default function AdminClient() {
       {tab === "users" && <Users />}
       {tab === "absences" && <Absences />}
       {tab === "modify-absences" && <ModifyAbsences />}
-      {tab === "holidays" && <Vocations />}
+      {tab === "holidays" && <Vacations />}
       {tab === "notifications" && <Notifications/>}
       {tab === "settings" && <SessionProvider><Settings /></SessionProvider>}
     </section>

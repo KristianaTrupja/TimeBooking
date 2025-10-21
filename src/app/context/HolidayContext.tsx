@@ -12,7 +12,7 @@ export const HolidayProvider = ({
   const [holidays, setHolidays] = useState<Holiday[] | null>(null);
 
   async function fetchHolidays(): Promise<Holiday[]> {
-    const res = await fetch("/api/vocations");
+    const res = await fetch("/api/vacations");
     if (!res.ok) {
         throw new Error(`Failed to fetch holidays: ${res.statusText}`);
     }

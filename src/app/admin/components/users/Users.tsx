@@ -17,7 +17,7 @@ export default function Users() {
     email: "",
     password: "",
     role: "",
-    totalVocations: 0
+    totalVacations: 0
   });
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState<{ users: User[] } | null>(null);
@@ -82,17 +82,17 @@ export default function Users() {
       email: emp.email,
       password: "",
       role: emp.role,
-      totalVocations: emp.totalVocations
+      totalVacations: emp.totalVacations
     });
   };
 
   const saveChanges = async () => {
-    const { id, username, email, role, password, totalVocations } = formData;
+    const { id, username, email, role, password, totalVacations } = formData;
     if (!id || !username || !email || !role || (!isPasswordStrong(password) && password)) {
       toast.error("Ju lutem plotësoni të gjitha fushat.");
       return;
     }
-    const payload: any = { id, username, email, role, totalVocations: Number(totalVocations) };
+    const payload: any = { id, username, email, role, totalVacations: Number(totalVacations) };
     if (password.trim()) {
       payload.password = password;
     }
@@ -114,7 +114,7 @@ export default function Users() {
         }));
         toast.success("Përdoruesi u përditësua me sukses.");
         setEditingId(null);
-        setFormData({ id: 0, username: "", email: "", password: "", role: "", totalVocations: 0 });
+        setFormData({ id: 0, username: "", email: "", password: "", role: "", totalVacations: 0 });
       } else {
         const err = await res.json();
         toast.error(err.message || "Përditësimi dështoi.");
@@ -146,7 +146,7 @@ export default function Users() {
     if (response.ok) {
       toast.success("Përdoruesi u shtua me sukses.");
       setOpen(false);
-      window.location.reload();
+      window.lacation.reload();
     } else {
       const err = await response.json();
       toast.error(
@@ -180,7 +180,7 @@ export default function Users() {
               email: "",
               password: "",
               role: "",
-              totalVocations: 0
+              totalVacations: 0
             });
           }}
           formData={formData}

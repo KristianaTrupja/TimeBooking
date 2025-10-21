@@ -56,7 +56,7 @@ export default function Absences() {
     fetchUser()
   }, [])
 
-  const handleCreateAbsence = async () => {
+  async function handleCreateAbsence() {
     if (!selectedEmployee || !startDate || !endDate || !absenceType) {
       flushError(new Error("Please fill in all fields"))
       return
@@ -87,6 +87,7 @@ export default function Absences() {
       setStartDate("");
       setEndDate("")
       setAbsenceType(null);
+      setDaysLeft(null)
 
       toast.success(data.message || "Absence created successfully!")
     } catch (error:unknown) {
@@ -116,7 +117,7 @@ export default function Absences() {
             value={selectedEmployee || ""}
           />
         </div>
-        {typeof daysLeft === "number" && <div className="border-b-2 border-dotted border-b-[#244B77] text-sm h-fit text-[#244B77]">Vocations Left: <span className="font-bold">{daysLeft} {daysLeft === 1 ? "Day" : "Days"}</span></div>}
+        {typeof daysLeft === "number" && <div className="border-b-2 border-dotted border-b-[#244B77] text-sm h-fit text-[#244B77]">Vacations Left: <span className="font-bold">{daysLeft} {daysLeft === 1 ? "Day" : "Days"}</span></div>}
       </div>
 
       {/* Date Pickers */}

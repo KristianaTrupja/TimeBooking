@@ -38,7 +38,7 @@ export function UserRow({
 
       {isEditing ? (
         <>
-          {["username", "email", "role", "password", "totalVocations"].map((field) => (
+          {["username", "email", "role", "password", "totalVacations"].map((field) => (
             <td key={field} className="px-4 py-2 rounded-sm bg-yellow-100">
               {field === "role" ? (
                 <select
@@ -56,7 +56,7 @@ export function UserRow({
               ) : (
                 <InputField
                   name={field}
-                  type={(field === "password") ? "password" : (field === "totalVocations") ? "number" : "text"}
+                  type={(field === "password") ? "password" : (field === "totalVacations") ? "number" : "text"}
                   value={(formData as any)[field]}
                   onChange={onChange}
                   placeholder={
@@ -86,7 +86,7 @@ export function UserRow({
           >
             {emp.password}
           </td>
-          <td className="px-4 py-2 rounded-sm">{emp.totalVocations}</td>
+          <td className="px-4 py-2 rounded-sm">{emp.totalVacations}</td>
           <td className="px-4 py-2 rounded-sm text-green-800">
             <button onClick={() => onEdit(emp)}>
               <FilePenLine />

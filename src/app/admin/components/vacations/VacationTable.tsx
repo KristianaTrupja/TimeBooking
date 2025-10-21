@@ -1,9 +1,9 @@
-import VocationRow from "./VocationRow";
-import VocationEditRow from "./VocationEditRow";
+import VacationRow from "./VacationRow";
+import VacationEditRow from "./VacationEditRow";
 import { Holiday } from "@/types/holiday";
 
 type Props = {
-  vocations: Holiday[];
+  vacations: Holiday[];
   editingId: number | null;
   editedData: { date: string; holiday: string };
   onEdit: (id: number) => void;
@@ -11,8 +11,8 @@ type Props = {
   onChange: (e: React.ChangeEvent<HTMLInputElement>, field: "date" | "holiday") => void;
   onSave: (id: number) => void;
 };
-export default function VocationTable({
-  vocations,
+export default function VacationTable({
+  vacations,
   editingId,
   editedData,
   onEdit,
@@ -20,8 +20,8 @@ export default function VocationTable({
   onChange,
   onSave,
 }: Props) {
-  // Group vocations by year
-  const groupedByYear = vocations
+  // Group vacations by year
+  const groupedByYear = vacations
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
     .reduce<Record<string, Holiday[]>>((acc, curr) => {
       const year = new Date(curr.date).getFullYear();
@@ -31,7 +31,7 @@ export default function VocationTable({
     }, {});
   return (
     <>
-      {vocations?.length === 0 ? (
+      {vacations?.length === 0 ? (
         <table className="w-full">
           <thead>
             <tr>
@@ -43,7 +43,7 @@ export default function VocationTable({
         </table>
       ) : (
         <>
-          {Object.entries(groupedByYear).map(([year, yearVocations]) => (
+          {Object.entries(groupedByYear).map(([year, yearVacations]) => (
             <table
               key={year}
               className="w-full text-[#244B77] border-separate mb-10"
@@ -64,9 +64,9 @@ export default function VocationTable({
                 </tr>
               </thead>
               <tbody>
-                {yearVocations.map((emp, index) =>
+                {yearVacations.map((emp, index) =>
                   editingId === emp.id ? (
-                    <VocationEditRow
+                    <VacationEditRow
                       key={emp.id}
                       index={index}
                       editedData={editedData}
@@ -74,7 +74,7 @@ export default function VocationTable({
                       onSave={() => onSave(emp.id)}
                     />
                   ) : (
-                    <VocationRow
+                    <VacationRow
                       key={emp.id}
                       index={index}
                       emp={emp}
