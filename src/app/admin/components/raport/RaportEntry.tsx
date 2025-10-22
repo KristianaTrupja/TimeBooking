@@ -46,7 +46,7 @@ export default function RaportEntry({timesheet, month, year, onApply}: PropTypes
             variant="secondary"
             className="font-semibold w-full justify-start pl-10"
             >
-            Shiko orët
+            View timesheet
             </Button>
         </Link>
         </td>

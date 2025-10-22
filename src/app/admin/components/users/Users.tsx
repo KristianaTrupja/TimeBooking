@@ -48,7 +48,7 @@ export default function Users() {
   const deleteItem = async (emp: User) => {
     if (!emp.id) return;
 
-    if (window.confirm(`Jeni i sigurt që doni të fshini ${emp.username}?`)) {
+    if (window.confirm(`Are you sure you want to delete ${emp.username}?`)) {
       try {
         const res = await fetch("/api/user", {
           method: "DELETE",
@@ -61,13 +61,13 @@ export default function Users() {
           setUser((prev) => ({
             users: prev?.users.filter((u) => u.id !== emp.id) || [],
           }));
-          toast.success("Përdoruesi u fshi me sukses.");
+          toast.success("Employee data successfully deleted.");
         } else {
           const err = await res.json();
-          toast.error(err.message || "Fshirja dështoi.");
+          toast.error(err.message || "Deleting failed!");
         }
       } catch {
-        toast.error("Dështoi lidhja me serverin.");
+        toast.error("Connection to server failed!");
       }
     }
   };
@@ -89,7 +89,7 @@ export default function Users() {
   const saveChanges = async () => {
     const { id, username, email, role, password, totalVacations } = formData;
     if (!id || !username || !email || !role || (!isPasswordStrong(password) && password)) {
-      toast.error("Ju lutem plotësoni të gjitha fushat.");
+      toast.error("Please fill-in the required fields!");
       return;
     }
     const payload: any = { id, username, email, role, totalVacations: Number(totalVacations) };
@@ -112,15 +112,15 @@ export default function Users() {
               u.id === updated.user.id ? updated.user : u
             ) || [],
         }));
-        toast.success("Përdoruesi u përditësua me sukses.");
+        toast.success("Employee was successfully updated.");
         setEditingId(null);
         setFormData({ id: 0, username: "", email: "", password: "", role: "", totalVacations: 0 });
       } else {
         const err = await res.json();
-        toast.error(err.message || "Përditësimi dështoi.");
+        toast.error(err.message || "Updating failed!");
       }
     } catch {
-      toast.error("Gabim gjatë përditësimit.");
+      toast.error("An error occurred while attempting to update!");
     }
   };
 
@@ -128,12 +128,12 @@ export default function Users() {
     const { username, email, password, role } = formData;
 
     if (!username || !email || !password || !role) {
-      alert("Ju lutem plotësoni të gjitha fushat.");
+      alert("Please fill-in all the fields.");
       return;
     }
 
     if (!isPasswordStrong(formData.password)) {
-      toast.error("Password nuk është i sigurt. Kontrolloni kërkesat.");
+      toast.error("Weak password. Meet the requirements.");
       return;
     }
     const response = await fetch("/api/user", {
@@ -144,13 +144,13 @@ export default function Users() {
     });
 
     if (response.ok) {
-      toast.success("Përdoruesi u shtua me sukses.");
+      toast.success("Employee was added successfully.");
       setOpen(false);
-      window.lacation.reload();
+      window.location.reload();
     } else {
       const err = await response.json();
       toast.error(
-        err.message || "Registrimi dështoi. Ju lutem provoni përsëri."
+        err.message || "Registration failed! Please try again."
       );
     }
   };
@@ -190,7 +190,7 @@ export default function Users() {
 
       </section>
         <div className="flex justify-center my-5">
-          <Button onClick={() => setOpen(true)}>Shto të ri</Button>
+          <Button onClick={() => setOpen(true)}>Add new employee</Button>
         </div>
   </section>
   );

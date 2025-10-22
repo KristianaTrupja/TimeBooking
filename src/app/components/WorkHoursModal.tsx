@@ -35,7 +35,7 @@ export const WorkHoursModal = ({
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Sheno oret e punes" footer={
-      <Button onClick={handleSave} disabled={!!inputError}>Ruaj</Button>
+      <Button onClick={handleSave} disabled={!!inputError}>Save</Button>
     }>
       <div className="flex flex-col gap-4">
         <input
@@ -62,7 +62,7 @@ export const WorkHoursModal = ({
           value={textareaValue}
           onChange={(e) => setTextAreaValue(e.target.value)}
           className="border border-gray-300 rounded p-2"
-          placeholder="Sheno pershkrimin per oret e punes"
+          placeholder="Add a description for the working hour"
         />
       </div>
     </Modal>

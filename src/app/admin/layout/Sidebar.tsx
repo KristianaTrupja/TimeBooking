@@ -4,12 +4,12 @@ import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 const sidebarItems = [
-  { title: "Raport", tab: "raport" },
-  { title: "Projektet", tab: "projects" },
-  { title: "Userat", tab: "users" },
-  { title: "Sheno Lejet", tab: "absences" },
-  { title: "Modifiko Lejet", tab: "modify-absences" },
-  { title: "Pushimet", tab: "holidays" }
+  { title: "Timesheets", tab: "raport" },
+  { title: "Projects", tab: "projects" },
+  { title: "Employees", tab: "users" },
+  { title: "Grant Leave", tab: "absences" },
+  { title: "View Leaves", tab: "modify-absences" },
+  { title: "Official Holidays", tab: "holidays" }
 ];
 
 export default function Sidebar() {

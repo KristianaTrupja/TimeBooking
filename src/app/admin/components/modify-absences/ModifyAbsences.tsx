@@ -168,12 +168,12 @@ export default function ModifyAbsences() {
               <thead className="bg-[#6C99CB] text-white">
                 <tr className="text-left">
                   <th className="px-4 py-2 w-16">Nr</th>
-                  <th className="px-4 py-2 w-1/4">Punonjesi</th>
-                  <th className="px-4 py-2 w-1/4">Data e fillimit</th>
-                  <th className="px-4 py-2 w-1/4">Data e mbarimit</th>
-                  <th className="px-4 py-2 w-1/4">Tipi</th>
-                  <th className="px-4 py-2 w-1/4">Edito</th>
-                  <th className="px-4 py-2 w-1/4">Fshij</th>
+                  <th className="px-4 py-2 w-1/4">Employee</th>
+                  <th className="px-4 py-2 w-1/4">Start Date</th>
+                  <th className="px-4 py-2 w-1/4">End Date</th>
+                  <th className="px-4 py-2 w-1/4">Type</th>
+                  <th className="px-4 py-2 w-1/4">Edit</th>
+                  <th className="px-4 py-2 w-1/4">Delete</th>
                 </tr>
               </thead>
               <tbody>

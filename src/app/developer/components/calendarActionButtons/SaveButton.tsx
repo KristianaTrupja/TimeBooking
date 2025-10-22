@@ -42,5 +42,5 @@ export default function SaveButton() {
     setIsSaved(true);
   };
 
-  return <Button onClick={handleClick}>Ruaj</Button>;
+  return <Button onClick={handleClick}>Save hours</Button>;
 }

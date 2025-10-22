@@ -15,11 +15,11 @@ export default function Notifications() {
     <div className="bg-white p-6 rounded-md shadow border border-gray-200">
       <h2 className="text-2xl font-bold text-[#244B77] flex items-center gap-2 mb-4">
         <Bell className="w-6 h-6" />
-        Njoftimet
+        Notifications
       </h2>
 
       {notifications.length === 0 ? (
-        <p className="text-gray-500">Nuk ka njoftime për momentin.</p>
+        <p className="text-gray-500">No notifications</p>
       ) : (
         <ul className="space-y-3 overflow-y-auto max-h-[450px] shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1)]">
           {notifications.map((notification, i) => (

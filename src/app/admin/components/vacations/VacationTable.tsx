@@ -36,7 +36,7 @@ export default function VacationTable({
           <thead>
             <tr>
               <th colSpan={5} className="text-[#244B77] text-center py-4 text-xl">
-                Nuk ka pushime shto pushimet.
+                No holidays, add new one.
               </th>
             </tr>
           </thead>
@@ -52,15 +52,15 @@ export default function VacationTable({
               <thead className="bg-[#6C99CB] text-white">
                 <tr>
                   <th colSpan={5} className="bg-[#244B77] text-center font-bold text-lg py-2 text-white">
-                    Viti {year}
+                    Year {year}
                   </th>
                 </tr>
                 <tr className="text-left">
                   <th className="px-4 py-2 w-16 rounded-sm">Nr</th>
-                  <th className="px-4 py-2 w-1/3 rounded-sm">Data</th>
-                  <th className="px-4 py-2 rounded-sm">Festa</th>
-                  <th className="px-4 py-2 rounded-sm">Edito</th>
-                  <th className="px-4 py-2 rounded-sm">Fshij</th>
+                  <th className="px-4 py-2 w-1/3 rounded-sm">Date</th>
+                  <th className="px-4 py-2 rounded-sm">Holiday name</th>
+                  <th className="px-4 py-2 rounded-sm">Edit</th>
+                  <th className="px-4 py-2 rounded-sm">Delete</th>
                 </tr>
               </thead>
               <tbody>

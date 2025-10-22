@@ -32,8 +32,8 @@ export default function ProjectModal({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="Zgjidh projektet"
-      footer={<Button onClick={handleSubmit}>Shto</Button>}
+      title="Choose a project"
+      footer={<Button onClick={handleSubmit}>Add</Button>}
     >
       <div className="space-y-4 max-h-[60vh] overflow-y-auto">
         {projectsData.sort((a, b) => a.company.localeCompare(b.company)).map(({ company, projects }) => (

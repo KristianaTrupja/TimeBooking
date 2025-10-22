@@ -50,6 +50,6 @@ export async function GET(req: Request, { params }: { params: Promise<{ userId: 
         }, { status: 200 })
 
     } catch (error) {
-      handleApiError(error)
+      return handleApiError(error)
     }
 }

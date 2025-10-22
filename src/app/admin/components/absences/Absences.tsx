@@ -21,6 +21,7 @@ export default function Absences() {
 
   useEffect(() => {
     if(!selectedEmployee) return
+    setDaysLeft(null)
 
     const employee = employees?.find(v => v.username === selectedEmployee)
     if(!employee) return
@@ -101,7 +102,7 @@ export default function Absences() {
   return (
     <div className="max-w-2/3 2xl:max-w-1/2">
       <h2 className="text-2xl text-[#244B77] font-bold mb-3 mt-5">
-        Krijo lejet për punonjësit
+        Assign days-off to employees
       </h2>
 
       {/* Employee Selector */}
@@ -109,10 +110,10 @@ export default function Absences() {
         <div className="w-1/2 mb-5">
           <Selector
             id="selector-employee"
-            label="Selekto emrin e punonjësit"
+            label="Choose Employee"
             options={employees?.map((user) => user.username) || []}
             onChange={setSelectedEmployee}
-            placeholder="Punonjësit"
+            placeholder="Employees"
             className={selectorStyle}
             value={selectedEmployee || ""}
           />
@@ -124,7 +125,7 @@ export default function Absences() {
       <div className="flex flex-col gap-4 bg-[#244B77] p-6 rounded-md text-white">
         <div className="flex items-baseline w-full gap-5 justify-between">
           <label htmlFor="start-date" className="text-md font-bold">
-            Data e fillimit:
+            Start Date:
           </label>
           <input
             type="date"
@@ -136,7 +137,7 @@ export default function Absences() {
         </div>
         <div className="flex items-baseline w-full gap-5 justify-between">
           <label htmlFor="end-date" className="text-md font-bold">
-            Data e përfundimit:
+            End Date:
           </label>
           <input
             type="date"
@@ -152,10 +153,10 @@ export default function Absences() {
       <div className="w-1/2 mt-5">
         <Selector
           id="selector-absence"
-          label="Selekto tipin e lejes"
+          label="Choose leave type"
           options={absenceTypes}
           onChange={setAbsenceType}
-          placeholder="Tipi i lejes"
+          placeholder="Leave type"
           className={selectorStyle}
           value={absenceType || ""}
         />

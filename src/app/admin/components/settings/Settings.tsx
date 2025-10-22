@@ -6,6 +6,7 @@ import { Settings, Users, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { InputField } from "@/app/components/ui/InputField";
+import { toast } from "sonner";
 
 export default function SettingsPage() {
   const { data: session } = useSession(); // ✅ Merr të dhënat e userit
@@ -43,9 +44,9 @@ export default function SettingsPage() {
     });
 
     if (res.ok) {
-      alert("Përdoruesi u përditësua me sukses!");
+      toast.success("Employee profile was successfully updated!")
     } else {
-      alert("Përditësimi dështoi.");
+      toast.error("Updating failed!")
     }
   };
   console.log(formData, "test");
@@ -54,21 +55,21 @@ export default function SettingsPage() {
     <div className="bg-white p-6 rounded-md shadow border border-gray-200 max-w-3xl">
       <h2 className="text-2xl font-bold text-[#244B77] flex items-center gap-2 mb-6">
         <Settings className="w-6 h-6" />
-        Cilësimet e llogarisë
+        Profile settings
       </h2>
 
       <div className="space-y-4 mb-10">
         <InputField
           label="Emri"
           name="username"
-          placeholder="Vendosni emrin"
+          placeholder="Enter name"
           value={formData.username}
           onChange={handleChange}
         />
         <InputField
           label="Email"
           name="email"
-          placeholder="Vendosni emailin"
+          placeholder="Enter email"
           value={formData.email}
           type="email"
           onChange={handleChange}
@@ -76,18 +77,18 @@ export default function SettingsPage() {
         <InputField
           label="Fjalëkalimi"
           name="password"
-          placeholder="Ndrysho fjalëkalimin"
+          placeholder="Change password"
           value={formData.password}
           type="password"
           onChange={handleChange}
           error=""
         />
         <Button onClick={handleSave} className="w-full">
-          Ruaj Ndryshimet
+          Save changes
         </Button>
       </div>
 
-      <h3 className="text-xl font-semibold text-[#244B77] mb-4">Modifikime të tjera</h3>
+      <h3 className="text-xl font-semibold text-[#244B77] mb-4">More settings</h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div
           onClick={() => handleNavigate("users")}
@@ -97,7 +98,7 @@ export default function SettingsPage() {
             <Users className="w-5 h-5" />
             Userat
           </div>
-          <p className="text-sm text-gray-600">Menaxho përdoruesit, shto ose fshij llogari.</p>
+          <p className="text-sm text-gray-600">Manage employees, add or delete profiles.</p>
         </div>
 
         <div
@@ -106,9 +107,9 @@ export default function SettingsPage() {
         >
           <div className="flex items-center gap-2 text-lg font-semibold text-[#244B77] mb-2">
             <Pencil className="w-5 h-5" />
-            Modifiko Lejet
+            Edit vacations & absences
           </div>
-          <p className="text-sm text-gray-600">Shiko dhe ndrysho lejet e stafit.</p>
+          <p className="text-sm text-gray-600">View or modify leave days for employees.</p>
         </div>
       </div>
     </div>

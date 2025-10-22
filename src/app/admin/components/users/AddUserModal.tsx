@@ -18,7 +18,7 @@ export function AddUserModal({ open, onClose, formData, onChange, onSubmit }: Pr
       isOpen={open}
       onClose={onClose}
       title="Krijo user te ri"
-      footer={<Button onClick={onSubmit}>Shto</Button>}
+      footer={<Button onClick={onSubmit}>Add</Button>}
     >
       <p className="mb-4 text-left text-[#244B77] text-md">
         Plotësoni fushat përkatëse për të krijuar një user të ri dhe vendosni një password të sigurt.

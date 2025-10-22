@@ -142,7 +142,7 @@ const onOptionsModified = useCallback(async (id: number, newValue: string, opera
       </div>
       <div className="mt-20">
         <h2 className="text-[#244B77] text-2xl 2xl:text-4xl font-bold mb-5">
-          Deshironi te shtoni nje projekt te ri ne liste?
+          Would you like to add a new project to the list?
         </h2>
         <ProjectsForm
           formData={formData}

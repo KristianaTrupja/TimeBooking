@@ -29,7 +29,7 @@ export default function VacationEditRow({ index, editedData, onChange, onSave }:
       </td>
       <td className="px-4 py-2 rounded-sm">
         <Button size="sm" onClick={onSave}>
-          Ruaj
+          Save
         </Button>
       </td>
       <td />

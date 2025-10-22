@@ -26,13 +26,13 @@ export function UserTable({
       <thead className="bg-[#6C99CB] text-white">
         <tr className="text-left">
           <th className="px-4 py-2 w-16 rounded-sm">Nr</th>
-          <th className="px-4 py-2">Punonjesi</th>
+          <th className="px-4 py-2">Employee</th>
           <th className="px-4 py-2">Email</th>
-          <th className="px-4 py-2">Roli</th>
+          <th className="px-4 py-2">Role</th>
           <th className="px-4 py-2">Password</th>
           <th className="px-4 py-2">Vacations</th>
-          <th className="px-4 py-2">Edito</th>
-          <th className="px-4 py-2">Fshi</th>
+          <th className="px-4 py-2">Edit</th>
+          <th className="px-4 py-2">Delete</th>
         </tr>
       </thead>
       <tbody>

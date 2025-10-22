@@ -35,7 +35,7 @@ export default function TotalBar() {
     <div className="flex flex-col justify-between border-gray-300 bg-blue-50 min-w-[70px]">
       <div className="flex flex-col overflow-auto items-center">
         <div className="border-gray-300 w-full border h-9 flex justify-center items-center text-black font-semibold">
-          Totali
+          Total hours
         </div>
         {sidebarProjects.map((group) => (
           <div key={group.company} className="w-full project-field">

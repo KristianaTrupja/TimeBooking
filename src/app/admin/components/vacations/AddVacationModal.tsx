@@ -12,24 +12,24 @@ type Props = {
 export default function AddVacationModal({ isOpen, onClose, data, onChange, onSubmit }: Props) {
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
-      <h2 className="text-xl font-bold mb-4 text-[#244B77]">Shto Pushim</h2>
+      <h2 className="text-xl font-bold mb-4 text-[#244B77]">Add new holiday</h2>
       <div className="space-y-4">
         <input
-          placeholder="Data"
+          placeholder="Date"
           type="date"
           className="w-full border rounded px-3 py-2"
           value={data.date}
           onChange={(e) => onChange(e, "date")}
         />
         <input
-          placeholder="Emri i pushimit"
+          placeholder="Holiday Name"
           type="text"
           className="w-full border rounded px-3 py-2"
           value={data.holiday}
           onChange={(e) => onChange(e, "holiday")}
         />
         <Button className="w-full" onClick={onSubmit}>
-          Shto
+          Add
         </Button>
       </div>
     </Modal>

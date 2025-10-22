@@ -78,7 +78,7 @@ export default function Developer() {
             {/* <ConfirmButton /> */}
             {!metadata?.isLocked && (
                 <>
-                <Button disabled={isSubmitting} onClick={handleSubmit}>Submit</Button>
+                <Button disabled={isSubmitting} onClick={handleSubmit}>Submit timesheet</Button>
                 <SaveButton />
                 </>
                 )}

@@ -9,7 +9,7 @@ export default function SidebarContent({ isLocked, sidebarProjects, openModal }:
       <div className="min-h-2">
         <SidebarList sidebarProjects={sidebarProjects} />
       </div>
-      {!isLocked && <Button className="w-fit mx-auto my-2" onClick={openModal}>Shto të ri</Button>}
+      {!isLocked && <Button className="w-fit mx-auto my-2" onClick={openModal}>Add new project</Button>}
     </aside>
   )
 };

@@ -6,6 +6,7 @@ import VacationTable from "./VacationTable";
 import AddVacationModal from "./AddVacationModal";
 import { Holiday } from "@/types/holiday";
 import Spinner from "@/components/ui/Spinner";
+import { toast } from "sonner";
 
 export default function Vacations() {
   const [vacations, setVacations] = useState<Holiday[]>([]);
@@ -69,7 +70,7 @@ export default function Vacations() {
   const handleDelete = async (id: number) => {
     const emp = vacations.find((v) => v.id === id);
     const confirmed = window.confirm(
-      `A jeni i sigurt që doni të fshini pushimin më datë ${emp?.date}?`
+      `Are you sure you want to delete holiday, date: ${emp?.date}?`
     );
     if (!confirmed) return;
 
@@ -84,7 +85,7 @@ export default function Vacations() {
       setVacations((prev) => prev.filter((v) => v.id !== id));
     } catch (error) {
       console.error(error);
-      alert("Failed to delete holiday");
+      toast.error("Failed to delete holiday");
     }
   };
 
@@ -97,7 +98,7 @@ export default function Vacations() {
 
   const handleAdd = async () => {
     if (!newHoliday.date || !newHoliday.holiday) {
-      alert("Ju lutem plotësoni të gjitha fushat e detyrueshme.");
+      toast.error("Please fill-in the required fields!");
       return;
     }
 
@@ -121,7 +122,7 @@ export default function Vacations() {
       setModalOpen(false);
     } catch (error) {
       console.error(error);
-      alert("Failed to add holiday");
+      toast.error("Failed to add holiday");
     }
   };
 
@@ -142,7 +143,7 @@ export default function Vacations() {
 
       <div className="flex justify-center my-5">
         <Button onClick={() => setModalOpen(true)}>
-          Shto ditë të re pushimi
+          Add new holiday
         </Button>
       </div>
 
