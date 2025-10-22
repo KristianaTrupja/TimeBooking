@@ -128,7 +128,7 @@ export default function Users() {
     const { username, email, password, role } = formData;
 
     if (!username || !email || !password || !role) {
-      alert("Please fill-in all the fields.");
+      toast.error("Please fill-in all the fields.");
       return;
     }
 

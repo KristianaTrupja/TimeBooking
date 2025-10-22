@@ -63,7 +63,7 @@ export default function Vacations() {
       setEditingId(null);
     } catch (error) {
       console.error(error);
-      alert("Failed to update holiday");
+      toast.error("Failed to update holiday");
     }
   };
 

@@ -187,7 +187,7 @@ export function WorkHoursProvider({ children }: { children: ReactNode }) {
     // If setting 0 hours
     if (hours === 0) {
       if (!entryExists) {
-        alert("Cannot add 0 hours to an empty cell.");
+        toast.error("Cannot add 0 hours to an empty cell.");
         return;
       }
 

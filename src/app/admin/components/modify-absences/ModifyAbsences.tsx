@@ -5,6 +5,7 @@ import { Absence, AbsenceType, ExtAbsence, Filters } from "@/types/absence";
 import Spinner from "@/components/ui/Spinner";
 import FilterAbsences from "../absence-filters/FilterAbsences";
 import { getEndOfMonth } from "@/app/utils/dateUtils";
+import { toast } from "sonner";
 
 const ABSENCE_TYPES: (keyof typeof AbsenceType)[] = ["VACATION", "SICK", "PERSONAL", "PARENTAL"]
 
@@ -99,7 +100,7 @@ export default function ModifyAbsences() {
         setAbsences((prev) => prev.filter((a) => a.id !== id));
       } else {
         const data = await res.json();
-        alert(data.message || "Failed to delete absence");
+        toast.error(data.message || "Failed to delete absence");
       }
     } catch (err) {
       console.error("Error deleting absence:", err);
@@ -126,7 +127,7 @@ export default function ModifyAbsences() {
         setEditingAbsence(null);
       } else {
         const data = await res.json();
-        alert(data.message || "Update failed");
+        toast.error(data.message || "Update failed");
       }
     } catch (err) {
       console.error("Update error:", err);
