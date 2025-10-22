@@ -1,18 +1,15 @@
 import React from "react";
-import Selector from "@/app/components/Selector";
+import { ProjectEntry } from "@/types/project";
+import ProjectManage from "./ProjectManage";
 
 interface ProjectListProps {
-  selectors: { [key: string]: string[] };
-  openSelectorId: string | null;
-  handleToggle: (id: string) => void;
-  handleDelete: (company: string, project: string) => void;
+  selectors: { [key: string]: ProjectEntry[] };
+  onOptionsModified: (id:number, newValue:string, operation: 'update'|'delete') => Promise<void>;
 }
 
 export default function ProjectList({
   selectors,
-  openSelectorId,
-  handleToggle,
-  handleDelete
+  onOptionsModified
 }: ProjectListProps) {
 
   return (
@@ -22,15 +19,13 @@ export default function ProjectList({
       </h2>
       {Object.keys(selectors).sort((a, b) => a.localeCompare(b)).map((company) => (
         <div key={company} className="mb-3">
-          <Selector
+          <ProjectManage
             label={company}
             id={company}
-            isOpen={openSelectorId === company}
-            onToggle={() => handleToggle(company)}
+            editable={true}
             options={selectors[company]}
-            onChange={(value) => console.log("Selected:", value)}
-            defaultValue={selectors[company][0]}
-            handleDelete={handleDelete}
+            placeholder="View Projects"
+            onOptionsModified={onOptionsModified}
           />
         </div>
       ))}

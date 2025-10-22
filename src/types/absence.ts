@@ -7,10 +7,12 @@ export type Absence = {
   endDate: string;
   type: string;
   userId: number;
+  user: User
 }
 
 export interface ExtAbsence extends Absence {
-  businessDays: number
+  days: number,
+  overlapBusinessDays: number
 }
 
 export enum AbsenceType {

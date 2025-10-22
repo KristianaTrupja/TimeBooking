@@ -73,9 +73,7 @@ export default function DateFilter({ startDate, endDate, onChange }: PropTypes) 
     }
 
     function chooseStartDate(m: number) {
-      const now = new Date()
       const newStartDate = new Date(activeYear, m, 1)
-      if(newStartDate > getEndOfMonth(now)) return
       setSelectedPreset(DEFAULT_PRESET_LABEL)
       if(newStartDate > endDate) {
         onChange({ startDate: newStartDate, endDate: getEndOfMonth(newStartDate) })
@@ -86,9 +84,7 @@ export default function DateFilter({ startDate, endDate, onChange }: PropTypes) 
 
 
     function chooseEndDate(m: number) {
-      const now = new Date()
       const newEndDate = getEndOfMonth(new Date(activeYear, m,1))
-      if(newEndDate > getEndOfMonth(now)) return
       if(newEndDate < startDate) return
       setSelectedPreset(DEFAULT_PRESET_LABEL)
       onChange({ startDate, endDate:newEndDate })
@@ -141,13 +137,10 @@ export default function DateFilter({ startDate, endDate, onChange }: PropTypes) 
                   <MenuItem>
                     <div className="grid grid-cols-4 gap-2 w-fit">
                       {months.map((name, monthIndex) => {
-                        const isFuture = new Date(activeYear, monthIndex, 1) > getEndOfMonth(today)
                         return <button
                           key={name}
                           onClick={() => chooseStartDate(monthIndex)}
-                          className={`py-1 px-2 rounded
-                            ${isFuture ? 'text-black/40 bg-red-400/5 cursor-not-allowed' : 'hover:bg-[#E3F0FF]'}
-                          `}>
+                          className={`py-1 px-2 rounded hover:bg-[#E3F0FF]`}>
                           {name}
                         </button>
                         })}
@@ -183,13 +176,12 @@ export default function DateFilter({ startDate, endDate, onChange }: PropTypes) 
                     <div className="grid grid-cols-4 gap-2 w-fit">
                       {months.map((name, monthIndex) => {
                         const newEndDate = getEndOfMonth(new Date(activeYear, monthIndex, 1))
-                        const isFuture = newEndDate > getEndOfMonth(today)
                         const isBeforeStartDate = newEndDate < startDate
                         return <button
                           key={name}
                           onClick={() => chooseEndDate(monthIndex)}
                           className={`py-1 px-2 rounded
-                            ${isFuture || isBeforeStartDate ? 'text-black/40 bg-red-400/5 cursor-not-allowed' : 'hover:bg-[#E3F0FF]'}
+                            ${isBeforeStartDate ? 'text-black/40 bg-red-400/5 cursor-not-allowed' : 'hover:bg-[#E3F0FF]'}
                           `}>
                           {name}
                         </button>

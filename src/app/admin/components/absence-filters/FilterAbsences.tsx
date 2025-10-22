@@ -37,7 +37,7 @@ export default function FilterAbsences({
     onFiltersChange({...filters, startDate:range.startDate, endDate:range.endDate})
   }
 
-  const totalAbsenceDays = useMemo(() => absences.reduce((acc, absence) => acc + absence.businessDays, 0), [absences])
+  const totalAbsenceDays = useMemo(() => absences.reduce((acc, absence) => acc + absence.days, 0), [absences])
 
   return (
     <section className="flex justify-between">

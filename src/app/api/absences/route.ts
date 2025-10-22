@@ -82,10 +82,15 @@ export async function POST(req: Request) {
       throw new AbsenceOverlapError(existingAbsences, selectedRange)
     }
 
+
+    const holidayDates = holidays.map(h => h.date)
+    const businessDays = getBusinessDays(start, end, holidayDates)
+
     const newAbsence = await db.absence.create({
       data: {
         startDate: start,
         endDate: end,
+        days: businessDays,
         type,
         userId:employeeId,
       },
@@ -116,10 +121,9 @@ export async function POST(req: Request) {
       type: NotificationType.INFO,
       actionType: "VIEW_ABSENCE",
     })
-    const holidayDates = holidays.map(h => h.date)
 
     return NextResponse.json(
-      { absence: newAbsence, message: `${getBusinessDays(start, end, holidayDates)} days off successfully granted to ${employee.username}.` },
+      { absence: newAbsence, message: `${businessDays} days off successfully granted to ${employee.username}.` },
       { status: 201 }
     );
   } catch (error: unknown) {
@@ -144,33 +148,32 @@ export async function GET(req: Request) {
     const queryStartDate = startDate ? new Date(startDate) : new Date(today.getFullYear(), 0, 1)
     const queryEndDate = endDate ? new Date(endDate) : new Date(today.getFullYear(), 11, 31)
 
-    const [holidays, absences] = await Promise.all([
-      db.holidays.findMany({
-        select: { date: true }
-      }),
-      db.absence.findMany({
-        where: {
-          userId: userId ? Number(userId) : undefined,
-          type: absenceType ? absenceType : undefined,
-          AND: [
-            {startDate: { lte: queryEndDate }},
-            {endDate: { gte: queryStartDate }}
-          ]
-        },
-        include: { user: true },
-      })
-    ])
-    
-    const holidayDates = holidays.map(h => h.date)
+    const absences = await db.absence.findMany({
+      where: {
+        userId: userId ? Number(userId) : undefined,
+        type: absenceType ? absenceType : undefined,
+        AND: [
+          {startDate: { lte: queryEndDate }},
+          {endDate: { gte: queryStartDate }}
+        ]
+      },
+      include: { user: {
+        omit: {
+        password: true,
+        createdAt: true,
+        updatedAt: true
+      }}
+    },
+    })
 
     const extendedAbsences = absences.map(absence => {
       const overlapStart = absence.startDate > queryStartDate ? absence.startDate : queryStartDate
       const overlapEnd = absence.endDate < queryEndDate ? absence.endDate : queryEndDate
-
       return {
-        ...absence, 
-        businessDays: getBusinessDays(absence.startDate, absence.endDate, holidayDates),
-        overlapBusinessDays: getBusinessDays(overlapStart, overlapEnd, holidayDates)
+        ...absence,
+        overlapBusinessDays: absence.startDate >= queryStartDate && absence.endDate <= queryEndDate 
+          ? absence.days
+          : getBusinessDays(overlapStart, overlapEnd, [])
       }
     })
 
@@ -182,25 +185,39 @@ export async function GET(req: Request) {
 
 
 export async function PUT(req: Request) {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
-      throw new AuthenticationError("Unauthorized")
-    }
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) {
+    throw new AuthenticationError("Unauthorized")
+  }
 
   try {
     const body = await req.json();
     const { id, startDate, endDate, type } = body;
 
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    // Fetch holidays to recalculate business days
+    const holidays = await db.holidays.findMany({
+      select: { date: true }
+    });
+    const holidayDates = holidays.map(h => h.date);
+    const businessDays = getBusinessDays(start, end, holidayDates);
+
     const updatedAbsence = await db.absence.update({
       where: { id },
       data: {
-        startDate: new Date(startDate),
-        endDate: new Date(endDate),
+        startDate: start,
+        endDate: end,
+        days: businessDays,
         type,
       },
     });
 
-    return NextResponse.json({ absence: updatedAbsence, message: "Absence updated" }, { status: 200 });
+    return NextResponse.json({ 
+      absence: updatedAbsence, 
+      message: `Absence updated (${businessDays} business days)` 
+    }, { status: 200 });
   } catch (error) {
     return handleApiError(error)
   }

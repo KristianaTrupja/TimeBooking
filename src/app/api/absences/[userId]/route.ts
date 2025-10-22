@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth"; // Adjust path as needed
 import { db } from "@/lib/db";
 import { AuthenticationError } from "@/lib/errors/errors";
 import { handleApiError } from "@/lib/errors/handlers";
+import { getBusinessDays } from "@/app/utils/dateUtils";
 
 export async function GET(req: Request, { params }: { params: Promise<{ userId: string }>}) {
     const session = await getServerSession(authOptions);
@@ -25,9 +26,8 @@ export async function GET(req: Request, { params }: { params: Promise<{ userId: 
             }
         });
 
-        if (!grantedDaysRecord) {
-            return NextResponse.json({ days: 0 }, { status: 200 });
-        }
+        const currentYearGrantedVocationDays = grantedDaysRecord?.grantedDays || 0
+ 
 
         const vacationAbsences = await db.absence.findMany({
             where: {
@@ -36,30 +36,19 @@ export async function GET(req: Request, { params }: { params: Promise<{ userId: 
             }
         });
 
-        let totalDaysUsed = 0;
-        for (const absence of vacationAbsences) {
-            const startDate = new Date(absence.startDate);
-            const endDate = new Date(absence.endDate);
-            
-            const utcStart = Date.UTC(
-                startDate.getFullYear(),
-                startDate.getMonth(),
-                startDate.getDate()
-            );
-            const utcEnd = Date.UTC(
-                endDate.getFullYear(),
-                endDate.getMonth(),
-                endDate.getDate()
-            );
-            
-            const diffInDays = Math.floor((utcEnd - utcStart) / (1000 * 60 * 60 * 24)) + 1;
-            
-            totalDaysUsed += diffInDays;
-        }
+        const totalDaysUsed = vacationAbsences.reduce((sum, absence) => sum + absence.days, 0);
 
-        const remainingDays = grantedDaysRecord.grantedDays - totalDaysUsed;
+        const remainingDays = currentYearGrantedVocationDays - totalDaysUsed;
 
-        return NextResponse.json({ days: remainingDays }, { status: 200 });
+        const isOverdrawn = remainingDays < 0;
+
+        return NextResponse.json({ 
+            days: remainingDays,
+            grantedDays: currentYearGrantedVocationDays,
+            usedDays: totalDaysUsed,
+            isOverdrawn
+        }, { status: 200 })
+
     } catch (error) {
       handleApiError(error)
     }

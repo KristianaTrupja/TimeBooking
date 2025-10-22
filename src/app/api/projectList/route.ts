@@ -1,4 +1,6 @@
 import { db } from "@/lib/db";
+import { ValidationError } from "@/lib/errors/errors";
+import { handleApiError } from "@/lib/errors/handlers";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
@@ -6,20 +8,18 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { company, project } = body;
 
+    if(!company || !project) throw new ValidationError("company, project fields are required!", "company/project")
+
     const newProject = await db.projects.create({
       data: { company, project },
     });
 
     return NextResponse.json(
-      { project: newProject, message: "Holiday created successfully" },
+      { project: newProject, message: "Project created successfully" },
       { status: 201 }
     );
   } catch (error) {
-    console.error("Error creating holiday:", error);
-    return NextResponse.json(
-      { message: "Something went wrong!" },
-      { status: 500 }
-    );
+    handleApiError(error)
   }
 }
 
@@ -45,19 +45,17 @@ export async function GET() {
 
 export async function PUT(req: Request) {
   try {
-    const body = await req.json();
-    const { id, company, project } = body;
+    const { searchParams } = new URL(req.url);
+    const projectId = searchParams.get("projectId")
+    const { project } = await req.json();
 
-    if (!id || !company || !project) {
-      return NextResponse.json(
-        { message: "ID, company and project are required" },
-        { status: 400 }
-      );
+    if (!projectId || !project || !project) {
+      throw new ValidationError("Project ID and project are required", "id/project")
     }
 
     const updatedProject = await db.projects.update({
-      where: { id },
-      data: { company, project },
+      where: { id: Number(projectId) },
+      data: { project },
     });
 
     return NextResponse.json(
@@ -65,34 +63,24 @@ export async function PUT(req: Request) {
       { status: 200 }
     );
   } catch (error) {
-    console.error("Error updating project:", error);
-    return NextResponse.json(
-      { message: "Failed to update project" },
-      { status: 500 }
-    );
+    return handleApiError(error)
   }
 }
 
 export async function DELETE(req: Request) {
   try {
-    const { id } = await req.json();
-    if (!id) {
-      return NextResponse.json(
-        { message: "Project ID is required" },
-        { status: 400 }
-      );
+    const { searchParams } = new URL(req.url);
+    const projectId = searchParams.get("projectId")
+    if (!projectId) {
+      throw new ValidationError("Project ID is required", "id")
     }
 
-    await db.projects.delete({ where: { id } });
+    await db.projects.delete({ where: { id:Number(projectId) } });
     return NextResponse.json(
       { message: "Project deleted successfully" },
       { status: 200 }
     );
   } catch (error) {
-    console.error("Error deleting project:", error);
-    return NextResponse.json(
-      { message: "Failed to delete project" },
-      { status: 500 }
-    );
+    return handleApiError(error)
   }
 }

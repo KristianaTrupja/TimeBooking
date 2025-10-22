@@ -70,6 +70,7 @@ model Absence {
   startDate DateTime    @db.Date
   endDate   DateTime    @db.Date
   type      AbsenceType
+  days      Int         // Business days calculated at creation
 
   userId Int
   user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
