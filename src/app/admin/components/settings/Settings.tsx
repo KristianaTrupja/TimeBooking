@@ -4,7 +4,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Settings, Users, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { InputField } from "@/app/components/ui/InputField";
 import { toast } from "sonner";
 
@@ -13,10 +13,18 @@ export default function SettingsPage() {
   const router = useRouter();
 
   const [formData, setFormData] = useState({
+    username: "",
+    email: "",
+    password: "",
+  });
+
+  useEffect(()=>{
+    setFormData({
     username: session?.user?.username ?? "",
     email: session?.user?.email ?? "",
     password: "",
-  });
+  })
+  },[session])
 
   const handleNavigate = (tab: string) => {
     router.push(`?tab=${tab}`);
@@ -49,7 +57,6 @@ export default function SettingsPage() {
       toast.error("Updating failed!")
     }
   };
-  console.log(formData, "test");
 
   return (
     <div className="bg-white p-6 rounded-md shadow border border-gray-200 max-w-3xl">

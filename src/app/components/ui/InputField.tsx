@@ -57,7 +57,7 @@ export const InputField = ({
               size="sm"
               onClick={() => setShowPassword((prev) => !prev)}
               className="absolute right-2 top-1/2 -translate-y-1/2 px-2 text-[20px] py-1 text-[#363636] font-medium"
-              aria-label={showPassword ? "Fshih fjalëkalimin" : "Shfaq fjalëkalimin"}
+              aria-label={showPassword ? "Hide password" : "Show password"}
             >
               {showPassword ? <EyeOff /> : <Eye />}
             </Button>
