@@ -2,21 +2,21 @@ import { getBusinessDays } from "@/app/utils/dateUtils";
 import { NotificationMessage } from "@/constants/notificationTemplates";
 import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { AbsenceOverlapError, AuthenticationError, InvalidDateRangeError, RecordNotFoundError, ValidationError, WorkHoursConflictError } from "@/lib/errors/errors";
 import { handleApiError } from "@/lib/errors/handlers";
 import { notifyUser, notifyUsersByRole } from "@/lib/notificationsLib";
 import { AbsenceType } from "@/types/absence";
 import { NotificationType } from "@prisma/client";
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
+import { AbsenceOverlapError, AuthenticationError, InvalidDateRangeError, RecordNotFoundError, ValidationError, WorkHoursConflictError } from "@/lib/errors/errors";
 
 export async function POST(req: Request) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
-    throw new AuthenticationError("Unauthorized")
-  }
-
   try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) {
+      throw new AuthenticationError("Unauthorized")
+    }
+
     const body = await req.json();
     const { startDate, endDate, type, userId:employeeId } = body;
 
@@ -133,13 +133,13 @@ export async function POST(req: Request) {
   
 
 export async function GET(req: Request) {
-  const today = new Date()
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
-    throw new AuthenticationError("Unauthorized")
-  }
-
   try {
+    const today = new Date()
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) {
+      throw new AuthenticationError("Unauthorized")
+    }
+
     const { searchParams } = new URL(req.url);
     const userId = searchParams.get("userId");
     const startDate = searchParams.get("startDate")
@@ -185,12 +185,12 @@ export async function GET(req: Request) {
 
 
 export async function PUT(req: Request) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
-    throw new AuthenticationError("Unauthorized")
-  }
-
   try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) {
+      throw new AuthenticationError("Unauthorized")
+    }
+    
     const body = await req.json();
     const { id, startDate, endDate, type } = body;
 

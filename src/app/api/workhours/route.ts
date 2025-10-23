@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from "@/lib/db";
 import { getEndOfMonth, getStartOfMonth } from '@/app/utils/dateUtils';
 import { handleApiError } from '@/lib/errors/handlers';
+import { TimesheetLockedError, ValidationError } from '@/lib/errors/errors';
 
 // GET: Fetch work hours
 export async function GET(req: NextRequest) {
@@ -11,7 +12,7 @@ export async function GET(req: NextRequest) {
   const year = searchParams.get('year');
 
   if (!userId || !month || !year) {
-    return NextResponse.json({ message: 'Missing required parameters, userId or month and year' }, { status: 400 });
+    throw new ValidationError('Missing required parameters, userId or month and year','userId/month/year')
   }
 
   try {
@@ -84,7 +85,7 @@ export async function POST(req: NextRequest) {
   const { date, hours, note, userId, projectId } = body;
 
   if (!date || !hours || !userId || !projectId) {
-    return NextResponse.json({ message: 'Missing required fields' }, { status: 400 });
+    throw new ValidationError('Missing required fields', 'date/hours/userId/projectId')
   }
 
   try {
@@ -111,7 +112,7 @@ export async function POST(req: NextRequest) {
       });
 
       if (submission.status === "LOCKED") {
-        throw new Error("Timesheet for this month is locked");
+        throw new TimesheetLockedError()
       }
 
     const workingHours = await tx.workHours.upsert({
@@ -141,8 +142,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(entry, { status: 201 });
   } catch (error) {
-    console.error("Error creating or updating workHours:", error);
-    return NextResponse.json({ message: "Could not create or update work entry" }, { status: 400 });
+    return handleApiError(error)
   }
 }
 
@@ -153,7 +153,7 @@ export async function PUT(req: NextRequest) {
   const { date, userId, projectId, hours, note } = body;
 
   if (!date || !userId || !projectId || typeof hours !== 'number') {
-    return NextResponse.json({ message: 'Missing required fields' }, { status: 400 });
+    throw new ValidationError('Missing required fields', 'date/userId/projectId')
   }
 
   try {
@@ -180,8 +180,7 @@ export async function PUT(req: NextRequest) {
 
     return NextResponse.json(updated);
   } catch (error) {
-    console.error(error);
-    return NextResponse.json({ message: 'Could not update work entry' }, { status: 500 });
+    return handleApiError(error)
   }
 }
 
@@ -193,7 +192,7 @@ export async function DELETE(req: NextRequest) {
   const projectId = searchParams.get('projectId');
 
   if (!userId || !date || !projectId) {
-    return NextResponse.json({ message: 'Missing required fields' }, { status: 400 });
+    throw new ValidationError('Missing required fields', 'userId/date/projectId')
   }
 
   try {
@@ -209,7 +208,6 @@ export async function DELETE(req: NextRequest) {
 
     return NextResponse.json({ message: 'Work entry deleted successfully' });
   } catch (error) {
-    console.error("Error deleting work entry:", error);
-    return NextResponse.json({ message: 'Could not delete work entry' }, { status: 500 });
+    return handleApiError(error)
   }
 }

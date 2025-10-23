@@ -1,18 +1,20 @@
 import { db } from "@/lib/db";
+import { ValidationError } from "@/lib/errors/errors";
+import { handleApiError } from "@/lib/errors/handlers";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
     const { date, holiday } = body;
-    // ✅ Validate before inserting into DB
+
     if (
       !date ||
       !holiday ||
       typeof date !== "string" ||
       typeof holiday !== "string"
     ) {
-      return NextResponse.json({ message: "Invalid input" }, { status: 400 });
+      throw new ValidationError("Missing required fields: date and holiday", 'date/holiday')
     }
 
     const newHoliday = await db.holidays.create({
@@ -24,11 +26,7 @@ export async function POST(req: Request) {
       { status: 201 }
     );
   } catch (error) {
-    console.error("Error creating holiday:", error);
-    return NextResponse.json(
-      { message: "Something went wrong!" },
-      { status: 500 }
-    );
+    return handleApiError(error)
   }
 }
 
@@ -77,11 +75,7 @@ export async function GET(req: Request) {
 
     return NextResponse.json(formatted, { status: 200 });
   } catch (error) {
-    console.error("Error fetching holidays:", error);
-    return NextResponse.json(
-      { message: "Failed to fetch holidays" },
-      { status: 500 }
-    );
+    return handleApiError(error)
   }
 }
 
@@ -90,10 +84,7 @@ export async function DELETE(req: Request) {
     const { id } = await req.json();
 
     if (!id) {
-      return NextResponse.json(
-        { message: "Holiday ID is required" },
-        { status: 400 }
-      );
+      throw new ValidationError("Holiday ID is required")
     }
 
     await db.holidays.delete({ where: { id } });
@@ -102,11 +93,7 @@ export async function DELETE(req: Request) {
       { status: 200 }
     );
   } catch (error) {
-    console.error("Error deleting holiday:", error);
-    return NextResponse.json(
-      { message: "Failed to delete holiday" },
-      { status: 500 }
-    );
+    return handleApiError(error)
   }
 }
 
@@ -115,10 +102,7 @@ export async function PUT(req: Request) {
     const { id, date, holiday } = await req.json();
 
     if (!id) {
-      return NextResponse.json(
-        { message: "Holiday ID is required" },
-        { status: 400 }
-      );
+      throw new ValidationError("Holiday ID is required", 'id')
     }
     if (
       !date ||
@@ -126,7 +110,7 @@ export async function PUT(req: Request) {
       typeof date !== "string" ||
       typeof holiday !== "string"
     ) {
-      return NextResponse.json({ message: "Invalid input" }, { status: 400 });
+      throw new ValidationError("Missing required fields: date and holiday", 'date/holiday')
     }
 
     const updatedHoliday = await db.holidays.update({
@@ -136,10 +120,6 @@ export async function PUT(req: Request) {
 
     return NextResponse.json({ holiday: updatedHoliday }, { status: 200 });
   } catch (error) {
-    console.error("Error updating holiday:", error);
-    return NextResponse.json(
-      { message: "Failed to update holiday" },
-      { status: 500 }
-    );
+    return handleApiError(error)
   }
 }

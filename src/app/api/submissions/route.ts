@@ -1,6 +1,8 @@
 import { NotificationMessage } from "@/constants/notificationTemplates";
 import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { AuthenticationError, AuthorizationError, ConflictError, RecordNotFoundError, ValidationError } from "@/lib/errors/errors";
+import { handleApiError } from "@/lib/errors/handlers";
 import { notifyUser, notifyUsersByRole } from "@/lib/notificationsLib";
 import { NotificationType, SubmissionStatus } from "@prisma/client";
 import { getServerSession } from "next-auth";
@@ -14,23 +16,18 @@ function formatDate(date:Date) {
 }
 
 export async function POST(req: Request) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
-    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-  }
-
-  const userId = Number(session.user.id);
-
   try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) {
+      throw new AuthenticationError("Unauthorized")
+    }
+  
+    const userId = Number(session.user.id)
     const body = await req.json();
     const { month, year } = body;
 
-    // Validate required fields
     if (!month || !year) {
-      return NextResponse.json(
-        { message: 'Missing month or year' },
-        { status: 400 }
-      );
+      throw new ValidationError('Missing month or year', 'month/year')
     }
 
     // Backend calculates period boundaries - business logic stays server-side
@@ -38,8 +35,6 @@ export async function POST(req: Request) {
     const periodEnd = new Date(year, month, 0, 23, 59, 59, 999);
 
     const submission = await db.$transaction(async (tx) => {
-
-        // Finding or verifying the submission for this period
         let submission = await tx.timeSheetSubmission.findUnique({
             where: {
             userId_periodStart_periodEnd: {
@@ -50,9 +45,8 @@ export async function POST(req: Request) {
             },
         });
 
-        // Validating submission status if it exists
         if (submission && submission.status !== "DRAFT" && submission.status !== "REJECTED") {
-            throw new Error(`Cannot submit timesheet with status: ${submission.status}`);
+          throw new ConflictError(`Cannot submit timesheet with status: ${submission.status}`, undefined, { field:"submission.status" })
         }
 
         const submittableWorkHours = await tx.workHours.findMany({
@@ -73,10 +67,9 @@ export async function POST(req: Request) {
         })
 
         if (submittableWorkHours.length === 0) {
-            throw new Error("No work hours found for this period");
+          throw new RecordNotFoundError("Working hours")
         }
 
-        // Creating submission if it doesn't exist (shouldn't happen with creation flow, but safety)
         if (!submission) {
             submission = await tx.timeSheetSubmission.create({
                 data: {
@@ -143,26 +136,21 @@ export async function POST(req: Request) {
       { status: 200 }
     );
   } catch (error: any) {
-    console.error("Error submitting timesheet:", error);
-    return NextResponse.json(
-      { message: error.message || "Could not submit timesheet" },
-      { status: 400 }
-    );
+    return handleApiError(error)
   }
 }
 
 export async function GET(req: Request) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
-    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-  }
-
-  // Verify admin role
-  if (session.user.role !== "Admin") {
-    return NextResponse.json({ message: "Forbidden" }, { status: 403 });
-  }
-
   try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) {
+      throw new AuthenticationError("Unauthorized")
+    }
+  
+    if (session.user.role !== "Admin") {
+      throw new AuthorizationError("Forbidden")
+    }
+
     const { searchParams } = new URL(req.url);
     const monthParam = searchParams.get("month");
     const yearParam = searchParams.get("year");
@@ -253,26 +241,21 @@ export async function GET(req: Request) {
       { status: 200 }
     );
   } catch (error) {
-    console.error("Error fetching admin timesheets:", error);
-    return NextResponse.json(
-      { message: "Failed to fetch timesheets" },
-      { status: 500 }
-    );
+    return handleApiError(error)
   }
 }
 
-
 export async function PUT(req: Request) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
-    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-  }
-
-  if (session.user.role !== "Admin") {
-    return NextResponse.json({ message: "Forbidden" }, { status: 403 });
-  }
-
   try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) {
+      throw new AuthenticationError("Unauthorized")
+    }
+  
+    if (session.user.role !== "Admin") {
+      throw new AuthorizationError("Forbidden")
+    }
+
     const { searchParams } = new URL(req.url);
     const submissionIdParam = searchParams.get("submissionId")
     const submissionId = Number(submissionIdParam)
@@ -281,7 +264,7 @@ export async function PUT(req: Request) {
 
     const isNotSubmissionStatus =  !Object.values(SubmissionStatus).includes(status)
     if (!status || isNotSubmissionStatus || !submissionId) {
-        return NextResponse.json({ message: "Invalid or missing submissionId/status" }, { status: 400 });
+      throw new ValidationError("Invalid or missing submissionId/status", 'submissionId/status')
     }
 
     const currentSubmission = await db.timeSheetSubmission.findUnique({
@@ -290,10 +273,10 @@ export async function PUT(req: Request) {
     });
 
     if (!currentSubmission) {
-        return NextResponse.json({ message: "Submission not found" }, { status: 404 });
+      throw new RecordNotFoundError('Submission')
     }
     if (currentSubmission.status === "DRAFT") {
-        return NextResponse.json({ message: "Admins cannot modify DRAFT timesheets" }, { status: 400 });
+      throw new AuthorizationError("DRAFT timesheets status cannot be modified!")
     }
 
     const updateData: any = {
@@ -344,11 +327,7 @@ export async function PUT(req: Request) {
       { status: 200 }
     );
   } catch (error) {
-    console.error("Error updating submission status:", error);
-    return NextResponse.json(
-      { message: "Failed to update status" },
-      { status: 500 }
-    );
+    return handleApiError(error)
   }
 }
 
@@ -360,8 +339,7 @@ export async function DELETE(req: Request) {
   
       return NextResponse.json({ message: "Absence deleted" }, { status: 200 });
     } catch (error) {
-      console.error("Error deleting absence:", error);
-      return NextResponse.json({ message: "Failed to delete absence" }, { status: 500 });
+      return handleApiError(error)
     }
 }
 

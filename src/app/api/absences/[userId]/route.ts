@@ -4,19 +4,18 @@ import { authOptions } from "@/lib/auth"; // Adjust path as needed
 import { db } from "@/lib/db";
 import { AuthenticationError } from "@/lib/errors/errors";
 import { handleApiError } from "@/lib/errors/handlers";
-import { getBusinessDays } from "@/app/utils/dateUtils";
 
 export async function GET(req: Request, { params }: { params: Promise<{ userId: string }>}) {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
-      throw new AuthenticationError("Unauthorized")
-    }
-    
-    const { userId } = await params;
-    const userIdInt = parseInt(userId);
-    const currentYear = new Date().getFullYear();
     
     try {
+        const session = await getServerSession(authOptions);
+        if (!session?.user?.id) {
+          throw new AuthenticationError("Unauthorized")
+        }
+        
+        const { userId } = await params;
+        const userIdInt = parseInt(userId);
+        const currentYear = new Date().getFullYear();
         const grantedDaysRecord = await db.totalVacationDays.findUnique({
             where: {
                 userId_year: {

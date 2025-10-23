@@ -6,33 +6,46 @@ import { NotificationType } from "@prisma/client";
 import { NotificationMessage } from "@/constants/notificationTemplates";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { AuthenticationError, AuthorizationError, ConflictError, ValidationError } from "@/lib/errors/errors";
+import { handleApiError } from "@/lib/errors/handlers";
 
 export async function POST(req: Request) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
-    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-  }
   try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) {
+      throw new AuthenticationError("Unauthorized")
+    }
+  
+    if (session.user.role !== "Admin") {
+      throw new AuthorizationError("Only administrators can create users");
+    }
+    
     const body = await req.json();
     const { username, email, password, role } = body;
-
-    const existingUserByEmail = await db.user.findUnique({ where: { email } });
-    const existingUserByName = await db.user.findUnique({
-      where: { username },
-    });
-
-    if (existingUserByEmail) {
-      return NextResponse.json(
-        { user: null, message: "User already exists" },
-        { status: 409 }
+    
+    if (!username || !email || !password || !role) {
+      throw new ValidationError(
+        "Missing required fields: username, email, password, and role are required",
+        "username/email/password/role"
       );
     }
 
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      throw new ValidationError("Invalid email format", "email");
+    }
+
+    const [existingUserByEmail, existingUserByName] = await Promise.all([
+      db.user.findUnique({ where: { email } }),
+      db.user.findUnique({ where: { username } })
+    ]);
+
+    if (existingUserByEmail) {
+      throw new ConflictError("User with this email already exists", undefined, { field: "email"})
+    }
+
     if (existingUserByName) {
-      return NextResponse.json(
-        { user: null, message: "User already exists with this name" },
-        { status: 409 }
-      );
+      throw new ConflictError("User with this username already exists", undefined, { field: "username"});
     }
 
     const hashedPassword = await hash(password, 10);
@@ -56,11 +69,7 @@ export async function POST(req: Request) {
       { status: 201 }
     );
   } catch (error) {
-    console.error("Error creating user:", error);
-    return NextResponse.json(
-      { message: "Something went wrong!" },
-      { status: 500 }
-    );
+    return handleApiError(error)
   }
 }
 
@@ -97,11 +106,7 @@ export async function GET() {
 
     return NextResponse.json({ users: usersWithVacationDays }, { status: 200 });
   } catch (error) {
-    console.error("Error fetching users:", error);
-    return NextResponse.json(
-      { message: "Failed to fetch users" },
-      { status: 500 }
-    );
+    return handleApiError(error)
   }
 }
 
@@ -110,10 +115,7 @@ export async function DELETE(req: Request) {
     const { id } = await req.json();
 
     if (!id) {
-      return NextResponse.json(
-        { message: "User ID is required" },
-        { status: 400 }
-      );
+      throw new ValidationError("User ID is required", 'id')
     }
 
     await db.user.delete({ where: { id } });
@@ -122,11 +124,7 @@ export async function DELETE(req: Request) {
       { status: 200 }
     );
   } catch (error) {
-    console.error("Error deleting user:", error);
-    return NextResponse.json(
-      { message: "Failed to delete user" },
-      { status: 500 }
-    );
+    return handleApiError(error)
   }
 }
 
@@ -134,10 +132,7 @@ export async function PUT(req: Request) {
   try {
     const { id, username, email, password, role, totalVacations } = await req.json();
     if (!id) {
-      return NextResponse.json(
-        { message: "User ID is required" },
-        { status: 400 }
-      );
+      throw new ValidationError("User ID is required", 'id')
     }
 
     const updateData: any = { username, email, role };
@@ -188,10 +183,6 @@ export async function PUT(req: Request) {
 
     return NextResponse.json({ user: userWithVacation }, { status: 200 });
   } catch (error) {
-    console.error("Error updating user:", error);
-    return NextResponse.json(
-      { message: "Failed to update user" },
-      { status: 500 }
-    );
+    return handleApiError(error)
   }
 }

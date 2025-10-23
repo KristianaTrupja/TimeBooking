@@ -1,25 +1,25 @@
 import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { Prisma } from "@prisma/client";
+import { AuthenticationError, ValidationError } from "@/lib/errors/errors";
+import { handleApiError } from "@/lib/errors/handlers";
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 
 export async function GET(req: Request) {
+  try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
-        return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+      throw new AuthenticationError("Unauthorized")
     }
 
     const userId = session.user.id;
-  try {
     const res = await db.notifications.findMany({
         where: { userId: Number(userId) },
         orderBy: { createdAt: "desc" },
     })
     return NextResponse.json({ notifications: res || [], message: "Fetch all notifications API hit!"}, { status: 200 })
   } catch (error) {
-    console.error("Error fetching absences:", error)
-    return NextResponse.json({ message: "Failed to fetch absences" }, { status: 500 })
+    return handleApiError(error)
   }
 }
 
@@ -30,25 +30,23 @@ export async function POST(req: Request) {
       { status: 201 }
     );
   } catch (error: any) {
-    console.error("Error creating absence:", error.message || error);
-    return NextResponse.json(
-      { message: error.message || "Something went wrong!" },
-      { status: 500 }
-    );
+    return handleApiError(error)
   }
 }
 
 export async function PUT(req: Request) {
+  try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
-        return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+      throw new AuthenticationError("Unauthorized")
     }
     const userId = session.user.id;
-    try {
         const { searchParams } = new URL(req.url);
         const notificationId = searchParams.get("id");
         
-        if(!notificationId) return NextResponse.json({ message: "No notification ID was provided!" }, { status: 400 });
+        if(!notificationId) {
+          throw new ValidationError("No notification ID was provided!", "id")
+        }
         
         const updatedNotification = await db.notifications.update({
       where: { id:notificationId, userId:Number(userId), isRead:false},
@@ -59,23 +57,8 @@ export async function PUT(req: Request) {
 
     return NextResponse.json({ notification: updatedNotification || null, message: "Notification marked as read!" }, { status: 200 });
   } catch (error) {
-        if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      if (error.code === "P2025") {
-        return NextResponse.json(
-          { message: "Notification not found or already read" }, 
-          { status: 404 }
-        );
-      }
-    }
-    
-    console.error("Error marking notification as read:", error);
-    return NextResponse.json(
-      { message: "Failed to mark notification as read" }, 
-      { status: 500 }
-    );
+    return handleApiError(error)
   }
 }
-  
-
 
 

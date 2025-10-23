@@ -53,6 +53,15 @@ export class ValidationError extends ApplicationError {
   }
 }
 
+// ============ Resource Locked Errors ============
+export class ResourceLockedError extends ApplicationError {
+  statusCode = 423;
+  code = 'RESOURCE_LOCKED_ERROR';
+  
+  constructor(message: string, field?: string, cause?: unknown) {
+    super(message, cause, { field });
+  }
+}
 export class InvalidDateRangeError extends ValidationError {
   constructor(message: string = 'Start date must be before end date') {
     super(message);
@@ -84,7 +93,7 @@ export class AbsenceOverlapError extends ConflictError {
   }
 }
 
-// ============ Work Hours Domain Errors ============
+// ============ Work Hours/Timesheet Domain Errors ============
 export class WorkHoursConflictError extends ConflictError {
   constructor(dateRange: string) {
     super(
@@ -93,6 +102,16 @@ export class WorkHoursConflictError extends ConflictError {
       { dateRange }
     );
     this.code = 'WORK_HOURS_CONFLICT';
+  }
+}
+
+export class TimesheetLockedError extends ResourceLockedError {
+  constructor() {
+    super(
+      `Timesheet for this month is locked`,
+      undefined
+    );
+    this.code = 'TIMESHEET_LOCKED';
   }
 }
 
