@@ -10,6 +10,7 @@ import {
 import { ProjectData } from "@/types/project";
 import { useCalendar } from "./CalendarContext";
 import { usePathname } from "next/navigation";
+import { toast } from "sonner";
 
 type ProjectContextType = {
   sidebarProjects: ProjectData[];
@@ -49,14 +50,28 @@ export const ProjectProvider = ({ children }: { children: ReactNode }) => {
   }, [userId, month, year]);
 
 
-  const setSidebarProjects = useCallback((projects: ProjectData[]) => {
-    setSidebarProjectsState(projects);
-    fetch("/api/sidebarProjects", {
+const setSidebarProjects = useCallback(async (projects: ProjectData[]) => {
+  try {
+    const response = await fetch("/api/sidebarProjects", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ year, month, projects }),
-    }).catch((err) => console.error("Error saving sidebar projects:", err));
-  }, [month, year]);
+      body: JSON.stringify({ year, month, projects, userId }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || "Failed to save projects");
+    }
+
+    setSidebarProjectsState(projects);
+    toast.success("Projects saved successfully");
+    
+  } catch (err) {
+    console.error("Error saving sidebar projects:", err);
+    toast.error(err instanceof Error ? err.message : "Failed to save projects");
+  }
+}, [month, year, userId])
+
 
   const removeProject = useCallback((projectKey: string) => {
     const updated = sidebarProjects

@@ -24,8 +24,14 @@ export function useSaveWorkHours({
           userId: parseInt(userId, 10),
           projectId,
         }),
-      });
-      reloadWorkHours(userId, month + 1, year);
+      })
+      .then(async response => {
+        if(!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || "Failed to save working hours");
+        }
+        reloadWorkHours(userId, month + 1, year);
+      })
     };
   }
   

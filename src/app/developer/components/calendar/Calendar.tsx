@@ -1,5 +1,5 @@
 "use client";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import TopBar from "./TopBar";
 import WorkDay from "./WorkDay";
 import { useCalendar } from "@/app/context/CalendarContext";
@@ -10,12 +10,13 @@ import { usePathname } from "next/navigation";
 import { useWorkHours } from "@/app/context/WorkHoursContext";
 import { getDayData } from "@/app/hooks/getDayData";
 import { normalizeProjectKey } from "@/app/utils/normalizeProjectKey";
+import { User } from "next-auth";
 
 function formatDate(year: number, month: number, day: string) {
   return `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
 }
 
-export default function Calendar() {
+export default function Calendar({ isOwner=false }: { isOwner:boolean }) {
   const { year, month } = useCalendar();
   const { workHours, metadata } = useWorkHours()
   const { sidebarProjects } = useProjects();
@@ -26,6 +27,7 @@ export default function Calendar() {
 
   const [hoveredColIndex, setHoveredColIndex] = useState<number | null>(null);
   const [hoveredProjectKey, setHoveredProjectKey] = useState<string | null>(null);
+
 
   return (
     <div>
@@ -45,7 +47,7 @@ export default function Calendar() {
                   return (
                     <WorkDay
                       dayData={dayData}
-                      isDisabled={metadata?.isLocked}
+                      isDisabled={!isOwner || metadata?.isLocked}
                       key={`${proj.projectKey}-${day}`}
                       date={date}
                       projectKey={proj.projectKey}

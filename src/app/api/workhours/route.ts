@@ -2,7 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from "@/lib/db";
 import { getEndOfMonth, getStartOfMonth } from '@/app/utils/dateUtils';
 import { handleApiError } from '@/lib/errors/handlers';
-import { TimesheetLockedError, ValidationError } from '@/lib/errors/errors';
+import { AuthenticationError, AuthorizationError, TimesheetLockedError, ValidationError } from '@/lib/errors/errors';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 
 // GET: Fetch work hours
 export async function GET(req: NextRequest) {
@@ -81,14 +83,23 @@ export async function GET(req: NextRequest) {
 
 // POST: Create new work entry
 export async function POST(req: NextRequest) {
-  const body = await req.json();
-  const { date, hours, note, userId, projectId } = body;
-
-  if (!date || !hours || !userId || !projectId) {
-    throw new ValidationError('Missing required fields', 'date/hours/userId/projectId')
-  }
-
   try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) {
+      throw new AuthenticationError("Unauthorized");
+    }
+
+    const body = await req.json();
+    const { date, hours, note, userId, projectId } = body;
+
+    if (!date || !hours || !userId || !projectId) {
+      throw new ValidationError('Missing required fields', 'date/hours/userId/projectId')
+    }
+
+    if(userId != session?.user?.id){
+      throw new AuthorizationError("FORBIDDEN: You are not authorized to modify these working hours")
+    }
+
     const targetDate = new Date(date);
     const periodStart = getStartOfMonth(targetDate);
     const periodEnd = getEndOfMonth(targetDate);
@@ -149,14 +160,21 @@ export async function POST(req: NextRequest) {
 
 // PUT: Update hours or note for existing entry
 export async function PUT(req: NextRequest) {
-  const body = await req.json();
-  const { date, userId, projectId, hours, note } = body;
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) {
+      throw new AuthenticationError("Unauthorized");
+    }
+    const body = await req.json();
+    const { date, userId, projectId, hours, note } = body;
+    if(userId != session?.user?.id){
+      throw new AuthorizationError("FORBIDDEN: You are not authorized to modify these working hours")
+    }
 
   if (!date || !userId || !projectId || typeof hours !== 'number') {
     throw new ValidationError('Missing required fields', 'date/userId/projectId')
   }
 
-  try {
     const updated = await db.workHours.upsert({
       where: {
         userId_date_projectId: {
@@ -186,16 +204,23 @@ export async function PUT(req: NextRequest) {
 
 // DELETE: Remove a work entry
 export async function DELETE(req: NextRequest) {
-  const { searchParams } = new URL(req.url);
-  const userId = searchParams.get('userId');
-  const date = searchParams.get('date');
-  const projectId = searchParams.get('projectId');
+  
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) {
+      throw new AuthenticationError("Unauthorized");
+    }
+    const { searchParams } = new URL(req.url);
+    const userId = searchParams.get('userId');
+    const date = searchParams.get('date');
+    const projectId = searchParams.get('projectId');
+    if(userId != session?.user?.id){
+      throw new AuthorizationError("FORBIDDEN: You are not authorized to delete these working hours")
+    }
 
   if (!userId || !date || !projectId) {
     throw new ValidationError('Missing required fields', 'userId/date/projectId')
   }
-
-  try {
     await db.workHours.delete({
       where: {
         userId_date_projectId: {

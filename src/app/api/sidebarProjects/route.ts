@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { handleApiError } from "@/lib/errors/handlers";
-import { AuthenticationError, ValidationError } from "@/lib/errors/errors";
+import { AuthenticationError, AuthorizationError, RecordNotFoundError, ValidationError } from "@/lib/errors/errors";
 
 export async function GET(req: NextRequest) {
   try {
@@ -42,53 +42,49 @@ export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
-      throw new AuthenticationError("Unauthorized")
+      throw new AuthenticationError("Unauthorized");
     }
   
-    const userId = session.user.id;
     const body = await req.json();
-    const { year, month, projects } = body;
+    const { year, month, projects, userId } = body;
+    const loggedInUserId = Number(session.user.id);
 
     if (!year || !month || !Array.isArray(projects)) {
-      throw new ValidationError("year and month are required!")
+      throw new ValidationError("year and month are required!");
     }
 
-    await db.sidebarProject.deleteMany({
-      where: { userId: Number(userId), year, month },
-    });
-
-    for (const group of projects) {
-      for (const project of group.projects) {
-        const existing = await db.sidebarProject.findFirst({
-          where: {
-            userId: Number(userId),
-            year,
-            month,
-            projectKey: project.projectKey,
-          },
-        });
-
-        if (!existing) {
-          await db.sidebarProject.create({
-            data: {
-              userId: Number(userId),
-              company: group.company,
-              title: project.title,
-              projectKey: project.projectKey,
-              year,
-              month,
-            },
-          });
-        }
-      }
+    if (loggedInUserId !== Number(userId)) {
+      throw new AuthorizationError("Forbidden: You cannot modify this project")
     }
+
+    const projectsToCreate = projects.flatMap((group) =>
+      group.projects.map((project:any) => ({
+        userId: loggedInUserId,
+        company: group.company,
+        title: project.title,
+        projectKey: project.projectKey,
+        year,
+        month,
+      }))
+    );
+
+    await db.$transaction([
+      db.sidebarProject.deleteMany({
+        where: { userId:loggedInUserId, year, month },
+      }),
+      db.sidebarProject.createMany({
+        data: projectsToCreate,
+        skipDuplicates: true, // Optional: skip if somehow duplicates exist
+      }),
+    ]);
 
     return NextResponse.json({ message: "Saved" });
     
   } catch (error) {
-    return handleApiError(error)
+    return handleApiError(error);
   }
 }
+
 
 export async function DELETE(req: NextRequest) {
   try {
@@ -105,7 +101,7 @@ export async function DELETE(req: NextRequest) {
       throw new ValidationError("projectKey, year, and month are required", "projectKey/year/month")
     }
 
-    await db.sidebarProject.deleteMany({
+    const result = await db.sidebarProject.deleteMany({
       where: {
         userId: Number(userId),
         projectKey,
@@ -113,6 +109,10 @@ export async function DELETE(req: NextRequest) {
         month,
       },
     });
+
+    if(result.count < 1){
+      throw new RecordNotFoundError("Project", projectKey)
+    }
 
     return NextResponse.json({ message: "Project deleted successfully" });
     

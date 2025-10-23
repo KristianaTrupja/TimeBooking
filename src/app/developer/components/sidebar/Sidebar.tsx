@@ -1,13 +1,13 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useProjects } from '@/app/context/ProjectContext';
 import SidebarContent from './SidebarContent';
 import ProjectModalContainer from './ProjectModalContainer';
 import { ProjectData, ProjectEntry } from '@/types/project';
 import { useWorkHours } from '@/app/context/WorkHoursContext';
 
-export default function Sidebar() {
+export default function Sidebar({ isOwner }: { isOwner:boolean }) {
   const { setSidebarProjects, sidebarProjects } = useProjects();
   const { metadata } = useWorkHours()
   const [projectsData, setProjectsData] = useState<ProjectData[]>([]);
@@ -37,8 +37,6 @@ export default function Sidebar() {
 
     fetchProjects();
   }, []);
-
-
 
   const toggleProjectSelection = (company: string, projectKey: string) => {
     const key = `${company}-${projectKey}`;
@@ -89,6 +87,7 @@ const handleSubmit = () => {
         sidebarProjects={sidebarProjects}
         openModal={() => setIsModalOpen(true)}
         isLocked={metadata?.isLocked}
+        isOwner={isOwner}
       />
       <ProjectModalContainer
         isModalOpen={isModalOpen}

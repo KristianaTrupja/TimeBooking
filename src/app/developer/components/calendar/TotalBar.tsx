@@ -5,8 +5,9 @@ import { useMemo } from "react";
 import { Delete } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useProjects } from "@/app/context/ProjectContext";
+import { User } from "next-auth";
 
-export default function TotalBar() {
+export default function TotalBar({ isOwner=false }: { isOwner:boolean }) {
   const pathname = usePathname();
   const userId = pathname.split("/")[2];
   const { month, year } = useCalendar();
@@ -48,7 +49,7 @@ export default function TotalBar() {
                   key={proj.projectKey}
                 >
                   <div>{total.toFixed(2)}</div>
-                  {!metadata?.isLocked && <Delete
+                  {isOwner && !metadata?.isLocked && <Delete
                     className="w-5 h-5 text-red-500 cursor-pointer"
                     onClick={() => removeProject(proj.projectKey)}
                   />}

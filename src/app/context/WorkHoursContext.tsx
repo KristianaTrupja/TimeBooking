@@ -16,7 +16,7 @@ type WorkHoursContextType = {
   workHours: WorkHours;
   activeTimesheet: Submission | null
   metadata: {totalHours: number,isLocked: boolean,canEdit: boolean} | null
-  submitTimesheet: (month:number, year:number) => Promise<string>
+  submitTimesheet: (month:number, year:number, employeeId:string) => Promise<string>
   setWorkHoursForProject: (
     date: string,
     userId: string,
@@ -150,13 +150,13 @@ export function WorkHoursProvider({ children }: { children: ReactNode }) {
     return total;
   }
 
-  async function submitTimesheet(month: number, year: number): Promise<string> {
+  async function submitTimesheet(month: number, year: number, employeeId:string): Promise<string> {
     const response = await fetch(`/api/submissions`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ month: month +1, year }),
+      body: JSON.stringify({ month: month +1, year, employeeId }),
     });
 
     if (!response.ok) {

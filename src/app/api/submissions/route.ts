@@ -24,10 +24,14 @@ export async function POST(req: Request) {
   
     const userId = Number(session.user.id)
     const body = await req.json();
-    const { month, year } = body;
+    const { month, year, employeeId } = body;
 
     if (!month || !year) {
       throw new ValidationError('Missing month or year', 'month/year')
+    }
+
+    if(employeeId != session?.user?.id){
+      throw new AuthorizationError("FORBIDDEN: You are not authorized to submit this timesheet!")
     }
 
     // Backend calculates period boundaries - business logic stays server-side

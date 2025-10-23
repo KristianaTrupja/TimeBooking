@@ -12,6 +12,7 @@ export default function SaveButton() {
 
   const handleClick = async () => {
     const keysToRemove: string[] = [];
+    let hasError
 
     for (let i = 0; i < sessionStorage.length; i++) {
       const key = sessionStorage.key(i);
@@ -31,12 +32,16 @@ export default function SaveButton() {
           month,
           year,
         });
-
-        await save(hours, note);
-        keysToRemove.push(key);
+        try {
+          await save(hours, note);
+          keysToRemove.push(key);
+        } catch (error) {
+          hasError = true
+          toast.error((error as Error)?.message || "Failed to save working hours")
+        }
       }
     }
-
+    if(hasError) return
     keysToRemove.forEach((key) => sessionStorage.removeItem(key));
     toast.success("All work hours have been saved!");
     setIsSaved(true);
