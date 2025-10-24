@@ -7,6 +7,14 @@ import { AbsenceType } from "@/types/absence";
 import { flushError } from "@/app/utils/flushError";
 import { toast } from "sonner";
 
+type APIRemainingDays = {
+  leftDaysTotal: number,
+  leftDaysCurrentYear: number,
+  leftDaysLastYear: number,
+  usedDaysCurrentYear: number,
+  isOverdrawn: boolean,
+}
+
 const absenceTypes: (keyof typeof AbsenceType)[] = ["VACATION", "SICK", "PERSONAL", "PARENTAL"]
 const selectorStyle = "bg-[#E3F0FF] text-[#244B77] border-[1px] border-[#244B77]"
 
@@ -17,11 +25,11 @@ export default function Absences() {
   const [absenceType, setAbsenceType] = useState<string | null>(null)
   const [employees, setEmployees] = useState<User[]| null>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [daysLeft, setDaysLeft] = useState<number | null>(null)
+  const [remainingDays, setRemainingDays] = useState<APIRemainingDays | null>(null)
 
   useEffect(() => {
     if(!selectedEmployee) return
-    setDaysLeft(null)
+    setRemainingDays(null)
 
     const employee = employees?.find(v => v.username === selectedEmployee)
     if(!employee) return
@@ -31,7 +39,7 @@ export default function Absences() {
       if(!response) {}
       return response.json()
     })
-    .then(data => setDaysLeft(data.days))
+    .then(data => setRemainingDays(data))
 
   }, [selectedEmployee])
   
@@ -88,7 +96,7 @@ export default function Absences() {
       setStartDate("");
       setEndDate("")
       setAbsenceType(null);
-      setDaysLeft(null)
+      setRemainingDays(null)
 
       toast.success(data.message || "Absence created successfully!")
     } catch (error:unknown) {
@@ -118,7 +126,13 @@ export default function Absences() {
             value={selectedEmployee || ""}
           />
         </div>
-        {typeof daysLeft === "number" && <div className="border-b-2 border-dotted border-b-[#244B77] text-sm h-fit text-[#244B77]">Vacations Left: <span className="font-bold">{daysLeft} {daysLeft === 1 ? "Day" : "Days"}</span></div>}
+        {typeof remainingDays?.leftDaysTotal === "number" && 
+        <div className="border-b-2 border-dotted border-b-[#244B77] text-sm h-fit text-[#244B77]">
+          Vacations Left: 
+          <span className="font-bold">
+            {remainingDays.leftDaysTotal}{remainingDays.leftDaysCurrentYear === 1 ? " Day" : " Days"}
+          </span>
+        </div>}
       </div>
 
       {/* Date Pickers */}

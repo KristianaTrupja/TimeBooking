@@ -137,3 +137,54 @@ export class ServiceUnavailableError extends ApplicationError {
     super(`${serviceName} is temporarily unavailable`, cause, { serviceName });
   }
 }
+
+export class DatabaseConnectionError extends ServiceUnavailableError {
+  statusCode = 503;
+  code = 'DATABASE_CONNECTION_ERROR';
+  
+  constructor(cause?: unknown, poolMetadata?: { timeout?: number | string; connectionLimit?: number | string }) {
+    super('Database', cause);
+    
+    // Override message with more actionable information
+    if (poolMetadata?.timeout && poolMetadata?.connectionLimit) {
+      this.message = `Database connection pool exhausted. Timeout: ${poolMetadata.timeout}s, Limit: ${poolMetadata.connectionLimit} connections. Please retry.`;
+    }
+    
+    // Add pool metadata for monitoring/alerting
+    this.metadata = {
+      ...this.metadata,
+      ...poolMetadata,
+      retryable: true,
+      retryAfter: 5, // Suggest 5-second retry for pool exhaustion
+      action: 'retry_with_backoff'
+    };
+  }
+}
+
+export class QueryTimeoutError extends ServiceUnavailableError {
+  statusCode = 504; // Gateway Timeout
+  code = 'QUERY_TIMEOUT';
+  
+  constructor(operation: string, cause?: unknown) {
+    super('Database', cause);
+    this.message = `Query timeout: ${operation} took too long to execute`;
+  }
+}
+
+export class RateLimitError extends ApplicationError {
+  statusCode = 429;
+  code = 'RATE_LIMIT_EXCEEDED';
+  
+  constructor(limit: number, windowSeconds: number, cause?: unknown) {
+    super(
+      `Rate limit exceeded: ${limit} requests per ${windowSeconds} seconds`,
+      cause,
+      { 
+        limit, 
+        windowSeconds,
+        retryable: true,
+        retryAfter: windowSeconds // Client should wait full window
+      }
+    );
+  }
+}
