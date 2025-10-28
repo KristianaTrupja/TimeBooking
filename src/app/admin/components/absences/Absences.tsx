@@ -6,13 +6,18 @@ import Spinner from "@/components/ui/Spinner";
 import { AbsenceType } from "@/types/absence";
 import { flushError } from "@/app/utils/flushError";
 import { toast } from "sonner";
+import AbsPopover from "./AbsPopover";
 
 type APIRemainingDays = {
-  leftDaysTotal: number,
-  leftDaysCurrentYear: number,
-  leftDaysLastYear: number,
-  usedDaysCurrentYear: number,
-  isOverdrawn: boolean,
+    currentYear: { year:number, daysLeft:number, daysSpent:number },
+    lastYear: { year:number, daysLeft:number, daysSpent:number }
+    totalDaysLeft: number
+}
+
+const popover = {
+  currentYear: { year:2025, daysLeft:10, daysSpent:12 },
+  lastYear: { year:2024, daysLeft:5, daysSpent:17 },
+  totalDaysLeft: 15
 }
 
 const absenceTypes: (keyof typeof AbsenceType)[] = ["VACATION", "SICK", "PERSONAL", "PARENTAL"]
@@ -126,13 +131,7 @@ export default function Absences() {
             value={selectedEmployee || ""}
           />
         </div>
-        {typeof remainingDays?.leftDaysTotal === "number" && 
-        <div className="border-b-2 border-dotted border-b-[#244B77] text-sm h-fit text-[#244B77]">
-          Vacations Left: 
-          <span className="font-bold">
-            {remainingDays.leftDaysTotal}{remainingDays.leftDaysCurrentYear === 1 ? " Day" : " Days"}
-          </span>
-        </div>}
+        {remainingDays && <AbsPopover data={remainingDays} />}
       </div>
 
       {/* Date Pickers */}
