@@ -78,7 +78,7 @@ export const InputField = ({
             className="border px-2 py-1 rounded w-full text-black font-normal"
           >
             <option value="" disabled>
-              Zgjidh rolin
+              Choose Role
             </option>
             {ROLE_OPTIONS.map((role) => (
               <option key={role} value={role}>

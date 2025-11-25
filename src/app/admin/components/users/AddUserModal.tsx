@@ -17,29 +17,29 @@ export function AddUserModal({ open, onClose, formData, onChange, onSubmit }: Pr
     <Modal
       isOpen={open}
       onClose={onClose}
-      title="Krijo user te ri"
+      title="Create a new employee"
       footer={<Button onClick={onSubmit}>Add</Button>}
     >
       <p className="mb-4 text-left text-[#244B77] text-md">
-        Plotësoni fushat përkatëse për të krijuar një user të ri dhe vendosni një password të sigurt.
+        Fill in the required fields to create a new user and set a secure password.
       </p>
       <div className="flex flex-wrap gap-4">
         <div className="w-[45%]">
-          <InputField formId={formData.id} label="Emri i plote:" name="username" value={formData.username} onChange={onChange} placeholder="Shembull: Andi Lazaj" />
+          <InputField formId={formData.id} label="Full Name:" name="username" value={formData.username} onChange={onChange} placeholder="Example: John Doe" />
         </div>
         <div className="w-[45%]">
-          <InputField formId={formData.id} label="Email:" name="email" value={formData.email} onChange={onChange} placeholder="Shembull: andi@example.com" />
+          <InputField formId={formData.id} label="Email:" name="email" value={formData.email} onChange={onChange} placeholder="Example: jdoe@example.com" />
         </div>
         <div className="w-[45%]">
-          <InputField formId={formData.id} label="Password:" name="password" value={formData.password} onChange={onChange} type="password" placeholder="Shembull: ********" autoComplete="new-password"
+          <InputField formId={formData.id} label="Password:" name="password" value={formData.password} onChange={onChange} type="password" placeholder="Example: ********" autoComplete="new-password"
             error={
               formData.password && !isPasswordStrong(formData.password)
-                ? "Password duhet të jetë të paktën 8 karaktere, një shkronjë të madhe, një numër dhe një simbol special."
+                ? "The password must be at least 8 characters long, contain an uppercase letter, a number, and a special symbol."
                 : ""
             } />
         </div>
         <div className="w-[45%]">
-          <InputField formId={formData.id} label="Roli:" name="role" type="role" value={formData.role} onChange={onChange} placeholder="Shembull: Dev" />
+          <InputField formId={formData.id} label="Roli:" name="role" type="role" value={formData.role} onChange={onChange} placeholder="Example: Dev" />
         </div>
       </div>
     </Modal>

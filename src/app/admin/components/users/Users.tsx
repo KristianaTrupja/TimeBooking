@@ -158,8 +158,8 @@ export default function Users() {
   if (isLoading) return <Spinner />;
 
   return (
-  <section className="rounded-md">
-      <section className="overflow-y-auto max-h-[66vh] rounded-md pb-10">
+  <section className="rounded-md grid h-full box-border">
+      <section className="overflow-y-auto max-h-[66vh] rounded-md">
         <UserTable
           employees={user?.users || []}
           editingId={editingId}
@@ -189,9 +189,9 @@ export default function Users() {
         />
 
       </section>
-        <div className="flex justify-center my-5">
-          <Button onClick={() => setOpen(true)}>Add new employee</Button>
-        </div>
+      <div className="py-5 min-h-max mx-auto">
+        <Button onClick={() => setOpen(true)}>Add new employee</Button>
+      </div>
   </section>
   );
 }
