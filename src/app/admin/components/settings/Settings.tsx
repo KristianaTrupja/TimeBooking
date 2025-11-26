@@ -67,7 +67,7 @@ export default function SettingsPage() {
 
       <div className="space-y-4 mb-10">
         <InputField
-          label="Emri"
+          label="Full Name"
           name="username"
           placeholder="Enter name"
           value={formData.username}
@@ -82,7 +82,7 @@ export default function SettingsPage() {
           onChange={handleChange}
         />
         <InputField
-          label="Fjalëkalimi"
+          label="Password"
           name="password"
           placeholder="Change password"
           value={formData.password}

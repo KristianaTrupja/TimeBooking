@@ -38,7 +38,7 @@ export default function TopNavBar() {
             >
               {item.tab === "notifications" &&
               unreadNotificationsCount > 0 &&
-              <span className="UnreadNotificationCount inline-block px-1 rounded-full text-sm text-white top-[-7] left-[-7] absolute bg-red-500">{unreadNotificationsCount}</span>}
+              <span className="UnreadNotificationCount inline-block px-1 rounded-full text-sm text-white top-[-7px] left-[-7px] absolute bg-red-500">{unreadNotificationsCount}</span>}
               {item.icon}
               {item.tab}
             </button>
