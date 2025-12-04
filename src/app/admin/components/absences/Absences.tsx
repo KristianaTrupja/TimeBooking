@@ -176,7 +176,7 @@ export default function Absences() {
       </div>
 
       <Button className="mt-10" onClick={handleCreateAbsence}>
-        Krijo leje
+        Grant Leave
       </Button>
     </div>
   );
