@@ -3,7 +3,4 @@ import { redirect } from "next/navigation";
     export default function ProjectRootPage() {
       redirect("/login");
     }
-
-    
-    
     
