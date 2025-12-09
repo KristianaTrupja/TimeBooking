@@ -57,6 +57,23 @@ export async function GET(req: Request) {
           holiday: true,
         },
       });
+    } else if (year) {
+      const start = `${year}-01-01`;
+      const end = `${year}-12-31`;
+
+      holidays = await db.holidays.findMany({
+        where: {
+          date: {
+            gte: start,
+            lte: end,
+          },
+        },
+        select: {
+          id: true,
+          date: true,
+          holiday: true,
+        },
+      });
     } else {
       holidays = await db.holidays.findMany({
         select: {

@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import VacationTable from "./VacationTable";
 import AddVacationModal from "./AddVacationModal";
 import { Holiday } from "@/types/holiday";
@@ -15,9 +16,36 @@ export default function Vacations() {
   const [modalOpen, setModalOpen] = useState(false);
   const [newHoliday, setNewHoliday] = useState({ date: "", holiday: "" });
   const [isLoading, setIsLoading] = useState(true);
+  const [containerHeight, setContainerHeight] = useState<number | null>(null);
+  const [year, setYear] = useState(new Date().getFullYear());
+
+  const sectionRef = useRef<HTMLElement>(null);
+  const buttonRef = useRef<HTMLDivElement>(null);
+  const navRef = useRef<HTMLDivElement>(null);
+
+  const goToPreviousYear = () => setYear((prev) => prev - 1);
+  const goToNextYear = () => setYear((prev) => prev + 1);
+
+  const calculateHeight = useCallback(() => {
+    if (sectionRef.current && buttonRef.current && navRef.current) {
+      const sectionTop = sectionRef.current.getBoundingClientRect().top;
+      const navHeight = navRef.current.offsetHeight;
+      const buttonHeight = buttonRef.current.offsetHeight;
+      const bottomPadding = 24; // Extra padding for safety
+      const availableHeight = window.innerHeight - sectionTop - navHeight - buttonHeight - bottomPadding;
+      setContainerHeight(Math.max(availableHeight, 200)); // Minimum height of 200px
+    }
+  }, []);
 
   useEffect(() => {
-    fetch("/api/vacations")
+    calculateHeight();
+    window.addEventListener("resize", calculateHeight);
+    return () => window.removeEventListener("resize", calculateHeight);
+  }, [calculateHeight, isLoading]);
+
+  useEffect(() => {
+    setIsLoading(true);
+    fetch(`/api/vacations?year=${year}`)
       .then((res) => res.json())
       .then((data) => setVacations(data))
       .catch((err) => console.error("Failed to fetch holidays", err))
@@ -26,7 +54,7 @@ export default function Vacations() {
           setIsLoading(false);
         }, 500);
       });
-  }, []);
+  }, [year]);
 
   const handleEdit = (id: number) => {
     const emp = vacations.find((v) => v.id === id);
@@ -128,8 +156,22 @@ export default function Vacations() {
 
   if (isLoading) return <Spinner />;
   return (
-    <section className="rounded-md">
-      <div className="overflow-y-auto max-h-[66vh]">
+    <section ref={sectionRef} className="rounded-md">
+      {/* Year Navigation Bar */}
+      <div ref={navRef} className="flex items-center justify-center gap-4 mb-4">
+        <Button variant="ghost" className="border border-accent" onClick={goToPreviousYear}>
+          <ChevronLeft />
+        </Button>
+        <h2 className="text-xl font-bold text-[#244B77]">{year}</h2>
+        <Button variant="ghost" className="border border-accent" onClick={goToNextYear}>
+          <ChevronRight />
+        </Button>
+      </div>
+
+      <div
+        className="overflow-y-auto"
+        style={{ maxHeight: containerHeight ? `${containerHeight}px` : "66vh" }}
+      >
         <VacationTable
           vacations={vacations}
           editingId={editingId}
@@ -141,7 +183,7 @@ export default function Vacations() {
         />
       </div>
 
-      <div className="flex justify-center my-5">
+      <div ref={buttonRef} className="flex justify-center my-5">
         <Button onClick={() => setModalOpen(true)}>
           Add new holiday
         </Button>
