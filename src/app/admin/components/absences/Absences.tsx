@@ -135,9 +135,9 @@ export default function Absences() {
       </div>
 
       {/* Date Pickers */}
-      <div className="flex flex-col gap-4 bg-[#244B77] p-6 rounded-md text-white">
-        <div className="flex items-baseline w-full gap-5 justify-between">
-          <label htmlFor="start-date" className="text-md font-bold">
+      <div className="flex flex-col gap-4 bg-[#244B77] p-6 rounded-md text-white ">
+        <div className="flex items-baseline gap-5 justify-between w-80">
+          <label htmlFor="start-date" className="text-md font-bold min-w-20">
             Start Date:
           </label>
           <input
@@ -148,8 +148,8 @@ export default function Absences() {
             onChange={(e) => setStartDate(e.target.value)}
           />
         </div>
-        <div className="flex items-baseline w-full gap-5 justify-between">
-          <label htmlFor="end-date" className="text-md font-bold">
+        <div className="flex items-baseline gap-5 justify-between w-80">
+          <label htmlFor="end-date" className="text-md font-bold min-w-20">
             End Date:
           </label>
           <input
