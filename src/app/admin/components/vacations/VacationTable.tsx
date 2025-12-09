@@ -50,11 +50,6 @@ export default function VacationTable({
               style={{ borderSpacing: "10px" }}
             >
               <thead className="bg-[#6C99CB] text-white">
-                <tr>
-                  <th colSpan={5} className="bg-[#244B77] text-center font-bold text-lg py-2 text-white">
-                    Year {year}
-                  </th>
-                </tr>
                 <tr className="text-left">
                   <th className="px-4 py-2 w-16 rounded-sm">Nr</th>
                   <th className="px-4 py-2 w-1/3 rounded-sm">Date</th>

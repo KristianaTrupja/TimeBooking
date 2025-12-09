@@ -11,10 +11,10 @@ export default async function DashboardLayout({ children }: { children: React.Re
   
   return (
     <section
-      className="pt-5 h-screen flex flex-col"
+      className="pt-3 h-screen flex flex-col"
       style={{ fontFamily: "var(--font-anek-bangla)" }}
     >
-      <div className="flex justify-between mb-6 items-center">
+      <div className="flex justify-between mb-3 items-center">
         <h2
           className="text-4xl sm:text-6xl text-[#244B77] text-center pl-2"
           style={{ fontFamily: "var(--font-keania-one)" }}
