@@ -120,7 +120,7 @@ export default function Absences() {
 
       {/* Employee Selector */}
       <div className="flex justify-between items-center">
-        <div className="w-1/2 mb-5">
+        <div className="w-60 mb-5">
           <Selector
             id="selector-employee"
             label="Choose Employee"
@@ -135,9 +135,9 @@ export default function Absences() {
       </div>
 
       {/* Date Pickers */}
-      <div className="flex flex-col gap-4 bg-[#244B77] p-6 rounded-md text-white">
-        <div className="flex items-baseline w-full gap-5 justify-between">
-          <label htmlFor="start-date" className="text-md font-bold">
+      <div className="flex flex-col gap-4 bg-[#244B77] p-6 rounded-md text-white ">
+        <div className="flex items-baseline gap-5 justify-between w-80">
+          <label htmlFor="start-date" className="text-md font-bold min-w-20">
             Start Date:
           </label>
           <input
@@ -148,8 +148,8 @@ export default function Absences() {
             onChange={(e) => setStartDate(e.target.value)}
           />
         </div>
-        <div className="flex items-baseline w-full gap-5 justify-between">
-          <label htmlFor="end-date" className="text-md font-bold">
+        <div className="flex items-baseline gap-5 justify-between w-80">
+          <label htmlFor="end-date" className="text-md font-bold min-w-20">
             End Date:
           </label>
           <input
@@ -163,7 +163,7 @@ export default function Absences() {
       </div>
 
       {/* Absence Type Selector */}
-      <div className="w-1/2 mt-5">
+      <div className="w-60 mt-5">
         <Selector
           id="selector-absence"
           label="Choose leave type"
