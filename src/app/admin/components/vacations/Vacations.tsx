@@ -29,11 +29,18 @@ export default function Vacations() {
   const calculateHeight = useCallback(() => {
     if (sectionRef.current && buttonRef.current && navRef.current) {
       const sectionTop = sectionRef.current.getBoundingClientRect().top;
-      const navHeight = navRef.current.offsetHeight;
-      const buttonHeight = buttonRef.current.offsetHeight;
-      const bottomPadding = 24; // Extra padding for safety
+      
+      const navStyles = window.getComputedStyle(navRef.current);
+      const navHeight = navRef.current.offsetHeight + 
+        parseFloat(navStyles.marginTop) + parseFloat(navStyles.marginBottom);
+      
+      const buttonStyles = window.getComputedStyle(buttonRef.current);
+      const buttonHeight = buttonRef.current.offsetHeight + 
+        parseFloat(buttonStyles.marginTop) + parseFloat(buttonStyles.marginBottom);
+      
+      const bottomPadding = 16;
       const availableHeight = window.innerHeight - sectionTop - navHeight - buttonHeight - bottomPadding;
-      setContainerHeight(Math.max(availableHeight, 200)); // Minimum height of 200px
+      setContainerHeight(Math.max(availableHeight, 200));
     }
   }, []);
 
