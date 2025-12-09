@@ -189,7 +189,7 @@ export default function Users() {
         />
 
       </section>
-      <div className="py-5 min-h-max mx-auto">
+      <div className="min-h-max mx-auto">
         <Button onClick={() => setOpen(true)}>Add new employee</Button>
       </div>
   </section>

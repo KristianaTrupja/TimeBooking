@@ -1,7 +1,7 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import Raport from "./components/raport/Raport";
 import Projects from "./components/projects/Projects";
 import Users from "./components/users/Users";
@@ -18,14 +18,38 @@ import { SessionProvider } from "next-auth/react";
 export default function AdminClient() {
   const searchParams = useSearchParams();
   const [tab, setTab] = useState("raport");
+  const [containerHeight, setContainerHeight] = useState<number | null>(null);
+  const sectionRef = useRef<HTMLElement>(null);
+
+  const calculateHeight = useCallback(() => {
+    if (sectionRef.current) {
+      const sectionTop = sectionRef.current.getBoundingClientRect().top;
+      const bottomPadding = 24;
+      const availableHeight = window.innerHeight - sectionTop - bottomPadding;
+      setContainerHeight(Math.max(availableHeight, 200));
+    }
+  }, []);
 
   useEffect(() => {
     const tabParam = searchParams.get("tab") || "raport";
     setTab(tabParam);
   }, [searchParams]);
 
+  useEffect(() => {
+    calculateHeight();
+    window.addEventListener("resize", calculateHeight);
+    return () => window.removeEventListener("resize", calculateHeight);
+  }, [calculateHeight]);
+
   return (
-    <section className="mx-5 mt-5 h-[66vh]" style={{ fontFamily: "var(--font-anek-bangla)" }}>
+    <section
+      ref={sectionRef}
+      className="mx-5 mt-5"
+      style={{
+        fontFamily: "var(--font-anek-bangla)",
+        height: containerHeight ? `${containerHeight}px` : "66vh",
+      }}
+    >
       {tab === "raport" && (
           <CalendarProvider>
             <ProjectProvider>
