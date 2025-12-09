@@ -120,7 +120,7 @@ export default function Absences() {
 
       {/* Employee Selector */}
       <div className="flex justify-between items-center">
-        <div className="w-1/4 mb-5">
+        <div className="w-60 mb-5">
           <Selector
             id="selector-employee"
             label="Choose Employee"
@@ -163,7 +163,7 @@ export default function Absences() {
       </div>
 
       {/* Absence Type Selector */}
-      <div className="w-1/4 mt-5">
+      <div className="w-60 mt-5">
         <Selector
           id="selector-absence"
           label="Choose leave type"
