@@ -15,7 +15,8 @@ export default function Vacations() {
   const [editedData, setEditedData] = useState({ date: "", holiday: "" });
   const [modalOpen, setModalOpen] = useState(false);
   const [newHoliday, setNewHoliday] = useState({ date: "", holiday: "" });
-  const [isLoading, setIsLoading] = useState(true);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
+  const [isTableLoading, setIsTableLoading] = useState(false);
   const [containerHeight, setContainerHeight] = useState<number | null>(null);
   const [year, setYear] = useState(new Date().getFullYear());
 
@@ -48,19 +49,29 @@ export default function Vacations() {
     calculateHeight();
     window.addEventListener("resize", calculateHeight);
     return () => window.removeEventListener("resize", calculateHeight);
-  }, [calculateHeight, isLoading]);
+  }, [calculateHeight, isInitialLoading]);
 
   useEffect(() => {
-    setIsLoading(true);
-    fetch(`/api/vacations?year=${year}`)
-      .then((res) => res.json())
-      .then((data) => setVacations(data))
-      .catch((err) => console.error("Failed to fetch holidays", err))
-      .finally(() => {
-        setTimeout(() => {
-          setIsLoading(false);
-        }, 500);
-      });
+    if (isInitialLoading) {
+      // Initial load
+      fetch(`/api/vacations?year=${year}`)
+        .then((res) => res.json())
+        .then((data) => setVacations(data))
+        .catch((err) => console.error("Failed to fetch holidays", err))
+        .finally(() => {
+          setTimeout(() => setIsInitialLoading(false), 500);
+        });
+    } else {
+      // Subsequent year navigation
+      setIsTableLoading(true);
+      fetch(`/api/vacations?year=${year}`)
+        .then((res) => res.json())
+        .then((data) => setVacations(data))
+        .catch((err) => console.error("Failed to fetch holidays", err))
+        .finally(() => {
+          setTimeout(() => setIsTableLoading(false), 300);
+        });
+    }
   }, [year]);
 
   const handleEdit = (id: number) => {
@@ -161,16 +172,16 @@ export default function Vacations() {
     }
   };
 
-  if (isLoading) return <Spinner />;
+  if (isInitialLoading) return <Spinner />;
   return (
     <section ref={sectionRef} className="rounded-md">
       {/* Year Navigation Bar */}
       <div ref={navRef} className="flex items-center justify-center gap-4 mb-4">
-        <Button variant="ghost" className="border border-accent" onClick={goToPreviousYear}>
+        <Button variant="ghost" className="border border-accent" onClick={goToPreviousYear} disabled={isTableLoading}>
           <ChevronLeft />
         </Button>
         <h2 className="text-xl font-bold text-[#244B77]">{year}</h2>
-        <Button variant="ghost" className="border border-accent" onClick={goToNextYear}>
+        <Button variant="ghost" className="border border-accent" onClick={goToNextYear} disabled={isTableLoading}>
           <ChevronRight />
         </Button>
       </div>
@@ -179,15 +190,19 @@ export default function Vacations() {
         className="overflow-y-auto"
         style={{ maxHeight: containerHeight ? `${containerHeight}px` : "66vh" }}
       >
-        <VacationTable
-          vacations={vacations}
-          editingId={editingId}
-          editedData={editedData}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-          onChange={handleChange}
-          onSave={handleSave}
-        />
+        {isTableLoading ? (
+          <Spinner />
+        ) : (
+          <VacationTable
+            vacations={vacations}
+            editingId={editingId}
+            editedData={editedData}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+            onChange={handleChange}
+            onSave={handleSave}
+          />
+        )}
       </div>
 
       <div ref={buttonRef} className="flex justify-center my-5">
