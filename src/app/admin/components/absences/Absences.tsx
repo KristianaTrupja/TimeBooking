@@ -161,6 +161,7 @@ export default function Absences() {
           />
         </div>
       </div>
+      
 
       {/* Absence Type Selector */}
       <div className="w-60 mt-5">
