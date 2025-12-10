@@ -16,8 +16,9 @@ export default function Raport() {
   const { timesheets, fetchTimesheets, updateTimesheetStatus } = useTimeSheet()
   const { year, month, goToPreviousMonth, goToNextMonth, setMonthAndYear } = useCalendar();
   const searchParams = useSearchParams();
-  const [highlightedUserId, setHighlightedUserId] = useState<number | null>(null);
+  const [scrollToUserId, setScrollToUserId] = useState<number | null>(null);
   const [isNavigating, setIsNavigating] = useState(false);
+  const [hasProcessedParams, setHasProcessedParams] = useState(false);
   const [containerHeight, setContainerHeight] = useState<number | null>(null);
   const sectionRef = useRef<HTMLElement>(null);
   const navRef = useRef<HTMLDivElement>(null);
@@ -40,14 +41,17 @@ export default function Raport() {
     return () => window.removeEventListener("resize", calculateHeight);
   }, [calculateHeight]);
 
-  // Check if we need to navigate to a different month/year from URL params
+  // Check if we need to navigate to a different month/year from URL params (only on initial load)
   const monthParam = searchParams.get("month");
   const yearParam = searchParams.get("year");
-  const needsNavigation = monthParam && yearParam && 
+  const needsNavigation = !hasProcessedParams && monthParam && yearParam && 
     (parseInt(monthParam) - 1 !== month || parseInt(yearParam) !== year);
 
-  // Handle URL params for highlighting employee row and navigating to correct month/year
+  // Handle URL params for scrolling to employee row and navigating to correct month/year
   useEffect(() => {
+    // Only process URL params once
+    if (hasProcessedParams) return;
+
     const highlightParam = searchParams.get("highlightUserId");
 
     // Navigate to the correct month/year if provided
@@ -59,16 +63,42 @@ export default function Raport() {
         setMonthAndYear(targetMonth, targetYear);
       } else {
         setIsNavigating(false);
+        setHasProcessedParams(true);
+        // Set scroll target after navigation is complete
+        if (highlightParam) {
+          setScrollToUserId(parseInt(highlightParam));
+        }
+      }
+    } else {
+      setHasProcessedParams(true);
+      // Set scroll target if no navigation needed
+      if (highlightParam) {
+        setScrollToUserId(parseInt(highlightParam));
       }
     }
+  }, [searchParams, month, year, hasProcessedParams]);
 
-    // Highlight the user row
-    if (highlightParam) {
-      setHighlightedUserId(parseInt(highlightParam));
-      const timer = setTimeout(() => setHighlightedUserId(null), 5000);
-      return () => clearTimeout(timer);
+  // Mark params as processed once we've reached the target month/year
+  useEffect(() => {
+    if (isNavigating && monthParam && yearParam) {
+      const targetMonth = parseInt(monthParam) - 1;
+      const targetYear = parseInt(yearParam);
+      if (targetMonth === month && targetYear === year) {
+        setIsNavigating(false);
+        setHasProcessedParams(true);
+        // Set scroll target after navigation is complete
+        const highlightParam = searchParams.get("highlightUserId");
+        if (highlightParam) {
+          setScrollToUserId(parseInt(highlightParam));
+        }
+      }
     }
-  }, [searchParams, month, year]);
+  }, [month, year, isNavigating, monthParam, yearParam, searchParams]);
+
+  // Clear scroll target after it's been processed
+  const handleScrollComplete = useCallback(() => {
+    setScrollToUserId(null);
+  }, []);
 
   useEffect(() => {
     fetchTimesheets(month, year)
@@ -131,7 +161,8 @@ export default function Raport() {
               year={year}
               index={index}
               onApply={handleSubmissionStatusUpdate}
-              isHighlighted={highlightedUserId === ts.userId}
+              shouldScrollTo={scrollToUserId === ts.userId}
+              onScrollComplete={handleScrollComplete}
               key={index}
             />
           ))}
