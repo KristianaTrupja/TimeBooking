@@ -2,6 +2,7 @@
 
 import { User } from "@/types/user";
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
+import { ChevronDown } from "lucide-react";
 
 type DropdownValue = string | User
 
@@ -51,8 +52,9 @@ export default function Dropdown<T>({
   return (
     <div className="Dropdown flex w-fit ">
       <Menu as="div" className="relative inline-block text-inherit">
-        <MenuButton disabled={isDisabled} className="inline-flex w-full outline-1 outline-black/5 justify-center data-closed:text-red-400 gap-x-1.5 px-3 py-2 text-sm font-semibold inset-ring-1 inset-ring-white/5">
+        <MenuButton disabled={isDisabled} className="inline-flex w-full outline-1 outline-black/5 items-center justify-center gap-x-1.5 px-3 py-2 text-sm font-semibold inset-ring-1 inset-ring-white/5 disabled:opacity-50">
           {selectedValue(value)}
+          {!isDisabled && <ChevronDown className="w-4 h-4 ml-1" />}
         </MenuButton>
 
         <MenuItems className="absolute left-0 z-50 min-w-40 w-fit origin-top-left rounded-md bg-white shadow-[1px_2px_4px_rgba(0,0,0,0.25)] outline-none transition data-closed:scale-95 data-closed:transform data-closed:opacity-0 data-enter:duration-100 data-enter:ease-out data-leave:duration-75 data-leave:ease-in">

@@ -15,6 +15,18 @@ const actionMap = new Map([
     ["VIEW_ABSENCE", { label: "View Absences", goTo: "/admin?tab=modify-absences"}]
 ])
 
+// Parse message and render **text** as bold
+function renderMessageWithBold(message: string): ReactNode {
+    const parts = message.split(/(\*\*[^*]+\*\*)/g);
+    return parts.map((part, index) => {
+        if (part.startsWith("**") && part.endsWith("**")) {
+            const boldText = part.slice(2, -2);
+            return <strong key={index}className="text-md text-green-600">{boldText}</strong>;
+        }
+        return part;
+    });
+}
+
 function buildActionUrl(
     baseUrl: string, 
     actionType: string | undefined, 
@@ -64,7 +76,7 @@ export default function Notification({ notification, markAsRead = ()=>{}, childr
   return (
     <li onClick={handleRead} className={`flex flex-col p-3 bg-blue-50 rounded border-l-4 ${notification.isRead ? 'border-slate-400 bg-slate-50' : 'border-blue-500'}`}>
         <p className="text-md font-bold text-[#244B77]">{notification?.title || "No-Title"}</p>
-        {notification?.message && <p className="text-sm text-gray-800">{notification?.message || "No-Message"}</p>}
+        {notification?.message && <p className="text-sm text-gray-800">{renderMessageWithBold(notification.message)}</p>}
         {children && children}
         {action && 
             <a className="w-fit my-1 text-[#244B77] text-sm font-bold cursor-pointer" onClick={handleActionClick}>{action.label}</a>
