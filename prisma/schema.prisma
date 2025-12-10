@@ -131,21 +131,25 @@ model SidebarProject {
 }
 
 model Notifications {
-  id         String           @id @default(cuid())
-  userId     Int
-  title      String
-  message    String           @db.Text
-  type       NotificationType
-  isRead     Boolean          @default(false)
-  actionType String?
-  actionUrl  String?
-  actionData Json?
-  createdAt  DateTime         @default(now())
+  id           String           @id @default(cuid())
+  userId       Int
+  senderUserId Int?
+  title        String
+  message      String           @db.Text
+  type         NotificationType
+  isRead       Boolean          @default(false)
+  actionType   String?
+  actionUrl    String?
+  actionData   Json?
+  actionMonth  Int?
+  actionYear   Int?
+  createdAt    DateTime         @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, isRead])
   @@index([createdAt])
+  @@index([senderUserId])
 }
 
 enum NotificationType {

@@ -10,6 +10,9 @@ interface NotifyUsersParams {
   actionType?: string;
   actionUrl?: string;
   actionData?: any;
+  senderUserId?: number;
+  actionMonth?: number;
+  actionYear?: number;
 }
 
 /**
@@ -25,6 +28,9 @@ export async function notifyUsersByRole({
   actionType,
   actionUrl,
   actionData,
+  senderUserId,
+  actionMonth,
+  actionYear,
 }: NotifyUsersParams) {
   try {
     // Get all users with the specified role
@@ -41,12 +47,15 @@ export async function notifyUsersByRole({
     // Prepare notification data for all users
     const notificationData = users.map((user) => ({
       userId: user.id,
+      senderUserId,
       title,
       message,
       type,
       actionType,
       actionUrl,
       actionData,
+      actionMonth,
+      actionYear,
     }));
 
     // Create all notifications at once
@@ -74,12 +83,15 @@ export async function notifyUser(
     await db.notifications.create({
       data: {
         userId,
+        senderUserId: notificationData.senderUserId,
         title: notificationData.title,
         message: notificationData.message,
         type: notificationData.type,
         actionType: notificationData.actionType,
         actionUrl: notificationData.actionUrl,
         actionData: notificationData.actionData,
+        actionMonth: notificationData.actionMonth,
+        actionYear: notificationData.actionYear,
       },
     });
 

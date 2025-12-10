@@ -9,6 +9,7 @@ export enum NotificationType {
 export type Notification = {
     id: string
     userId:number
+    senderUserId?: number
     title: string
     message: string
     type: keyof typeof NotificationType
@@ -19,6 +20,8 @@ export type Notification = {
     actionType?: string
     actionUrl?: string
     actionData?: any
+    actionMonth?: number
+    actionYear?: number
 }
 
 export type CreateNotificationInput = Omit<Notification, 'id' | 'userId' | 'isRead' | 'createdAt' | 'type'>

@@ -1,4 +1,5 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
@@ -14,6 +15,39 @@ export default function Raport() {
   const { loading } = useWorkHours();
   const { timesheets, fetchTimesheets, updateTimesheetStatus } = useTimeSheet()
   const { year, month, goToPreviousMonth, goToNextMonth, setMonthAndYear } = useCalendar();
+  const searchParams = useSearchParams();
+  const [highlightedUserId, setHighlightedUserId] = useState<number | null>(null);
+  const [isNavigating, setIsNavigating] = useState(false);
+
+  // Check if we need to navigate to a different month/year from URL params
+  const monthParam = searchParams.get("month");
+  const yearParam = searchParams.get("year");
+  const needsNavigation = monthParam && yearParam && 
+    (parseInt(monthParam) - 1 !== month || parseInt(yearParam) !== year);
+
+  // Handle URL params for highlighting employee row and navigating to correct month/year
+  useEffect(() => {
+    const highlightParam = searchParams.get("highlightUserId");
+
+    // Navigate to the correct month/year if provided
+    if (monthParam && yearParam) {
+      const targetMonth = parseInt(monthParam) - 1; // Convert to 0-indexed
+      const targetYear = parseInt(yearParam);
+      if (targetMonth !== month || targetYear !== year) {
+        setIsNavigating(true);
+        setMonthAndYear(targetMonth, targetYear);
+      } else {
+        setIsNavigating(false);
+      }
+    }
+
+    // Highlight the user row
+    if (highlightParam) {
+      setHighlightedUserId(parseInt(highlightParam));
+      const timer = setTimeout(() => setHighlightedUserId(null), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [searchParams, month, year]);
 
   useEffect(() => {
     fetchTimesheets(month, year)
@@ -50,7 +84,7 @@ export default function Raport() {
       </div>
     <section className="overflow-hidden overflow-y-auto max-h-[450px] 2xl:max-h-[700px] pb-10 rounded-md">
       {/* Report Table */}
-      {timesheets === null || loading ?  <Spinner /> : 
+      {timesheets === null || loading || needsNavigation || isNavigating ?  <Spinner /> : 
       <table
         className="w-full text-[#244B77] border-separate"
         style={{ borderSpacing: "10px" }}
@@ -66,7 +100,17 @@ export default function Raport() {
           </tr>
         </thead>
         <tbody>
-          {timesheets.map((ts, index: any) => <RaportEntry timesheet={ts} month={month} year={year} onApply={handleSubmissionStatusUpdate} key={index}/>)}
+          {timesheets.map((ts, index: number) => (
+            <RaportEntry
+              timesheet={ts}
+              month={month}
+              year={year}
+              index={index}
+              onApply={handleSubmissionStatusUpdate}
+              isHighlighted={highlightedUserId === ts.userId}
+              key={index}
+            />
+          ))}
         </tbody>
       </table>}
     </section>

@@ -8,7 +8,9 @@ type PropTypes = {
     timesheet:Timesheet,
     month:number
     year:number
+    index: number
     onApply: (submissionId:number, status: keyof typeof SubmissionStatus) => Promise<void>
+    isHighlighted?: boolean
 }
 
 const colors:any = {
@@ -18,7 +20,7 @@ const colors:any = {
     REJECTED: "border-l-[7px] border-l-red-500",
     LOCKED: "border-l-[7px] border-l-slate-500"
 }
-export default function RaportEntry({timesheet, month, year, onApply}: PropTypes) {
+export default function RaportEntry({timesheet, month, year, index, onApply, isHighlighted = false}: PropTypes) {
     const [selectedStatus, setSelectedStatus] = useState(timesheet.status)
     const [isSubmitting, setIsSubmitting] = useState(false)
     async function handleApply(){
@@ -33,10 +35,14 @@ export default function RaportEntry({timesheet, month, year, onApply}: PropTypes
     }
     return (
     <tr
-        className="border-t border-[#d1d1d1] font-semibold text-lg bg-[#E3F0FF]"
+        className={`border-t border-[#d1d1d1] font-semibold text-lg transition-all duration-500 ${
+            isHighlighted 
+                ? "bg-yellow-200 ring-2 ring-yellow-400 ring-inset" 
+                : "bg-[#E3F0FF]"
+        }`}
     >
         <td className="px-4 py-2 bg-[#244B77] text-white font-semibold rounded-sm text-xl">
-        1.
+        {index + 1}.
         </td>
         <td className="px-4 py-2 rounded-sm">{timesheet.username}</td>
         <td className="px-4 py-2 rounded-sm">{timesheet.totalHours.toFixed(2)}</td>

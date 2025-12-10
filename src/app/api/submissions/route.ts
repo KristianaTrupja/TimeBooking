@@ -130,6 +130,9 @@ export async function POST(req: Request) {
       message: NotificationMessage.TimesheetSubmitted(session.user.username, formatDate(new Date(submission.periodEnd))),
       type: NotificationType.APPROVAL_REQUEST,
       actionType: "VIEW_TIMESHEET",
+      senderUserId: userId,
+      actionMonth: month,
+      actionYear: year,
     });
 
     return NextResponse.json(
