@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { AddUserModal } from "./AddUserModal";
 import { UserTable } from "./UserTable";
@@ -21,6 +21,27 @@ export default function Users() {
   });
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState<{ users: User[] } | null>(null);
+  const [containerHeight, setContainerHeight] = useState<number | null>(null);
+  const sectionRef = useRef<HTMLElement>(null);
+  const buttonRef = useRef<HTMLDivElement>(null);
+
+  const calculateHeight = useCallback(() => {
+    if (sectionRef.current && buttonRef.current) {
+      const sectionTop = sectionRef.current.getBoundingClientRect().top;
+      const buttonStyles = window.getComputedStyle(buttonRef.current);
+      const buttonHeight = buttonRef.current.offsetHeight + 
+        parseFloat(buttonStyles.marginTop) + parseFloat(buttonStyles.marginBottom);
+      const bottomPadding = 16;
+      const availableHeight = window.innerHeight - sectionTop - buttonHeight - bottomPadding;
+      setContainerHeight(Math.max(availableHeight, 200));
+    }
+  }, []);
+
+  useEffect(() => {
+    calculateHeight();
+    window.addEventListener("resize", calculateHeight);
+    return () => window.removeEventListener("resize", calculateHeight);
+  }, [calculateHeight, isLoading]);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -158,8 +179,11 @@ export default function Users() {
   if (isLoading) return <Spinner />;
 
   return (
-  <section className="rounded-md grid h-full box-border">
-      <section className="overflow-y-auto max-h-[66vh] rounded-md">
+  <section ref={sectionRef} className="rounded-md grid h-full box-border">
+      <section
+        className="overflow-y-auto rounded-md"
+        style={{ maxHeight: containerHeight ? `${containerHeight}px` : "66vh" }}
+      >
         <UserTable
           employees={user?.users || []}
           editingId={editingId}
@@ -189,7 +213,7 @@ export default function Users() {
         />
 
       </section>
-      <div className="min-h-max mx-auto">
+      <div ref={buttonRef} className="min-h-max mx-auto py-4">
         <Button onClick={() => setOpen(true)}>Add new employee</Button>
       </div>
   </section>

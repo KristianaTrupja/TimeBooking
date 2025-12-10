@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState, useRef } from "react";
 import { FilePenLine, Delete } from "lucide-react";
 import { User } from "@/types/user";
 import { Absence, AbsenceType, ExtAbsence, Filters } from "@/types/absence";
@@ -27,7 +27,28 @@ export default function ModifyAbsences() {
   const [absences, setAbsences] = useState<ExtAbsence[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [editingAbsence, setEditingAbsence] = useState<Absence | null>(null);
-  const [filters, setFilters] = useState<Filters>(getInitialFiltersState())
+  const [filters, setFilters] = useState<Filters>(getInitialFiltersState());
+  const [containerHeight, setContainerHeight] = useState<number | null>(null);
+  const sectionRef = useRef<HTMLElement>(null);
+  const filtersRef = useRef<HTMLElement>(null);
+
+  const calculateHeight = useCallback(() => {
+    if (sectionRef.current && filtersRef.current) {
+      const sectionTop = sectionRef.current.getBoundingClientRect().top;
+      const filtersStyles = window.getComputedStyle(filtersRef.current);
+      const filtersHeight = filtersRef.current.offsetHeight + 
+        parseFloat(filtersStyles.marginTop) + parseFloat(filtersStyles.marginBottom);
+      const bottomPadding = 24;
+      const availableHeight = window.innerHeight - sectionTop - filtersHeight - bottomPadding;
+      setContainerHeight(Math.max(availableHeight, 200));
+    }
+  }, []);
+
+  useEffect(() => {
+    calculateHeight();
+    window.addEventListener("resize", calculateHeight);
+    return () => window.removeEventListener("resize", calculateHeight);
+  }, [calculateHeight, isLoading]);
 
   const fetchData = useCallback(async () => {
     try {
@@ -135,8 +156,8 @@ export default function ModifyAbsences() {
   }
 
   return (
-    <section>
-      <section className="Filters">
+    <section ref={sectionRef}>
+      <section ref={filtersRef} className="Filters">
         <FilterAbsences
           absences={absences}
           employees={employees} 
@@ -147,7 +168,10 @@ export default function ModifyAbsences() {
           onFiltersChange={handleOnFiltersChange}
         />
       </section>
-      {isLoading ? <Spinner /> : <section className="ReportedDate overflow-y-auto max-h-[66vh] 2xl:max-h-[700px] pb-10 rounded-md">
+      {isLoading ? <Spinner /> : <section
+        className="ReportedDate overflow-y-auto pb-10 rounded-md"
+        style={{ maxHeight: containerHeight ? `${containerHeight}px` : "66vh" }}
+      >
         {!absences.length && <h2 className="font-bold text-[#244B77] italic text-2xl bg-slate-100 rounded-md text-center mt-10">No absences</h2>}
         {employees.sort((a, b) => a.username.localeCompare(b.username)).map((user, index) => {
           const userAbsences = absences.filter((a) => a.userId === user.id);

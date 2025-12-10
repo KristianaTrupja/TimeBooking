@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useRef, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -18,6 +18,27 @@ export default function Raport() {
   const searchParams = useSearchParams();
   const [highlightedUserId, setHighlightedUserId] = useState<number | null>(null);
   const [isNavigating, setIsNavigating] = useState(false);
+  const [containerHeight, setContainerHeight] = useState<number | null>(null);
+  const sectionRef = useRef<HTMLElement>(null);
+  const navRef = useRef<HTMLDivElement>(null);
+
+  const calculateHeight = useCallback(() => {
+    if (sectionRef.current && navRef.current) {
+      const sectionTop = sectionRef.current.getBoundingClientRect().top;
+      const navStyles = window.getComputedStyle(navRef.current);
+      const navHeight = navRef.current.offsetHeight + 
+        parseFloat(navStyles.marginTop) + parseFloat(navStyles.marginBottom);
+      const bottomPadding = 24;
+      const availableHeight = window.innerHeight - sectionTop - navHeight - bottomPadding;
+      setContainerHeight(Math.max(availableHeight, 200));
+    }
+  }, []);
+
+  useEffect(() => {
+    calculateHeight();
+    window.addEventListener("resize", calculateHeight);
+    return () => window.removeEventListener("resize", calculateHeight);
+  }, [calculateHeight]);
 
   // Check if we need to navigate to a different month/year from URL params
   const monthParam = searchParams.get("month");
@@ -70,9 +91,9 @@ export default function Raport() {
   }
 
   return (
-    <section>
+    <section ref={sectionRef}>
       {/* Month Navigation Bar */}
-      <div className="flex items-center justify-center gap-5 mb-4 px-4">
+      <div ref={navRef} className="flex items-center justify-center gap-5 mb-4 px-4">
         <Button variant="ghost" className="border border-accent" onClick={goToPreviousMonth}>
           <ChevronLeft />
         </Button>
@@ -82,7 +103,10 @@ export default function Raport() {
           <ChevronRight />
         </Button>
       </div>
-    <section className="overflow-hidden overflow-y-auto max-h-[450px] 2xl:max-h-[700px] pb-10 rounded-md">
+    <section
+      className="overflow-hidden overflow-y-auto pb-10 rounded-md"
+      style={{ maxHeight: containerHeight ? `${containerHeight}px` : "66vh" }}
+    >
       {/* Report Table */}
       {timesheets === null || loading || needsNavigation || isNavigating ?  <Spinner /> : 
       <table
