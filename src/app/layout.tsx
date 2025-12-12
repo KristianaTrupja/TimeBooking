@@ -23,7 +23,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Worktime Hub",
+  title: "WorkTime Hub",
   description: "Feature catalogue frontend",
 }
 
