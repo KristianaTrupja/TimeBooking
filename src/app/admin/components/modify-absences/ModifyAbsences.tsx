@@ -67,6 +67,7 @@ export default function ModifyAbsences() {
 
       const absData = await absRes.json();
       const userData = await userRes.json();
+     
 
       setAbsences(absData.absences || []);
       setEmployees(userData.users || []);
@@ -173,9 +174,14 @@ export default function ModifyAbsences() {
         style={{ maxHeight: containerHeight ? `${containerHeight}px` : "66vh" }}
       >
         {!absences.length && <h2 className="font-bold text-[#244B77] italic text-2xl bg-slate-100 rounded-md text-center mt-10">No absences</h2>}
+       
         {employees.sort((a, b) => a.username.localeCompare(b.username)).map((user, index) => {
-          const userAbsences = absences.filter((a) => a.userId === user.id);
+          const userAbsences = absences
+                .filter((a) => a.userId === user.id)
+                .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime());
+
           if (userAbsences.length === 0) return null;
+
           return (
             <table
               key={index}
