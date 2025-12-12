@@ -10,6 +10,7 @@ interface SelectorProps {
   placeholder?: string;
   className?: string;
   disabled?: boolean;
+  sorted?: boolean;
 }
 
 function Selector({
@@ -21,13 +22,14 @@ function Selector({
   placeholder = "Select an option",
   className,
   disabled = false,
+  sorted = true,
 }: SelectorProps) {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [isOpen, setIsOpen] = useState(false);
 
   const sortedOptions = useMemo(
-    () => [...options].sort((a, b) => a.localeCompare(b)),
-    [options]
+    () => (sorted ? [...options].sort((a, b) => a.localeCompare(b)) : options),
+    [options, sorted]
   );
 
   useEffect(() => {

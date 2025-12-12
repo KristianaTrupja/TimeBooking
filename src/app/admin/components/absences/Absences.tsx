@@ -129,6 +129,7 @@ export default function Absences() {
             placeholder="Employees"
             className={selectorStyle}
             value={selectedEmployee || ""}
+            sorted={true}
           />
         </div>
         {remainingDays && <AbsPopover data={remainingDays} />}
@@ -164,6 +165,9 @@ export default function Absences() {
       
 
       {/* Absence Type Selector */}
+
+    {console.log(absenceTypes)}
+    
       <div className="w-60 mt-5">
         <Selector
           id="selector-absence"
@@ -173,6 +177,7 @@ export default function Absences() {
           placeholder="Leave type"
           className={selectorStyle}
           value={absenceType || ""}
+          sorted={false}
         />
       </div>
 
