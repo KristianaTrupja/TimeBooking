@@ -4,6 +4,7 @@ import TopNavBar from "./layout/TopNavBar";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import SignOutButton from "../developer/components/signoutbutton/SignOutButton";
+import Link from "next/link";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
  
@@ -19,7 +20,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
           className="text-4xl sm:text-6xl text-[#244B77] text-center pl-2"
           style={{ fontFamily: "var(--font-inter), sans-serif", fontWeight: "300", letterSpacing: "-3px" }}
         >
-          WorkTime Hub
+          <Link href="/admin?tab=raport">
+            WorkTime Hub
+          </Link>
         </h2>
         <div className="user-name flex items-center pr-5">
           <h4 className="text-[#244B77] font-semibold text-xl mr-10">
