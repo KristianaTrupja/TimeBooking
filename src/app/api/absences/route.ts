@@ -114,12 +114,16 @@ export async function POST(req: Request) {
       message: NotificationMessage.AbsenceApproved(newAbsence.user.username, formatDate(start), formatDate(end)),
       type: NotificationType.INFO,
       actionType: "VIEW_ABSENCE",
+      senderUserId: employeeId,
+      actionData: { startDate: start.toISOString() },
     })
     await notifyUser(employeeId, {
       title: "Absence Approved",
       message: NotificationMessage.AbsenceApproved(newAbsence.user.username, formatDate(start), formatDate(end)),
       type: NotificationType.INFO,
       actionType: "VIEW_ABSENCE",
+      senderUserId: employeeId,
+      actionData: { startDate: start.toISOString() },
     })
 
     return NextResponse.json(

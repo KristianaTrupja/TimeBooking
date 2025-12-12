@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState, useRef } from "react";
+import { useSearchParams } from "next/navigation";
 import { FilePenLine, Delete } from "lucide-react";
 import { User } from "@/types/user";
 import { Absence, AbsenceType, ExtAbsence, Filters } from "@/types/absence";
@@ -22,6 +23,7 @@ function getInitialFiltersState(): Filters {
 
 export default function ModifyAbsences() {
   const now = new Date()
+  const searchParams = useSearchParams();
 
   const [employees, setEmployees] = useState<User[]>([]);
   const [absences, setAbsences] = useState<ExtAbsence[]>([]);
@@ -29,8 +31,45 @@ export default function ModifyAbsences() {
   const [editingAbsence, setEditingAbsence] = useState<Absence | null>(null);
   const [filters, setFilters] = useState<Filters>(getInitialFiltersState());
   const [containerHeight, setContainerHeight] = useState<number | null>(null);
+  const [scrollToAbsence, setScrollToAbsence] = useState<{ userId: number; startDate: string } | null>(null);
+  const [hasProcessedParams, setHasProcessedParams] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
   const filtersRef = useRef<HTMLElement>(null);
+  const absenceRowRefs = useRef<Map<string, HTMLTableRowElement>>(new Map());
+
+  // Handle URL params for scrolling to specific absence
+  useEffect(() => {
+    if (hasProcessedParams) return;
+    
+    const highlightUserIdParam = searchParams.get("highlightUserId");
+    const startDateParam = searchParams.get("startDate");
+    
+    if (highlightUserIdParam && startDateParam) {
+      setScrollToAbsence({
+        userId: parseInt(highlightUserIdParam),
+        startDate: startDateParam
+      });
+      setHasProcessedParams(true);
+    } else {
+      setHasProcessedParams(true);
+    }
+  }, [searchParams, hasProcessedParams]);
+
+  // Scroll to the specific absence row when data is loaded
+  useEffect(() => {
+    if (scrollToAbsence && !isLoading) {
+      const key = `${scrollToAbsence.userId}-${scrollToAbsence.startDate}`;
+      const rowElement = absenceRowRefs.current.get(key);
+      if (rowElement) {
+        setTimeout(() => {
+          rowElement.scrollIntoView({
+            behavior: "smooth",
+            block: "center"
+          });
+        }, 100);
+      }
+    }
+  }, [scrollToAbsence, isLoading, absences]);
 
   const calculateHeight = useCallback(() => {
     if (sectionRef.current && filtersRef.current) {
@@ -264,25 +303,45 @@ export default function ModifyAbsences() {
                       </td>
                     </tr>
                   ) : (
-                    <tr key={absence.id} className="border-t border-[#d1d1d1] font-semibold text-lg bg-[#E3F0FF]">
-                      <td className="px-4 py-2 bg-[#244B77] text-white font-semibold rounded-sm text-xl">
-                        {index + 1}.
-                      </td>
-                      <td className="px-4 py-2">{user.username}</td>
-                      <td className="px-4 py-2">{formatDate(absence.startDate)}</td>
-                      <td className="px-4 py-2">{formatDate(absence.endDate)}</td>
-                      <td className="px-4 py-2">{absence.type}</td>
-                      <td className="px-4 py-2 text-green-800">
-                        <button onClick={() => setEditingAbsence(absence)}>
-                          <FilePenLine />
-                        </button>
-                      </td>
-                      <td className="px-4 py-2 text-red-800">
-                        <button onClick={() => handleDelete(absence.id)}>
-                          <Delete />
-                        </button>
-                      </td>
-                    </tr>
+                    (() => {
+                      const absenceStartDate = new Date(absence.startDate).toISOString();
+                      const isHighlighted = scrollToAbsence && 
+                        scrollToAbsence.userId === user.id && 
+                        scrollToAbsence.startDate === absenceStartDate;
+                      const rowKey = `${user.id}-${absenceStartDate}`;
+                      
+                      return (
+                        <tr 
+                          key={absence.id} 
+                          ref={(el) => {
+                            if (el) absenceRowRefs.current.set(rowKey, el);
+                          }}
+                          className={`border-t border-[#d1d1d1] font-semibold text-lg ${
+                            isHighlighted 
+                              ? "bg-yellow-200 ring-2 ring-yellow-400" 
+                              : "bg-[#E3F0FF]"
+                          }`}
+                        >
+                          <td className="px-4 py-2 bg-[#244B77] text-white font-semibold rounded-sm text-xl">
+                            {index + 1}.
+                          </td>
+                          <td className="px-4 py-2">{user.username}</td>
+                          <td className="px-4 py-2">{formatDate(absence.startDate)}</td>
+                          <td className="px-4 py-2">{formatDate(absence.endDate)}</td>
+                          <td className="px-4 py-2">{absence.type}</td>
+                          <td className="px-4 py-2 text-green-800">
+                            <button onClick={() => setEditingAbsence(absence)}>
+                              <FilePenLine />
+                            </button>
+                          </td>
+                          <td className="px-4 py-2 text-red-800">
+                            <button onClick={() => handleDelete(absence.id)}>
+                              <Delete />
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })()
                   )
                 )}
               </tbody>

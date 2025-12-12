@@ -32,7 +32,8 @@ function buildActionUrl(
     actionType: string | undefined, 
     senderUserId?: number,
     actionMonth?: number,
-    actionYear?: number
+    actionYear?: number,
+    actionData?: { startDate?: string }
 ): string {
     if (!senderUserId) return baseUrl;
     
@@ -46,6 +47,9 @@ function buildActionUrl(
     } else if (actionType === "VIEW_ABSENCE") {
         params.set("tab", "modify-absences");
         params.set("highlightUserId", senderUserId.toString());
+        if (actionData?.startDate) {
+            params.set("startDate", actionData.startDate);
+        }
     } else {
         return baseUrl;
     }
@@ -68,7 +72,8 @@ export default function Notification({ notification, markAsRead = ()=>{}, childr
             notification.actionType, 
             notification.senderUserId,
             notification.actionMonth,
-            notification.actionYear
+            notification.actionYear,
+            notification.actionData
         );
         router.push(url);
     }
