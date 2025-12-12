@@ -165,9 +165,6 @@ export default function Absences() {
       
 
       {/* Absence Type Selector */}
-
-    {console.log(absenceTypes)}
-    
       <div className="w-60 mt-5">
         <Selector
           id="selector-absence"
