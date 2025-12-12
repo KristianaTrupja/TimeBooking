@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Keania_One, Anek_Bangla } from "next/font/google";
+import { Keania_One, Anek_Bangla, Inter } from "next/font/google";
 import "./globals.css";
 import { NotificationProvider } from "./context/NotificationContext";
 import { TimeSheetProvider } from "./context/TimeSheetContext";
@@ -17,8 +17,13 @@ const anekBangla = Anek_Bangla({
   weight: "400"
 });
 
+const inter = Inter({
+  variable: "--font-inter",
+  subsets: ["latin"],
+});
+
 export const metadata: Metadata = {
-  title: "Clockin App",
+  title: "Worktime Hub",
   description: "Feature catalogue frontend",
 }
 
@@ -33,7 +38,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${keanianOne.variable} ${anekBangla.variable} antialiased`}
+        className={`${keanianOne.variable} ${anekBangla.variable} ${inter.variable} antialiased`}
       >
         <NotificationProvider>
           <TimeSheetProvider>

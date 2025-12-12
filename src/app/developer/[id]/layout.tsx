@@ -63,9 +63,9 @@ export default async function DashboardLayout({
                   <div className="flex justify-between mb-6 items-center">
                     <h2
                       className="text-4xl sm:text-6xl text-[#244B77] text-center"
-                      style={{ fontFamily: "var(--font-keania-one)" }}
+                      style={{ fontFamily: "var(--font-inter), sans-serif", fontWeight: "300", letterSpacing: "-3px" }}
                     >
-                      ClockIn
+                      WorkTime Hub
                     </h2>
                     <div className="user-name flex items-center pr-5 2xl:pr-0">
                       <h4 className="text-[#116B16] font-semibold text-xl mr-10">

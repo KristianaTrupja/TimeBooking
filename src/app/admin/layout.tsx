@@ -17,9 +17,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
       <div className="flex justify-between mb-3 items-center">
         <h2
           className="text-4xl sm:text-6xl text-[#244B77] text-center pl-2"
-          style={{ fontFamily: "var(--font-keania-one)" }}
+          style={{ fontFamily: "var(--font-inter), sans-serif", fontWeight: "300", letterSpacing: "-3px" }}
         >
-          ClockIn
+          WorkTime Hub
         </h2>
         <div className="user-name flex items-center pr-5">
           <h4 className="text-[#244B77] font-semibold text-xl mr-10">
