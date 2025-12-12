@@ -13,6 +13,7 @@ import { AbsenceProvider } from "@/app/context/AbsencesContext";
 import AdminBackButton from "@/app/components/AdminBackButton";
 import ConfirmButton from "../components/calendarActionButtons/ConfirmButton";
 import SaveButton from "../components/calendarActionButtons/SaveButton";
+import Link from "next/link";
 
 export default async function DashboardLayout({
   children,
@@ -65,7 +66,9 @@ export default async function DashboardLayout({
                       className="text-4xl sm:text-6xl text-[#244B77] text-center"
                       style={{ fontFamily: "var(--font-inter), sans-serif", fontWeight: "300", letterSpacing: "-3px" }}
                     >
+                     <Link href={`/developer/${currentUserId}`}>
                       WorkTime Hub
+                    </Link>
                     </h2>
                     <div className="user-name flex items-center pr-5 2xl:pr-0">
                       <h4 className="text-[#116B16] font-semibold text-xl mr-10">
