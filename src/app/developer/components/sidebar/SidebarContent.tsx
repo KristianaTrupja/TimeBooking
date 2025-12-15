@@ -5,7 +5,7 @@ import { ProjectData } from "@/types/project";
 
 export default function SidebarContent({ isLocked, isOwner=false, sidebarProjects, openModal }: {isLocked?:boolean, isOwner:boolean, sidebarProjects: ProjectData[], openModal: () => void }) {
   return (
-    <aside className="w-64 bg-[#E3F0FF] shadow-md border-[#244B77] flex flex-col justify-between align-center">
+    <aside className="flex-1 min-w-fit bg-[#E3F0FF] shadow-md border-[#244B77] flex flex-col justify-between align-center">
       <div className="min-h-2">
         <SidebarList sidebarProjects={sidebarProjects} />
       </div>

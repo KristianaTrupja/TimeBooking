@@ -17,7 +17,10 @@ import { Button } from '@/components/ui/button'
 import { flushError } from "@/app/utils/flushError";
 import { User } from "next-auth";
 import { getSession } from "next-auth/react";
+import NavigationSidebar from "../components/navigation/NavigationSidebar";
+import DeveloperVacations from "../components/vacations/DeveloperVacations";
 
+type Tab = "time-reporting" | "vacations";
 
 export default function Developer() {
     const { reloadWorkHours, metadata, submitTimesheet } = useWorkHours();
@@ -26,6 +29,7 @@ export default function Developer() {
     const { loadingProjects } = useProjects();
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [loggedInUser, setLoggedInUser] = useState<User | null>(null);
+    const [activeTab, setActiveTab] = useState<Tab>("time-reporting");
 
     const userId = useMemo(() => {
         const segments = pathname?.split("/") || [];
@@ -66,39 +70,46 @@ export default function Developer() {
     }, [loggedInUser, userId]);
 
     return (
-                          
-    <main>
-        <SidebarHeader />
-        <section className="2xl:w-full flex">
-            <Sidebar isOwner={isOwner} />
-            <section className="relative w-full flex flex-col justify-between" style={{ fontFamily: "var(--font-anek-bangla)" }} >
-                <div className="flex min-h-[500px]">
-                    {loadingProjects ? (
-                    <div className="fixed left-0 top-0 w-full h-full">
-                        <Spinner />
-                    </div>
-                    ) : (
-                    <>
-                    <PendingWorkPrompt />
-                    <Calendar isOwner={isOwner} />
-                    <TotalBar isOwner={isOwner} />
-                    </>
-                    )}
-                </div>
-                <BottomBar />
-                {/* <Toaster position="top-center" /> */}
-            </section>
-        </section>
-        <div className="flex justify-end items-center gap-4 p-4 mt-5">
-            {/* <ConfirmButton /> */}
-            {isOwner && !metadata?.isLocked && (
+    <div className="flex">
+        <NavigationSidebar activeTab={activeTab} onTabChange={setActiveTab} />
+        
+        {/* Scrollable content area */}
+        <div className="ml-64 flex-1 overflow-auto p-4" style={{ height: "calc(100vh - 76px)" }}>
+            {activeTab === "time-reporting" ? (
                 <>
-                <Button disabled={isSubmitting} onClick={handleSubmit}>Submit timesheet</Button>
-                <SaveButton />
+                    <SidebarHeader />
+                    <section className="2xl:w-full flex">
+                        <Sidebar isOwner={isOwner} />
+                        <section className="relative flex-shrink-0 flex flex-col justify-between" style={{ fontFamily: "var(--font-anek-bangla)" }} >
+                            <div className="flex min-h-[500px]">
+                                {loadingProjects ? (
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                    <Spinner />
+                                </div>
+                                ) : (
+                                <>
+                                <PendingWorkPrompt />
+                                <Calendar isOwner={isOwner} />
+                                <TotalBar isOwner={isOwner} />
+                                </>
+                                )}
+                            </div>
+                            <BottomBar />
+                        </section>
+                    </section>
+                    <div className="flex justify-end items-center gap-4 p-4 mt-5">
+                        {isOwner && !metadata?.isLocked && (
+                            <>
+                            <Button disabled={isSubmitting} onClick={handleSubmit}>Submit timesheet</Button>
+                            <SaveButton />
+                            </>
+                        )}
+                    </div>
                 </>
-                )}
+            ) : (
+                <DeveloperVacations />
+            )}
         </div>
-    </main>         
-
+    </div>         
     );
 }

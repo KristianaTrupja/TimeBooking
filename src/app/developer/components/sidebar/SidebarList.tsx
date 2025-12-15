@@ -19,7 +19,7 @@ export default function SidebarList({ sidebarProjects }: SidebarListProps) {
 
   return (
     <div className="overflow-auto">
-      <div className="h-9 flex justify-center font-semibold text-[#244B77] items-center border-b">Projects</div>
+      <div className="h-9 2xl:h-10 flex justify-center font-semibold text-[#244B77] items-center border-b">Projects</div>
       {sidebarProjects.sort((a, b) => a.company.localeCompare(b.company)).map(({ company, projects }) => (
         <SidebarItem key={company} company={company} projects={projects} />
       ))}

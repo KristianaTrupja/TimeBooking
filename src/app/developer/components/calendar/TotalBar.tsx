@@ -35,17 +35,18 @@ export default function TotalBar({ isOwner=false }: { isOwner:boolean }) {
   return (
     <div className="flex flex-col justify-between border-gray-300 bg-blue-50 min-w-[70px]">
       <div className="flex flex-col overflow-auto items-center">
-        <div className="border-gray-300 w-full border h-9 flex justify-center items-center text-black font-semibold">
+        <div className="border-gray-300 w-full border h-9 2xl:h-10 flex justify-center items-center text-black font-semibold">
           Total hours
         </div>
         {sidebarProjects.map((group) => (
           <div key={group.company} className="w-full project-field">
-            <div className="project-field__name flex items-center w-full h-[36px] font-semibold bg-gray-200 border-b border-gray-300 border-r" />
+            <div className="project-field__name flex items-center w-full h-[36px] 2xl:h-10
+             font-semibold bg-gray-200 border-b border-gray-300 border-r" />
             {group.projects.map((proj) => {
               const total = getTotalHoursForProjectInMonth(userId, proj.projectKey, month + 1, year);
               return (
                 <div
-                  className="total-field flex h-9 gap-1 items-center justify-center border-b border-gray-300 relative px-8 border-r"
+                  className="total-field flex h-9 2xl:h-10 gap-1 items-center justify-center border-b border-gray-300 relative px-8 border-r"
                   key={proj.projectKey}
                 >
                   <div>{total.toFixed(2)}</div>
@@ -59,7 +60,7 @@ export default function TotalBar({ isOwner=false }: { isOwner:boolean }) {
           </div>
         ))}
       </div>
-      <div className="border border-gray-300 w-full h-9 flex justify-center items-center text-black font-semibold">
+      <div className="border border-gray-300 w-full h-9 2xl:h-10 flex justify-center items-center text-black font-semibold">
         {sum.toFixed(2)}
       </div>
     </div>

@@ -25,7 +25,7 @@ export default function TopBar({ hoveredColIndex }: { hoveredColIndex: number | 
 
   if (absenceLoading || loading) return null;
   return (
-    <div className="flex bg-gray-100 items-center border-t border-b sticky h-9">
+    <div className="flex bg-gray-100 items-center border-t border-b sticky h-9 2xl:h-10">
       {days.map((dayStr, colIndex) => {
         const day = parseInt(dayStr, 10);
         const date = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
@@ -35,7 +35,7 @@ export default function TopBar({ hoveredColIndex }: { hoveredColIndex: number | 
         const today = day === todayDate && month === todayMonth && year === todayYear
 
         const classList = [
-          "border-gray-300 w-9 h-9 flex justify-center items-center border-l font-semibold",
+          "border-gray-300 w-9 h-9 2xl:w-10 2xl:h-10 flex justify-center items-center border-l font-semibold",
           isWeekend(year, month, day) && "bg-gray-300",
           isHoliday && "bg-green-100",
           isAbsentDay && "bg-orange-100",

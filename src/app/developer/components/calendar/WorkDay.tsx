@@ -70,7 +70,7 @@ export default function WorkDay({
           setHoveredProjectKey(null);
         }}
         title={title ?? undefined}
-        className={`relative w-9 h-9 flex items-center justify-center text-sm border-r border-b border-gray-300
+        className={`relative w-9 h-9 2xl:w-10 2xl:h-10 flex items-center justify-center text-sm border-r border-b border-gray-300
           ${isHoliday ? "bg-green-100" : isDisabled ? "bg-slate-100 text-slate-400 font-bold !border-gray-200" : isAbsentDay ? "bg-orange-100 cursor-default" : isWeekendDay ? "bg-gray-100" : "bg-white hover:bg-gray-100 cursor-pointer"}
           ${isHovered && !isDisabled && !isWeekendDay && !isHoliday && !isAbsentDay && "!bg-[#f1f7fde7]"}
           ${isPending ? " font-bold text-blue-900 border-blue-400" : ""}
