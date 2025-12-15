@@ -25,7 +25,7 @@ export default function TopBar({ hoveredColIndex }: { hoveredColIndex: number | 
 
   if (absenceLoading || loading) return null;
   return (
-    <div className="flex bg-gray-100 items-center border-t border-b sticky h-9 2xl:h-10">
+    <div className="flex bg-gradient-to-b from-slate-700 to-slate-800 items-center sticky h-10 2xl:h-11">
       {days.map((dayStr, colIndex) => {
         const day = parseInt(dayStr, 10);
         const date = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
@@ -35,13 +35,12 @@ export default function TopBar({ hoveredColIndex }: { hoveredColIndex: number | 
         const today = day === todayDate && month === todayMonth && year === todayYear
 
         const classList = [
-          "border-gray-300 w-9 h-9 2xl:w-10 2xl:h-10 flex justify-center items-center border-l font-semibold",
-          isWeekend(year, month, day) && "bg-gray-300",
-          isHoliday && "bg-green-100",
-          isAbsentDay && "bg-orange-100",
-          hoveredColIndex === colIndex && !isWeekend(year, month, day) && !isHoliday &&  "bg-[#f1f7fde7]",
-          today &&
-            "bg-blue-100 text-blue-700 font-extrabold border-blue-500"
+          "w-9 h-10 2xl:w-10 2xl:h-11 flex justify-center items-center border-r border-slate-600 font-medium text-sm transition-colors",
+          isWeekend(year, month, day) ? "bg-slate-600/50 text-slate-300" : "text-white",
+          isHoliday && "!bg-emerald-600/40 !text-emerald-200",
+          isAbsentDay && "!bg-amber-600/40 !text-amber-200",
+          hoveredColIndex === colIndex && !isWeekend(year, month, day) && !isHoliday && !isAbsentDay && "!bg-blue-600/30",
+          today && "!bg-blue-500 !text-white font-bold ring-2 ring-blue-400 ring-inset"
         ]
           .filter(Boolean)
           .join(" ");

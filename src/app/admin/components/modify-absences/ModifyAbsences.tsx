@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState, useRef } from "react";
 import { useSearchParams } from "next/navigation";
-import { FilePenLine, Delete } from "lucide-react";
+import { FilePenLine, Trash2, CalendarX, User as UserIcon, Calendar, Check, X } from "lucide-react";
 import { User } from "@/types/user";
 import { Absence, AbsenceType, ExtAbsence, Filters } from "@/types/absence";
 import Spinner from "@/components/ui/Spinner";
@@ -195,9 +195,43 @@ export default function ModifyAbsences() {
     }
   }
 
+  // Get absence type badge color
+  const getTypeBadge = (type: string) => {
+    const styles: Record<string, string> = {
+      VACATION: "bg-teal-50 text-teal-600 border-teal-200",
+      SICK: "bg-rose-50 text-rose-600 border-rose-200",
+      PERSONAL: "bg-violet-50 text-violet-600 border-violet-200",
+      PARENTAL: "bg-amber-50 text-amber-600 border-amber-200",
+    };
+    return styles[type] || "bg-slate-100 text-slate-600 border-slate-200";
+  };
+
   return (
-    <section ref={sectionRef}>
-      <section ref={filtersRef} className="Filters">
+    <section ref={sectionRef} className="p-6 h-full flex flex-col">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-rose-400 to-pink-500 flex items-center justify-center shadow-md shadow-rose-400/20">
+            <CalendarX className="text-white" size={20} />
+          </div>
+          <div>
+            <h1 className="text-xl font-semibold text-slate-700">Absence Records</h1>
+            <p className="text-sm text-slate-400">View and manage employee absences</p>
+          </div>
+        </div>
+        
+        {/* Stats */}
+        <div className="flex gap-3">
+          <div className="px-4 py-2 bg-slate-100 rounded-xl flex items-center gap-2 border border-slate-200">
+            <Calendar size={16} className="text-slate-500" />
+            <span className="text-slate-700 font-semibold">{absences.length}</span>
+            <span className="text-slate-400 text-sm">records</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Filters Card */}
+      <section ref={filtersRef} className="mb-5 bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
         <FilterAbsences
           absences={absences}
           employees={employees} 
@@ -208,107 +242,62 @@ export default function ModifyAbsences() {
           onFiltersChange={handleOnFiltersChange}
         />
       </section>
-      {isLoading ? <Spinner /> : <section
-        className="ReportedDate overflow-y-auto pb-10 rounded-md"
-        style={{ maxHeight: containerHeight ? `${containerHeight}px` : "66vh" }}
-      >
-        {!absences.length && <h2 className="font-bold text-[#244B77] italic text-2xl bg-slate-100 rounded-md text-center mt-10">No absences</h2>}
-       
-        {employees.sort((a, b) => a.username.localeCompare(b.username)).map((user, index) => {
-          const userAbsences = absences
-                .filter((a) => a.userId === user.id)
-                .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime());
 
-          if (userAbsences.length === 0) return null;
+      {/* Table Section */}
+      {isLoading ? (
+        <div className="flex items-center justify-center flex-1">
+          <Spinner />
+        </div>
+      ) : (
+        <section
+          className="overflow-y-auto rounded-xl flex-1"
+          style={{ maxHeight: containerHeight ? `${containerHeight}px` : "66vh" }}
+        >
+          {!absences.length && (
+            <div className="flex flex-col items-center justify-center py-16 bg-white rounded-xl border border-slate-200">
+              <CalendarX size={48} className="text-slate-300 mb-3" />
+              <p className="text-lg font-medium text-slate-500">No absences found</p>
+              <p className="text-sm text-slate-400">Try adjusting your filters</p>
+            </div>
+          )}
+         
+          {employees.sort((a, b) => a.username.localeCompare(b.username)).map((user, userIndex) => {
+            const userAbsences = absences
+                  .filter((a) => a.userId === user.id)
+                  .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime());
 
-          return (
-            <table
-              key={index}
-              className="w-full text-[#244B77] border-separate"
-              style={{ borderSpacing: "10px" }}
-            >
-              {/* User Group Header Row */}
-              <thead className="bg-[#244B77] text-white font-semibold">
-                <tr>
-                  <th colSpan={7} className="px-4 py-2 text-lg">
-                    {user.username}
-                  </th>
-                </tr>
-              </thead>
-              <thead className="bg-[#6C99CB] text-white">
-                <tr className="text-left">
-                  <th className="px-4 py-2 w-16">Nr</th>
-                  <th className="px-4 py-2 w-1/4">Employee</th>
-                  <th className="px-4 py-2 w-1/4">Start Date</th>
-                  <th className="px-4 py-2 w-1/4">End Date</th>
-                  <th className="px-4 py-2 w-1/4">Type</th>
-                  <th className="px-4 py-2 w-1/4">Edit</th>
-                  <th className="px-4 py-2 w-1/4">Delete</th>
-                </tr>
-              </thead>
-              <tbody>
-                {/* User Absences */}
-                {userAbsences.map((absence, index) =>
-                  editingAbsence?.id === absence.id ? (
-                    <tr key={absence.id} className="bg-yellow-100">
-                      <td className="px-4 py-2">{index + 1}.</td>
-                      <td className="px-4 py-2">{user.username}</td>
-                      <td className="px-4 py-2">
-                        <input
-                          type="date"
-                          value={editingAbsence.startDate.slice(0, 10)}
-                          onChange={(e) =>
-                            setEditingAbsence({
-                              ...editingAbsence,
-                              startDate: e.target.value,
-                            })
-                          }
-                        />
-                      </td>
-                      <td className="px-4 py-2">
-                        <input
-                          type="date"
-                          value={editingAbsence.endDate.slice(0, 10)}
-                          onChange={(e) =>
-                            setEditingAbsence({
-                              ...editingAbsence,
-                              endDate: e.target.value,
-                            })
-                          }
-                        />
-                      </td>
-                      <td className="px-4 py-2">
-                        <select
-                          value={editingAbsence.type}
-                          onChange={(e) =>
-                            setEditingAbsence({
-                              ...editingAbsence,
-                              type: e.target.value,
-                            })
-                          }
-                          className="p-1 border border-gray-300 rounded-md w-full"
-                        >
-                          {ABSENCE_TYPES.map((type) => (
-                            <option key={type} value={type}>
-                              {type}
-                            </option>
-                          ))}
-                        </select>
-                      </td>
-                      <td className="px-4 py-2 text-blue-800">
-                        <button onClick={handleEditSubmit}>Save</button>
-                      </td>
-                      <td className="px-4 py-2 text-gray-800">
-                        <button onClick={() => setEditingAbsence(null)}>Cancel</button>
-                      </td>
+            if (userAbsences.length === 0) return null;
+
+            return (
+              <div key={userIndex} className="mb-5 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                {/* User Header */}
+                <div className="bg-gradient-to-r from-slate-600 to-slate-700 px-5 py-3 flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
+                    <UserIcon size={16} className="text-white" />
+                  </div>
+                  <span className="text-white font-semibold">{user.username}</span>
+                  <span className="ml-auto text-slate-300 text-sm">{userAbsences.length} {userAbsences.length === 1 ? "absence" : "absences"}</span>
+                </div>
+                
+                {/* Table */}
+                <table className="w-full">
+                  <thead className="bg-slate-50 border-b border-slate-200">
+                    <tr className="text-left text-xs uppercase tracking-wider text-slate-500">
+                      <th className="px-4 py-3 font-semibold w-12">#</th>
+                      <th className="px-4 py-3 font-semibold">Start Date</th>
+                      <th className="px-4 py-3 font-semibold">End Date</th>
+                      <th className="px-4 py-3 font-semibold">Type</th>
+                      <th className="px-4 py-3 font-semibold text-center">Actions</th>
                     </tr>
-                  ) : (
-                    (() => {
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {userAbsences.map((absence, index) => {
                       const absenceStartDate = new Date(absence.startDate).toISOString();
                       const isHighlighted = scrollToAbsence && 
                         scrollToAbsence.userId === user.id && 
                         scrollToAbsence.startDate === absenceStartDate;
                       const rowKey = `${user.id}-${absenceStartDate}`;
+                      const isEditing = editingAbsence?.id === absence.id;
                       
                       return (
                         <tr 
@@ -316,39 +305,124 @@ export default function ModifyAbsences() {
                           ref={(el) => {
                             if (el) absenceRowRefs.current.set(rowKey, el);
                           }}
-                          className={`border-t border-[#d1d1d1] font-semibold text-lg ${
+                          className={`transition-all ${
                             isHighlighted 
-                              ? "bg-yellow-200 ring-2 ring-yellow-400" 
-                              : "bg-[#E3F0FF]"
+                              ? "bg-amber-50 ring-2 ring-inset ring-amber-300" 
+                              : isEditing
+                              ? "bg-blue-50"
+                              : "hover:bg-slate-50"
                           }`}
                         >
-                          <td className="px-4 py-2 bg-[#244B77] text-white font-semibold rounded-sm text-xl">
-                            {index + 1}.
+                          <td className="px-4 py-3">
+                            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-slate-100 text-slate-600 text-xs font-semibold">
+                              {index + 1}
+                            </span>
                           </td>
-                          <td className="px-4 py-2">{user.username}</td>
-                          <td className="px-4 py-2">{formatDate(absence.startDate)}</td>
-                          <td className="px-4 py-2">{formatDate(absence.endDate)}</td>
-                          <td className="px-4 py-2">{absence.type}</td>
-                          <td className="px-4 py-2 text-green-800">
-                            <button onClick={() => setEditingAbsence(absence)}>
-                              <FilePenLine />
-                            </button>
-                          </td>
-                          <td className="px-4 py-2 text-red-800">
-                            <button onClick={() => handleDelete(absence.id)}>
-                              <Delete />
-                            </button>
-                          </td>
+                          
+                          {isEditing ? (
+                            <>
+                              <td className="px-4 py-3">
+                                <input
+                                  type="date"
+                                  value={editingAbsence.startDate.slice(0, 10)}
+                                  onChange={(e) =>
+                                    setEditingAbsence({
+                                      ...editingAbsence,
+                                      startDate: e.target.value,
+                                    })
+                                  }
+                                  className="px-3 py-1.5 border border-blue-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                />
+                              </td>
+                              <td className="px-4 py-3">
+                                <input
+                                  type="date"
+                                  value={editingAbsence.endDate.slice(0, 10)}
+                                  onChange={(e) =>
+                                    setEditingAbsence({
+                                      ...editingAbsence,
+                                      endDate: e.target.value,
+                                    })
+                                  }
+                                  className="px-3 py-1.5 border border-blue-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                />
+                              </td>
+                              <td className="px-4 py-3">
+                                <select
+                                  value={editingAbsence.type}
+                                  onChange={(e) =>
+                                    setEditingAbsence({
+                                      ...editingAbsence,
+                                      type: e.target.value,
+                                    })
+                                  }
+                                  className="px-3 py-1.5 border border-blue-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                >
+                                  {ABSENCE_TYPES.map((type) => (
+                                    <option key={type} value={type}>
+                                      {type}
+                                    </option>
+                                  ))}
+                                </select>
+                              </td>
+                              <td className="px-4 py-3">
+                                <div className="flex items-center justify-center gap-2">
+                                  <button 
+                                    onClick={handleEditSubmit} 
+                                    className="p-1.5 rounded-lg bg-emerald-100 text-emerald-600 hover:bg-emerald-200 transition-colors"
+                                  >
+                                    <Check size={16} />
+                                  </button>
+                                  <button 
+                                    onClick={() => setEditingAbsence(null)} 
+                                    className="p-1.5 rounded-lg bg-slate-100 text-slate-500 hover:bg-slate-200 transition-colors"
+                                  >
+                                    <X size={16} />
+                                  </button>
+                                </div>
+                              </td>
+                            </>
+                          ) : (
+                            <>
+                              <td className="px-4 py-3">
+                                <span className="text-slate-700">{formatDate(absence.startDate)}</span>
+                              </td>
+                              <td className="px-4 py-3">
+                                <span className="text-slate-700">{formatDate(absence.endDate)}</span>
+                              </td>
+                              <td className="px-4 py-3">
+                                <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${getTypeBadge(absence.type)}`}>
+                                  {absence.type}
+                                </span>
+                              </td>
+                              <td className="px-4 py-3">
+                                <div className="flex items-center justify-center gap-1">
+                                  <button 
+                                    onClick={() => setEditingAbsence(absence)} 
+                                    className="p-2 rounded-lg hover:bg-blue-100 text-slate-500 hover:text-blue-600 transition-colors"
+                                  >
+                                    <FilePenLine size={16} />
+                                  </button>
+                                  <button 
+                                    onClick={() => handleDelete(absence.id)} 
+                                    className="p-2 rounded-lg hover:bg-rose-100 text-slate-500 hover:text-rose-600 transition-colors"
+                                  >
+                                    <Trash2 size={16} />
+                                  </button>
+                                </div>
+                              </td>
+                            </>
+                          )}
                         </tr>
                       );
-                    })()
-                  )
-                )}
-              </tbody>
-            </table>
-          );
-        })}
-      </section>}
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            );
+          })}
+        </section>
+      )}
     </section>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { ProjectEntry } from "@/types/project";
-import { Delete, FilePenLine, LoaderCircle, Save } from "lucide-react";
+import { Delete, FilePenLine, LoaderCircle, Save, ChevronDown, Building2, FileText } from "lucide-react";
 import { useMemo, useRef, useEffect, memo, useState, MouseEvent } from "react";
 import { toast } from "sonner";
 
@@ -120,17 +120,11 @@ function ProjectManage({
     }
   };
 
-  const buttonClassName = className || "bg-[#244B77] text-white";
-  const isAnyPending = pendingId !== null; // Check if any operation is pending
+  const isAnyPending = pendingId !== null;
 
   return (
     <div ref={dropdownRef} className="relative">
-      {label && (
-        <label htmlFor={id} className="text-[#244B77] font-semibold mb-1 block">
-          {label}
-        </label>
-      )}
-
+      {/* Company Header Button */}
       <button
         onClick={toggleDropdown}
         id={id}
@@ -139,43 +133,54 @@ function ProjectManage({
         aria-haspopup="listbox"
         aria-expanded={isOpen}
         aria-controls={`${id}-listbox`}
-        className={`p-2 px-5 rounded-sm w-full flex justify-between items-center ${buttonClassName} ${
-          disabled ? "opacity-50 cursor-not-allowed" : ""
-        }`}
+        className={`w-full flex items-center justify-between p-3 rounded-lg transition-all ${
+          isOpen 
+            ? "bg-gradient-to-r from-slate-700 to-slate-800 text-white shadow-md" 
+            : "bg-slate-100 hover:bg-slate-200 text-slate-700"
+        } ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
       >
-        <span>{placeholder}</span>
-        <span
-          className={`ml-2 transform transition-transform ${
-            isOpen ? "rotate-180" : "rotate-0"
-          }`}
-          aria-hidden="true"
-        >
-          ▼
-        </span>
+        <div className="flex items-center gap-3">
+          <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+            isOpen ? "bg-white/20" : "bg-slate-200"
+          }`}>
+            <Building2 size={16} className={isOpen ? "text-white" : "text-slate-600"} />
+          </div>
+          <div className="text-left">
+            <span className="font-medium">{label}</span>
+            <span className={`ml-2 text-xs ${isOpen ? "text-slate-300" : "text-slate-500"}`}>
+              ({sortedOptions.length} projects)
+            </span>
+          </div>
+        </div>
+        <ChevronDown 
+          size={18} 
+          className={`transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} 
+        />
       </button>
 
+      {/* Projects Dropdown */}
       {isOpen && (
         <ul
           id={`${id}-listbox`}
           role="listbox"
           aria-labelledby={id}
-          className="absolute bg-white border border-gray-300 rounded-md mt-1 w-full z-10 max-h-60 overflow-y-auto shadow-lg"
+          className="mt-1 bg-white border border-slate-200 rounded-lg overflow-hidden shadow-lg z-10"
         >
           {sortedOptions.map((option, index) => (
             <li
               key={index}
               role="option"
-              className="group relative p-2 cursor-pointer transition-colors hover:bg-[#E3F0FF] text-[#244B77]"
+              className="group border-b border-slate-100 last:border-b-0"
             >
               {editingId === option.id ? (
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 p-3 bg-blue-50">
                   <input
                     type="text"
                     value={editValue}
                     onChange={(e) => setEditValue(e.target.value)}
                     autoFocus
                     disabled={pendingId === option.id}
-                    className="flex-1 p-1 border rounded-sm bg-white text-black disabled:opacity-50"
+                    className="flex-1 px-3 py-1.5 border border-blue-300 rounded-md bg-white text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
                     onClick={(e) => e.stopPropagation()}
                     onKeyDown={(e) => {
                       if (e.key === "Enter" && pendingId === null) {
@@ -188,41 +193,44 @@ function ProjectManage({
                   <Button
                     size="sm"
                     variant="ghost"
-                    className="h-auto p-1"
+                    className="h-8 w-8 p-0 hover:bg-blue-100"
                     onClick={(e) => onSave(e, option)}
                     disabled={pendingId === option.id}
                   >
                     {pendingId === option.id ? (
-                      <LoaderCircle size={16} className="animate-spin" />
+                      <LoaderCircle size={16} className="animate-spin text-blue-600" />
                     ) : (
-                      <Save size={16} />
+                      <Save size={16} className="text-blue-600" />
                     )}
                   </Button>
                 </div>
               ) : (
-                <div className="flex justify-between items-center">
-                  <span className={isAnyPending ? "opacity-50" : ""}>
-                    {option.project}
-                  </span>
+                <div className="flex items-center justify-between p-3 hover:bg-slate-50 transition-colors">
+                  <div className="flex items-center gap-3">
+                    <FileText size={14} className="text-slate-400" />
+                    <span className={`text-sm text-slate-700 ${isAnyPending ? "opacity-50" : ""}`}>
+                      {option.project}
+                    </span>
+                  </div>
                   {pendingId === option.id ? (
-                    <LoaderCircle size={16} className="animate-spin" />
+                    <LoaderCircle size={16} className="animate-spin text-slate-500" />
                   ) : (
-                    <div className={`flex gap-1 ${isAnyPending ? 'opacity-50 pointer-events-none' : 'invisible group-hover:visible'}`}>
+                    <div className={`flex gap-1 ${isAnyPending ? 'opacity-50 pointer-events-none' : 'opacity-0 group-hover:opacity-100'} transition-opacity`}>
                       <button
                         onClick={(e) => onEdit(e, option)}
-                        className="text-sm hover:text-black p-1"
+                        className="p-1.5 rounded-md hover:bg-blue-100 text-slate-500 hover:text-blue-600 transition-colors"
                         aria-label="Edit project"
                         disabled={isAnyPending}
                       >
-                        <FilePenLine size={16} />
+                        <FilePenLine size={14} />
                       </button>
                       <button
                         onClick={(e) => onDelete(e, option)}
-                        className="text-sm hover:text-black p-1"
+                        className="p-1.5 rounded-md hover:bg-rose-100 text-slate-500 hover:text-rose-600 transition-colors"
                         aria-label="Delete project"
                         disabled={isAnyPending}
                       >
-                        <Delete size={16} />
+                        <Delete size={14} />
                       </button>
                     </div>
                   )}

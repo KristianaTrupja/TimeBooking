@@ -1,24 +1,29 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { Delete, FilePenLine } from "lucide-react";
-import { User, UserFormData } from "@/types/user";
-import { InputField } from "@/app/components/ui/InputField";
+import { Trash2, Pencil, User, Mail, Shield, Key, Calendar, Check } from "lucide-react";
+import { User as UserType, UserFormData } from "@/types/user";
 import { isPasswordStrong } from "@/lib/utils";
 
 type Props = {
-  emp: User;
+  emp: UserType;
   index: number;
   isEditing: boolean;
   formData: UserFormData;
   onChange: (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => void;
-  onEdit: (user: User) => void;
-  onDelete: (user: User) => void;
+  onEdit: (user: UserType) => void;
+  onDelete: (user: UserType) => void;
   onSave: () => void;
 };
 
 const ROLE_OPTIONS = ["Dev", "Admin"];
+
+// Role badge styles
+const roleBadgeStyles: Record<string, string> = {
+  Admin: "bg-violet-100 text-violet-700 border-violet-200",
+  Dev: "bg-emerald-100 text-emerald-700 border-emerald-200",
+};
 
 export function UserRow({
   emp,
@@ -31,71 +36,152 @@ export function UserRow({
   onSave,
 }: Props) {
   return (
-    <tr className="border-t border-[#d1d1d1] font-semibold text-lg bg-[#E3F0FF]">
-      <td className="px-4 py-2 bg-[#244B77] text-white font-semibold rounded-sm text-xl">
-        {index + 1}.
+    <tr className={`transition-all hover:bg-slate-50 ${isEditing ? "bg-blue-50" : ""}`}>
+      {/* Number */}
+      <td className="px-4 py-4">
+        <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-slate-100 text-slate-600 text-xs font-semibold">
+          {index + 1}
+        </span>
       </td>
 
       {isEditing ? (
         <>
-          {["username", "email", "role", "password", "totalVacations"].map((field) => (
-            <td key={field} className="px-4 py-2 rounded-sm bg-yellow-100">
-              {field === "role" ? (
-                <select
-                  name="role"
-                  value={formData.role}
-                  onChange={onChange}
-                  className="border px-2 py-1 rounded w-full text-black font-normal"
-                >
-                  {ROLE_OPTIONS.map((role, index) => (
-                    <option key={index} value={role}>
-                      {role}
-                    </option>
-                  ))}
-                </select>
-              ) : (
-                <InputField
-                  name={field}
-                  type={(field === "password") ? "password" : (field === "totalVacations") ? "number" : "text"}
-                  value={(formData as any)[field]}
-                  onChange={onChange}
-                  placeholder={
-                    field === "password" ? "Leave blank to keep unchanged" : ""
-                  }
-                  tooltipMessage={true}
-                  autoComplete="off"
-                  error={field === "password" && !isPasswordStrong((formData as any)[field]) && (formData as any)[field] ? "Password must contain at least 8 characters, one uppercase letter A-Z, one number, and one special symbol (! @ # $ % ^ & * ( ) . _ - + =)." : undefined}
-                />
+          {/* Username */}
+          <td className="px-4 py-3">
+            <input
+              name="username"
+              type="text"
+              value={formData.username}
+              onChange={onChange}
+              className="w-full px-3 py-1.5 text-sm border border-blue-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </td>
+          {/* Email */}
+          <td className="px-4 py-3">
+            <input
+              name="email"
+              type="text"
+              value={formData.email}
+              onChange={onChange}
+              className="w-full px-3 py-1.5 text-sm border border-blue-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </td>
+          {/* Role */}
+          <td className="px-4 py-3">
+            <select
+              name="role"
+              value={formData.role}
+              onChange={onChange}
+              className="w-full px-3 py-1.5 text-sm border border-blue-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              {ROLE_OPTIONS.map((role, idx) => (
+                <option key={idx} value={role}>
+                  {role}
+                </option>
+              ))}
+            </select>
+          </td>
+          {/* Password */}
+          <td className="px-4 py-3">
+            <div className="relative">
+              <input
+                name="password"
+                type="password"
+                value={formData.password}
+                onChange={onChange}
+                placeholder="Leave blank to keep"
+                autoComplete="off"
+                className={`w-full px-3 py-1.5 text-sm border rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  formData.password && !isPasswordStrong(formData.password) ? "border-rose-400" : "border-blue-300"
+                }`}
+              />
+              {formData.password && !isPasswordStrong(formData.password) && (
+                <p className="text-xs text-rose-500 mt-1">Weak password</p>
               )}
-            </td>
-          ))}
-          <td className="px-4 py-2 rounded-sm">
-            <Button size="sm" onClick={onSave}>
+            </div>
+          </td>
+          {/* Vacations */}
+          <td className="px-4 py-3">
+            <input
+              name="totalVacations"
+              type="number"
+              value={formData.totalVacations}
+              onChange={onChange}
+              className="w-20 px-3 py-1.5 text-sm border border-blue-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </td>
+          {/* Actions */}
+          <td className="px-4 py-3 text-center">
+            <Button 
+              size="sm" 
+              onClick={onSave}
+              className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white"
+            >
+              <Check size={14} className="mr-1" />
               Save
             </Button>
           </td>
         </>
       ) : (
         <>
-          <td className="px-4 py-2 rounded-sm">{emp.username}</td>
-          <td className="px-4 py-2 rounded-sm">{emp.email}</td>
-          <td className="px-4 py-2 rounded-sm">{emp.role}</td>
-          <td
-            className="px-4 py-2 rounded-sm max-w-[150px] overflow-hidden text-ellipsis whitespace-nowrap"
-            title={emp.password}
-          >
-            {emp.password}
+          {/* Username */}
+          <td className="px-4 py-4">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-slate-200 to-slate-300 flex items-center justify-center">
+                <User size={16} className="text-slate-600" />
+              </div>
+              <span className="font-medium text-slate-800">{emp.username}</span>
+            </div>
           </td>
-          <td className="px-4 py-2 rounded-sm">{emp.totalVacations}</td>
-          <td className="px-4 py-2 rounded-sm text-green-800">
-            <button onClick={() => onEdit(emp)}>
-              <FilePenLine />
-            </button>
+          {/* Email */}
+          <td className="px-4 py-4">
+            <div className="flex items-center gap-2">
+              <Mail size={14} className="text-slate-400" />
+              <span className="text-slate-600">{emp.email}</span>
+            </div>
           </td>
-          <td className="px-4 py-2 rounded-sm text-red-800">
-            <button onClick={() => onDelete(emp)}>
-              <Delete />
-            </button>
+          {/* Role */}
+          <td className="px-4 py-4">
+            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${roleBadgeStyles[emp.role] || "bg-slate-100 text-slate-700"}`}>
+              {emp.role === "Admin" ? <Shield size={12} /> : null}
+              {emp.role}
+            </span>
+          </td>
+          {/* Password */}
+          <td className="px-4 py-4">
+            <div className="flex items-center gap-2 max-w-[120px]">
+              <Key size={14} className="text-slate-400 flex-shrink-0" />
+              <span className="text-slate-400 text-sm truncate" title={emp.password}>
+                ••••••••
+              </span>
+            </div>
+          </td>
+          {/* Vacations */}
+          <td className="px-4 py-4">
+            <div className="flex items-center gap-2">
+              <Calendar size={14} className="text-slate-400" />
+              <span className="font-semibold text-slate-700">{emp.totalVacations}</span>
+              <span className="text-slate-400 text-sm">days</span>
+            </div>
+          </td>
+          {/* Actions */}
+          <td className="px-4 py-4">
+            <div className="flex items-center justify-center gap-1">
+              <button
+                onClick={() => onEdit(emp)}
+                className="p-2 rounded-lg hover:bg-blue-100 text-slate-500 hover:text-blue-600 transition-colors"
+                aria-label="Edit employee"
+              >
+                <Pencil size={16} />
+              </button>
+              <button
+                onClick={() => onDelete(emp)}
+                className="p-2 rounded-lg hover:bg-rose-100 text-slate-500 hover:text-rose-600 transition-colors"
+                aria-label="Delete employee"
+              >
+                <Trash2 size={16} />
+              </button>
+            </div>
           </td>
         </>
       )}

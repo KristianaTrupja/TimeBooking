@@ -2,14 +2,12 @@
 
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { Settings, Users, Pencil } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Settings, Users, Pencil, User, Mail, Lock, Save, ChevronRight } from "lucide-react";
 import { useEffect, useState } from "react";
-import { InputField } from "@/app/components/ui/InputField";
 import { toast } from "sonner";
 
 export default function SettingsPage() {
-  const { data: session } = useSession(); // ✅ Merr të dhënat e userit
+  const { data: session } = useSession();
   const router = useRouter();
 
   const [formData, setFormData] = useState({
@@ -36,7 +34,7 @@ export default function SettingsPage() {
   };
 
   const handleSave = async () => {
-    const payload: any = {
+    const payload: Record<string, string | number | undefined> = {
       id: session?.user?.id,
       username: formData.username,
       email: formData.email,
@@ -52,71 +50,125 @@ export default function SettingsPage() {
     });
 
     if (res.ok) {
-      toast.success("Employee profile was successfully updated!")
+      toast.success("Profile updated successfully!")
     } else {
-      toast.error("Updating failed!")
+      toast.error("Update failed!")
     }
   };
 
   return (
-    <div className="bg-white p-6 rounded-md shadow border border-gray-200 max-w-3xl">
-      <h2 className="text-2xl font-bold text-[#244B77] flex items-center gap-2 mb-6">
-        <Settings className="w-6 h-6" />
-        Profile settings
-      </h2>
-
-      <div className="space-y-4 mb-10">
-        <InputField
-          label="Full Name"
-          name="username"
-          placeholder="Enter name"
-          value={formData.username}
-          onChange={handleChange}
-        />
-        <InputField
-          label="Email"
-          name="email"
-          placeholder="Enter email"
-          value={formData.email}
-          type="email"
-          onChange={handleChange}
-        />
-        <InputField
-          label="Password"
-          name="password"
-          placeholder="Change password"
-          value={formData.password}
-          type="password"
-          onChange={handleChange}
-          error=""
-        />
-        <Button onClick={handleSave} className="w-full">
-          Save changes
-        </Button>
+    <div className="p-6 max-w-3xl">
+      {/* Header */}
+      <div className="flex items-center gap-3 mb-6">
+        <div className="p-2.5 rounded-xl bg-slate-700 text-white">
+          <Settings size={20} />
+        </div>
+        <div>
+          <h2 className="text-lg font-semibold text-slate-800">Profile Settings</h2>
+          <p className="text-sm text-slate-500">Manage your account information</p>
+        </div>
       </div>
 
-      <h3 className="text-xl font-semibold text-[#244B77] mb-4">More settings</h3>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div
-          onClick={() => handleNavigate("users")}
-          className="cursor-pointer p-4 border border-gray-300 rounded-lg hover:bg-blue-50 transition"
-        >
-          <div className="flex items-center gap-2 text-lg font-semibold text-[#244B77] mb-2">
-            <Users className="w-5 h-5" />
-            Userat
+      {/* Profile Form Card */}
+      <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 mb-6">
+        <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wider mb-4">Account Information</h3>
+        
+        <div className="space-y-4">
+          {/* Full Name */}
+          <div>
+            <label className="block text-sm font-medium text-slate-600 mb-1.5">Full Name</label>
+            <div className="relative">
+              <User size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input
+                type="text"
+                name="username"
+                placeholder="Enter name"
+                value={formData.username}
+                onChange={handleChange}
+                className="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-700 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-colors"
+              />
+            </div>
           </div>
-          <p className="text-sm text-gray-600">Manage employees, add or delete profiles.</p>
-        </div>
 
-        <div
-          onClick={() => handleNavigate("modify-absences")}
-          className="cursor-pointer p-4 border border-gray-300 rounded-lg hover:bg-blue-50 transition"
-        >
-          <div className="flex items-center gap-2 text-lg font-semibold text-[#244B77] mb-2">
-            <Pencil className="w-5 h-5" />
-            Edit vacations & absences
+          {/* Email */}
+          <div>
+            <label className="block text-sm font-medium text-slate-600 mb-1.5">Email</label>
+            <div className="relative">
+              <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input
+                type="email"
+                name="email"
+                placeholder="Enter email"
+                value={formData.email}
+                onChange={handleChange}
+                className="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-700 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-colors"
+              />
+            </div>
           </div>
-          <p className="text-sm text-gray-600">View or modify leave days for employees.</p>
+
+          {/* Password */}
+          <div>
+            <label className="block text-sm font-medium text-slate-600 mb-1.5">Password</label>
+            <div className="relative">
+              <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input
+                type="password"
+                name="password"
+                placeholder="Change password (leave empty to keep current)"
+                value={formData.password}
+                onChange={handleChange}
+                className="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-700 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-colors"
+              />
+            </div>
+          </div>
+
+          {/* Save Button */}
+          <button
+            onClick={handleSave}
+            className="w-full mt-2 py-2.5 px-4 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium text-sm hover:from-blue-500 hover:to-indigo-500 transition-all shadow-md flex items-center justify-center gap-2"
+          >
+            <Save size={16} />
+            Save Changes
+          </button>
+        </div>
+      </div>
+
+      {/* Quick Links Card */}
+      <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+        <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wider mb-4">Quick Links</h3>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <button
+            onClick={() => handleNavigate("users")}
+            className="group flex items-center justify-between p-4 bg-slate-50 border border-slate-200 rounded-xl hover:bg-blue-50 hover:border-blue-200 transition-all text-left"
+          >
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-slate-200 group-hover:bg-blue-100 transition-colors">
+                <Users size={18} className="text-slate-600 group-hover:text-blue-600" />
+              </div>
+              <div>
+                <p className="font-medium text-slate-800 group-hover:text-blue-700">Users</p>
+                <p className="text-xs text-slate-500">Manage employees</p>
+              </div>
+            </div>
+            <ChevronRight size={18} className="text-slate-400 group-hover:text-blue-500" />
+          </button>
+
+          <button
+            onClick={() => handleNavigate("modify-absences")}
+            className="group flex items-center justify-between p-4 bg-slate-50 border border-slate-200 rounded-xl hover:bg-blue-50 hover:border-blue-200 transition-all text-left"
+          >
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-slate-200 group-hover:bg-blue-100 transition-colors">
+                <Pencil size={18} className="text-slate-600 group-hover:text-blue-600" />
+              </div>
+              <div>
+                <p className="font-medium text-slate-800 group-hover:text-blue-700">Absences</p>
+                <p className="text-xs text-slate-500">Manage leave days</p>
+              </div>
+            </div>
+            <ChevronRight size={18} className="text-slate-400 group-hover:text-blue-500" />
+          </button>
         </div>
       </div>
     </div>

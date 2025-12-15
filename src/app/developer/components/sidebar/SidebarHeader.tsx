@@ -1,6 +1,6 @@
 'use client';
 
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { useCalendar } from "@/app/context/CalendarContext";
 import { useEffect, useMemo, useState } from "react";
 import { useWorkHours } from "@/app/context/WorkHoursContext";
@@ -11,10 +11,10 @@ import { useProjects } from "@/app/context/ProjectContext";
 import { Button } from "@/components/ui/button";
 
 const LoadingSpinner = () => (
-  <div className="absolute inset-0 flex items-center justify-center bg-white/70 z-10">
-    <div className="border rounded shadow px-4 py-2 bg-white flex items-center space-x-2">
-      <div className="animate-spin w-4 h-4 border-2 border-gray-500 border-t-transparent rounded-full"></div>
-      <span className="text-gray-700 text-sm">Loading in progress</span>
+  <div className="absolute inset-0 flex items-center justify-center bg-white/80 backdrop-blur-sm z-10 rounded-xl">
+    <div className="flex items-center gap-2 px-4 py-2 bg-white rounded-lg shadow-lg border border-slate-200">
+      <Loader2 className="w-4 h-4 text-blue-600 animate-spin" />
+      <span className="text-slate-600 text-sm font-medium">Loading...</span>
     </div>
   </div>
 );
@@ -55,30 +55,55 @@ export default function SidebarHeader() {
     setIsInitialized(true);
   }, [passedMonth, passedYear]);
 
+  const getStatusStyle = (status: string | undefined) => {
+    switch (status) {
+      case "PENDING":
+        return "text-amber-700 bg-amber-100 border-amber-200";
+      case "REJECTED":
+        return "text-rose-700 bg-rose-100 border-rose-200";
+      case "APPROVED":
+        return "text-emerald-700 bg-emerald-100 border-emerald-200";
+      case "LOCKED":
+        return "text-slate-700 bg-slate-100 border-slate-200";
+      default:
+        return "text-slate-500 bg-white border-slate-200";
+    }
+  };
+
   return (
-    <div className="flex justify-between mt-4 relative">
-      <div className="w-64 flex items-center justify-between relative min-h-6">
+    <div className="flex justify-between mb-4 relative">
+      <div className="flex items-center gap-2 bg-white rounded-xl px-2 py-1 shadow-sm border border-slate-200 relative min-h-10">
         {loading || loadingProjects && isInitialized && <LoadingSpinner />}
         {!loadingProjects && isInitialized && (
           <>
-            <Button variant="ghost" onClick={goToPreviousMonth}>
-              <ChevronLeft className="text-[#244B77]" />
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={goToPreviousMonth}
+              className="hover:bg-slate-100 rounded-lg"
+            >
+              <ChevronLeft className="text-slate-600" size={20} />
             </Button>
-            <p className="text-[#244B77] font-semibold text-center text-lg">
+            <p className="text-slate-700 font-semibold text-center text-base min-w-[140px]">
               {formattedDate}
             </p>
             <MonthYearPicker />
-            <Button variant="ghost" onClick={goToNextMonth}>
-              <ChevronRight className="text-[#244B77]" />
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={goToNextMonth}
+              className="hover:bg-slate-100 rounded-lg"
+            >
+              <ChevronRight className="text-slate-600" size={20} />
             </Button>
           </>
         )}
       </div>
-      <div className="flex">
+      <div className="flex items-center gap-2">
         <WorkStatus />
-        <div className={`TimesheetStatus capitalize flex justify-center items-center text-sm font-bold px-2 py-1 rounded-md m-2 
-          ${activeTimesheet?.status == "PENDING" ? "text-yellow-600 bg-yellow-100" : activeTimesheet?.status == "REJECTED" ? "text-red-500 bg-red-100" : activeTimesheet?.status == "APPROVED" ? "text-green-600 bg-green-100" : "text-gray-500 bg-white border"}`
-          }>{activeTimesheet ? activeTimesheet.status : "DRAFT"}</div>
+        <div className={`capitalize flex justify-center items-center text-xs font-semibold px-3 py-1.5 rounded-lg border ${getStatusStyle(activeTimesheet?.status)}`}>
+          {activeTimesheet ? activeTimesheet.status : "DRAFT"}
+        </div>
       </div>
     </div>
   )

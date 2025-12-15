@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import Selector from "@/app/components/Selector";
 import { User } from "@/types/user";
@@ -6,7 +6,18 @@ import Spinner from "@/components/ui/Spinner";
 import { AbsenceType } from "@/types/absence";
 import { flushError } from "@/app/utils/flushError";
 import { toast } from "sonner";
-import AbsPopover from "./AbsPopover";
+import { 
+  CalendarDays, 
+  Send, 
+  Users, 
+  Palmtree, 
+  Stethoscope, 
+  Heart, 
+  Baby,
+  Sparkles,
+  TrendingUp,
+  Clock
+} from "lucide-react";
 
 type APIRemainingDays = {
     currentYear: { year:number, daysLeft:number, daysSpent:number },
@@ -14,14 +25,14 @@ type APIRemainingDays = {
     totalDaysLeft: number
 }
 
-const popover = {
-  currentYear: { year:2025, daysLeft:10, daysSpent:12 },
-  lastYear: { year:2024, daysLeft:5, daysSpent:17 },
-  totalDaysLeft: 15
-}
-
 const absenceTypes: (keyof typeof AbsenceType)[] = ["VACATION", "SICK", "PERSONAL", "PARENTAL"]
-const selectorStyle = "bg-[#E3F0FF] text-[#244B77] border-[1px] border-[#244B77]"
+
+const leaveTypeStyles: Record<string, { icon: React.ReactNode; gradient: string; glow: string; softBg: string; softText: string }> = {
+  VACATION: { icon: <Palmtree size={20} />, gradient: "from-teal-400 to-emerald-400", glow: "shadow-teal-400/20", softBg: "bg-teal-50", softText: "text-teal-600" },
+  SICK: { icon: <Stethoscope size={20} />, gradient: "from-rose-400 to-pink-400", glow: "shadow-rose-400/20", softBg: "bg-rose-50", softText: "text-rose-500" },
+  PERSONAL: { icon: <Heart size={20} />, gradient: "from-violet-400 to-purple-400", glow: "shadow-violet-400/20", softBg: "bg-violet-50", softText: "text-violet-500" },
+  PARENTAL: { icon: <Baby size={20} />, gradient: "from-amber-400 to-orange-400", glow: "shadow-amber-400/20", softBg: "bg-amber-50", softText: "text-amber-500" },
+}
 
 export default function Absences() {
   const [selectedEmployee, setSelectedEmployee] = useState<string | null>(null)
@@ -110,98 +121,206 @@ export default function Absences() {
     }
   };
 
-  if(isLoading) return <Spinner/>
+  // Calculate days
+  const numberOfDays = useMemo(() => {
+    if (!startDate || !endDate) return 0;
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const diff = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+    return diff > 0 ? diff : 0;
+  }, [startDate, endDate]);
+
+  if(isLoading) return (
+    <div className="flex items-center justify-center h-full">
+      <Spinner />
+    </div>
+  )
 
   return (
-    <div className="max-w-2/3 2xl:max-w-1/2">
-      <h2 className="text-2xl text-[#244B77] font-bold mb-3 mt-5">
-        Assign days-off to employees
-      </h2>
-
-      {/* Employee Selector */}
-      <div className="flex justify-between items-center">
-        <div className="w-60 mb-5">
-          <Selector
-            id="selector-employee"
-            label="Choose Employee"
-            options={employees?.map((user) => user.username) || []}
-            onChange={setSelectedEmployee}
-            placeholder="Employees"
-            className={selectorStyle}
-            value={selectedEmployee || ""}
-            sorted={true}
-          />
+    <section className="p-6 h-full">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-orange-400 flex items-center justify-center shadow-md shadow-amber-400/20">
+            <CalendarDays className="text-white" size={20} />
+          </div>
+          <div>
+            <h1 className="text-xl font-semibold text-slate-700">Leave Management</h1>
+            <p className="text-sm text-slate-400">Assign time-off to team members</p>
+          </div>
         </div>
-        {remainingDays && <AbsPopover data={remainingDays} />}
-      </div>
-
-      {/* Date Pickers */}
-      <div className="flex flex-col gap-4 bg-[#244B77] p-6 rounded-md text-white ">
-        <div className="flex items-baseline gap-5 justify-between w-80">
-          <label htmlFor="start-date" className="text-md font-bold min-w-20">
-            Start Date:
-          </label>
-          <input
-            type="date"
-            id="start-date"
-            className="bg-white text-[#244B77] px-3 py-2 text-sm w-2/3"
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-          />
-        </div>
-        <div className="flex items-baseline gap-5 justify-between w-80">
-          <label htmlFor="end-date" className="text-md font-bold min-w-20">
-            End Date:
-          </label>
-          <input
-            type="date"
-            id="end-date"
-            className="bg-white text-[#244B77] px-3 py-2 text-sm w-2/3"
-            value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
-          />
+        
+        {/* Quick Stats */}
+        <div className="flex gap-3">
+          <div className="px-4 py-2 bg-slate-100 rounded-xl flex items-center gap-2 border border-slate-200">
+            <Users size={16} className="text-slate-500" />
+            <span className="text-slate-700 font-semibold">{employees?.length || 0}</span>
+            <span className="text-slate-400 text-sm">employees</span>
+          </div>
         </div>
       </div>
-      
 
-      {/* Absence Type Selector */}
-      <div className="w-60 mt-5">
-        <Selector
-          id="selector-absence"
-          label="Choose leave type"
-          options={absenceTypes}
-          onChange={setAbsenceType}
-          placeholder="Leave type"
-          className={selectorStyle}
-          value={absenceType || ""}
-          sorted={false}
-        />
+      {/* Main Grid Layout */}
+      <div className="grid grid-cols-3 gap-5">
+        
+        {/* Left Panel - Employee & Balance */}
+        <div className="space-y-4">
+          {/* Employee Selection Card */}
+          <div className="bg-gradient-to-br from-slate-600 to-slate-700 rounded-2xl p-5 shadow-lg">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-2 h-2 rounded-full bg-teal-300 animate-pulse" />
+              <span className="text-teal-300 text-xs font-medium uppercase tracking-wider">Select Employee</span>
+            </div>
+            <Selector
+              id="selector-employee"
+              options={employees?.map((user) => user.username) || []}
+              onChange={setSelectedEmployee}
+              placeholder="Choose..."
+              className="bg-slate-500/30 text-white border border-slate-500 rounded-lg hover:border-teal-400/50 transition-colors"
+              value={selectedEmployee || ""}
+              sorted={true}
+            />
+            
+            {/* Balance Display */}
+            {remainingDays && (
+              <div className="mt-4 p-4 bg-white/10 rounded-xl border border-white/10">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-slate-300 text-xs">Available Balance</span>
+                  <Sparkles size={14} className="text-teal-300" />
+                </div>
+                <div className="flex items-baseline gap-1">
+                  <span className="text-3xl font-bold text-white">{remainingDays.totalDaysLeft}</span>
+                  <span className="text-slate-400">days</span>
+                </div>
+                <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
+                  <div className="bg-slate-600/50 rounded-lg p-2">
+                    <span className="text-slate-400">{remainingDays.currentYear.year}</span>
+                    <p className="text-teal-300 font-semibold">{remainingDays.currentYear.daysLeft}d left</p>
+                  </div>
+                  <div className="bg-slate-600/50 rounded-lg p-2">
+                    <span className="text-slate-400">{remainingDays.lastYear.year}</span>
+                    <p className="text-amber-300 font-semibold">{remainingDays.lastYear.daysLeft}d carried</p>
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            {!selectedEmployee && (
+              <div className="mt-4 p-4 border border-dashed border-slate-500 rounded-xl text-center">
+                <Users size={24} className="mx-auto text-slate-500 mb-2" />
+                <p className="text-slate-400 text-sm">Select an employee to view balance</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Center Panel - Date Selection */}
+        <div className="space-y-4">
+          <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+            <div className="flex items-center gap-2 mb-4">
+              <Clock size={16} className="text-slate-400" />
+              <span className="text-slate-600 font-medium">Leave Period</span>
+            </div>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="text-xs text-slate-400 mb-1.5 block">Start Date</label>
+                <input
+                  type="date"
+                  className="w-full bg-slate-50 text-slate-600 px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-400/50 focus:border-teal-400 transition-all"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                />
+              </div>
+              <div>
+                <label className="text-xs text-slate-400 mb-1.5 block">End Date</label>
+                <input
+                  type="date"
+                  className="w-full bg-slate-50 text-slate-600 px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-400/50 focus:border-teal-400 transition-all"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                />
+              </div>
+            </div>
+
+            {/* Duration Display */}
+            {numberOfDays > 0 && (
+              <div className="mt-4 p-4 bg-gradient-to-r from-slate-500 to-slate-600 rounded-xl text-white">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <TrendingUp size={16} className="text-teal-300" />
+                    <span className="text-sm text-slate-300">Duration</span>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-2xl font-bold">{numberOfDays}</span>
+                    <span className="text-sm text-slate-300 ml-1">{numberOfDays === 1 ? "day" : "days"}</span>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Right Panel - Leave Type & Submit */}
+        <div className="space-y-4">
+          {/* Leave Type Selection */}
+          <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+            <div className="flex items-center gap-2 mb-4">
+              <Sparkles size={16} className="text-slate-400" />
+              <span className="text-slate-600 font-medium">Leave Type</span>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-3">
+              {absenceTypes.map((type) => {
+                const style = leaveTypeStyles[type];
+                const isSelected = absenceType === type;
+                
+                return (
+                  <button
+                    key={type}
+                    onClick={() => setAbsenceType(type)}
+                    className={`relative p-4 rounded-xl border-2 transition-all duration-300 ${
+                      isSelected
+                        ? `bg-gradient-to-br ${style.gradient} border-transparent text-white shadow-md ${style.glow}`
+                        : `${style.softBg} border-transparent ${style.softText} hover:shadow-sm`
+                    }`}
+                  >
+                    <div className={`mb-2 ${isSelected ? "text-white" : ""}`}>
+                      {style.icon}
+                    </div>
+                    <span className="text-sm font-medium">{type}</span>
+                    {isSelected && (
+                      <div className="absolute top-2 right-2 w-2 h-2 rounded-full bg-white/80" />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Submit Card */}
+          <div className="bg-gradient-to-br from-slate-600 to-slate-700 rounded-2xl p-5 shadow-lg">
+            <div className="mb-4">
+              <p className="text-slate-400 text-xs uppercase tracking-wider mb-1">Ready to submit?</p>
+              <p className="text-white/90 text-sm">
+                {selectedEmployee && absenceType && numberOfDays > 0 
+                  ? `Grant ${numberOfDays} ${numberOfDays === 1 ? "day" : "days"} of ${absenceType.toLowerCase()} leave`
+                  : "Complete all fields above"
+                }
+              </p>
+            </div>
+            
+            <Button 
+              onClick={handleCreateAbsence}
+              disabled={!selectedEmployee || !startDate || !endDate || !absenceType}
+              className="w-full py-6 bg-gradient-to-r from-teal-400 to-emerald-400 hover:from-teal-300 hover:to-emerald-300 text-white font-semibold rounded-xl shadow-md shadow-teal-400/20 disabled:opacity-40 disabled:shadow-none transition-all duration-300"
+            >
+              <Send size={18} className="mr-2" />
+              Grant Leave
+            </Button>
+          </div>
+        </div>
       </div>
-
-      <Button className="mt-10" onClick={handleCreateAbsence}>
-        Grant Leave
-      </Button>
-    </div>
+    </section>
   );
 }
-
-
-      // {infoMessage && <div className="Info gap-2 my-4 border-4 border-[#244B77] text-[#244B77] bg-[#E3F0FF] rounded-md py-1 px-2">
-      //   <div className="InfoHeader flex justify-between">
-      //       <Sparkles />
-      //     <button onClick={() => setInfoMessage(null)}>
-      //       <X />
-      //     </button>
-      //   </div>
-      //   <span className="block px-8 pb-4">{infoMessage}</span>
-      // </div>}
-
-      // {errorMessage && <div className="Error gap-2 my-4 border-4 border-red-500 text-red-500 bg-red-100 rounded-md py-1 px-2">
-      //   <div className="InfoHeader flex justify-between">
-      //       <MessageSquareWarning />
-      //     <button onClick={() => setErrorMessage(null)}>
-      //       <X />
-      //     </button>
-      //   </div>
-      //   <span className="block px-8 pb-4">{errorMessage}</span>
-      // </div>}

@@ -30,13 +30,13 @@ export default function Calendar({ isOwner=false }: { isOwner:boolean }) {
 
 
   return (
-    <div>
+    <div className="rounded-xl overflow-hidden shadow-sm border border-slate-200">
       <TopBar hoveredColIndex={hoveredColIndex} />
-      <div className="flex flex-col bg-gray-100">
+      <div className="flex flex-col bg-slate-50">
         {sidebarProjects.map((companyBlock) => (
           <React.Fragment key={companyBlock.company}>
             {/* Company label row */}
-            <div className="flex items-center h-9 2xl:h-10 px-2 font-semibold bg-gray-200 border-gray-300" />
+            <div className="flex items-center h-9 2xl:h-10 px-2 font-semibold bg-slate-100 border-b border-slate-200" />
             {/* Project rows */}
             {companyBlock.projects.map((proj: Project) => (
               <div className="flex" key={proj.projectKey}>

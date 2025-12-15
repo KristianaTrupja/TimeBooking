@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState, useRef, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, FileText, Users } from "lucide-react";
 
 import Spinner from "@/components/ui/Spinner";
 import { useCalendar } from "@/app/context/CalendarContext";
@@ -120,55 +120,143 @@ export default function Raport() {
     }
   }
 
+  // Calculate stats
+  const stats = useMemo(() => {
+    if (!timesheets) return { total: 0, pending: 0, approved: 0, totalHours: 0 };
+    return {
+      total: timesheets.length,
+      pending: timesheets.filter(t => t.status === "PENDING").length,
+      approved: timesheets.filter(t => t.status === "APPROVED").length,
+      totalHours: timesheets.reduce((acc, t) => acc + t.totalHours, 0)
+    };
+  }, [timesheets]);
+
   return (
-    <section ref={sectionRef}>
-      {/* Month Navigation Bar */}
-      <div ref={navRef} className="flex items-center justify-center gap-5 mb-4 px-4">
-        <Button variant="ghost" className="border border-accent" onClick={goToPreviousMonth}>
-          <ChevronLeft />
-        </Button>
-        <h2 className="text-xl font-bold text-[#244B77]">{formattedDate}</h2>
-        <MonthYearPicker />
-        <Button variant="ghost" className="border border-accent" onClick={goToNextMonth}>
-          <ChevronRight />
-        </Button>
+    <section ref={sectionRef} className="p-6 h-full flex flex-col">
+      {/* Header Section */}
+      <div ref={navRef} className="mb-6">
+        {/* Title and Navigation */}
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/25">
+              <FileText className="text-white" size={20} />
+            </div>
+            <div>
+              <h1 className="text-xl font-semibold text-slate-800">Timesheets</h1>
+              <p className="text-sm text-slate-500">Review and manage employee submissions</p>
+            </div>
+          </div>
+          
+          {/* Month Navigation */}
+          <div className="flex items-center gap-2 bg-slate-100 rounded-xl p-1">
+            <Button 
+              variant="ghost" 
+              size="sm"
+              className="hover:bg-white rounded-lg h-9 w-9 p-0" 
+              onClick={goToPreviousMonth}
+            >
+              <ChevronLeft className="text-slate-600" size={18} />
+            </Button>
+            <span className="text-sm font-semibold text-slate-700 min-w-[140px] text-center">{formattedDate}</span>
+            <MonthYearPicker />
+            <Button 
+              variant="ghost" 
+              size="sm"
+              className="hover:bg-white rounded-lg h-9 w-9 p-0" 
+              onClick={goToNextMonth}
+            >
+              <ChevronRight className="text-slate-600" size={18} />
+            </Button>
+          </div>
+        </div>
+
+        {/* Stats Cards */}
+        <div className="grid grid-cols-4 gap-4">
+          <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-4 border border-slate-200">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-slate-200 flex items-center justify-center">
+                <Users size={16} className="text-slate-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-slate-800">{stats.total}</p>
+                <p className="text-xs text-slate-500">Total Employees</p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-4 border border-amber-200">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-amber-200 flex items-center justify-center">
+                <div className="w-2 h-2 rounded-full bg-amber-500" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-amber-700">{stats.pending}</p>
+                <p className="text-xs text-amber-600">Pending Review</p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-gradient-to-br from-emerald-50 to-green-50 rounded-xl p-4 border border-emerald-200">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-emerald-200 flex items-center justify-center">
+                <div className="w-2 h-2 rounded-full bg-emerald-500" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-emerald-700">{stats.approved}</p>
+                <p className="text-xs text-emerald-600">Approved</p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-200">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-blue-200 flex items-center justify-center">
+                <FileText size={16} className="text-blue-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-blue-700">{stats.totalHours.toFixed(0)}</p>
+                <p className="text-xs text-blue-600">Total Hours</p>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-    <section
-      className="overflow-hidden overflow-y-auto pb-10 rounded-md"
-      style={{ maxHeight: containerHeight ? `${containerHeight}px` : "66vh" }}
-    >
-      {/* Report Table */}
-      {timesheets === null || loading || needsNavigation || isNavigating ?  <Spinner /> : 
-      <table
-        className="w-full text-[#244B77] border-separate"
-        style={{ borderSpacing: "10px" }}
+
+      {/* Table Section */}
+      <section
+        className="overflow-hidden overflow-y-auto rounded-xl flex-1 bg-white border border-slate-200 shadow-sm"
+        style={{ maxHeight: containerHeight ? `${containerHeight}px` : "66vh" }}
       >
-        <thead className="bg-[#6C99CB] text-white">
-          <tr className="text-left">
-            <th className="px-4 py-2 w-16 rounded-sm">Nr</th>
-            <th className="px-4 py-2 w-1/3 rounded-sm">Employee</th>
-            <th className="px-4 py-2 w-1/3 rounded-sm">Working Hours ({formattedDate})</th>
-            <th className="px-4 py-2 w-1/3 rounded-sm">Details</th>
-            <th className="px-4 py-2 w-1/3 rounded-sm">Status</th>
-            <th className="px-4 py-2 w-1/3 rounded-sm">Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {timesheets.map((ts, index: number) => (
-            <RaportEntry
-              timesheet={ts}
-              month={month}
-              year={year}
-              index={index}
-              onApply={handleSubmissionStatusUpdate}
-              shouldScrollTo={scrollToUserId === ts.userId}
-              onScrollComplete={handleScrollComplete}
-              key={index}
-            />
-          ))}
-        </tbody>
-      </table>}
-    </section>
+        {timesheets === null || loading || needsNavigation || isNavigating ? (
+          <div className="flex items-center justify-center h-64">
+            <Spinner />
+          </div>
+        ) : (
+          <table className="w-full">
+            <thead className="bg-slate-50 border-b border-slate-200 sticky top-0">
+              <tr className="text-left text-xs uppercase tracking-wider text-slate-500">
+                <th className="px-4 py-3 font-semibold w-16">#</th>
+                <th className="px-4 py-3 font-semibold">Employee</th>
+                <th className="px-4 py-3 font-semibold">Hours</th>
+                <th className="px-4 py-3 font-semibold">Details</th>
+                <th className="px-4 py-3 font-semibold">Status</th>
+                <th className="px-4 py-3 font-semibold">Action</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {timesheets.map((ts, index: number) => (
+                <RaportEntry
+                  timesheet={ts}
+                  month={month}
+                  year={year}
+                  index={index}
+                  onApply={handleSubmissionStatusUpdate}
+                  shouldScrollTo={scrollToUserId === ts.userId}
+                  onScrollComplete={handleScrollComplete}
+                  key={index}
+                />
+              ))}
+            </tbody>
+          </table>
+        )}
+      </section>
     </section>
   );
 }

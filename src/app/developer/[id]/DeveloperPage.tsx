@@ -74,11 +74,11 @@ export default function Developer() {
         <NavigationSidebar activeTab={activeTab} onTabChange={setActiveTab} />
         
         {/* Scrollable content area */}
-        <div className="ml-64 flex-1 overflow-auto p-4" style={{ height: "calc(100vh - 76px)" }}>
+        <div className="ml-64 flex-1 overflow-auto p-6" style={{ height: "calc(100vh - 72px)" }}>
             {activeTab === "time-reporting" ? (
-                <>
+                <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm overflow-x-auto">
                     <SidebarHeader />
-                    <section className="2xl:w-full flex">
+                    <section className="flex min-w-max">
                         <Sidebar isOwner={isOwner} />
                         <section className="relative flex-shrink-0 flex flex-col justify-between" style={{ fontFamily: "var(--font-anek-bangla)" }} >
                             <div className="flex min-h-[500px]">
@@ -100,12 +100,18 @@ export default function Developer() {
                     <div className="flex justify-end items-center gap-4 p-4 mt-5">
                         {isOwner && !metadata?.isLocked && (
                             <>
-                            <Button disabled={isSubmitting} onClick={handleSubmit}>Submit timesheet</Button>
+                            <Button 
+                                disabled={isSubmitting} 
+                                onClick={handleSubmit}
+                                className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-lg shadow-blue-500/25 border-0 transition-all duration-300"
+                            >
+                                Submit timesheet
+                            </Button>
                             <SaveButton />
                             </>
                         )}
                     </div>
-                </>
+                </div>
             ) : (
                 <DeveloperVacations />
             )}

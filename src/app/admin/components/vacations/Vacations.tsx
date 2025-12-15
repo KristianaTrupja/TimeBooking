@@ -174,20 +174,32 @@ export default function Vacations() {
 
   if (isInitialLoading) return <Spinner />;
   return (
-    <section ref={sectionRef} className="rounded-md">
+    <section ref={sectionRef} className="p-6 flex flex-col h-full">
       {/* Year Navigation Bar */}
-      <div ref={navRef} className="flex items-center justify-center gap-4 mb-4">
-        <Button variant="ghost" className="border border-accent" onClick={goToPreviousYear} disabled={isTableLoading}>
-          <ChevronLeft />
+      <div ref={navRef} className="flex items-center justify-center gap-4 mb-6">
+        <Button 
+          variant="ghost" 
+          size="sm"
+          className="hover:bg-slate-100 border border-slate-200 rounded-lg" 
+          onClick={goToPreviousYear} 
+          disabled={isTableLoading}
+        >
+          <ChevronLeft className="text-slate-600" size={20} />
         </Button>
-        <h2 className="text-xl font-bold text-[#244B77]">{year}</h2>
-        <Button variant="ghost" className="border border-accent" onClick={goToNextYear} disabled={isTableLoading}>
-          <ChevronRight />
+        <h2 className="text-xl font-semibold text-slate-700 min-w-[100px] text-center">{year}</h2>
+        <Button 
+          variant="ghost" 
+          size="sm"
+          className="hover:bg-slate-100 border border-slate-200 rounded-lg" 
+          onClick={goToNextYear} 
+          disabled={isTableLoading}
+        >
+          <ChevronRight className="text-slate-600" size={20} />
         </Button>
       </div>
 
       <div
-        className="overflow-y-auto"
+        className="overflow-y-auto rounded-xl flex-1"
         style={{ maxHeight: containerHeight ? `${containerHeight}px` : "66vh" }}
       >
         {isTableLoading ? (
@@ -205,8 +217,11 @@ export default function Vacations() {
         )}
       </div>
 
-      <div ref={buttonRef} className="flex justify-center my-5">
-        <Button onClick={() => setModalOpen(true)}>
+      <div ref={buttonRef} className="flex justify-center py-4">
+        <Button 
+          onClick={() => setModalOpen(true)}
+          className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-md"
+        >
           Add new holiday
         </Button>
       </div>

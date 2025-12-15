@@ -1,6 +1,7 @@
 import VacationRow from "./VacationRow";
 import VacationEditRow from "./VacationEditRow";
 import { Holiday } from "@/types/holiday";
+import { CalendarDays } from "lucide-react";
 
 type Props = {
   vacations: Holiday[];
@@ -11,6 +12,7 @@ type Props = {
   onChange: (e: React.ChangeEvent<HTMLInputElement>, field: "date" | "holiday") => void;
   onSave: (id: number) => void;
 };
+
 export default function VacationTable({
   vacations,
   editingId,
@@ -20,69 +22,52 @@ export default function VacationTable({
   onChange,
   onSave,
 }: Props) {
-  // Group vacations by year
-  const groupedByYear = vacations
-    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-    .reduce<Record<string, Holiday[]>>((acc, curr) => {
-      const year = new Date(curr.date).getFullYear();
-      if (!acc[year]) acc[year] = [];
-      acc[year].push(curr);
-      return acc;
-    }, {});
+  // Sort vacations by date
+  const sortedVacations = [...vacations].sort(
+    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+  );
+
   return (
-    <>
+    <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
       {vacations?.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-16">
+          <CalendarDays size={48} className="text-slate-300 mb-3" />
+          <p className="text-lg font-medium text-slate-500">No holidays found</p>
+          <p className="text-sm text-slate-400">Add a new holiday to get started</p>
+        </div>
+      ) : (
         <table className="w-full">
-          <thead>
-            <tr>
-              <th colSpan={5} className="text-[#244B77] text-center py-4 text-xl">
-                No holidays, add new one.
-              </th>
+          <thead className="bg-slate-700 sticky top-0">
+            <tr className="text-left text-xs uppercase tracking-wider text-slate-200">
+              <th className="px-4 py-3 font-semibold w-16">#</th>
+              <th className="px-4 py-3 font-semibold">Date</th>
+              <th className="px-4 py-3 font-semibold">Holiday Name</th>
+              <th className="px-4 py-3 font-semibold text-center">Actions</th>
             </tr>
           </thead>
+          <tbody className="divide-y divide-slate-100">
+            {sortedVacations.map((emp, index) =>
+              editingId === emp.id ? (
+                <VacationEditRow
+                  key={emp.id}
+                  index={index}
+                  editedData={editedData}
+                  onChange={onChange}
+                  onSave={() => onSave(emp.id)}
+                />
+              ) : (
+                <VacationRow
+                  key={emp.id}
+                  index={index}
+                  emp={emp}
+                  onEdit={() => onEdit(emp.id)}
+                  onDelete={() => onDelete(emp.id)}
+                />
+              )
+            )}
+          </tbody>
         </table>
-      ) : (
-        <>
-          {Object.entries(groupedByYear).map(([year, yearVacations]) => (
-            <table
-              key={year}
-              className="w-full text-[#244B77] border-separate mb-10"
-              style={{ borderSpacing: "10px" }}
-            >
-              <thead className="bg-[#6C99CB] text-white">
-                <tr className="text-left">
-                  <th className="px-4 py-2 w-16 rounded-sm">Nr</th>
-                  <th className="px-4 py-2 w-1/3 rounded-sm">Date</th>
-                  <th className="px-4 py-2 rounded-sm">Holiday name</th>
-                  <th className="px-4 py-2 rounded-sm">Edit</th>
-                  <th className="px-4 py-2 rounded-sm">Delete</th>
-                </tr>
-              </thead>
-              <tbody>
-                {yearVacations.map((emp, index) =>
-                  editingId === emp.id ? (
-                    <VacationEditRow
-                      key={emp.id}
-                      index={index}
-                      editedData={editedData}
-                      onChange={onChange}
-                      onSave={() => onSave(emp.id)}
-                    />
-                  ) : (
-                    <VacationRow
-                      key={emp.id}
-                      index={index}
-                      emp={emp}
-                      onEdit={() => onEdit(emp.id)}
-                      onDelete={() => onDelete(emp.id)}
-                    />
-                  )
-                )}
-              </tbody>
-            </table>
-          ))}
-        </>
       )}
-    </>
+    </div>
   );
 }

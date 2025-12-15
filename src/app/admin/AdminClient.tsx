@@ -44,28 +44,30 @@ export default function AdminClient() {
   return (
     <section
       ref={sectionRef}
-      className="mx-5 mt-5"
+      className="p-6"
       style={{
         fontFamily: "var(--font-anek-bangla)",
         height: containerHeight ? `${containerHeight}px` : "66vh",
       }}
     >
-      {tab === "raport" && (
-          <CalendarProvider>
-            <ProjectProvider>
-              <WorkHoursProvider>
-                <Raport />
-              </WorkHoursProvider>
-            </ProjectProvider>
-          </CalendarProvider>
-      )}
-      {tab === "projects" && <Projects />}
-      {tab === "users" && <Users />}
-      {tab === "absences" && <Absences />}
-      {tab === "modify-absences" && <ModifyAbsences />}
-      {tab === "holidays" && <Vacations />}
-      {tab === "notifications" && <Notifications/>}
-      {tab === "settings" && <SessionProvider><Settings /></SessionProvider>}
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm h-full overflow-hidden">
+        {tab === "raport" && (
+            <CalendarProvider>
+              <ProjectProvider>
+                <WorkHoursProvider>
+                  <Raport />
+                </WorkHoursProvider>
+              </ProjectProvider>
+            </CalendarProvider>
+        )}
+        {tab === "projects" && <Projects />}
+        {tab === "users" && <Users />}
+        {tab === "absences" && <Absences />}
+        {tab === "modify-absences" && <ModifyAbsences />}
+        {tab === "holidays" && <Vacations />}
+        {tab === "notifications" && <Notifications/>}
+        {tab === "settings" && <SessionProvider><Settings /></SessionProvider>}
+      </div>
     </section>
   );
 }

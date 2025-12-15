@@ -70,15 +70,15 @@ export default function WorkDay({
           setHoveredProjectKey(null);
         }}
         title={title ?? undefined}
-        className={`relative w-9 h-9 2xl:w-10 2xl:h-10 flex items-center justify-center text-sm border-r border-b border-gray-300
-          ${isHoliday ? "bg-green-100" : isDisabled ? "bg-slate-100 text-slate-400 font-bold !border-gray-200" : isAbsentDay ? "bg-orange-100 cursor-default" : isWeekendDay ? "bg-gray-100" : "bg-white hover:bg-gray-100 cursor-pointer"}
-          ${isHovered && !isDisabled && !isWeekendDay && !isHoliday && !isAbsentDay && "!bg-[#f1f7fde7]"}
-          ${isPending ? " font-bold text-blue-900 border-blue-400" : ""}
+        className={`relative w-9 h-9 2xl:w-10 2xl:h-10 flex items-center justify-center text-sm border-r border-b border-slate-200 transition-all duration-150
+          ${isHoliday ? "bg-emerald-50 text-emerald-700" : isDisabled ? "bg-slate-50 text-slate-400 font-medium" : isAbsentDay ? "bg-amber-50 text-amber-700 cursor-default" : isWeekendDay ? "bg-slate-100 text-slate-500" : "bg-white hover:bg-blue-50 cursor-pointer text-slate-700"}
+          ${isHovered && !isDisabled && !isWeekendDay && !isHoliday && !isAbsentDay && "!bg-blue-50"}
+          ${isPending ? "font-semibold !text-blue-600 !bg-blue-50 ring-1 ring-inset ring-blue-300" : ""}
         `}
       >
         {displayData.hours ? Number(displayData.hours).toFixed(2) : ""}
         {displayData.note && (
-          <div className="absolute bottom-0 right-0 w-0 h-0 border-b-[10px] border-l-[10px] border-b-green-500 border-l-transparent" />
+          <div className="absolute bottom-0 right-0 w-0 h-0 border-b-[8px] border-l-[8px] border-b-emerald-500 border-l-transparent" />
         )}
       </div>
 

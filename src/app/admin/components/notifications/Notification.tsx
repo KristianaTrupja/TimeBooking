@@ -3,6 +3,7 @@
 import { Notification as Notif } from "@/types/notification";
 import { useRouter } from "next/navigation";
 import { ReactNode } from "react";
+import { FileText, Calendar, Clock, ChevronRight } from "lucide-react";
 
 type NotificationProps = {
     children?: ReactNode,
@@ -11,8 +12,8 @@ type NotificationProps = {
 }
 
 const actionMap = new Map([
-    ["VIEW_TIMESHEET", { label: "Review in Raports", goTo: "/admin?tab=raport" }],
-    ["VIEW_ABSENCE", { label: "View Absences", goTo: "/admin?tab=modify-absences"}]
+    ["VIEW_TIMESHEET", { label: "Review in Raports", goTo: "/admin?tab=raport", icon: FileText }],
+    ["VIEW_ABSENCE", { label: "View Absences", goTo: "/admin?tab=modify-absences", icon: Calendar }]
 ])
 
 // Parse message and render **text** as bold
@@ -21,7 +22,7 @@ function renderMessageWithBold(message: string): ReactNode {
     return parts.map((part, index) => {
         if (part.startsWith("**") && part.endsWith("**")) {
             const boldText = part.slice(2, -2);
-            return <strong key={index}className="text-md text-green-600">{boldText}</strong>;
+            return <strong key={index} className="font-semibold text-slate-800">{boldText}</strong>;
         }
         return part;
     });
@@ -59,6 +60,7 @@ function buildActionUrl(
 
 export default function Notification({ notification, markAsRead = ()=>{}, children }: NotificationProps) {
     const action = actionMap.get(notification.actionType || "")
+    const ActionIcon = action?.icon;
     const router = useRouter();
 
     function handleRead(){
@@ -79,14 +81,51 @@ export default function Notification({ notification, markAsRead = ()=>{}, childr
     }
 
   return (
-    <li onClick={handleRead} className={`flex flex-col p-3 bg-blue-50 rounded border-l-4 ${notification.isRead ? 'border-slate-400 bg-slate-50' : 'border-blue-500'}`}>
-        <p className="text-md font-bold text-[#244B77]">{notification?.title || "No-Title"}</p>
-        {notification?.message && <p className="text-sm text-gray-800">{renderMessageWithBold(notification.message)}</p>}
-        {children && children}
-        {action && 
-            <a className="w-fit my-1 text-[#244B77] text-sm font-bold cursor-pointer" onClick={handleActionClick}>{action.label}</a>
-        }
-        <span className="text-xs text-gray-500">
+    <li 
+      onClick={handleRead} 
+      className={`flex flex-col p-4 transition-colors cursor-pointer ${
+        notification.isRead 
+          ? 'bg-white hover:bg-slate-50' 
+          : 'bg-blue-50/50 hover:bg-blue-50'
+      }`}
+    >
+      <div className="flex items-start gap-3">
+        {/* Unread indicator */}
+        <div className={`mt-1.5 w-2 h-2 rounded-full flex-shrink-0 ${notification.isRead ? 'bg-transparent' : 'bg-blue-500'}`} />
+        
+        <div className="flex-1 min-w-0">
+          {/* Title */}
+          <p className="text-sm font-semibold text-slate-800 mb-1">
+            {notification?.title || "No-Title"}
+          </p>
+          
+          {/* Message */}
+          {notification?.message && (
+            <p className="text-sm text-slate-600 leading-relaxed mb-2">
+              {renderMessageWithBold(notification.message)}
+            </p>
+          )}
+          
+          {children && children}
+          
+          {/* Action button */}
+          {action && ActionIcon && (
+            <button 
+              onClick={(e) => {
+                e.stopPropagation();
+                handleActionClick();
+              }}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 mt-1 text-xs font-medium text-blue-600 bg-blue-100 rounded-lg hover:bg-blue-200 transition-colors"
+            >
+              <ActionIcon size={12} />
+              {action.label}
+              <ChevronRight size={12} />
+            </button>
+          )}
+          
+          {/* Timestamp */}
+          <div className="flex items-center gap-1.5 mt-2 text-xs text-slate-400">
+            <Clock size={12} />
             {new Date(notification?.createdAt).toLocaleDateString("sq-AL", {
                 day: "2-digit",
                 month: "long",
@@ -94,7 +133,9 @@ export default function Notification({ notification, markAsRead = ()=>{}, childr
                 hour:"2-digit",
                 minute:"2-digit",
             })}
-        </span>
+          </div>
+        </div>
+      </div>
     </li>
   )
 }

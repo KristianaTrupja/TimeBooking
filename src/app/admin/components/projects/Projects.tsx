@@ -1,10 +1,11 @@
 "use client";
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback, useEffect, useMemo } from "react";
 import ProjectList from "./ProjectsList";
 import ProjectsForm from "./ProjectsForm";
 import { FormData, ProjectEntry } from "@/types/project";
 import { toast, Toaster } from "sonner";
 import Spinner from "@/components/ui/Spinner";
+import { FolderKanban, Building2, Layers } from "lucide-react";
 
 function formatSelectors(data: ProjectEntry[]): Record<string, ProjectEntry[]> {
   return data.reduce((acc, entry) => {
@@ -129,27 +130,80 @@ const onOptionsModified = useCallback(async (id: number, newValue: string, opera
 
 
 
-  if(isLoading) return <Spinner/>
+  // Stats
+  const stats = useMemo(() => {
+    const companies = Object.keys(selectors);
+    const projects = Object.values(selectors).flat();
+    return { companies: companies.length, projects: projects.length };
+  }, [selectors]);
+
+  if(isLoading) return (
+    <div className="flex items-center justify-center h-full">
+      <Spinner />
+    </div>
+  );
 
   return (
-    <section className="flex gap-10 font-[var(--font-anek-bangla)]">
-      {/* <Toaster position="top-center" /> */}
-      <div className="bg-[#E3F0FF] w-1/2 2xl:w-1/3 h-[70vh] flex justify-center shadow-xl">
-        <ProjectList
-          selectors={selectors}
-          onOptionsModified={onOptionsModified}
-        />
+    <section className="p-6 h-full flex flex-col">
+      {/* Header */}
+      <div className="mb-6">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg shadow-violet-500/25">
+            <FolderKanban className="text-white" size={20} />
+          </div>
+          <div>
+            <h1 className="text-xl font-semibold text-slate-800">Project Management</h1>
+            <p className="text-sm text-slate-500">Organize companies and their projects</p>
+          </div>
+        </div>
+
+        {/* Stats Cards */}
+        <div className="grid grid-cols-2 gap-4 max-w-md">
+          <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-4 border border-slate-200">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-slate-200 flex items-center justify-center">
+                <Building2 size={16} className="text-slate-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-slate-800">{stats.companies}</p>
+                <p className="text-xs text-slate-500">Companies</p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-gradient-to-br from-violet-50 to-purple-50 rounded-xl p-4 border border-violet-200">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-violet-200 flex items-center justify-center">
+                <Layers size={16} className="text-violet-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-violet-700">{stats.projects}</p>
+                <p className="text-xs text-violet-600">Projects</p>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-      <div className="mt-20">
-        <h2 className="text-[#244B77] text-2xl 2xl:text-4xl font-bold mb-5">
-          Would you like to add a new project to the list?
-        </h2>
-        <ProjectsForm
-          formData={formData}
-          handleChange={handleChange}
-          handleSubmit={handleSubmit}
-        />
+
+      {/* Main Content */}
+      <div className="flex-1 flex gap-6 min-h-0">
+        {/* Projects List */}
+        <div className="w-1/2 2xl:w-3/5 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+          <ProjectList
+            selectors={selectors}
+            onOptionsModified={onOptionsModified}
+          />
+        </div>
+
+        {/* Add Project Form */}
+        <div className="flex-1 flex items-start justify-center pt-8">
+          <ProjectsForm
+            formData={formData}
+            handleChange={handleChange}
+            handleSubmit={handleSubmit}
+          />
+        </div>
       </div>
+      <Toaster position="top-right" richColors />
     </section>
   );
 }

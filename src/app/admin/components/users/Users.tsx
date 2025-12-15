@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState, useRef, useCallback } from "react";
+import React, { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { AddUserModal } from "./AddUserModal";
 import { UserTable } from "./UserTable";
@@ -7,6 +7,7 @@ import { toast, Toaster } from "sonner";
 import { User, UserFormData } from "@/types/user";
 import Spinner from "@/components/ui/Spinner";
 import { isPasswordStrong } from "@/lib/utils";
+import { Users as UsersIcon, UserPlus, Shield, Code } from "lucide-react";
 
 export default function Users() {
   const [open, setOpen] = useState(false);
@@ -176,12 +177,88 @@ export default function Users() {
     }
   };
 
-  if (isLoading) return <Spinner />;
+  // Calculate stats
+  const stats = useMemo(() => {
+    const employees = user?.users || [];
+    return {
+      total: employees.length,
+      admins: employees.filter(u => u.role === "Admin").length,
+      devs: employees.filter(u => u.role === "Dev").length,
+    };
+  }, [user]);
+
+  if (isLoading) return (
+    <div className="flex items-center justify-center h-full">
+      <Spinner />
+    </div>
+  );
 
   return (
-  <section ref={sectionRef} className="rounded-md grid h-full box-border">
+    <section ref={sectionRef} className="p-6 flex flex-col h-full">
+      {/* Header Section */}
+      <div ref={buttonRef} className="mb-6">
+        {/* Title and Add Button */}
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/25">
+              <UsersIcon className="text-white" size={20} />
+            </div>
+            <div>
+              <h1 className="text-xl font-semibold text-slate-800">Employee Management</h1>
+              <p className="text-sm text-slate-500">Manage team members and their roles</p>
+            </div>
+          </div>
+          
+          <Button 
+            onClick={() => setOpen(true)}
+            className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-lg shadow-blue-500/25"
+          >
+            <UserPlus size={18} className="mr-2" />
+            Add Employee
+          </Button>
+        </div>
+
+        {/* Stats Cards */}
+        <div className="grid grid-cols-3 gap-4 max-w-xl">
+          <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-4 border border-slate-200">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-slate-200 flex items-center justify-center">
+                <UsersIcon size={16} className="text-slate-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-slate-800">{stats.total}</p>
+                <p className="text-xs text-slate-500">Total</p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-gradient-to-br from-violet-50 to-purple-50 rounded-xl p-4 border border-violet-200">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-violet-200 flex items-center justify-center">
+                <Shield size={16} className="text-violet-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-violet-700">{stats.admins}</p>
+                <p className="text-xs text-violet-600">Admins</p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-gradient-to-br from-emerald-50 to-green-50 rounded-xl p-4 border border-emerald-200">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-emerald-200 flex items-center justify-center">
+                <Code size={16} className="text-emerald-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-emerald-700">{stats.devs}</p>
+                <p className="text-xs text-emerald-600">Developers</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Table Section */}
       <section
-        className="overflow-y-auto rounded-md"
+        className="overflow-y-auto rounded-xl flex-1 bg-white border border-slate-200 shadow-sm"
         style={{ maxHeight: containerHeight ? `${containerHeight}px` : "66vh" }}
       >
         <UserTable
@@ -193,29 +270,26 @@ export default function Users() {
           onDelete={deleteItem}
           onSave={saveChanges}
         />
-
-        <AddUserModal
-          open={open}
-          onClose={() => {
-            setOpen(false);
-            setFormData({
-              id: 0,
-              username: "",
-              email: "",
-              password: "",
-              role: "",
-              totalVacations: 0
-            });
-          }}
-          formData={formData}
-          onChange={handleInputChange}
-          onSubmit={addNewEmployee}
-        />
-
       </section>
-      <div ref={buttonRef} className="min-h-max mx-auto py-4">
-        <Button onClick={() => setOpen(true)}>Add new employee</Button>
-      </div>
-  </section>
+
+      <AddUserModal
+        open={open}
+        onClose={() => {
+          setOpen(false);
+          setFormData({
+            id: 0,
+            username: "",
+            email: "",
+            password: "",
+            role: "",
+            totalVacations: 0
+          });
+        }}
+        formData={formData}
+        onChange={handleInputChange}
+        onSubmit={addNewEmployee}
+      />
+      <Toaster position="top-right" richColors />
+    </section>
   );
 }

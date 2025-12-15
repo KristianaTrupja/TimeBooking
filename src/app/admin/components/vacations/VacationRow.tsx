@@ -1,4 +1,4 @@
-import { Delete, FilePenLine } from "lucide-react";
+import { Trash2, Pencil, Calendar } from "lucide-react";
 
 type Props = {
   emp: { id: number; date: string; title: string };
@@ -9,28 +9,44 @@ type Props = {
 
 export default function VacationRow({ emp, index, onEdit, onDelete }: Props) {
   function formatToDayMonth(dateStr: string): string {
-    const date = new Date(dateStr); // e.g., "2025-06-05"
+    const date = new Date(dateStr);
     return date.toLocaleDateString("en-GB", {
       day: "2-digit",
       month: "long",
     });
   }
+
   return (
-    <tr className="border-t border-[#d1d1d1] font-semibold text-lg bg-[#E3F0FF]" key={emp.id}>
-      <td className="px-4 py-2 bg-[#244B77] text-white font-semibold rounded-sm text-xl">
-        {index + 1}.
+    <tr className="hover:bg-slate-50 transition-colors">
+      <td className="px-4 py-4">
+        <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-slate-100 text-slate-600 text-xs font-semibold">
+          {index + 1}
+        </span>
       </td>
-      <td className="px-4 py-2 rounded-sm">{formatToDayMonth(emp.date)}</td>
-      <td className="px-4 py-2 rounded-sm">{emp.title}</td>
-      <td className="px-4 py-2 rounded-sm text-green-800">
-        <button onClick={onEdit}>
-          <FilePenLine />
-        </button>
+      <td className="px-4 py-4">
+        <div className="flex items-center gap-2">
+          <Calendar size={14} className="text-slate-400" />
+          <span className="text-slate-700 font-medium">{formatToDayMonth(emp.date)}</span>
+        </div>
       </td>
-      <td className="px-4 py-2 rounded-sm text-red-800">
-        <button onClick={onDelete}>
-          <Delete />
-        </button>
+      <td className="px-4 py-4">
+        <span className="text-slate-700">{emp.title}</span>
+      </td>
+      <td className="px-4 py-4">
+        <div className="flex items-center justify-center gap-1">
+          <button 
+            onClick={onEdit}
+            className="p-2 rounded-lg hover:bg-blue-100 text-slate-500 hover:text-blue-600 transition-colors"
+          >
+            <Pencil size={16} />
+          </button>
+          <button 
+            onClick={onDelete}
+            className="p-2 rounded-lg hover:bg-rose-100 text-slate-500 hover:text-rose-600 transition-colors"
+          >
+            <Trash2 size={16} />
+          </button>
+        </div>
       </td>
     </tr>
   );

@@ -33,25 +33,25 @@ export default function TotalBar({ isOwner=false }: { isOwner:boolean }) {
   if (loadingProjects) return null;
 
   return (
-    <div className="flex flex-col justify-between border-gray-300 bg-blue-50 min-w-[70px]">
+    <div className="flex flex-col justify-between bg-gradient-to-b from-blue-50 to-blue-100 min-w-[90px] rounded-r-xl border-l border-slate-200 shadow-sm">
       <div className="flex flex-col overflow-auto items-center">
-        <div className="border-gray-300 w-full border h-9 2xl:h-10 flex justify-center items-center text-black font-semibold">
-          Total hours
+        <div className="w-full h-10 2xl:h-11 flex justify-center items-center font-semibold text-sm bg-gradient-to-b from-slate-700 to-slate-800 text-white rounded-tr-xl">
+          Total
         </div>
         {sidebarProjects.map((group) => (
           <div key={group.company} className="w-full project-field">
-            <div className="project-field__name flex items-center w-full h-[36px] 2xl:h-10
-             font-semibold bg-gray-200 border-b border-gray-300 border-r" />
+            <div className="project-field__name flex items-center w-full h-9 2xl:h-10
+             font-semibold bg-slate-100 border-b border-slate-200" />
             {group.projects.map((proj) => {
               const total = getTotalHoursForProjectInMonth(userId, proj.projectKey, month + 1, year);
               return (
                 <div
-                  className="total-field flex h-9 2xl:h-10 gap-1 items-center justify-center border-b border-gray-300 relative px-8 border-r"
+                  className="total-field flex h-9 2xl:h-10 gap-2 items-center justify-center border-b border-slate-200 relative px-3 bg-white/50"
                   key={proj.projectKey}
                 >
-                  <div>{total.toFixed(2)}</div>
+                  <div className="font-medium text-slate-700">{total.toFixed(2)}</div>
                   {isOwner && !metadata?.isLocked && <Delete
-                    className="w-5 h-5 text-red-500 cursor-pointer"
+                    className="w-4 h-4 text-rose-400 hover:text-rose-600 cursor-pointer transition-colors"
                     onClick={() => removeProject(proj.projectKey)}
                   />}
                 </div>
@@ -60,7 +60,7 @@ export default function TotalBar({ isOwner=false }: { isOwner:boolean }) {
           </div>
         ))}
       </div>
-      <div className="border border-gray-300 w-full h-9 2xl:h-10 flex justify-center items-center text-black font-semibold">
+      <div className="w-full h-9 2xl:h-10 flex justify-center items-center font-bold text-blue-700 bg-blue-100 border-t border-blue-200 rounded-br-xl mt-2">
         {sum.toFixed(2)}
       </div>
     </div>

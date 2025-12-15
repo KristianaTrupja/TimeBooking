@@ -1,6 +1,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { FormData } from "@/types/project";
+import { Building2, FolderPlus, Plus } from "lucide-react";
 
 interface ProjectsFormProps {
   formData: FormData;
@@ -14,37 +15,58 @@ export default function ProjectsForm({
   handleSubmit,
 }: ProjectsFormProps) {
   return (
-    <form onSubmit={handleSubmit} className="max-w-sm space-y-4">
-      <div>
-        <label htmlFor="name" className="block text-md font-semibold text-[#244B77]">
-          Company name:
-        </label>
-        <input
-          id="name"
-          name="name"
-          value={formData.name}
-          onChange={handleChange}
-          type="text"
-          className="mt-1 block w-full border bg-[#E3F0FF] border-[#244B77] p-2"
-          placeholder="Example: Omegaventus"
-        />
+    <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 max-w-md">
+      <div className="flex items-center gap-3 mb-6">
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/25">
+          <FolderPlus className="text-white" size={20} />
+        </div>
+        <div>
+          <h3 className="text-lg font-semibold text-slate-800">New Project</h3>
+          <p className="text-sm text-slate-500">Add a project to a company</p>
+        </div>
       </div>
 
-      <div>
-        <label htmlFor="project" className="block text-md font-semibold text-[#244B77]">
-          Project Name:
-        </label>
-        <input
-          id="project"
-          name="project"
-          value={formData.project}
-          onChange={handleChange}
-          type="text"
-          className="mt-1 block w-full border bg-[#E3F0FF] border-[#244B77] p-2"
-          placeholder="Example: Website"
-        />
-      </div>
-      <Button type="submit">Add new project</Button>
-    </form>
+      <form onSubmit={handleSubmit} className="space-y-5">
+        <div>
+          <label htmlFor="name" className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-2">
+            <Building2 size={14} className="text-slate-400" />
+            Company Name
+          </label>
+          <input
+            id="name"
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+            type="text"
+            className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+            placeholder="e.g., Omegaventus"
+          />
+        </div>
+
+        <div>
+          <label htmlFor="project" className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-2">
+            <FolderPlus size={14} className="text-slate-400" />
+            Project Name
+          </label>
+          <input
+            id="project"
+            name="project"
+            value={formData.project}
+            onChange={handleChange}
+            type="text"
+            className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+            placeholder="e.g., Website Redesign"
+          />
+        </div>
+
+        <Button 
+          type="submit"
+          className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-lg shadow-blue-500/25 py-2.5"
+        >
+          <Plus size={18} className="mr-2" />
+          Add Project
+        </Button>
+      </form>
+    </div>
   );
 }

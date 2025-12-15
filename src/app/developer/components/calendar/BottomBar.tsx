@@ -26,7 +26,7 @@ export default function BottomBar() {
   if (absenceLoading || loading) return null;
 
   return (
-    <div className="flex items-center gap-1">
+    <div className="flex items-center mt-2">
       {days.map((day) => {
         const dayNumber = parseInt(day, 10);
         const formattedDate = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
@@ -35,15 +35,18 @@ export default function BottomBar() {
         const { isHoliday, holidayTitle } = useDayHoliday(year, month, dayNumber,holidays);
         const { isAbsentDay, absenceType } = useIsAbsentDay(absences, formattedDate);
 
-        let bgColor = totalHours > 0 ? "bg-blue-100" : "bg-white";
+        let bgColor = totalHours > 0 ? "bg-blue-50 text-blue-700" : "bg-slate-50 text-slate-500";
 
-        let borderColor = "border-gray-300";
+        let borderColor = "border-slate-300";
         if (isAbsentDay) {
-          borderColor = "border-orange-400";
+          borderColor = "border-amber-400";
+          bgColor = "bg-amber-50 text-amber-700";
         } else if (isHoliday) {
-          borderColor = "border-green-400";
+          borderColor = "border-emerald-400";
+          bgColor = "bg-emerald-50 text-emerald-700";
         } else if (isWeekendDay) {
-          borderColor = "border-red-400";
+          borderColor = "border-slate-400";
+          bgColor = "bg-slate-100 text-slate-500";
         }
 
         const tooltip = [formattedDate, isHoliday && holidayTitle, isAbsentDay && `Absence: ${absenceType}`]
@@ -54,7 +57,7 @@ export default function BottomBar() {
           <div
             key={day}
             title={tooltip}
-            className={`border-t-4 ${borderColor} w-8 h-6 2xl:h-8 2xl:w-9 flex justify-center items-center text-xs pt-1 ${bgColor}`}
+            className={`border-t-3 ${borderColor} w-9 h-7 2xl:h-8 2xl:w-10 flex justify-center items-center text-xs font-medium rounded-b ${bgColor}`}
           >
             {totalHours.toFixed(2)}
           </div>

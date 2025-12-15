@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import Dropdown from "@/components/ui/Dropdown";
 import { useState, useEffect, useRef } from "react";
 import { SubmissionStatus, Timesheet } from "@/types/timesheet";
+import { Eye, Clock, User } from "lucide-react";
 
 type PropTypes = {
     timesheet:Timesheet,
@@ -14,41 +15,38 @@ type PropTypes = {
     onScrollComplete?: () => void
 }
 
-// Border colors for status dropdown
-const statusBorderColors: Record<string, string | null> = {
-    DRAFT: null,
-    PENDING: "border-l-[7px] border-l-yellow-500",
-    APPROVED: "border-l-[7px] border-l-green-500",
-    REJECTED: "border-l-[7px] border-l-red-500",
-    LOCKED: "border-l-[7px] border-l-slate-500"
+// Status badge styles
+const statusBadgeStyles: Record<string, string> = {
+    DRAFT: "bg-slate-100 text-slate-600 border-slate-200",
+    PENDING: "bg-amber-100 text-amber-700 border-amber-200",
+    APPROVED: "bg-emerald-100 text-emerald-700 border-emerald-200",
+    REJECTED: "bg-rose-100 text-rose-700 border-rose-200",
+    LOCKED: "bg-slate-200 text-slate-700 border-slate-300"
 }
 
-// Row background colors for highlighting
-const rowBackgroundColors: Record<string, string> = {
-    DRAFT: "bg-[#E3F0FF]",
-    PENDING: "bg-yellow-100",
-    APPROVED: "bg-[#E3F0FF]",
-    REJECTED: "bg-[#E3F0FF]",
-    LOCKED: "bg-slate-200"
-}
+// Row highlight for scroll-to effect
+const scrollHighlight = "ring-2 ring-blue-400 ring-offset-2 bg-blue-50"
 
 export default function RaportEntry({timesheet, month, year, index, onApply, shouldScrollTo = false, onScrollComplete}: PropTypes) {
     const [selectedStatus, setSelectedStatus] = useState(timesheet.status)
     const [isSubmitting, setIsSubmitting] = useState(false)
+    const [isHighlighted, setIsHighlighted] = useState(false)
     const rowRef = useRef<HTMLTableRowElement>(null);
-
-    const rowBgColor = rowBackgroundColors[timesheet.status || "DRAFT"] || "bg-[#E3F0FF]";
 
     // Handle scroll-to effect
     useEffect(() => {
         if (shouldScrollTo && rowRef.current) {
-            // Small delay to ensure the table is rendered
+            setIsHighlighted(true);
             const timer = setTimeout(() => {
                 rowRef.current?.scrollIntoView({
                     behavior: "smooth",
                     block: "center"
                 });
-                onScrollComplete?.();
+                // Remove highlight after animation
+                setTimeout(() => {
+                    setIsHighlighted(false);
+                    onScrollComplete?.();
+                }, 2000);
             }, 100);
             return () => clearTimeout(timer);
         }
@@ -64,43 +62,69 @@ export default function RaportEntry({timesheet, month, year, index, onApply, sho
             setIsSubmitting(false)
         }
     }
+
+    const isDisabled = !timesheet.submission || !timesheet.status || timesheet.status === "DRAFT" || isSubmitting;
+    const statusStyle = statusBadgeStyles[timesheet.status || "DRAFT"];
+
     return (
     <tr
         ref={rowRef}
-        className={`border-t border-[#d1d1d1] font-semibold text-lg ${rowBgColor}`}
+        className={`transition-all duration-300 hover:bg-slate-50 ${isHighlighted ? scrollHighlight : ""}`}
     >
-        <td className="px-4 py-2 bg-[#244B77] text-white font-semibold rounded-sm text-xl">
-        {index + 1}.
+        <td className="px-4 py-4">
+            <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-slate-100 text-slate-600 text-xs font-semibold">
+                {index + 1}
+            </span>
         </td>
-        <td className="px-4 py-2 rounded-sm">{timesheet.username}</td>
-        <td className="px-4 py-2 rounded-sm">{timesheet.totalHours.toFixed(2)}</td>
-        <td className="px-4 py-2 rounded-sm">
-        <Link href={`/developer/${timesheet.userId}?adminId=null&month=${month + 1}&year=${year}`}>
-            <Button
-            variant="secondary"
-            className="font-semibold w-full justify-start pl-10"
-            >
-            View timesheet
-            </Button>
-        </Link>
+        <td className="px-4 py-4">
+            <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-slate-200 to-slate-300 flex items-center justify-center">
+                    <User size={16} className="text-slate-600" />
+                </div>
+                <span className="font-medium text-slate-800">{timesheet.username}</span>
+            </div>
         </td>
-        <td>
-            <div className={`flex mx-2 bg-white "text-[#244B77]" ${statusBorderColors[timesheet.status || "DRAFT"]} whitespace-nowrap cursor-pointer rounded-md text-sm transition-all disabled:pointer-events-none disabled:opacity-50 shadow-xs font-semibold `}>
+        <td className="px-4 py-4">
+            <div className="flex items-center gap-2">
+                <Clock size={14} className="text-slate-400" />
+                <span className="font-semibold text-slate-700">{timesheet.totalHours.toFixed(2)}</span>
+                <span className="text-slate-400 text-sm">hrs</span>
+            </div>
+        </td>
+        <td className="px-4 py-4">
+            <Link href={`/developer/${timesheet.userId}?adminId=null&month=${month + 1}&year=${year}`}>
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 gap-1.5"
+                >
+                    <Eye size={14} />
+                    View
+                </Button>
+            </Link>
+        </td>
+        <td className="px-4 py-4">
+            <div className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${statusStyle}`}>
                 <Dropdown
-                values={Object.values(SubmissionStatus)}
-                value={selectedStatus}
-                formatValues={v => v}
-                selectedValue={v => v || "DRAFT"}
-                onSelect={(value) => {setSelectedStatus(value || "DRAFT")}}
-                hasAllOption={false}
-                isDisabled={!timesheet.submission || !timesheet.status || timesheet.status === "DRAFT" || isSubmitting}
+                    values={Object.values(SubmissionStatus)}
+                    value={selectedStatus}
+                    formatValues={v => v}
+                    selectedValue={v => v || "DRAFT"}
+                    onSelect={(value) => {setSelectedStatus(value || "DRAFT")}}
+                    hasAllOption={false}
+                    isDisabled={isDisabled}
                 />
             </div>
         </td>
-        <td>
-            <div className="flex mx-2 whitespace-nowrap cursor-pointer rounded-md text-sm transition-all disabled:pointer-events-none disabled:opacity-50 bg-white text-[#244B77] shadow-xs font-semibold ">
-                <Button onClick={handleApply} disabled={!timesheet.submission || !timesheet.status || timesheet.status === "DRAFT" || isSubmitting}>Apply</Button>
-            </div>
+        <td className="px-4 py-4">
+            <Button 
+                onClick={handleApply} 
+                disabled={isDisabled}
+                size="sm"
+                className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+                Apply
+            </Button>
         </td>
     </tr>
     );

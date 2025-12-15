@@ -22,20 +22,19 @@ export function UserTable({
   onSave,
 }: Props) {
   return (
-    <table className="w-full text-[#244B77] border-separate" style={{ borderSpacing: "10px" }}>
-      <thead className="bg-[#6C99CB] text-white">
-        <tr className="text-left">
-          <th className="px-4 py-2 w-16 rounded-sm">Nr</th>
-          <th className="px-4 py-2">Employee</th>
-          <th className="px-4 py-2">Email</th>
-          <th className="px-4 py-2">Role</th>
-          <th className="px-4 py-2">Password</th>
-          <th className="px-4 py-2">Vacations</th>
-          <th className="px-4 py-2">Edit</th>
-          <th className="px-4 py-2">Delete</th>
+    <table className="w-full">
+      <thead className="bg-slate-50 border-b border-slate-200 sticky top-0">
+        <tr className="text-left text-xs uppercase tracking-wider text-slate-500">
+          <th className="px-4 py-3 font-semibold w-16">#</th>
+          <th className="px-4 py-3 font-semibold">Employee</th>
+          <th className="px-4 py-3 font-semibold">Email</th>
+          <th className="px-4 py-3 font-semibold">Role</th>
+          <th className="px-4 py-3 font-semibold">Password</th>
+          <th className="px-4 py-3 font-semibold">Vacations</th>
+          <th className="px-4 py-3 font-semibold text-center">Actions</th>
         </tr>
       </thead>
-      <tbody>
+      <tbody className="divide-y divide-slate-100">
         {employees.map((emp, index) => (
           <UserRow
             key={emp.id}
