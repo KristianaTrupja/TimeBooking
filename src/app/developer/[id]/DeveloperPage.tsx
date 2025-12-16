@@ -10,6 +10,7 @@ import { useCalendar } from "@/app/context/CalendarContext";
 import { PendingWorkPrompt } from "../components/pendingHoursPrompt/PendingWorkPrompt";
 import Spinner from "@/components/ui/Spinner";
 import { useProjects } from "@/app/context/ProjectContext";
+import { useSidebar } from "@/app/context/SidebarContext";
 import SaveButton from "../components/calendarActionButtons/SaveButton";
 import SidebarHeader from "../components/sidebar/SidebarHeader";
 import Sidebar from "../components/sidebar/Sidebar";
@@ -28,6 +29,7 @@ export default function Developer() {
     const pathname = usePathname();
     const { month, year } = useCalendar();
     const { loadingProjects } = useProjects();
+    const { isCollapsed } = useSidebar();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [loggedInUser, setLoggedInUser] = useState<User | null>(null);
     const [activeTab, setActiveTab] = useState<Tab>("time-reporting");
@@ -72,7 +74,7 @@ export default function Developer() {
         <NavigationSidebar activeTab={activeTab} onTabChange={setActiveTab} />
         
         {/* Scrollable content area */}
-        <div className="ml-64 flex-1 overflow-auto p-6 custom-scrollbar" style={{ height: "calc(100vh - 72px)" }}>
+        <div className={`flex-1 overflow-auto p-6 custom-scrollbar transition-all duration-300 ${isCollapsed ? "ml-[72px]" : "ml-64"}`} style={{ height: "calc(100vh - 72px)" }}>
             {activeTab === "time-reporting" ? (
                 <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm overflow-x-auto">
                     <SidebarHeader />

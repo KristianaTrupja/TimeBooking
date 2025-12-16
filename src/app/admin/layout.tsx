@@ -1,6 +1,8 @@
 import { Suspense } from "react";
 import Sidebar from "./layout/Sidebar";
 import HeaderNav from "./layout/HeaderNav";
+import MainContent from "./layout/MainContent";
+import { SidebarProvider } from "@/app/context/SidebarContext";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import Link from "next/link";
@@ -61,14 +63,14 @@ export default async function DashboardLayout({ children }: { children: React.Re
       </header>
 
       {/* Main content area */}
-      <div className="flex w-full flex-1 pt-[72px]">
-        <Suspense fallback={<div className="w-64 bg-slate-800 animate-pulse" />}>
-          <Sidebar />
-        </Suspense>
-        <div className="flex-1 flex flex-col ml-64">
-          <main className="flex-1 overflow-hidden">{children}</main>
+      <SidebarProvider>
+        <div className="flex w-full flex-1 pt-[72px]">
+          <Suspense fallback={<div className="w-[72px] xl:w-64 bg-slate-800 animate-pulse transition-all duration-300" />}>
+            <Sidebar />
+          </Suspense>
+          <MainContent>{children}</MainContent>
         </div>
-      </div>
+      </SidebarProvider>
     </div>
   );
 }

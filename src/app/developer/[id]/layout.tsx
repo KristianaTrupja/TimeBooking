@@ -7,6 +7,7 @@ import { ProjectProvider } from "../../context/ProjectContext";
 import { WorkHoursProvider } from "../../context/WorkHoursContext";
 import { HolidayProvider } from "@/app/context/HolidayContext";
 import { AbsenceProvider } from "@/app/context/AbsencesContext";
+import { SidebarProvider } from "@/app/context/SidebarContext";
 import Link from "next/link";
 import { Clock } from "lucide-react";
 
@@ -47,6 +48,7 @@ export default async function DashboardLayout({
   }
 
   return (
+    <SidebarProvider>
       <HolidayProvider>
         <AbsenceProvider>
           <WorkHoursProvider>
@@ -105,6 +107,7 @@ export default async function DashboardLayout({
           </WorkHoursProvider>
         </AbsenceProvider>
       </HolidayProvider>
+    </SidebarProvider>
   );
 }
 
