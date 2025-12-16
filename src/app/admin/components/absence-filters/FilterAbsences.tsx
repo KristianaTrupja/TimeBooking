@@ -42,10 +42,15 @@ export default function FilterAbsences({
   return (
     <section className="flex justify-between">
       <div className="AbsenceUserFilter flex items-center w-fit text-[#244B77]">
-        {hasFilters ? <button title="Clear all filters" onClick={onReset}>
-          <FunnelX className="bg-red-500 py-1 rounded text-sm font-semibold hover:shadow-lg text-white" />
+        {hasFilters ? <button 
+          title="Clear all filters" 
+          onClick={onReset}
+          aria-label="Clear all filters"
+          className="focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-1 rounded"
+        >
+          <FunnelX className="bg-red-500 py-1 rounded text-sm font-semibold hover:shadow-lg text-white" aria-hidden="true" />
         </button> :
-        <Funnel className="inline-block text-[#244B77]" />
+        <Funnel className="inline-block text-[#244B77]" aria-hidden="true" />
         }
         <Dropdown 
         values={employees} 
@@ -62,7 +67,7 @@ export default function FilterAbsences({
         onSelect={handleSelectedAbsence}
         />
         
-        <div className="text-sm border-b-2 border-b-[#6C99CB] px-1 text-[#244B77]">Days Off: <strong>{totalAbsenceDays}</strong></div>
+        <div className="text-sm font-medium border-b-2 border-b-[#6C99CB] px-2 py-1 text-slate-700">Days Off: <strong className="text-[#244B77]">{totalAbsenceDays}</strong></div>
       </div>
       <DateFilter onChange={handleDateChange} startDate={filters.startDate} endDate={filters.endDate} />
     </section>

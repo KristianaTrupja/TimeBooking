@@ -25,26 +25,28 @@ export default function VacationRow({ emp, index, onEdit, onDelete }: Props) {
       </td>
       <td className="px-4 py-4">
         <div className="flex items-center gap-2">
-          <Calendar size={14} className="text-slate-400" />
-          <span className="text-slate-700 font-medium">{formatToDayMonth(emp.date)}</span>
+          <Calendar size={14} className="text-slate-500" />
+          <span className="text-slate-800 font-semibold">{formatToDayMonth(emp.date)}</span>
         </div>
       </td>
       <td className="px-4 py-4">
-        <span className="text-slate-700">{emp.title}</span>
+        <span className="text-slate-800 font-medium">{emp.title}</span>
       </td>
       <td className="px-4 py-4">
         <div className="flex items-center justify-center gap-1">
           <button 
             onClick={onEdit}
-            className="p-2 rounded-lg hover:bg-blue-100 text-slate-500 hover:text-blue-600 transition-colors"
+            aria-label={`Edit holiday: ${emp.title}`}
+            className="p-2 rounded-lg hover:bg-blue-100 text-slate-600 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400"
           >
-            <Pencil size={16} />
+            <Pencil size={16} aria-hidden="true" />
           </button>
           <button 
             onClick={onDelete}
-            className="p-2 rounded-lg hover:bg-rose-100 text-slate-500 hover:text-rose-600 transition-colors"
+            aria-label={`Delete holiday: ${emp.title}`}
+            className="p-2 rounded-lg hover:bg-rose-100 text-slate-600 hover:text-rose-600 transition-colors focus:outline-none focus:ring-2 focus:ring-rose-400"
           >
-            <Trash2 size={16} />
+            <Trash2 size={16} aria-hidden="true" />
           </button>
         </div>
       </td>

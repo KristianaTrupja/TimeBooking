@@ -81,14 +81,14 @@ export default function RaportEntry({timesheet, month, year, index, onApply, sho
                 <div className="w-9 h-9 rounded-full bg-gradient-to-br from-slate-200 to-slate-300 flex items-center justify-center">
                     <User size={16} className="text-slate-600" />
                 </div>
-                <span className="font-bold text-slate-800">{timesheet.username}</span>
+                <span className="font-bold text-slate-900">{timesheet.username}</span>
             </div>
         </td>
         <td className="px-4 py-4">
             <div className="flex items-center gap-2">
-                <Clock size={14} className="text-slate-400" />
-                <span className="font-semibold text-slate-700">{timesheet.totalHours.toFixed(2)}</span>
-                <span className="text-slate-400 text-sm">hrs</span>
+                <Clock size={14} className="text-slate-500" />
+                <span className="font-bold text-slate-800">{timesheet.totalHours.toFixed(2)}</span>
+                <span className="text-slate-500 text-sm">hrs</span>
             </div>
         </td>
         <td className="px-4 py-4">

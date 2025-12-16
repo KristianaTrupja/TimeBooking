@@ -35,10 +35,10 @@ export default function Sidebar() {
     >
       {/* Navigation Label */}
       <div className="px-4 mb-4">
-        <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">Navigation</span>
+        <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Navigation</span>
       </div>
 
-      <nav className="flex flex-col gap-2 flex-1 px-3">
+      <nav className="flex flex-col gap-2 flex-1 px-3" role="navigation" aria-label="Admin navigation">
         {sidebarItems.map((item, index) => {
           const isActive = currentTab === item.tab;
           const Icon = item.icon;
@@ -47,13 +47,14 @@ export default function Sidebar() {
             <button
               key={index}
               onClick={() => handleClick(item.tab)}
-              className={`group relative flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300 text-left overflow-hidden
+              aria-current={isActive ? "page" : undefined}
+              className={`group relative flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300 text-left overflow-hidden focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-slate-900
                 ${isActive 
                   ? "bg-blue-600/20 text-blue-400 shadow-lg" 
-                  : "text-slate-300 hover:text-white hover:bg-white/5"
+                  : "text-slate-200 hover:text-white hover:bg-white/10"
                 }`}
             >
-              <Icon size={20} className={`transition-transform duration-300 ${isActive ? "text-blue-400" : "group-hover:scale-110"}`} />
+              <Icon size={20} aria-hidden="true" className={`transition-transform duration-300 ${isActive ? "text-blue-400" : "group-hover:scale-110"}`} />
               <span className="font-medium">{item.title}</span>
             </button>
           );
@@ -63,13 +64,14 @@ export default function Sidebar() {
       {/* Bottom Actions */}
       <div className="px-3 mt-4 pt-4 border-t border-slate-700">
         <div className="px-4 mb-3">
-          <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">Actions</span>
+          <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Actions</span>
         </div>
         <button
           onClick={handleLogout}
-          className="group w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 text-left text-slate-300 hover:text-rose-400 hover:bg-white/5"
+          aria-label="Log out of your account"
+          className="group w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 text-left text-slate-200 hover:text-rose-400 hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-rose-400 focus:ring-offset-2 focus:ring-offset-slate-900"
         >
-          <LogOut size={20} className="group-hover:scale-110 transition-transform" />
+          <LogOut size={20} aria-hidden="true" className="group-hover:scale-110 transition-transform" />
           <span className="font-medium">Log Out</span>
         </button>
       </div>

@@ -198,12 +198,12 @@ export default function ModifyAbsences() {
   // Get absence type badge color
   const getTypeBadge = (type: string) => {
     const styles: Record<string, string> = {
-      VACATION: "bg-teal-50 text-teal-600 border-teal-200",
-      SICK: "bg-rose-50 text-rose-600 border-rose-200",
-      PERSONAL: "bg-violet-50 text-violet-600 border-violet-200",
-      PARENTAL: "bg-amber-50 text-amber-600 border-amber-200",
+      VACATION: "bg-teal-100 text-teal-700 border-teal-300",
+      SICK: "bg-rose-100 text-rose-700 border-rose-300",
+      PERSONAL: "bg-violet-100 text-violet-700 border-violet-300",
+      PARENTAL: "bg-amber-100 text-amber-700 border-amber-300",
     };
-    return styles[type] || "bg-slate-100 text-slate-600 border-slate-200";
+    return styles[type] || "bg-slate-100 text-slate-700 border-slate-300";
   };
 
   return (
@@ -212,20 +212,20 @@ export default function ModifyAbsences() {
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-rose-400 to-pink-500 flex items-center justify-center shadow-md shadow-rose-400/20">
-            <CalendarX className="text-white" size={20} />
+            <CalendarX className="text-white" size={20} aria-hidden="true" />
           </div>
           <div>
-            <h1 className="text-xl font-semibold text-slate-700">Absence Records</h1>
-            <p className="text-sm text-slate-400">View and manage employee absences</p>
+            <h1 className="text-xl font-bold text-slate-900">Absence Records</h1>
+            <p className="text-sm text-slate-600">View and manage employee absences</p>
           </div>
         </div>
         
         {/* Stats */}
         <div className="flex gap-3">
-          <div className="px-4 py-2 bg-slate-100 rounded-xl flex items-center gap-2 border border-slate-200">
-            <Calendar size={16} className="text-slate-500" />
-            <span className="text-slate-700 font-semibold">{absences.length}</span>
-            <span className="text-slate-400 text-sm">records</span>
+          <div className="px-4 py-2 bg-slate-100 rounded-xl flex items-center gap-2 border border-slate-200" title="Total Records">
+            <Calendar size={16} className="text-slate-600" aria-hidden="true" />
+            <span className="text-slate-800 font-bold">{absences.length}</span>
+            <span className="text-slate-600 text-sm font-medium">records</span>
           </div>
         </div>
       </div>
@@ -255,9 +255,9 @@ export default function ModifyAbsences() {
         >
           {!absences.length && (
             <div className="flex flex-col items-center justify-center py-16 bg-white rounded-xl border border-slate-200">
-              <CalendarX size={48} className="text-slate-300 mb-3" />
-              <p className="text-lg font-medium text-slate-500">No absences found</p>
-              <p className="text-sm text-slate-400">Try adjusting your filters</p>
+              <CalendarX size={48} className="text-slate-400 mb-3" aria-hidden="true" />
+              <p className="text-lg font-semibold text-slate-700">No absences found</p>
+              <p className="text-sm text-slate-500 font-medium">Try adjusting your filters</p>
             </div>
           )}
          
@@ -271,23 +271,23 @@ export default function ModifyAbsences() {
             return (
               <div key={userIndex} className="mb-5 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                 {/* User Header */}
-                <div className="bg-gradient-to-r from-slate-600 to-slate-700 px-5 py-3 flex items-center gap-3">
+                <div className="bg-gradient-to-r from-[#244B77] to-[#1a3a5c] px-5 py-3 flex items-center gap-3">
                   <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
-                    <UserIcon size={16} className="text-white" />
+                    <UserIcon size={16} className="text-white" aria-hidden="true" />
                   </div>
-                  <span className="text-white font-semibold">{user.username}</span>
-                  <span className="ml-auto text-slate-300 text-sm">{userAbsences.length} {userAbsences.length === 1 ? "absence" : "absences"}</span>
+                  <span className="text-white font-bold">{user.username}</span>
+                  <span className="ml-auto text-white/80 text-sm font-medium">{userAbsences.length} {userAbsences.length === 1 ? "absence" : "absences"}</span>
                 </div>
                 
                 {/* Table */}
                 <table className="w-full">
-                  <thead className="bg-slate-50 border-b border-slate-200">
-                    <tr className="text-left text-xs uppercase tracking-wider text-slate-500">
-                      <th className="px-4 py-3 font-semibold w-12">#</th>
-                      <th className="px-4 py-3 font-semibold">Start Date</th>
-                      <th className="px-4 py-3 font-semibold">End Date</th>
-                      <th className="px-4 py-3 font-semibold">Type</th>
-                      <th className="px-4 py-3 font-semibold text-center">Actions</th>
+                  <thead className="bg-slate-100 border-b border-slate-200">
+                    <tr className="text-left text-xs uppercase tracking-wider text-slate-600">
+                      <th className="px-4 py-3 font-bold w-12 bg-slate-100">#</th>
+                      <th className="px-4 py-3 font-bold bg-slate-100">Start Date</th>
+                      <th className="px-4 py-3 font-bold bg-slate-100">End Date</th>
+                      <th className="px-4 py-3 font-bold bg-slate-100">Type</th>
+                      <th className="px-4 py-3 font-bold text-center bg-slate-100">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
@@ -314,7 +314,7 @@ export default function ModifyAbsences() {
                           }`}
                         >
                           <td className="px-4 py-3">
-                            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-slate-100 text-slate-600 text-xs font-semibold">
+                            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-slate-100 text-slate-700 text-xs font-bold">
                               {index + 1}
                             </span>
                           </td>
@@ -331,7 +331,8 @@ export default function ModifyAbsences() {
                                       startDate: e.target.value,
                                     })
                                   }
-                                  className="px-3 py-1.5 border border-blue-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                  aria-label="Start date"
+                                  className="px-3 py-1.5 border border-blue-300 rounded-lg text-sm text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
                                 />
                               </td>
                               <td className="px-4 py-3">
@@ -344,7 +345,8 @@ export default function ModifyAbsences() {
                                       endDate: e.target.value,
                                     })
                                   }
-                                  className="px-3 py-1.5 border border-blue-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                  aria-label="End date"
+                                  className="px-3 py-1.5 border border-blue-300 rounded-lg text-sm text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
                                 />
                               </td>
                               <td className="px-4 py-3">
@@ -356,7 +358,8 @@ export default function ModifyAbsences() {
                                       type: e.target.value,
                                     })
                                   }
-                                  className="px-3 py-1.5 border border-blue-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                  aria-label="Absence type"
+                                  className="px-3 py-1.5 border border-blue-300 rounded-lg text-sm text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
                                 >
                                   {ABSENCE_TYPES.map((type) => (
                                     <option key={type} value={type}>
@@ -369,15 +372,17 @@ export default function ModifyAbsences() {
                                 <div className="flex items-center justify-center gap-2">
                                   <button 
                                     onClick={handleEditSubmit} 
-                                    className="p-1.5 rounded-lg bg-emerald-100 text-emerald-600 hover:bg-emerald-200 transition-colors"
+                                    className="p-1.5 rounded-lg bg-emerald-100 text-emerald-700 hover:bg-emerald-200 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-1"
+                                    aria-label="Save changes"
                                   >
-                                    <Check size={16} />
+                                    <Check size={16} aria-hidden="true" />
                                   </button>
                                   <button 
                                     onClick={() => setEditingAbsence(null)} 
-                                    className="p-1.5 rounded-lg bg-slate-100 text-slate-500 hover:bg-slate-200 transition-colors"
+                                    className="p-1.5 rounded-lg bg-slate-200 text-slate-700 hover:bg-slate-300 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-1"
+                                    aria-label="Cancel editing"
                                   >
-                                    <X size={16} />
+                                    <X size={16} aria-hidden="true" />
                                   </button>
                                 </div>
                               </td>
@@ -385,13 +390,13 @@ export default function ModifyAbsences() {
                           ) : (
                             <>
                               <td className="px-4 py-3">
-                                <span className="text-slate-700">{formatDate(absence.startDate)}</span>
+                                <span className="text-slate-800 font-medium">{formatDate(absence.startDate)}</span>
                               </td>
                               <td className="px-4 py-3">
-                                <span className="text-slate-700">{formatDate(absence.endDate)}</span>
+                                <span className="text-slate-800 font-medium">{formatDate(absence.endDate)}</span>
                               </td>
                               <td className="px-4 py-3">
-                                <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${getTypeBadge(absence.type)}`}>
+                                <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border ${getTypeBadge(absence.type)}`}>
                                   {absence.type}
                                 </span>
                               </td>
@@ -399,15 +404,17 @@ export default function ModifyAbsences() {
                                 <div className="flex items-center justify-center gap-1">
                                   <button 
                                     onClick={() => setEditingAbsence(absence)} 
-                                    className="p-2 rounded-lg hover:bg-blue-100 text-slate-500 hover:text-blue-600 transition-colors"
+                                    className="p-2 rounded-lg hover:bg-blue-100 text-slate-600 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1"
+                                    aria-label={`Edit absence for ${user.username}`}
                                   >
-                                    <FilePenLine size={16} />
+                                    <FilePenLine size={16} aria-hidden="true" />
                                   </button>
                                   <button 
                                     onClick={() => handleDelete(absence.id)} 
-                                    className="p-2 rounded-lg hover:bg-rose-100 text-slate-500 hover:text-rose-600 transition-colors"
+                                    className="p-2 rounded-lg hover:bg-rose-100 text-slate-600 hover:text-rose-600 transition-colors focus:outline-none focus:ring-2 focus:ring-rose-400 focus:ring-offset-1"
+                                    aria-label={`Delete absence for ${user.username}`}
                                   >
-                                    <Trash2 size={16} />
+                                    <Trash2 size={16} aria-hidden="true" />
                                   </button>
                                 </div>
                               </td>

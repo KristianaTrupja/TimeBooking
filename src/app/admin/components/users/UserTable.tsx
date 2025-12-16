@@ -24,14 +24,14 @@ export function UserTable({
   return (
     <table className="w-full">
       <thead className="sticky top-0 z-10">
-        <tr className="text-left text-xs uppercase tracking-wider text-slate-500 border-b border-slate-200">
-          <th className="px-4 py-3 font-semibold w-16 bg-slate-50">#</th>
-          <th className="px-4 py-3 font-semibold bg-slate-50">Employee</th>
-          <th className="px-4 py-3 font-semibold bg-slate-50">Email</th>
-          <th className="px-4 py-3 font-semibold bg-slate-50">Role</th>
-          <th className="px-4 py-3 font-semibold bg-slate-50">Password</th>
-          <th className="px-4 py-3 font-semibold bg-slate-50">Vacations</th>
-          <th className="px-4 py-3 font-semibold text-center bg-slate-50">Actions</th>
+        <tr className="text-left text-xs uppercase tracking-wider text-slate-600 border-b border-slate-200">
+          <th className="px-4 py-3 font-bold w-16 bg-slate-100">#</th>
+          <th className="px-4 py-3 font-bold bg-slate-100">Employee</th>
+          <th className="px-4 py-3 font-bold bg-slate-100">Email</th>
+          <th className="px-4 py-3 font-bold bg-slate-100">Role</th>
+          <th className="px-4 py-3 font-bold bg-slate-100">Password</th>
+          <th className="px-4 py-3 font-bold bg-slate-100">Vacations</th>
+          <th className="px-4 py-3 font-bold text-center bg-slate-100">Actions</th>
         </tr>
       </thead>
       <tbody className="divide-y divide-slate-100">

@@ -17,35 +17,41 @@ export default function VacationEditRow({ index, editedData, onChange, onSave, o
         </span>
       </td>
       <td className="px-4 py-4">
+        <label htmlFor={`date-${index}`} className="sr-only">Holiday date</label>
         <input
+          id={`date-${index}`}
           type="date"
           value={editedData.date}
           onChange={(e) => onChange(e, "date")}
-          className="px-3 py-1.5 border border-blue-300 rounded-lg text-sm bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
+          className="px-3 py-1.5 border border-blue-300 rounded-lg text-sm bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-400"
         />
       </td>
       <td className="px-4 py-4">
+        <label htmlFor={`holiday-${index}`} className="sr-only">Holiday name</label>
         <input
+          id={`holiday-${index}`}
           value={editedData.holiday}
           onChange={(e) => onChange(e, "holiday")}
           placeholder="Holiday name"
-          className="w-full px-3 py-1.5 border border-blue-300 rounded-lg text-sm bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
+          className="w-full px-3 py-1.5 border border-blue-300 rounded-lg text-sm bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-400"
         />
       </td>
       <td className="px-4 py-4">
         <div className="flex items-center justify-center gap-2">
           <button 
             onClick={onSave}
-            className="p-1.5 rounded-lg bg-emerald-100 text-emerald-600 hover:bg-emerald-200 transition-colors"
+            aria-label="Save changes"
+            className="p-1.5 rounded-lg bg-emerald-100 text-emerald-700 hover:bg-emerald-200 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-400"
           >
-            <Check size={16} />
+            <Check size={16} aria-hidden="true" />
           </button>
           {onCancel && (
             <button 
               onClick={onCancel}
-              className="p-1.5 rounded-lg bg-slate-100 text-slate-500 hover:bg-slate-200 transition-colors"
+              aria-label="Cancel editing"
+              className="p-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400"
             >
-              <X size={16} />
+              <X size={16} aria-hidden="true" />
             </button>
           )}
         </div>

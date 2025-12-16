@@ -152,8 +152,8 @@ const onOptionsModified = useCallback(async (id: number, newValue: string, opera
             <FolderKanban className="text-white" size={20} />
           </div>
           <div>
-            <h1 className="text-xl font-semibold text-slate-800">Project Management</h1>
-            <p className="text-sm text-slate-500">Organize companies and their projects</p>
+            <h1 className="text-xl font-bold text-slate-900">Project Management</h1>
+            <p className="text-sm text-slate-600">Organize companies and their projects</p>
           </div>
         </div>
       </div>

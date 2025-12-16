@@ -133,21 +133,21 @@ function ProjectManage({
         aria-haspopup="listbox"
         aria-expanded={isOpen}
         aria-controls={`${id}-listbox`}
-        className={`w-full flex items-center justify-between p-3 rounded-lg transition-all ${
+        className={`w-full flex items-center justify-between p-3 rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-blue-400 ${
           isOpen 
-            ? "bg-gradient-to-r from-slate-700 to-slate-800 text-white shadow-md" 
-            : "bg-slate-100 hover:bg-slate-200 text-slate-700"
+            ? "bg-gradient-to-r from-[#244B77] to-[#1a3a5c] text-white shadow-md" 
+            : "bg-slate-100 hover:bg-slate-200 text-slate-800"
         } ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
       >
         <div className="flex items-center gap-3">
           <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
             isOpen ? "bg-white/20" : "bg-slate-200"
           }`}>
-            <Building2 size={16} className={isOpen ? "text-white" : "text-slate-600"} />
+            <Building2 size={16} className={isOpen ? "text-white" : "text-slate-700"} />
           </div>
           <div className="text-left">
-            <span className="font-medium">{label}</span>
-            <span className={`ml-2 text-xs ${isOpen ? "text-slate-300" : "text-slate-500"}`}>
+            <span className="font-semibold">{label}</span>
+            <span className={`ml-2 text-xs font-medium ${isOpen ? "text-white/80" : "text-slate-600"}`}>
               ({sortedOptions.length} projects)
             </span>
           </div>
@@ -207,30 +207,30 @@ function ProjectManage({
               ) : (
                 <div className="flex items-center justify-between p-3 hover:bg-slate-50 transition-colors">
                   <div className="flex items-center gap-3">
-                    <FileText size={14} className="text-slate-400" />
-                    <span className={`text-sm text-slate-700 ${isAnyPending ? "opacity-50" : ""}`}>
+                    <FileText size={14} className="text-slate-500" />
+                    <span className={`text-sm font-medium text-slate-800 ${isAnyPending ? "opacity-50" : ""}`}>
                       {option.project}
                     </span>
                   </div>
                   {pendingId === option.id ? (
-                    <LoaderCircle size={16} className="animate-spin text-slate-500" />
+                    <LoaderCircle size={16} className="animate-spin text-slate-600" />
                   ) : (
                     <div className={`flex gap-1 ${isAnyPending ? 'opacity-50 pointer-events-none' : 'opacity-0 group-hover:opacity-100'} transition-opacity`}>
                       <button
                         onClick={(e) => onEdit(e, option)}
-                        className="p-1.5 rounded-md hover:bg-blue-100 text-slate-500 hover:text-blue-600 transition-colors"
-                        aria-label="Edit project"
+                        className="p-1.5 rounded-md hover:bg-blue-100 text-slate-600 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        aria-label={`Edit project: ${option.project}`}
                         disabled={isAnyPending}
                       >
-                        <FilePenLine size={14} />
+                        <FilePenLine size={14} aria-hidden="true" />
                       </button>
                       <button
                         onClick={(e) => onDelete(e, option)}
-                        className="p-1.5 rounded-md hover:bg-rose-100 text-slate-500 hover:text-rose-600 transition-colors"
-                        aria-label="Delete project"
+                        className="p-1.5 rounded-md hover:bg-rose-100 text-slate-600 hover:text-rose-600 transition-colors focus:outline-none focus:ring-2 focus:ring-rose-400"
+                        aria-label={`Delete project: ${option.project}`}
                         disabled={isAnyPending}
                       >
-                        <Delete size={14} />
+                        <Delete size={14} aria-hidden="true" />
                       </button>
                     </div>
                   )}

@@ -130,19 +130,19 @@ export function UserRow({
               <div className="w-9 h-9 rounded-full bg-gradient-to-br from-slate-200 to-slate-300 flex items-center justify-center">
                 <User size={16} className="text-slate-600" />
               </div>
-              <span className="font-medium text-slate-800">{emp.username}</span>
+              <span className="font-semibold text-slate-900">{emp.username}</span>
             </div>
           </td>
           {/* Email */}
           <td className="px-4 py-4">
             <div className="flex items-center gap-2">
-              <Mail size={14} className="text-slate-400" />
-              <span className="text-slate-600">{emp.email}</span>
+              <Mail size={14} className="text-slate-500" />
+              <span className="text-slate-700">{emp.email}</span>
             </div>
           </td>
           {/* Role */}
           <td className="px-4 py-4">
-            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${roleBadgeStyles[emp.role] || "bg-slate-100 text-slate-700"}`}>
+            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border ${roleBadgeStyles[emp.role] || "bg-slate-100 text-slate-700"}`}>
               {emp.role === "Admin" ? <Shield size={12} /> : null}
               {emp.role}
             </span>
@@ -150,8 +150,8 @@ export function UserRow({
           {/* Password */}
           <td className="px-4 py-4">
             <div className="flex items-center gap-2 max-w-[120px]">
-              <Key size={14} className="text-slate-400 flex-shrink-0" />
-              <span className="text-slate-400 text-sm truncate" title={emp.password}>
+              <Key size={14} className="text-slate-500 flex-shrink-0" />
+              <span className="text-slate-500 text-sm truncate" title={emp.password}>
                 ••••••••
               </span>
             </div>
@@ -159,9 +159,9 @@ export function UserRow({
           {/* Vacations */}
           <td className="px-4 py-4">
             <div className="flex items-center gap-2">
-              <Calendar size={14} className="text-slate-400" />
-              <span className="font-semibold text-slate-700">{emp.totalVacations}</span>
-              <span className="text-slate-400 text-sm">days</span>
+              <Calendar size={14} className="text-slate-500" />
+              <span className="font-bold text-slate-800">{emp.totalVacations}</span>
+              <span className="text-slate-500 text-sm">days</span>
             </div>
           </td>
           {/* Actions */}
@@ -169,17 +169,17 @@ export function UserRow({
             <div className="flex items-center justify-center gap-1">
               <button
                 onClick={() => onEdit(emp)}
-                className="p-2 rounded-lg hover:bg-blue-100 text-slate-500 hover:text-blue-600 transition-colors"
-                aria-label="Edit employee"
+                className="p-2 rounded-lg hover:bg-blue-100 text-slate-600 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400"
+                aria-label={`Edit employee: ${emp.username}`}
               >
-                <Pencil size={16} />
+                <Pencil size={16} aria-hidden="true" />
               </button>
               <button
                 onClick={() => onDelete(emp)}
-                className="p-2 rounded-lg hover:bg-rose-100 text-slate-500 hover:text-rose-600 transition-colors"
-                aria-label="Delete employee"
+                className="p-2 rounded-lg hover:bg-rose-100 text-slate-600 hover:text-rose-600 transition-colors focus:outline-none focus:ring-2 focus:ring-rose-400"
+                aria-label={`Delete employee: ${emp.username}`}
               >
-                <Trash2 size={16} />
+                <Trash2 size={16} aria-hidden="true" />
               </button>
             </div>
           </td>

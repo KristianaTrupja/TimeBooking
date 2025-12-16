@@ -87,7 +87,8 @@ function Selector({
         aria-haspopup="listbox"
         aria-expanded={isOpen}
         aria-controls={`${id}-listbox`}
-        className={`p-2 px-5 rounded-sm w-full flex justify-between items-center ${buttonClassName} ${
+        aria-label={label ? `${label}: ${value || placeholder}` : undefined}
+        className={`p-2 px-5 rounded-sm w-full flex justify-between items-center focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1 ${buttonClassName} ${
           disabled ? "opacity-50 cursor-not-allowed" : ""
         }`}
       >
@@ -113,12 +114,19 @@ function Selector({
             <li
               key={`${option}-${index}`}
               role="option"
+              tabIndex={0}
               aria-selected={option === value}
               onClick={() => handleSelect(option)}
-              className={`relative p-2 cursor-pointer transition-colors ${
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  handleSelect(option);
+                }
+              }}
+              className={`relative p-2 cursor-pointer transition-colors focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-400 ${
                 option === value
-                  ? "bg-[#244B77] text-white"
-                  : "hover:bg-[#E3F0FF] text-[#244B77]"
+                  ? "bg-[#244B77] text-white font-medium"
+                  : "hover:bg-[#E3F0FF] text-slate-800"
               }`}
             >
               {option}

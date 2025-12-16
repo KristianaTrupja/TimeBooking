@@ -5,6 +5,7 @@ import { useCalendar } from "@/app/context/CalendarContext";
 import { useWorkHours } from "@/app/context/WorkHoursContext";
 import { useSaveWorkHours } from "@/app/hooks/useSaveWorkHours";
 import { toast } from "sonner";
+import { Save } from "lucide-react";
 
 export default function SaveButton() {
   const { year, month, setIsSaved } = useCalendar();
@@ -47,5 +48,13 @@ export default function SaveButton() {
     setIsSaved(true);
   };
 
-  return <Button onClick={handleClick}>Save hours</Button>;
+  return (
+    <Button 
+      onClick={handleClick}
+      className="bg-white border border-blue-600 text-blue-600 font-semibold shadow-sm hover:bg-gradient-to-r hover:from-blue-600 hover:to-indigo-600 hover:text-white hover:border-transparent hover:shadow-lg hover:shadow-blue-500/25 transition-all duration-300"
+    >
+      <Save size={16} className="mr-2" />
+      Save Hours
+    </Button>
+  );
 }

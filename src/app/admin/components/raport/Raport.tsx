@@ -230,14 +230,14 @@ export default function Raport() {
           </div>
         ) : (
           <table className="w-full">
-            <thead className="bg-slate-50 border-b border-slate-200 sticky top-0 z-20">
-              <tr className="text-left text-xs uppercase tracking-wider text-slate-500">
-                <th className="px-4 py-3 font-semibold w-16">#</th>
-                <th className="px-4 py-3 font-semibold">Employee</th>
-                <th className="px-4 py-3 font-semibold">Hours</th>
-                <th className="px-4 py-3 font-semibold">Details</th>
-                <th className="px-4 py-3 font-semibold">Status</th>
-                <th className="px-4 py-3 font-semibold">Action</th>
+            <thead className="bg-slate-100 border-b border-slate-200 sticky top-0 z-20">
+              <tr className="text-left text-xs uppercase tracking-wider text-slate-600">
+                <th className="px-4 py-3 font-bold w-16 bg-slate-100">#</th>
+                <th className="px-4 py-3 font-bold bg-slate-100">Employee</th>
+                <th className="px-4 py-3 font-bold bg-slate-100">Hours</th>
+                <th className="px-4 py-3 font-bold bg-slate-100">Details</th>
+                <th className="px-4 py-3 font-bold bg-slate-100">Status</th>
+                <th className="px-4 py-3 font-bold bg-slate-100">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">

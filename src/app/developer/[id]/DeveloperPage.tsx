@@ -14,6 +14,7 @@ import SaveButton from "../components/calendarActionButtons/SaveButton";
 import SidebarHeader from "../components/sidebar/SidebarHeader";
 import Sidebar from "../components/sidebar/Sidebar";
 import { Button } from '@/components/ui/button'
+import { Send } from "lucide-react"
 import { flushError } from "@/app/utils/flushError";
 import { User } from "next-auth";
 import { getSession } from "next-auth/react";
@@ -105,6 +106,7 @@ export default function Developer() {
                                 onClick={handleSubmit}
                                 className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-lg shadow-blue-500/25 border-0 transition-all duration-300"
                             >
+                                <Send size={16} className="mr-2" />
                                 Submit timesheet
                             </Button>
                             <SaveButton />
