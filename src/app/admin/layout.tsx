@@ -4,6 +4,7 @@ import TopNavBar from "./layout/TopNavBar";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import Link from "next/link";
+import { Clock } from "lucide-react";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
  
@@ -17,14 +18,30 @@ export default async function DashboardLayout({ children }: { children: React.Re
       {/* Fixed Header */}
       <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-white/80 border-b border-slate-200 px-6 py-4 shadow-sm">
         <div className="flex justify-between items-center">
-          <h2
-            className="text-3xl sm:text-4xl bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 bg-clip-text text-transparent"
-            style={{ fontFamily: "var(--font-inter), sans-serif", fontWeight: "600", letterSpacing: "-1px" }}
-          >
-            <Link href="/admin?tab=raport" className="hover:opacity-80 transition-opacity">
-              WorkTime Hub
-            </Link>
-          </h2>
+          <Link href="/admin?tab=raport" className="group flex items-center gap-3 hover:opacity-90 transition-all duration-300">
+            {/* Logo Icon */}
+            <div className="relative">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#244B77] to-[#1a3a5c] flex items-center justify-center shadow-lg shadow-[#244B77]/25 group-hover:shadow-[#244B77]/40 transition-shadow duration-300">
+                <Clock className="w-5 h-5 text-white" />
+              </div>
+              <div className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-gradient-to-r from-cyan-400 to-blue-400 rounded-full border-2 border-white" />
+            </div>
+            {/* Logo Text */}
+            <div className="flex flex-col leading-none">
+              <span 
+                className="text-xl font-bold tracking-tight text-slate-800"
+                style={{ fontFamily: "var(--font-inter), system-ui, sans-serif" }}
+              >
+                Work<span className="bg-gradient-to-r from-[#244B77] to-cyan-600 bg-clip-text text-transparent">Time</span>
+              </span>
+              <span 
+                className="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-500"
+                style={{ fontFamily: "var(--font-inter), system-ui, sans-serif" }}
+              >
+                Hub
+              </span>
+            </div>
+          </Link>
           <div className="flex items-center gap-3">
             <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
             <h4 className="text-slate-700 font-medium text-base tracking-wide">
