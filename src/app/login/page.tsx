@@ -1,20 +1,23 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { signIn, getSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Toaster } from "@/components/ui/sonner";
 import { InputField } from "../components/ui/InputField";
-import TestDbConnection from "./TestDbConnection";
 import { isPasswordStrong } from "@/lib/utils";
-import { Loader2 } from "lucide-react";
+import { Loader2, Clock, Calendar } from "lucide-react";
 
 export default function Login() {
   const [data, setData] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -57,55 +60,121 @@ export default function Login() {
   };
 
   return (
-    <section className="m-5 sm:m-auto sm:max-w-2/3 lg:max-w-1/3 pt-32">
-      <h2 className="text-6xl sm:text-7xl text-[#244B77] text-center">
-        <span className="font-bold">DELAtech</span>
-        <span className="block text-5xl sm:text-5xl">Time Booking</span>
-      </h2>
+    <div className="min-h-screen relative overflow-hidden flex items-center justify-center p-4">
+      {/* Animated Background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-[#1a3a5c] to-[#244B77]">
+        {/* Animated geometric shapes */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute top-1/4 -left-20 w-96 h-96 bg-[#3d6a9f]/20 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute bottom-1/4 -right-20 w-80 h-80 bg-cyan-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#244B77]/30 rounded-full blur-3xl" />
+        </div>
+        
+        {/* Grid pattern overlay */}
+        <div 
+          className="absolute inset-0 opacity-[0.03]"
+          style={{
+            backgroundImage: `linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)`,
+            backgroundSize: '50px 50px'
+          }}
+        />
+        
+        {/* Floating icons decoration */}
+        <div className="absolute top-20 left-20 text-white/5">
+          <Clock className="w-24 h-24" />
+        </div>
+        <div className="absolute bottom-20 right-20 text-white/5">
+          <Calendar className="w-32 h-32" />
+        </div>
+      </div>
 
-      <div className="bg-[#F6F6F6] mt-5 p-8 lg:p-20 rounded-md shadow-sm border-b-5 border-[#244B77]">
-        <h3 className="text-3xl sm:text-4xl text-[#244B77]">Sign In</h3>
-        <form className="mt-8 space-y-6" onSubmit={onSubmit}>
-          <div className="flex flex-col">
-            <InputField
-              label="Email"
-              name="email"
-              type="email"
-              value={data.email}
-              onChange={handleChange}
-              placeholder="your@email.com"
-              autoComplete="email"
-            />
+      {/* Main Content */}
+      <div className={`relative z-10 w-full max-w-md transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+        {/* Logo/Header */}
+        <div className="text-center mb-8">
+          <div className={`inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 mb-6 transition-all duration-500 delay-100 ${mounted ? 'opacity-100 scale-100' : 'opacity-0 scale-75'}`}>
+            <Clock className="w-8 h-8 text-white" />
           </div>
-          <div className="flex flex-col mb-8 lg:mb-12">
-            <InputField
-              label="Password"
-              name="password"
-              type="password"
-              value={data.password}
-              onChange={handleChange}
-              placeholder="********"
-              autoComplete="current-password"
-              error={
-                !isPasswordStrong(data.password) && data.password
-                  ? "Password must contain at least 8 characters, one uppercase letter A-Z, one number, and one special symbol (! @ # $ % ^ & * ( ) . _ - + =)."
-                  : undefined
-              }
-            />
+          <h1 className={`text-4xl md:text-5xl font-bold text-white tracking-tight transition-all duration-500 delay-200 ${mounted ? 'opacity-100' : 'opacity-0'}`}>
+            DELA<span className="text-cyan-400">tech</span>
+          </h1>
+          <p className={`mt-2 text-lg text-slate-300 font-light tracking-wide transition-all duration-500 delay-300 ${mounted ? 'opacity-100' : 'opacity-0'}`}>
+            Time Booking System
+          </p>
+        </div>
+
+        {/* Login Card */}
+        <div className={`backdrop-blur-xl bg-white/[0.08] border border-white/10 rounded-3xl p-8 md:p-10 shadow-2xl shadow-black/20 transition-all duration-500 delay-400 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+          <div className="mb-8">
+            <h2 className="text-2xl font-semibold text-white">Welcome back</h2>
+            <p className="text-slate-400 mt-1">Sign in to continue to your dashboard</p>
           </div>
-          <div className="flex justify-center">
-            <Button type="submit" size="lg" disabled={loading}>
+
+          <form className="space-y-6" onSubmit={onSubmit}>
+            <div className="space-y-2">
+              <label htmlFor="email" className="block text-sm font-medium text-slate-300">
+                Email Address
+              </label>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                value={data.email}
+                onChange={handleChange}
+                placeholder="your@email.com"
+                autoComplete="email"
+                className="w-full px-4 py-3.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50 transition-all duration-200"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label htmlFor="password" className="block text-sm font-medium text-slate-300">
+                Password
+              </label>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                value={data.password}
+                onChange={handleChange}
+                placeholder="••••••••"
+                autoComplete="current-password"
+                className={`w-full px-4 py-3.5 bg-white/5 border rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 transition-all duration-200 ${
+                  !isPasswordStrong(data.password) && data.password 
+                    ? 'border-red-500/50 focus:ring-red-500/50 focus:border-red-500/50' 
+                    : 'border-white/10 focus:ring-cyan-500/50 focus:border-cyan-500/50'
+                }`}
+              />
+              {!isPasswordStrong(data.password) && data.password && (
+                <p className="text-xs text-red-400 mt-2 leading-relaxed">
+                  Password must contain at least 8 characters, one uppercase letter A-Z, one number, and one special symbol (! @ # $ % ^ & * ( ) . _ - + =).
+                </p>
+              )}
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-4 mt-2 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-semibold rounded-xl shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-cyan-500/25 flex items-center justify-center gap-2"
+            >
               {loading ? (
-                <div className="m-2">
-                  <Loader2 className="size-8 animate-spin" />
-                </div>
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <span>Signing in...</span>
+                </>
               ) : (
                 "Sign In"
               )}
-            </Button>
-          </div>
-        </form>
+            </button>
+          </form>
+        </div>
+
+        {/* Footer */}
+        <p className={`text-center mt-8 text-sm text-slate-500 transition-all duration-500 delay-500 ${mounted ? 'opacity-100' : 'opacity-0'}`}>
+          © {new Date().getFullYear()} DELAtech. All rights reserved.
+        </p>
       </div>
-    </section>
+    </div>
   );
 }
