@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import Sidebar from "./layout/Sidebar";
-import TopNavBar from "./layout/TopNavBar";
+import HeaderNav from "./layout/HeaderNav";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import Link from "next/link";
@@ -42,14 +42,20 @@ export default async function DashboardLayout({ children }: { children: React.Re
               </span>
             </div>
           </Link>
-          <div className="flex items-center gap-3">
-            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <h4 className="text-slate-700 font-medium text-base tracking-wide">
-              {session?.user?.username || "User"}
-              <span className="ml-2 px-2 py-0.5 rounded-full text-xs bg-violet-100 text-violet-700">
-                Admin
-              </span>
-            </h4>
+          <div className="flex items-center gap-4">
+            <Suspense fallback={null}>
+              <HeaderNav />
+            </Suspense>
+            <div className="h-6 w-px bg-slate-200" />
+            <div className="flex items-center gap-3">
+              <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <h4 className="text-slate-700 font-medium text-base tracking-wide">
+                {session?.user?.username || "User"}
+                <span className="ml-2 px-2 py-0.5 rounded-full text-xs bg-violet-100 text-violet-700">
+                  Admin
+                </span>
+              </h4>
+            </div>
           </div>
         </div>
       </header>
@@ -60,7 +66,6 @@ export default async function DashboardLayout({ children }: { children: React.Re
           <Sidebar />
         </Suspense>
         <div className="flex-1 flex flex-col ml-64">
-          <TopNavBar />
           <main className="flex-1 overflow-hidden">{children}</main>
         </div>
       </div>

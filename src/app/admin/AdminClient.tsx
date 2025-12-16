@@ -24,8 +24,7 @@ export default function AdminClient() {
   const calculateHeight = useCallback(() => {
     if (sectionRef.current) {
       const sectionTop = sectionRef.current.getBoundingClientRect().top;
-      const bottomPadding = 24;
-      const availableHeight = window.innerHeight - sectionTop - bottomPadding;
+      const availableHeight = window.innerHeight - sectionTop;
       setContainerHeight(Math.max(availableHeight, 200));
     }
   }, []);

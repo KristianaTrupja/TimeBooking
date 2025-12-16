@@ -28,21 +28,21 @@ export default function VacationTable({
   );
 
   return (
-    <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+    <>
       {vacations?.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16">
-          <CalendarDays size={48} className="text-slate-300 mb-3" />
-          <p className="text-lg font-medium text-slate-500">No holidays found</p>
-          <p className="text-sm text-slate-400">Add a new holiday to get started</p>
+          <CalendarDays size={48} className="text-slate-400 mb-3" aria-hidden="true" />
+          <p className="text-lg font-semibold text-slate-700">No holidays found</p>
+          <p className="text-sm text-slate-500 font-medium">Add a new holiday to get started</p>
         </div>
       ) : (
         <table className="w-full">
-          <thead className="bg-slate-700 sticky top-0">
-            <tr className="text-left text-xs uppercase tracking-wider text-slate-200">
-              <th className="px-4 py-3 font-semibold w-16">#</th>
-              <th className="px-4 py-3 font-semibold">Date</th>
-              <th className="px-4 py-3 font-semibold">Holiday Name</th>
-              <th className="px-4 py-3 font-semibold text-center">Actions</th>
+          <thead className="bg-slate-100 border-b border-slate-200 sticky top-0 z-10">
+            <tr className="text-left text-xs uppercase tracking-wider text-slate-600">
+              <th className="px-4 py-3 font-bold w-16 bg-slate-100">#</th>
+              <th className="px-4 py-3 font-bold bg-slate-100">Date</th>
+              <th className="px-4 py-3 font-bold bg-slate-100">Holiday Name</th>
+              <th className="px-4 py-3 font-bold text-center bg-slate-100">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
@@ -68,6 +68,6 @@ export default function VacationTable({
           </tbody>
         </table>
       )}
-    </div>
+    </>
   );
 }
