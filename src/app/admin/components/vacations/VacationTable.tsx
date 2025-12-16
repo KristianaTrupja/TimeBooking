@@ -1,7 +1,11 @@
+import { useState, useCallback, useMemo } from "react";
 import VacationRow from "./VacationRow";
 import VacationEditRow from "./VacationEditRow";
 import { Holiday } from "@/types/holiday";
-import { CalendarDays } from "lucide-react";
+import { CalendarDays, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+
+type SortField = "date" | "title";
+type SortDirection = "asc" | "desc" | null;
 
 type Props = {
   vacations: Holiday[];
@@ -22,10 +26,61 @@ export default function VacationTable({
   onChange,
   onSave,
 }: Props) {
-  // Sort vacations by date
-  const sortedVacations = [...vacations].sort(
-    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
-  );
+  const [sortField, setSortField] = useState<SortField | null>("date");
+  const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
+
+  const handleSort = useCallback((field: SortField) => {
+    if (sortField === field) {
+      if (sortDirection === "asc") {
+        setSortDirection("desc");
+      } else if (sortDirection === "desc") {
+        setSortDirection(null);
+        setSortField(null);
+      } else {
+        setSortDirection("asc");
+      }
+    } else {
+      setSortField(field);
+      setSortDirection("asc");
+    }
+  }, [sortField, sortDirection]);
+
+  const getSortIcon = useCallback((field: SortField) => {
+    if (sortField !== field) {
+      return <ArrowUpDown size={14} className="text-slate-400" />;
+    }
+    if (sortDirection === "asc") {
+      return <ArrowUp size={14} className="text-[#244B77]" />;
+    }
+    if (sortDirection === "desc") {
+      return <ArrowDown size={14} className="text-[#244B77]" />;
+    }
+    return <ArrowUpDown size={14} className="text-slate-400" />;
+  }, [sortField, sortDirection]);
+
+  // Sort vacations
+  const sortedVacations = useMemo(() => {
+    const sorted = [...vacations];
+    
+    if (!sortField || !sortDirection) {
+      return sorted.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    }
+
+    return sorted.sort((a, b) => {
+      let comparison = 0;
+      
+      switch (sortField) {
+        case "date":
+          comparison = new Date(a.date).getTime() - new Date(b.date).getTime();
+          break;
+        case "title":
+          comparison = a.title.localeCompare(b.title);
+          break;
+      }
+      
+      return sortDirection === "desc" ? -comparison : comparison;
+    });
+  }, [vacations, sortField, sortDirection]);
 
   return (
     <>
@@ -40,8 +95,22 @@ export default function VacationTable({
           <thead className="bg-slate-100 border-b border-slate-200 sticky top-0 z-10">
             <tr className="text-left text-xs uppercase tracking-wider text-slate-600">
               <th className="px-4 py-3 font-bold w-16 bg-slate-100">#</th>
-              <th className="px-4 py-3 font-bold bg-slate-100">Date</th>
-              <th className="px-4 py-3 font-bold bg-slate-100">Holiday Name</th>
+              <th className="px-4 py-3 font-bold bg-slate-100">
+                <button 
+                  onClick={() => handleSort("date")}
+                  className="flex items-center gap-1.5 hover:text-slate-900 transition-colors"
+                >
+                  Date {getSortIcon("date")}
+                </button>
+              </th>
+              <th className="px-4 py-3 font-bold bg-slate-100">
+                <button 
+                  onClick={() => handleSort("title")}
+                  className="flex items-center gap-1.5 hover:text-slate-900 transition-colors"
+                >
+                  Holiday Name {getSortIcon("title")}
+                </button>
+              </th>
               <th className="px-4 py-3 font-bold text-center bg-slate-100">Actions</th>
             </tr>
           </thead>

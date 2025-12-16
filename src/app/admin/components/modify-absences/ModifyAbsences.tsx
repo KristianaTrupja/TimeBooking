@@ -1,6 +1,9 @@
-import React, { useCallback, useEffect, useState, useRef } from "react";
+import React, { useCallback, useEffect, useState, useRef, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
-import { FilePenLine, Trash2, CalendarX, User as UserIcon, Calendar, Check, X } from "lucide-react";
+import { FilePenLine, Trash2, CalendarX, User as UserIcon, Calendar, Check, X, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+
+type SortField = "startDate" | "endDate" | "type";
+type SortDirection = "asc" | "desc" | null;
 import { User } from "@/types/user";
 import { Absence, AbsenceType, ExtAbsence, Filters } from "@/types/absence";
 import Spinner from "@/components/ui/Spinner";
@@ -32,6 +35,8 @@ export default function ModifyAbsences() {
   const [containerHeight, setContainerHeight] = useState<number | null>(null);
   const [scrollToAbsence, setScrollToAbsence] = useState<{ userId: number; startDate: string } | null>(null);
   const [hasProcessedParams, setHasProcessedParams] = useState(false);
+  const [sortField, setSortField] = useState<SortField | null>("startDate");
+  const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
   const sectionRef = useRef<HTMLElement>(null);
   const filtersRef = useRef<HTMLElement>(null);
   const absenceRowRefs = useRef<Map<string, HTMLTableRowElement>>(new Map());
@@ -205,6 +210,61 @@ export default function ModifyAbsences() {
     return styles[type] || "bg-slate-100 text-slate-700 border-slate-300";
   };
 
+  const handleSort = useCallback((field: SortField) => {
+    if (sortField === field) {
+      if (sortDirection === "asc") {
+        setSortDirection("desc");
+      } else if (sortDirection === "desc") {
+        setSortDirection(null);
+        setSortField(null);
+      } else {
+        setSortDirection("asc");
+      }
+    } else {
+      setSortField(field);
+      setSortDirection("asc");
+    }
+  }, [sortField, sortDirection]);
+
+  const getSortIcon = useCallback((field: SortField) => {
+    if (sortField !== field) {
+      return <ArrowUpDown size={14} className="text-slate-400" />;
+    }
+    if (sortDirection === "asc") {
+      return <ArrowUp size={14} className="text-[#244B77]" />;
+    }
+    if (sortDirection === "desc") {
+      return <ArrowDown size={14} className="text-[#244B77]" />;
+    }
+    return <ArrowUpDown size={14} className="text-slate-400" />;
+  }, [sortField, sortDirection]);
+
+  const sortAbsences = useCallback((absencesToSort: ExtAbsence[]) => {
+    if (!sortField || !sortDirection) {
+      return [...absencesToSort].sort((a, b) => 
+        new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
+      );
+    }
+
+    return [...absencesToSort].sort((a, b) => {
+      let comparison = 0;
+      
+      switch (sortField) {
+        case "startDate":
+          comparison = new Date(a.startDate).getTime() - new Date(b.startDate).getTime();
+          break;
+        case "endDate":
+          comparison = new Date(a.endDate).getTime() - new Date(b.endDate).getTime();
+          break;
+        case "type":
+          comparison = a.type.localeCompare(b.type);
+          break;
+      }
+      
+      return sortDirection === "desc" ? -comparison : comparison;
+    });
+  }, [sortField, sortDirection]);
+
   return (
     <section ref={sectionRef} className="p-6 h-full flex flex-col">
       {/* Header */}
@@ -261,9 +321,7 @@ export default function ModifyAbsences() {
           )}
          
           {employees.sort((a, b) => a.username.localeCompare(b.username)).map((user, userIndex) => {
-            const userAbsences = absences
-                  .filter((a) => a.userId === user.id)
-                  .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime());
+            const userAbsences = absences.filter((a) => a.userId === user.id);
 
             if (userAbsences.length === 0) return null;
 
@@ -283,14 +341,35 @@ export default function ModifyAbsences() {
                   <thead className="bg-slate-100 border-b border-slate-200">
                     <tr className="text-left text-xs uppercase tracking-wider text-slate-600">
                       <th className="px-4 py-3 font-bold w-12 bg-slate-100">#</th>
-                      <th className="px-4 py-3 font-bold bg-slate-100">Start Date</th>
-                      <th className="px-4 py-3 font-bold bg-slate-100">End Date</th>
-                      <th className="px-4 py-3 font-bold bg-slate-100">Type</th>
+                      <th className="px-4 py-3 font-bold bg-slate-100">
+                        <button 
+                          onClick={() => handleSort("startDate")}
+                          className="flex items-center gap-1.5 hover:text-slate-900 transition-colors"
+                        >
+                          Start Date {getSortIcon("startDate")}
+                        </button>
+                      </th>
+                      <th className="px-4 py-3 font-bold bg-slate-100">
+                        <button 
+                          onClick={() => handleSort("endDate")}
+                          className="flex items-center gap-1.5 hover:text-slate-900 transition-colors"
+                        >
+                          End Date {getSortIcon("endDate")}
+                        </button>
+                      </th>
+                      <th className="px-4 py-3 font-bold bg-slate-100">
+                        <button 
+                          onClick={() => handleSort("type")}
+                          className="flex items-center gap-1.5 hover:text-slate-900 transition-colors"
+                        >
+                          Type {getSortIcon("type")}
+                        </button>
+                      </th>
                       <th className="px-4 py-3 font-bold text-center bg-slate-100">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
-                    {userAbsences.map((absence, index) => {
+                    {sortAbsences(userAbsences).map((absence, index) => {
                       const absenceStartDate = new Date(absence.startDate).toISOString();
                       const isHighlighted = scrollToAbsence && 
                         scrollToAbsence.userId === user.id && 

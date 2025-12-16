@@ -1,6 +1,10 @@
-import React from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import { User, UserFormData } from "@/types/user";
 import { UserRow } from "./UserRow";
+import { ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+
+type SortField = "username" | "email" | "role" | "totalVacations";
+type SortDirection = "asc" | "desc" | null;
 
 type Props = {
   employees: User[];
@@ -21,21 +25,110 @@ export function UserTable({
   onDelete,
   onSave,
 }: Props) {
+  const [sortField, setSortField] = useState<SortField | null>("username");
+  const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
+
+  const handleSort = useCallback((field: SortField) => {
+    if (sortField === field) {
+      if (sortDirection === "asc") {
+        setSortDirection("desc");
+      } else if (sortDirection === "desc") {
+        setSortDirection(null);
+        setSortField(null);
+      } else {
+        setSortDirection("asc");
+      }
+    } else {
+      setSortField(field);
+      setSortDirection("asc");
+    }
+  }, [sortField, sortDirection]);
+
+  const getSortIcon = useCallback((field: SortField) => {
+    if (sortField !== field) {
+      return <ArrowUpDown size={14} className="text-slate-400" />;
+    }
+    if (sortDirection === "asc") {
+      return <ArrowUp size={14} className="text-[#244B77]" />;
+    }
+    if (sortDirection === "desc") {
+      return <ArrowDown size={14} className="text-[#244B77]" />;
+    }
+    return <ArrowUpDown size={14} className="text-slate-400" />;
+  }, [sortField, sortDirection]);
+
+  const sortedEmployees = useMemo(() => {
+    const sorted = [...employees];
+    
+    if (!sortField || !sortDirection) {
+      return sorted.sort((a, b) => a.username.localeCompare(b.username));
+    }
+
+    return sorted.sort((a, b) => {
+      let comparison = 0;
+      
+      switch (sortField) {
+        case "username":
+          comparison = a.username.localeCompare(b.username);
+          break;
+        case "email":
+          comparison = a.email.localeCompare(b.email);
+          break;
+        case "role":
+          comparison = a.role.localeCompare(b.role);
+          break;
+        case "totalVacations":
+          comparison = (a.totalVacations || 0) - (b.totalVacations || 0);
+          break;
+      }
+      
+      return sortDirection === "desc" ? -comparison : comparison;
+    });
+  }, [employees, sortField, sortDirection]);
+
   return (
     <table className="w-full">
       <thead className="sticky top-0 z-10">
         <tr className="text-left text-xs uppercase tracking-wider text-slate-600 border-b border-slate-200">
           <th className="px-4 py-3 font-bold w-16 bg-slate-100">#</th>
-          <th className="px-4 py-3 font-bold bg-slate-100">Employee</th>
-          <th className="px-4 py-3 font-bold bg-slate-100">Email</th>
-          <th className="px-4 py-3 font-bold bg-slate-100">Role</th>
+          <th className="px-4 py-3 font-bold bg-slate-100">
+            <button 
+              onClick={() => handleSort("username")}
+              className="flex items-center gap-1.5 hover:text-slate-900 transition-colors"
+            >
+              Employee {getSortIcon("username")}
+            </button>
+          </th>
+          <th className="px-4 py-3 font-bold bg-slate-100">
+            <button 
+              onClick={() => handleSort("email")}
+              className="flex items-center gap-1.5 hover:text-slate-900 transition-colors"
+            >
+              Email {getSortIcon("email")}
+            </button>
+          </th>
+          <th className="px-4 py-3 font-bold bg-slate-100">
+            <button 
+              onClick={() => handleSort("role")}
+              className="flex items-center gap-1.5 hover:text-slate-900 transition-colors"
+            >
+              Role {getSortIcon("role")}
+            </button>
+          </th>
           <th className="px-4 py-3 font-bold bg-slate-100">Password</th>
-          <th className="px-4 py-3 font-bold bg-slate-100">Vacations</th>
+          <th className="px-4 py-3 font-bold bg-slate-100">
+            <button 
+              onClick={() => handleSort("totalVacations")}
+              className="flex items-center gap-1.5 hover:text-slate-900 transition-colors"
+            >
+              Vacations {getSortIcon("totalVacations")}
+            </button>
+          </th>
           <th className="px-4 py-3 font-bold text-center bg-slate-100">Actions</th>
         </tr>
       </thead>
       <tbody className="divide-y divide-slate-100">
-        {employees.map((emp, index) => (
+        {sortedEmployees.map((emp, index) => (
           <UserRow
             key={emp.id}
             emp={emp}

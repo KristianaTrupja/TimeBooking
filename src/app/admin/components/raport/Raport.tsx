@@ -1,7 +1,10 @@
 import React, { useEffect, useMemo, useState, useRef, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, FileText, Users } from "lucide-react";
+import { ChevronLeft, ChevronRight, FileText, Users, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+
+type SortField = "employee" | "hours" | "status";
+type SortDirection = "asc" | "desc" | null;
 
 import Spinner from "@/components/ui/Spinner";
 import { useCalendar } from "@/app/context/CalendarContext";
@@ -20,6 +23,8 @@ export default function Raport() {
   const [isNavigating, setIsNavigating] = useState(false);
   const [hasProcessedParams, setHasProcessedParams] = useState(false);
   const [containerHeight, setContainerHeight] = useState<number | null>(null);
+  const [sortField, setSortField] = useState<SortField | null>("employee");
+  const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
   const sectionRef = useRef<HTMLElement>(null);
   const navRef = useRef<HTMLDivElement>(null);
 
@@ -132,6 +137,62 @@ export default function Raport() {
     };
   }, [timesheets]);
 
+  const handleSort = useCallback((field: SortField) => {
+    if (sortField === field) {
+      if (sortDirection === "asc") {
+        setSortDirection("desc");
+      } else if (sortDirection === "desc") {
+        setSortDirection(null);
+        setSortField(null);
+      } else {
+        setSortDirection("asc");
+      }
+    } else {
+      setSortField(field);
+      setSortDirection("asc");
+    }
+  }, [sortField, sortDirection]);
+
+  const getSortIcon = useCallback((field: SortField) => {
+    if (sortField !== field) {
+      return <ArrowUpDown size={14} className="text-slate-400" />;
+    }
+    if (sortDirection === "asc") {
+      return <ArrowUp size={14} className="text-[#244B77]" />;
+    }
+    if (sortDirection === "desc") {
+      return <ArrowDown size={14} className="text-[#244B77]" />;
+    }
+    return <ArrowUpDown size={14} className="text-slate-400" />;
+  }, [sortField, sortDirection]);
+
+  const sortedTimesheets = useMemo(() => {
+    if (!timesheets) return [];
+    const sorted = [...timesheets];
+    
+    if (!sortField || !sortDirection) {
+      return sorted.sort((a, b) => a.username.localeCompare(b.username));
+    }
+
+    return sorted.sort((a, b) => {
+      let comparison = 0;
+      
+      switch (sortField) {
+        case "employee":
+          comparison = a.username.localeCompare(b.username);
+          break;
+        case "hours":
+          comparison = a.totalHours - b.totalHours;
+          break;
+        case "status":
+          comparison = a.status.localeCompare(b.status);
+          break;
+      }
+      
+      return sortDirection === "desc" ? -comparison : comparison;
+    });
+  }, [timesheets, sortField, sortDirection]);
+
   return (
     <section ref={sectionRef} className="p-6 h-full flex flex-col">
       {/* Header Section */}
@@ -234,15 +295,36 @@ export default function Raport() {
             <thead className="bg-slate-100 border-b border-slate-200 sticky top-0 z-20">
               <tr className="text-left text-xs uppercase tracking-wider text-slate-600">
                 <th className="px-4 py-3 font-bold w-16 bg-slate-100">#</th>
-                <th className="px-4 py-3 font-bold bg-slate-100">Employee</th>
-                <th className="px-4 py-3 font-bold bg-slate-100">Hours</th>
+                <th className="px-4 py-3 font-bold bg-slate-100">
+                  <button 
+                    onClick={() => handleSort("employee")}
+                    className="flex items-center gap-1.5 hover:text-slate-900 transition-colors"
+                  >
+                    Employee {getSortIcon("employee")}
+                  </button>
+                </th>
+                <th className="px-4 py-3 font-bold bg-slate-100">
+                  <button 
+                    onClick={() => handleSort("hours")}
+                    className="flex items-center gap-1.5 hover:text-slate-900 transition-colors"
+                  >
+                    Hours {getSortIcon("hours")}
+                  </button>
+                </th>
                 <th className="px-4 py-3 font-bold bg-slate-100">Details</th>
-                <th className="px-4 py-3 font-bold bg-slate-100">Status</th>
+                <th className="px-4 py-3 font-bold bg-slate-100">
+                  <button 
+                    onClick={() => handleSort("status")}
+                    className="flex items-center gap-1.5 hover:text-slate-900 transition-colors"
+                  >
+                    Status {getSortIcon("status")}
+                  </button>
+                </th>
                 <th className="px-4 py-3 font-bold bg-slate-100">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {timesheets.map((ts, index: number) => (
+              {sortedTimesheets.map((ts, index: number) => (
                 <RaportEntry
                   timesheet={ts}
                   month={month}

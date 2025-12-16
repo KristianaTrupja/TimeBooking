@@ -10,7 +10,10 @@ import {
   Baby,
   Calendar,
   Filter,
-  X
+  X,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown
 } from "lucide-react";
 import { AbsenceType, ExtAbsence } from "@/types/absence";
 import Spinner from "@/components/ui/Spinner";
@@ -61,6 +64,9 @@ function getInitialFiltersState() {
   };
 }
 
+type SortField = "type" | "startDate" | "endDate" | "days";
+type SortDirection = "asc" | "desc" | null;
+
 export default function DeveloperVacations() {
   const pathname = usePathname();
   const [absences, setAbsences] = useState<ExtAbsence[]>([]);
@@ -68,6 +74,8 @@ export default function DeveloperVacations() {
   const [isLoading, setIsLoading] = useState(true);
   const [filters, setFilters] = useState(getInitialFiltersState());
   const [showFilters, setShowFilters] = useState(false);
+  const [sortField, setSortField] = useState<SortField | null>("startDate");
+  const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
 
   // Get user ID from URL
   const userId = useMemo(() => {
@@ -143,12 +151,68 @@ export default function DeveloperVacations() {
     setFilters(getInitialFiltersState());
   };
 
-  // Sort absences by start date (most recent first)
+  const handleSort = useCallback((field: SortField) => {
+    if (sortField === field) {
+      // Cycle through: asc -> desc -> null
+      if (sortDirection === "asc") {
+        setSortDirection("desc");
+      } else if (sortDirection === "desc") {
+        setSortDirection(null);
+        setSortField(null);
+      } else {
+        setSortDirection("asc");
+      }
+    } else {
+      setSortField(field);
+      setSortDirection("asc");
+    }
+  }, [sortField, sortDirection]);
+
+  const getSortIcon = useCallback((field: SortField) => {
+    if (sortField !== field) {
+      return <ArrowUpDown size={14} className="text-slate-400" />;
+    }
+    if (sortDirection === "asc") {
+      return <ArrowUp size={14} className="text-[#244B77]" />;
+    }
+    if (sortDirection === "desc") {
+      return <ArrowDown size={14} className="text-[#244B77]" />;
+    }
+    return <ArrowUpDown size={14} className="text-slate-400" />;
+  }, [sortField, sortDirection]);
+
+  // Sort absences
   const sortedAbsences = useMemo(() => {
-    return [...absences].sort((a, b) => 
-      new Date(b.startDate).getTime() - new Date(a.startDate).getTime()
-    );
-  }, [absences]);
+    const sorted = [...absences];
+    
+    if (!sortField || !sortDirection) {
+      // Default: sort by start date descending
+      return sorted.sort((a, b) => 
+        new Date(b.startDate).getTime() - new Date(a.startDate).getTime()
+      );
+    }
+
+    return sorted.sort((a, b) => {
+      let comparison = 0;
+      
+      switch (sortField) {
+        case "type":
+          comparison = a.type.localeCompare(b.type);
+          break;
+        case "startDate":
+          comparison = new Date(a.startDate).getTime() - new Date(b.startDate).getTime();
+          break;
+        case "endDate":
+          comparison = new Date(a.endDate).getTime() - new Date(b.endDate).getTime();
+          break;
+        case "days":
+          comparison = (a.days || 0) - (b.days || 0);
+          break;
+      }
+      
+      return sortDirection === "desc" ? -comparison : comparison;
+    });
+  }, [absences, sortField, sortDirection]);
 
   // Calculate stats
   const stats = useMemo(() => {
@@ -164,32 +228,14 @@ export default function DeveloperVacations() {
     <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
       {/* Header */}
       <div className="p-6 border-b border-slate-200">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#244B77] to-[#1a3a5c] flex items-center justify-center shadow-lg shadow-[#244B77]/20">
-              <CalendarDays className="text-white" size={24} />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-slate-900">My Leaves</h1>
-              <p className="text-sm text-slate-600">View your time-off history</p>
-            </div>
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#244B77] to-[#1a3a5c] flex items-center justify-center shadow-lg shadow-[#244B77]/20">
+            <CalendarDays className="text-white" size={24} />
           </div>
-
-          {/* Filter Toggle */}
-          <button
-            onClick={() => setShowFilters(!showFilters)}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm transition-all duration-200 ${
-              showFilters || hasFiltersApplied()
-                ? "bg-[#244B77] text-white shadow-md"
-                : "bg-slate-100 text-slate-700 hover:bg-slate-200"
-            }`}
-          >
-            <Filter size={16} />
-            Filters
-            {hasFiltersApplied() && (
-              <span className="w-2 h-2 rounded-full bg-cyan-400" />
-            )}
-          </button>
+          <div>
+            <h1 className="text-2xl font-bold text-slate-900">My Leaves</h1>
+            <p className="text-sm text-slate-600">View your time-off history</p>
+          </div>
         </div>
 
         {/* Balance Cards */}
@@ -251,6 +297,24 @@ export default function DeveloperVacations() {
               {absences.length} {absences.length === 1 ? "record" : "records"}
             </p>
           </div>
+        </div>
+
+        {/* Filter Toggle */}
+        <div className="flex justify-end mt-4">
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm transition-all duration-200 ${
+              showFilters || hasFiltersApplied()
+                ? "bg-[#244B77] text-white shadow-md"
+                : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+            }`}
+          >
+            <Filter size={16} />
+            Filters
+            {hasFiltersApplied() && (
+              <span className="w-2 h-2 rounded-full bg-cyan-400" />
+            )}
+          </button>
         </div>
 
         {/* Filters Panel */}
@@ -339,10 +403,38 @@ export default function DeveloperVacations() {
             <thead className="bg-slate-100 border-b border-slate-200 sticky top-0 z-10">
               <tr className="text-left text-xs uppercase tracking-wider text-slate-600">
                 <th className="px-6 py-3 font-bold bg-slate-100 w-12">#</th>
-                <th className="px-6 py-3 font-bold bg-slate-100">Type</th>
-                <th className="px-6 py-3 font-bold bg-slate-100">Start Date</th>
-                <th className="px-6 py-3 font-bold bg-slate-100">End Date</th>
-                <th className="px-6 py-3 font-bold bg-slate-100 text-center">Days</th>
+                <th className="px-6 py-3 font-bold bg-slate-100">
+                  <button 
+                    onClick={() => handleSort("type")}
+                    className="flex items-center gap-1.5 hover:text-slate-900 transition-colors"
+                  >
+                    Type {getSortIcon("type")}
+                  </button>
+                </th>
+                <th className="px-6 py-3 font-bold bg-slate-100">
+                  <button 
+                    onClick={() => handleSort("startDate")}
+                    className="flex items-center gap-1.5 hover:text-slate-900 transition-colors"
+                  >
+                    Start Date {getSortIcon("startDate")}
+                  </button>
+                </th>
+                <th className="px-6 py-3 font-bold bg-slate-100">
+                  <button 
+                    onClick={() => handleSort("endDate")}
+                    className="flex items-center gap-1.5 hover:text-slate-900 transition-colors"
+                  >
+                    End Date {getSortIcon("endDate")}
+                  </button>
+                </th>
+                <th className="px-6 py-3 font-bold bg-slate-100 text-center">
+                  <button 
+                    onClick={() => handleSort("days")}
+                    className="flex items-center gap-1.5 hover:text-slate-900 transition-colors mx-auto"
+                  >
+                    Days {getSortIcon("days")}
+                  </button>
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
