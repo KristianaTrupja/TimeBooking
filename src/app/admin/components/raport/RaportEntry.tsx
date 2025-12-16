@@ -81,7 +81,7 @@ export default function RaportEntry({timesheet, month, year, index, onApply, sho
                 <div className="w-9 h-9 rounded-full bg-gradient-to-br from-slate-200 to-slate-300 flex items-center justify-center">
                     <User size={16} className="text-slate-600" />
                 </div>
-                <span className="font-medium text-slate-800">{timesheet.username}</span>
+                <span className="font-bold text-slate-800">{timesheet.username}</span>
             </div>
         </td>
         <td className="px-4 py-4">

@@ -47,15 +47,12 @@ export default function Sidebar() {
             <button
               key={index}
               onClick={() => handleClick(item.tab)}
-              className={`group relative flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 text-left overflow-hidden
+              className={`group relative flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300 text-left overflow-hidden
                 ${isActive 
                   ? "bg-blue-600/20 text-blue-400 shadow-lg" 
                   : "text-slate-300 hover:text-white hover:bg-white/5"
                 }`}
             >
-              {isActive && (
-                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-blue-500 rounded-r-full" />
-              )}
               <Icon size={20} className={`transition-transform duration-300 ${isActive ? "text-blue-400" : "group-hover:scale-110"}`} />
               <span className="font-medium">{item.title}</span>
             </button>

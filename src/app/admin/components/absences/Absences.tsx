@@ -141,7 +141,7 @@ export default function Absences() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-orange-400 flex items-center justify-center shadow-md shadow-amber-400/20">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#244B77] to-[#1a3a5c] flex items-center justify-center shadow-md shadow-[#244B77]/20">
             <CalendarDays className="text-white" size={20} />
           </div>
           <div>
@@ -160,160 +160,168 @@ export default function Absences() {
         </div>
       </div>
 
-      {/* Main Grid Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 pb-4">
+      {/* Main 2-Column Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 pb-4">
         
-        {/* Left Panel - Employee & Balance */}
-        <div className="space-y-4">
-          {/* Employee Selection Card */}
-          <div className="bg-gradient-to-br from-slate-600 to-slate-700 rounded-2xl p-5 shadow-lg">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-2 h-2 rounded-full bg-teal-300 animate-pulse" />
-              <span className="text-teal-300 text-xs font-medium uppercase tracking-wider">Select Employee</span>
+        {/* Left Column - Form Inputs (3/5) */}
+        <div className="lg:col-span-3 space-y-5">
+          {/* Main Form Card */}
+          <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+            
+            {/* Employee Selection */}
+            <div className="mb-6">
+              <div className="flex items-center gap-2 mb-3">
+                <Users size={16} className="text-[#244B77]" />
+                <span className="text-slate-700 font-medium">Employee</span>
+              </div>
+              <Selector
+                id="selector-employee"
+                options={employees?.map((user) => user.username) || []}
+                onChange={setSelectedEmployee}
+                placeholder="Select an employee..."
+                className="bg-slate-50 text-slate-700 border border-slate-200 rounded-xl hover:border-[#244B77]/30 transition-colors"
+                value={selectedEmployee || ""}
+                sorted={true}
+              />
             </div>
-            <Selector
-              id="selector-employee"
-              options={employees?.map((user) => user.username) || []}
-              onChange={setSelectedEmployee}
-              placeholder="Choose..."
-              className="bg-slate-500/30 text-white border border-slate-500 rounded-lg hover:border-teal-400/50 transition-colors"
-              value={selectedEmployee || ""}
-              sorted={true}
-            />
-            
-            {/* Balance Display */}
-            {remainingDays && (
-              <div className="mt-4 p-4 bg-white/10 rounded-xl border border-white/10">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-slate-300 text-xs">Available Balance</span>
-                  <Sparkles size={14} className="text-teal-300" />
+
+            {/* Date Selection */}
+            <div className="mb-6">
+              <div className="flex items-center gap-2 mb-3">
+                <Clock size={16} className="text-[#244B77]" />
+                <span className="text-slate-700 font-medium">Leave Period</span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs text-slate-400 mb-1.5 block">Start Date</label>
+                  <input
+                    type="date"
+                    className="w-full bg-slate-50 text-slate-600 px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#244B77]/30 focus:border-[#244B77]/50 transition-all"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                  />
                 </div>
-                <div className="flex items-baseline gap-1">
-                  <span className="text-3xl font-bold text-white">{remainingDays.totalDaysLeft}</span>
-                  <span className="text-slate-400">days</span>
-                </div>
-                <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
-                  <div className="bg-slate-600/50 rounded-lg p-2">
-                    <span className="text-slate-400">{remainingDays.currentYear.year}</span>
-                    <p className="text-teal-300 font-semibold">{remainingDays.currentYear.daysLeft}d left</p>
-                  </div>
-                  <div className="bg-slate-600/50 rounded-lg p-2">
-                    <span className="text-slate-400">{remainingDays.lastYear.year}</span>
-                    <p className="text-amber-300 font-semibold">{remainingDays.lastYear.daysLeft}d carried</p>
-                  </div>
+                <div>
+                  <label className="text-xs text-slate-400 mb-1.5 block">End Date</label>
+                  <input
+                    type="date"
+                    className="w-full bg-slate-50 text-slate-600 px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#244B77]/30 focus:border-[#244B77]/50 transition-all"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                  />
                 </div>
               </div>
-            )}
-            
-            {!selectedEmployee && (
-              <div className="mt-4 p-4 border border-dashed border-slate-500 rounded-xl text-center">
-                <Users size={24} className="mx-auto text-slate-500 mb-2" />
-                <p className="text-slate-400 text-sm">Select an employee to view balance</p>
+            </div>
+
+            {/* Leave Type Selection */}
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <Sparkles size={16} className="text-[#244B77]" />
+                <span className="text-slate-700 font-medium">Leave Type</span>
               </div>
-            )}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {absenceTypes.map((type) => {
+                  const style = leaveTypeStyles[type];
+                  const isSelected = absenceType === type;
+                  
+                  return (
+                    <button
+                      key={type}
+                      onClick={() => setAbsenceType(type)}
+                      className={`relative p-4 rounded-xl border-2 transition-all duration-300 ${
+                        isSelected
+                          ? `bg-gradient-to-br ${style.gradient} border-transparent text-white shadow-md ${style.glow}`
+                          : `${style.softBg} border-transparent ${style.softText} hover:shadow-sm hover:scale-[1.02]`
+                      }`}
+                    >
+                      <div className={`mb-2 ${isSelected ? "text-white" : ""}`}>
+                        {style.icon}
+                      </div>
+                      <span className="text-xs font-medium">{type}</span>
+                      {isSelected && (
+                        <div className="absolute top-2 right-2 w-2 h-2 rounded-full bg-white/80" />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Center Panel - Date Selection */}
-        <div className="space-y-4">
-          <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+        {/* Right Column - Summary & Action (2/5) */}
+        <div className="lg:col-span-2 space-y-5">
+          {/* Balance Card */}
+          <div className="bg-gradient-to-br from-[#244B77] to-[#1a3a5c] rounded-2xl p-5 shadow-lg">
             <div className="flex items-center gap-2 mb-4">
-              <Clock size={16} className="text-slate-400" />
-              <span className="text-slate-600 font-medium">Leave Period</span>
+              <div className="w-2 h-2 rounded-full bg-cyan-300 animate-pulse" />
+              <span className="text-cyan-300 text-xs font-medium uppercase tracking-wider">Leave Balance</span>
             </div>
             
-            <div className="space-y-4">
-              <div>
-                <label className="text-xs text-slate-400 mb-1.5 block">Start Date</label>
-                <input
-                  type="date"
-                  className="w-full bg-slate-50 text-slate-600 px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-400/50 focus:border-teal-400 transition-all"
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                />
-              </div>
-              <div>
-                <label className="text-xs text-slate-400 mb-1.5 block">End Date</label>
-                <input
-                  type="date"
-                  className="w-full bg-slate-50 text-slate-600 px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-400/50 focus:border-teal-400 transition-all"
-                  value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
-                />
-              </div>
-            </div>
-
-            {/* Duration Display */}
-            {numberOfDays > 0 && (
-              <div className="mt-4 p-4 bg-gradient-to-r from-slate-500 to-slate-600 rounded-xl text-white">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <TrendingUp size={16} className="text-teal-300" />
-                    <span className="text-sm text-slate-300">Duration</span>
+            {remainingDays ? (
+              <>
+                <div className="flex items-baseline gap-2 mb-4">
+                  <span className="text-4xl font-bold text-white">{remainingDays.totalDaysLeft}</span>
+                  <span className="text-white/60">days available</span>
+                </div>
+                <div className="grid grid-cols-2 gap-3 text-xs">
+                  <div className="bg-white/10 rounded-xl p-3 border border-white/10">
+                    <span className="text-white/50">{remainingDays.currentYear.year}</span>
+                    <p className="text-cyan-300 font-semibold text-lg">{remainingDays.currentYear.daysLeft}d</p>
+                    <span className="text-white/40 text-[10px]">remaining</span>
                   </div>
-                  <div className="text-right">
-                    <span className="text-2xl font-bold">{numberOfDays}</span>
-                    <span className="text-sm text-slate-300 ml-1">{numberOfDays === 1 ? "day" : "days"}</span>
+                  <div className="bg-white/10 rounded-xl p-3 border border-white/10">
+                    <span className="text-white/50">{remainingDays.lastYear.year}</span>
+                    <p className="text-amber-300 font-semibold text-lg">{remainingDays.lastYear.daysLeft}d</p>
+                    <span className="text-white/40 text-[10px]">carried over</span>
                   </div>
                 </div>
+              </>
+            ) : (
+              <div className="py-6 text-center">
+                <Users size={32} className="mx-auto text-white/20 mb-3" />
+                <p className="text-white/50 text-sm">Select an employee to view their leave balance</p>
               </div>
             )}
           </div>
-        </div>
 
-        {/* Right Panel - Leave Type & Submit */}
-        <div className="space-y-4">
-          {/* Leave Type Selection */}
+          {/* Summary & Submit Card */}
           <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
             <div className="flex items-center gap-2 mb-4">
-              <Sparkles size={16} className="text-slate-400" />
-              <span className="text-slate-600 font-medium">Leave Type</span>
+              <TrendingUp size={16} className="text-[#244B77]" />
+              <span className="text-slate-700 font-medium">Request Summary</span>
             </div>
-            
-            <div className="grid grid-cols-2 gap-3">
-              {absenceTypes.map((type) => {
-                const style = leaveTypeStyles[type];
-                const isSelected = absenceType === type;
-                
-                return (
-                  <button
-                    key={type}
-                    onClick={() => setAbsenceType(type)}
-                    className={`relative p-4 rounded-xl border-2 transition-all duration-300 ${
-                      isSelected
-                        ? `bg-gradient-to-br ${style.gradient} border-transparent text-white shadow-md ${style.glow}`
-                        : `${style.softBg} border-transparent ${style.softText} hover:shadow-sm`
-                    }`}
-                  >
-                    <div className={`mb-2 ${isSelected ? "text-white" : ""}`}>
-                      {style.icon}
-                    </div>
-                    <span className="text-sm font-medium">{type}</span>
-                    {isSelected && (
-                      <div className="absolute top-2 right-2 w-2 h-2 rounded-full bg-white/80" />
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
 
-          {/* Submit Card */}
-          <div className="bg-gradient-to-br from-slate-600 to-slate-700 rounded-2xl p-5 shadow-lg">
-            <div className="mb-4">
-              <p className="text-slate-400 text-xs uppercase tracking-wider mb-1">Ready to submit?</p>
-              <p className="text-white/90 text-sm">
-                {selectedEmployee && absenceType && numberOfDays > 0 
-                  ? `Grant ${numberOfDays} ${numberOfDays === 1 ? "day" : "days"} of ${absenceType.toLowerCase()} leave`
-                  : "Complete all fields above"
-                }
-              </p>
+            {/* Summary Details */}
+            <div className="space-y-3 mb-5">
+              <div className="flex justify-between items-center py-2 border-b border-slate-100">
+                <span className="text-slate-400 text-sm">Employee</span>
+                <span className="text-slate-700 font-medium text-sm">{selectedEmployee || "—"}</span>
+              </div>
+              <div className="flex justify-between items-center py-2 border-b border-slate-100">
+                <span className="text-slate-400 text-sm">Duration</span>
+                <span className="text-slate-700 font-medium text-sm">
+                  {numberOfDays > 0 ? `${numberOfDays} ${numberOfDays === 1 ? "day" : "days"}` : "—"}
+                </span>
+              </div>
+              <div className="flex justify-between items-center py-2 border-b border-slate-100">
+                <span className="text-slate-400 text-sm">Type</span>
+                <span className={`font-medium text-sm ${absenceType ? leaveTypeStyles[absenceType]?.softText : "text-slate-700"}`}>
+                  {absenceType || "—"}
+                </span>
+              </div>
+              <div className="flex justify-between items-center py-2">
+                <span className="text-slate-400 text-sm">Period</span>
+                <span className="text-slate-700 font-medium text-sm">
+                  {startDate && endDate ? `${startDate} → ${endDate}` : "—"}
+                </span>
+              </div>
             </div>
             
             <Button 
               onClick={handleCreateAbsence}
               disabled={!selectedEmployee || !startDate || !endDate || !absenceType}
-              className="w-full py-6 bg-gradient-to-r from-teal-400 to-emerald-400 hover:from-teal-300 hover:to-emerald-300 text-white font-semibold rounded-xl shadow-md shadow-teal-400/20 disabled:opacity-40 disabled:shadow-none transition-all duration-300"
+              className="w-full py-5 bg-gradient-to-r from-[#244B77] to-[#1a3a5c] hover:from-[#2d5a8a] hover:to-[#244B77] text-white font-semibold rounded-xl shadow-md shadow-[#244B77]/20 disabled:opacity-40 disabled:shadow-none transition-all duration-300"
             >
               <Send size={18} className="mr-2" />
               Grant Leave
