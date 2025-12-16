@@ -323,7 +323,7 @@ export default function Absences() {
             <Button 
               onClick={handleCreateAbsence}
               disabled={!selectedEmployee || !startDate || !endDate || !absenceType}
-              className="w-full py-5 bg-gradient-to-r from-[#244B77] to-[#1a3a5c] hover:from-[#2d5a8a] hover:to-[#244B77] text-white font-semibold rounded-xl shadow-md shadow-[#244B77]/20 disabled:opacity-40 disabled:shadow-none transition-all duration-300"
+              className="w-full py-5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-lg shadow-blue-500/25 disabled:opacity-40 disabled:shadow-none"
             >
               <Send size={18} className="mr-2" />
               Grant Leave

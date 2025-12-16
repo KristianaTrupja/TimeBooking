@@ -308,7 +308,7 @@ export default function Vacations() {
       <div ref={buttonRef} className="flex justify-end pt-4">
         <Button 
           onClick={() => setModalOpen(true)}
-          className="bg-gradient-to-r from-[#244B77] to-[#1a3a5c] hover:from-[#2d5a8a] hover:to-[#244B77] text-white shadow-md gap-2"
+          className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-lg shadow-blue-500/25 gap-2"
         >
           <Plus size={18} />
           Add Holiday
