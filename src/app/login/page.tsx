@@ -1,11 +1,9 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { signIn, getSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { InputField } from "../components/ui/InputField";
 import { isPasswordStrong } from "@/lib/utils";
 import { Loader2, Clock, Calendar } from "lucide-react";
 
@@ -54,10 +52,10 @@ export default function Login() {
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setData((prev) => ({ ...prev, [name]: value }));
-  };
+  }, []);
 
   return (
     <div className="min-h-screen relative overflow-hidden flex items-center justify-center p-4">

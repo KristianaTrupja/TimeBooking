@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import BottomBar from "../components/calendar/BottomBar";
 import Calendar from "../components/calendar/Calendar";
 import TotalBar from "../components/calendar/TotalBar";
@@ -28,7 +28,7 @@ export default function Developer() {
     const pathname = usePathname();
     const { month, year } = useCalendar();
     const { loadingProjects } = useProjects();
-    const [isSubmitting, setIsSubmitting] = useState(false)
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [loggedInUser, setLoggedInUser] = useState<User | null>(null);
     const [activeTab, setActiveTab] = useState<Tab>("time-reporting");
 
@@ -38,37 +38,34 @@ export default function Developer() {
     }, [pathname]);
 
     useEffect(() => {
-        async function fetchSession() {
-            const session = await getSession()
+        getSession().then(session => {
             if (session?.user?.id) {
-            setLoggedInUser(session.user)
+                setLoggedInUser(session.user);
             }
-        }
-        fetchSession()
-    }, [])
+        });
+    }, []);
 
-    async function handleSubmit(){
-        if(isSubmitting) return
-        setIsSubmitting(true)
+    const handleSubmit = useCallback(async () => {
+        if (isSubmitting) return;
+        setIsSubmitting(true);
         try {
-            await submitTimesheet(month, year, userId)
+            await submitTimesheet(month, year, userId);
         } catch (error) {
-            console.error(error)
-            flushError(error, "Error submitting timesheet.")
+            console.error(error);
+            flushError(error, "Error submitting timesheet.");
+        } finally {
+            setIsSubmitting(false);
         }
-        finally {
-            setIsSubmitting(false)
-        }
-    }
+    }, [isSubmitting, month, year, userId, submitTimesheet]);
 
     useEffect(() => {
         if (!userId) return;
         reloadWorkHours(userId, month + 1, year);
-    }, [userId, month, year]);
+    }, [userId, month, year, reloadWorkHours]);
 
     const isOwner = useMemo(() => {
         return loggedInUser?.id === userId;
-    }, [loggedInUser, userId]);
+    }, [loggedInUser?.id, userId]);
 
     return (
     <div className="flex">

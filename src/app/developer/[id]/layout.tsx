@@ -2,15 +2,11 @@ import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
-import Sidebar from "../components/sidebar/Sidebar";
 import { CalendarProvider } from "../../context/CalendarContext";
 import { ProjectProvider } from "../../context/ProjectContext";
 import { WorkHoursProvider } from "../../context/WorkHoursContext";
-import SidebarHeader from "../components/sidebar/SidebarHeader";
 import { HolidayProvider } from "@/app/context/HolidayContext";
 import { AbsenceProvider } from "@/app/context/AbsencesContext";
-import ConfirmButton from "../components/calendarActionButtons/ConfirmButton";
-import SaveButton from "../components/calendarActionButtons/SaveButton";
 import Link from "next/link";
 import { Clock } from "lucide-react";
 

@@ -1,4 +1,5 @@
 "use client"
+import { useCallback } from "react";
 import { Bell, Settings } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useNotifications } from "@/app/context/NotificationContext";
@@ -13,11 +14,11 @@ export default function TopNavBar() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const currentTab = searchParams.get("tab") || "raport";
-  const { unreadNotificationsCount } = useNotifications()
+  const { unreadNotificationsCount } = useNotifications();
 
-  const handleClick = (tab: string) => {
+  const handleClick = useCallback((tab: string) => {
     router.push(`${pathname}?tab=${tab}`);
-  };
+  }, [router, pathname]);
 
   return (
     <header className="w-full bg-white/80 backdrop-blur-sm border-b border-slate-200/80 px-6 py-3 flex justify-end sticky top-0 z-40">

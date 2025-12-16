@@ -22,7 +22,6 @@ function getInitialFiltersState(): Filters {
 
 
 export default function ModifyAbsences() {
-  const now = new Date()
   const searchParams = useSearchParams();
 
   const [employees, setEmployees] = useState<User[]>([]);

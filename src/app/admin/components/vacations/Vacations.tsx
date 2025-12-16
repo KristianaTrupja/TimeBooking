@@ -176,26 +176,30 @@ export default function Vacations() {
   return (
     <section ref={sectionRef} className="p-6 flex flex-col h-full">
       {/* Year Navigation Bar */}
-      <div ref={navRef} className="flex items-center justify-center gap-4 mb-6">
-        <Button 
-          variant="ghost" 
-          size="sm"
-          className="hover:bg-slate-100 border border-slate-200 rounded-lg" 
-          onClick={goToPreviousYear} 
-          disabled={isTableLoading}
-        >
-          <ChevronLeft className="text-slate-600" size={20} />
-        </Button>
-        <h2 className="text-xl font-semibold text-slate-700 min-w-[100px] text-center">{year}</h2>
-        <Button 
-          variant="ghost" 
-          size="sm"
-          className="hover:bg-slate-100 border border-slate-200 rounded-lg" 
-          onClick={goToNextYear} 
-          disabled={isTableLoading}
-        >
-          <ChevronRight className="text-slate-600" size={20} />
-        </Button>
+      <div ref={navRef} className="flex items-center justify-center mb-6">
+        <div className="flex items-center gap-2 bg-slate-100 rounded-xl p-1">
+          <Button 
+            variant="ghost" 
+            size="sm"
+            className="hover:bg-white rounded-lg h-9 w-9 p-0" 
+            onClick={goToPreviousYear} 
+            disabled={isTableLoading}
+            aria-label="Previous year"
+          >
+            <ChevronLeft className="text-slate-600" size={18} />
+          </Button>
+          <span className="text-sm font-semibold text-slate-700 min-w-[80px] text-center">{year}</span>
+          <Button 
+            variant="ghost" 
+            size="sm"
+            className="hover:bg-white rounded-lg h-9 w-9 p-0" 
+            onClick={goToNextYear} 
+            disabled={isTableLoading}
+            aria-label="Next year"
+          >
+            <ChevronRight className="text-slate-600" size={18} />
+          </Button>
+        </div>
       </div>
 
       <div

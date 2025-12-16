@@ -4,20 +4,14 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useCalendar } from "@/app/context/CalendarContext";
 import { useEffect, useMemo, useState } from "react";
 import { useWorkHours } from "@/app/context/WorkHoursContext";
-import { usePathname, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import WorkStatus from "../status/workStatus";
 import MonthYearPicker from "../monthYear/MonthYearPicker";
 import { Button } from "@/components/ui/button";
 
 export default function SidebarHeader() {
-  const pathname = usePathname();
   const searchParams = useSearchParams();
   const [isInitialized, setIsInitialized] = useState(false);
-
-  const userId = useMemo(() => {
-    const segments = pathname.split("/");
-    return segments[2];
-  }, [pathname]);
 
   // Memoized search params parsing
   const { passedMonth, passedYear } = useMemo(() => {
