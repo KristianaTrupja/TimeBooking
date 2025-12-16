@@ -24,7 +24,13 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: "WorkTime Hub",
-  description: "Feature catalogue frontend",
+  description: "Time tracking and timesheet management system",
+  icons: {
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+    ],
+    apple: "/icon.svg",
+  },
 }
 
 console.log("test build");

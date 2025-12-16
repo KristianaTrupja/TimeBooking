@@ -1,23 +1,13 @@
 'use client';
 
-import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useCalendar } from "@/app/context/CalendarContext";
 import { useEffect, useMemo, useState } from "react";
 import { useWorkHours } from "@/app/context/WorkHoursContext";
 import { usePathname, useSearchParams } from "next/navigation";
 import WorkStatus from "../status/workStatus";
 import MonthYearPicker from "../monthYear/MonthYearPicker";
-import { useProjects } from "@/app/context/ProjectContext";
 import { Button } from "@/components/ui/button";
-
-const LoadingSpinner = () => (
-  <div className="absolute inset-0 flex items-center justify-center bg-white/80 backdrop-blur-sm z-10 rounded-xl">
-    <div className="flex items-center gap-2 px-4 py-2 bg-white rounded-lg shadow-lg border border-slate-200">
-      <Loader2 className="w-4 h-4 text-blue-600 animate-spin" />
-      <span className="text-slate-600 text-sm font-medium">Loading...</span>
-    </div>
-  </div>
-);
 
 export default function SidebarHeader() {
   const pathname = usePathname();
@@ -36,9 +26,8 @@ export default function SidebarHeader() {
     return { passedMonth: month, passedYear: year };
   }, [searchParams]);
 
-  const { year, month, goToNextMonth, goToPreviousMonth, setMonthAndYear, loading } = useCalendar();
-  const { reloadWorkHours, activeTimesheet } = useWorkHours();
-  const { loadingProjects } = useProjects();
+  const { year, month, goToNextMonth, goToPreviousMonth, setMonthAndYear } = useCalendar();
+  const { activeTimesheet } = useWorkHours();
 
   // Memoized formatted date
   const formattedDate = useMemo(() => {
@@ -73,8 +62,7 @@ export default function SidebarHeader() {
   return (
     <div className="flex justify-between mb-4 relative">
       <div className="flex items-center gap-2 bg-white rounded-xl px-2 py-1 shadow-sm border border-slate-200 relative min-h-10">
-        {loading || loadingProjects && isInitialized && <LoadingSpinner />}
-        {!loadingProjects && isInitialized && (
+        {isInitialized && (
           <>
             <Button 
               variant="ghost" 
