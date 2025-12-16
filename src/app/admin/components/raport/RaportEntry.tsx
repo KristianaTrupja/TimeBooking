@@ -10,6 +10,7 @@ type PropTypes = {
     month:number
     year:number
     index: number
+    adminId: string | null
     onApply: (submissionId:number, status: keyof typeof SubmissionStatus) => Promise<void>
     shouldScrollTo?: boolean
     onScrollComplete?: () => void
@@ -27,7 +28,7 @@ const statusBadgeStyles: Record<string, string> = {
 // Row highlight for scroll-to effect
 const scrollHighlight = "ring-2 ring-blue-400 ring-offset-2 bg-blue-50"
 
-export default function RaportEntry({timesheet, month, year, index, onApply, shouldScrollTo = false, onScrollComplete}: PropTypes) {
+export default function RaportEntry({timesheet, month, year, index, adminId, onApply, shouldScrollTo = false, onScrollComplete}: PropTypes) {
     const [selectedStatus, setSelectedStatus] = useState(timesheet.status)
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [isHighlighted, setIsHighlighted] = useState(false)
@@ -92,7 +93,7 @@ export default function RaportEntry({timesheet, month, year, index, onApply, sho
             </div>
         </td>
         <td className="px-4 py-4">
-            <Link href={`/developer/${timesheet.userId}?adminId=null&month=${month + 1}&year=${year}`}>
+            <Link href={`/developer/${timesheet.userId}?adminId=${adminId}&month=${month + 1}&year=${year}`}>
                 <Button
                     variant="ghost"
                     size="sm"

@@ -44,6 +44,7 @@ export default function Raport() {
   // Check if we need to navigate to a different month/year from URL params (only on initial load)
   const monthParam = searchParams.get("month");
   const yearParam = searchParams.get("year");
+  const adminId = searchParams.get("adminId");
   const needsNavigation = !hasProcessedParams && monthParam && yearParam && 
     (parseInt(monthParam) - 1 !== month || parseInt(yearParam) !== year);
 
@@ -247,6 +248,7 @@ export default function Raport() {
                   month={month}
                   year={year}
                   index={index}
+                  adminId={adminId}
                   onApply={handleSubmissionStatusUpdate}
                   shouldScrollTo={scrollToUserId === ts.userId}
                   onScrollComplete={handleScrollComplete}
