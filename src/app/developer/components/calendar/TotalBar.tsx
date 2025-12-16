@@ -33,9 +33,9 @@ export default function TotalBar({ isOwner=false }: { isOwner:boolean }) {
   if (loadingProjects) return null;
 
   return (
-    <div className="flex flex-col justify-between bg-gradient-to-b from-blue-50 to-blue-100 min-w-[90px] rounded-r-xl border-l border-slate-200 shadow-sm">
-      <div className="flex flex-col overflow-auto items-center custom-scrollbar">
-        <div className="w-full h-10 2xl:h-11 flex justify-center items-center font-semibold text-sm bg-gradient-to-b from-slate-700 to-slate-800 text-white rounded-tr-xl">
+    <div className="h-full flex flex-col justify-between bg-gradient-to-b from-blue-50 to-blue-100 min-w-[90px] rounded-r-xl border-l border-slate-200 shadow-md">
+      <div className="flex-1 flex flex-col items-center min-h-0">
+        <div className="w-full h-10 2xl:h-11 flex justify-center items-center font-semibold text-sm bg-gradient-to-b from-slate-700 to-slate-800 text-white rounded-tr-xl flex-shrink-0">
           Total
         </div>
         {sidebarProjects.map((group) => (
@@ -60,7 +60,7 @@ export default function TotalBar({ isOwner=false }: { isOwner:boolean }) {
           </div>
         ))}
       </div>
-      <div className="w-full h-9 2xl:h-10 flex justify-center items-center font-bold text-blue-700 bg-blue-100 border-t border-blue-200 rounded-br-xl mt-2">
+      <div className="w-full h-9 2xl:h-10 flex justify-center items-center font-bold text-blue-700 bg-blue-100 border-t border-blue-200 rounded-br-xl flex-shrink-0">
         {sum.toFixed(2)}
       </div>
     </div>

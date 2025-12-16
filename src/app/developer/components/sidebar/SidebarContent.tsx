@@ -5,12 +5,12 @@ import { Plus } from "lucide-react";
 
 export default function SidebarContent({ isLocked, isOwner=false, sidebarProjects, openModal }: {isLocked?:boolean, isOwner:boolean, sidebarProjects: ProjectData[], openModal: () => void }) {
   return (
-    <aside className="flex-1 min-w-fit bg-gradient-to-b from-slate-50 to-slate-100 rounded-l-xl border-r border-slate-200 flex flex-col justify-between shadow-sm">
-      <div className="min-h-2">
+    <aside className="h-full min-w-fit bg-gradient-to-b from-slate-50 to-slate-100 rounded-l-xl border-r border-slate-200 flex flex-col justify-between shadow-md">
+      <div className="flex-1 min-h-0">
         <SidebarList sidebarProjects={sidebarProjects} />
       </div>
       {isOwner && !isLocked && (
-        <div className="p-3 border-t border-slate-200">
+        <div className="p-3 border-t border-slate-200 flex-shrink-0">
           <Button 
             className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-md" 
             onClick={openModal}

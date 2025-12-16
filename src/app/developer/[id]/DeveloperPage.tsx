@@ -76,28 +76,39 @@ export default function Developer() {
         {/* Scrollable content area */}
         <div className={`flex-1 overflow-auto p-6 custom-scrollbar transition-all duration-300 ${isCollapsed ? "ml-[72px]" : "ml-64"}`} style={{ height: "calc(100vh - 72px)" }}>
             {activeTab === "time-reporting" ? (
-                <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm overflow-x-auto">
+                <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm h-full flex flex-col overflow-hidden">
                     <SidebarHeader />
-                    <section className="flex min-w-max">
-                        <Sidebar isOwner={isOwner} />
-                        <section className="flex-shrink-0 flex flex-col justify-between" style={{ fontFamily: "var(--font-anek-bangla)" }} >
-                            <div className="relative flex min-h-[500px]">
-                                {loadingProjects ? (
-                                <div className="absolute inset-0 z-10">
-                                    <Spinner text="Loading calendar..." />
+                    <section className="flex flex-1 min-h-0" style={{ fontFamily: "var(--font-anek-bangla)" }}>
+                        {/* Projects Sidebar - Sticky Left */}
+                        <div className="sticky flex-1 left-0 z-20 bg-white flex-shrink-0 h-full">
+                            <Sidebar isOwner={isOwner} />
+                        </div>
+                        
+                        {/* Scrollable Calendar Area */}
+                        <div className="overflow-x-auto custom-scrollbar h-full">
+                            <div className="flex flex-col min-w-max h-full justify-between">
+                                <div className="relative flex">
+                                    {loadingProjects ? (
+                                        <div className="absolute inset-0 z-10">
+                                            <Spinner text="Loading calendar..." />
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <PendingWorkPrompt />
+                                            <Calendar isOwner={isOwner} />
+                                        </>
+                                    )}
                                 </div>
-                                ) : (
-                                <>
-                                <PendingWorkPrompt />
-                                <Calendar isOwner={isOwner} />
-                                <TotalBar isOwner={isOwner} />
-                                </>
-                                )}
+                                <BottomBar />
                             </div>
-                            <BottomBar />
-                        </section>
+                        </div>
+                        
+                        {/* TotalBar - Sticky Right */}
+                        <div className="sticky right-0 z-20 bg-white flex-shrink-0 h-full">
+                            {!loadingProjects && <TotalBar isOwner={isOwner} />}
+                        </div>
                     </section>
-                    <div className="flex justify-end items-center gap-4 p-4 mt-5">
+                    <div className="flex justify-end items-center gap-4 pt-4 mt-auto flex-shrink-0">
                         {isOwner && !metadata?.isLocked && (
                             <>
                             <Button 
