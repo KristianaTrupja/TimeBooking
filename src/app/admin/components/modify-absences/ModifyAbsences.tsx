@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState, useRef, useMemo } from "react"
 import { useSearchParams } from "next/navigation";
 import { FilePenLine, Trash2, CalendarX, User as UserIcon, Calendar, Check, X, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 
-type SortField = "startDate" | "endDate" | "type";
+type SortField = "startDate" | "endDate" | "type" | "days";
 type SortDirection = "asc" | "desc" | null;
 import { User } from "@/types/user";
 import { Absence, AbsenceType, ExtAbsence, Filters } from "@/types/absence";
@@ -259,6 +259,9 @@ export default function ModifyAbsences() {
         case "type":
           comparison = a.type.localeCompare(b.type);
           break;
+        case "days":
+          comparison = a.days - b.days;
+          break;
       }
       
       return sortDirection === "desc" ? -comparison : comparison;
@@ -365,6 +368,14 @@ export default function ModifyAbsences() {
                           Type {getSortIcon("type")}
                         </button>
                       </th>
+                      <th className="px-4 py-3 font-bold bg-slate-100">
+                        <button 
+                          onClick={() => handleSort("days")}
+                          className="flex items-center gap-1.5 hover:text-slate-900 transition-colors"
+                        >
+                          Days {getSortIcon("days")}
+                        </button>
+                      </th>
                       <th className="px-4 py-3 font-bold text-center bg-slate-100">Actions</th>
                     </tr>
                   </thead>
@@ -446,6 +457,9 @@ export default function ModifyAbsences() {
                                   ))}
                                 </select>
                               </td>
+                              <td className="px-4 py-3 text-center">
+                                <span className="text-slate-500 text-sm italic" title="Days will be recalculated on save">—</span>
+                              </td>
                               <td className="px-4 py-3">
                                 <div className="flex items-center justify-center gap-2">
                                   <button 
@@ -476,6 +490,11 @@ export default function ModifyAbsences() {
                               <td className="px-4 py-3">
                                 <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border ${getTypeBadge(absence.type)}`}>
                                   {absence.type}
+                                </span>
+                              </td>
+                              <td className="px-4 py-3">
+                                <span className="inline-flex items-center justify-center min-w-[2rem] px-2 py-0.5 rounded-lg bg-slate-100 text-slate-800 text-sm font-bold" title="Business days (excludes weekends and holidays)">
+                                  {absence.days}
                                 </span>
                               </td>
                               <td className="px-4 py-3">

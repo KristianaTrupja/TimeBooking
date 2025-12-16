@@ -6,6 +6,7 @@ import Spinner from "@/components/ui/Spinner";
 import { AbsenceType } from "@/types/absence";
 import { flushError } from "@/app/utils/flushError";
 import { toast } from "sonner";
+import { getBusinessDays } from "@/app/utils/dateUtils";
 import { 
   CalendarDays, 
   Send, 
@@ -42,6 +43,7 @@ export default function Absences() {
   const [employees, setEmployees] = useState<User[]| null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [remainingDays, setRemainingDays] = useState<APIRemainingDays | null>(null)
+  const [holidays, setHolidays] = useState<string[]>([])
 
   useEffect(() => {
     if(!selectedEmployee) return
@@ -60,17 +62,31 @@ export default function Absences() {
   }, [selectedEmployee])
   
   useEffect(() => {
-    const fetchUser = async () => {
+    const fetchData = async () => {
       try {
-        const res = await fetch("/api/user", { cache: "no-store" })
-        if(!res.ok) {
-          const error = await res.json()
+        const [userRes, holidayRes] = await Promise.all([
+          fetch("/api/user", { cache: "no-store" }),
+          fetch("/api/holidays", { cache: "no-store" })
+        ]);
+
+        if(!userRes.ok) {
+          const error = await userRes.json()
           throw new Error(error ? error : "Failed to fetch users")
         }
-        const data = await res.json();
-        setEmployees(data.users);
+
+        const userData = await userRes.json();
+        setEmployees(userData.users);
+
+        if(holidayRes.ok) {
+          const holidayData = await holidayRes.json();
+          // Extract holiday dates as strings (YYYY-MM-DD format)
+          const holidayDates = holidayData.holidays?.map((h: { date: string }) => 
+            new Date(h.date).toISOString().split('T')[0]
+          ) || [];
+          setHolidays(holidayDates);
+        }
       } catch (err) {
-        console.error("Failed to fetch users:", err)
+        console.error("Failed to fetch data:", err)
         flushError(err, "Failed to fetch users")
       }
       finally {
@@ -78,7 +94,7 @@ export default function Absences() {
       }
     }
 
-    fetchUser()
+    fetchData()
   }, [])
 
   async function handleCreateAbsence() {
@@ -121,14 +137,14 @@ export default function Absences() {
     }
   };
 
-  // Calculate days
+  // Calculate business days (excludes weekends and official holidays)
   const numberOfDays = useMemo(() => {
     if (!startDate || !endDate) return 0;
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-    const diff = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-    return diff > 0 ? diff : 0;
-  }, [startDate, endDate]);
+    const start = new Date(startDate + 'T00:00:00.000Z');
+    const end = new Date(endDate + 'T00:00:00.000Z');
+    if (start > end) return 0;
+    return getBusinessDays(start, end, holidays);
+  }, [startDate, endDate, holidays]);
 
   if(isLoading) return (
     <div className="h-full">
@@ -301,9 +317,9 @@ export default function Absences() {
                 <span className="text-slate-800 font-semibold text-sm">{selectedEmployee || "—"}</span>
               </div>
               <div className="flex justify-between items-center py-2 border-b border-slate-100">
-                <span className="text-slate-600 text-sm font-medium">Duration</span>
-                <span className="text-slate-800 font-semibold text-sm">
-                  {numberOfDays > 0 ? `${numberOfDays} ${numberOfDays === 1 ? "day" : "days"}` : "—"}
+                <span className="text-slate-600 text-sm font-medium" title="Business days (excludes weekends and holidays)">Duration</span>
+                <span className="text-slate-800 font-semibold text-sm" title="Business days (excludes weekends and holidays)">
+                  {numberOfDays > 0 ? `${numberOfDays} business ${numberOfDays === 1 ? "day" : "days"}` : "—"}
                 </span>
               </div>
               <div className="flex justify-between items-center py-2 border-b border-slate-100">
