@@ -174,6 +174,7 @@ const onOptionsModified = useCallback(async (id: number, newValue: string, opera
             formData={formData}
             handleChange={handleChange}
             handleSubmit={handleSubmit}
+            existingCompanies={Object.keys(selectors)}
           />
         </div>
       </div>

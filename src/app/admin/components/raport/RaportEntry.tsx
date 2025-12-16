@@ -97,7 +97,7 @@ export default function RaportEntry({timesheet, month, year, index, adminId, onA
                 <Button
                     variant="ghost"
                     size="sm"
-                    className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 gap-1.5"
+                    className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 gap-1.5 text-md"
                 >
                     <Eye size={14} />
                     View

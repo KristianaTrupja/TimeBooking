@@ -30,7 +30,7 @@ export default function Calendar({ isOwner=false }: { isOwner:boolean }) {
 
 
   return (
-    <div className="rounded-xl overflow-hidden shadow-sm border border-slate-200">
+    <div className="overflow-hidden shadow-sm border border-slate-200">
       <TopBar hoveredColIndex={hoveredColIndex} />
       <div className="flex flex-col bg-slate-50">
         {sidebarProjects.map((companyBlock) => (

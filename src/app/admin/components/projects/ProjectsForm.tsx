@@ -7,12 +7,14 @@ interface ProjectsFormProps {
   formData: FormData;
   handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleSubmit: (e: React.FormEvent) => void;
+  existingCompanies?: string[];
 }
 
 export default function ProjectsForm({
   formData,
   handleChange,
   handleSubmit,
+  existingCompanies = [],
 }: ProjectsFormProps) {
   return (
     <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5 w-full lg:max-w-sm xl:max-w-md">
@@ -38,9 +40,16 @@ export default function ProjectsForm({
             value={formData.name}
             onChange={handleChange}
             type="text"
+            list="company-suggestions"
+            autoComplete="off"
             className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
             placeholder="e.g., Omegaventus"
           />
+          <datalist id="company-suggestions">
+            {existingCompanies.map((company) => (
+              <option key={company} value={company} />
+            ))}
+          </datalist>
         </div>
 
         <div>
