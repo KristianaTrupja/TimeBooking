@@ -34,7 +34,7 @@ export default function TotalBar({ isOwner=false }: { isOwner:boolean }) {
 
   return (
     <div className="flex flex-col justify-between bg-gradient-to-b from-blue-50 to-blue-100 min-w-[90px] rounded-r-xl border-l border-slate-200 shadow-sm">
-      <div className="flex flex-col overflow-auto items-center">
+      <div className="flex flex-col overflow-auto items-center custom-scrollbar">
         <div className="w-full h-10 2xl:h-11 flex justify-center items-center font-semibold text-sm bg-gradient-to-b from-slate-700 to-slate-800 text-white rounded-tr-xl">
           Total
         </div>

@@ -137,9 +137,9 @@ export default function Absences() {
   )
 
   return (
-    <section className="p-6 h-full">
+    <section className="p-6 h-full overflow-y-auto custom-scrollbar">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-orange-400 flex items-center justify-center shadow-md shadow-amber-400/20">
             <CalendarDays className="text-white" size={20} />
@@ -161,7 +161,7 @@ export default function Absences() {
       </div>
 
       {/* Main Grid Layout */}
-      <div className="grid grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 pb-4">
         
         {/* Left Panel - Employee & Balance */}
         <div className="space-y-4">

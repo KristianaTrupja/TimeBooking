@@ -35,7 +35,7 @@ export default function ProjectModal({
       title="Choose a project"
       footer={<Button onClick={handleSubmit}>Add</Button>}
     >
-      <div className="space-y-4 max-h-[60vh] overflow-y-auto">
+      <div className="space-y-4 max-h-[60vh] overflow-y-auto custom-scrollbar">
         {projectsData.sort((a, b) => a.company.localeCompare(b.company)).map(({ company, projects }) => (
           <div key={company}>
             <h4 className="font-semibold text-[#244B77] mb-2">{company}</h4>

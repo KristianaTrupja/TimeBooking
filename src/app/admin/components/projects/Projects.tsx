@@ -144,7 +144,7 @@ const onOptionsModified = useCallback(async (id: number, newValue: string, opera
   );
 
   return (
-    <section className="p-6 h-full flex flex-col lg:overflow-hidden">
+    <section className="p-6 h-full flex flex-col overflow-y-auto custom-scrollbar">
       {/* Header */}
       <div className="mb-6">
         <div className="flex items-center gap-3 mb-4">
@@ -156,34 +156,12 @@ const onOptionsModified = useCallback(async (id: number, newValue: string, opera
             <p className="text-sm text-slate-500">Organize companies and their projects</p>
           </div>
         </div>
-
-        {/* Stats Cards */}
-        <div className="flex flex-wrap gap-3">
-          <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl px-4 py-3 border border-slate-200 flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-slate-200 flex items-center justify-center">
-              <Building2 size={16} className="text-slate-600" />
-            </div>
-            <div>
-              <p className="text-xl font-bold text-slate-800">{stats.companies}</p>
-              <p className="text-xs text-slate-500">Companies</p>
-            </div>
-          </div>
-          <div className="bg-gradient-to-br from-violet-50 to-purple-50 rounded-xl px-4 py-3 border border-violet-200 flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-violet-200 flex items-center justify-center">
-              <Layers size={16} className="text-violet-600" />
-            </div>
-            <div>
-              <p className="text-xl font-bold text-violet-700">{stats.projects}</p>
-              <p className="text-xs text-violet-600">Projects</p>
-            </div>
-          </div>
-        </div>
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col lg:flex-row gap-6 min-h-0 overflow-y-auto lg:overflow-hidden">
+      <div className="flex-1 flex flex-col lg:flex-row gap-6 min-h-0 overflow-y-auto pb-4 custom-scrollbar">
         {/* Projects List */}
-        <div className="w-full lg:w-1/2 xl:w-3/5 bg-white rounded-xl border border-slate-200 shadow-sm lg:flex lg:flex-col lg:min-h-0 lg:max-h-full">
+        <div className="w-full lg:w-1/2 xl:w-3/5 bg-white rounded-xl border border-slate-200 shadow-sm">
           <ProjectList
             selectors={selectors}
             onOptionsModified={onOptionsModified}
@@ -191,7 +169,7 @@ const onOptionsModified = useCallback(async (id: number, newValue: string, opera
         </div>
 
         {/* Add Project Form */}
-        <div className="w-full lg:flex-1 flex items-start justify-center pb-6 lg:pb-0">
+        <div className="w-full lg:flex-1 flex items-start justify-center pb-6 lg:pb-0 lg:sticky lg:top-0">
           <ProjectsForm
             formData={formData}
             handleChange={handleChange}

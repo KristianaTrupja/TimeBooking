@@ -23,15 +23,15 @@ export function UserTable({
 }: Props) {
   return (
     <table className="w-full">
-      <thead className="bg-slate-50 border-b border-slate-200 sticky top-0">
-        <tr className="text-left text-xs uppercase tracking-wider text-slate-500">
-          <th className="px-4 py-3 font-semibold w-16">#</th>
-          <th className="px-4 py-3 font-semibold">Employee</th>
-          <th className="px-4 py-3 font-semibold">Email</th>
-          <th className="px-4 py-3 font-semibold">Role</th>
-          <th className="px-4 py-3 font-semibold">Password</th>
-          <th className="px-4 py-3 font-semibold">Vacations</th>
-          <th className="px-4 py-3 font-semibold text-center">Actions</th>
+      <thead className="sticky top-0 z-10">
+        <tr className="text-left text-xs uppercase tracking-wider text-slate-500 border-b border-slate-200">
+          <th className="px-4 py-3 font-semibold w-16 bg-slate-50">#</th>
+          <th className="px-4 py-3 font-semibold bg-slate-50">Employee</th>
+          <th className="px-4 py-3 font-semibold bg-slate-50">Email</th>
+          <th className="px-4 py-3 font-semibold bg-slate-50">Role</th>
+          <th className="px-4 py-3 font-semibold bg-slate-50">Password</th>
+          <th className="px-4 py-3 font-semibold bg-slate-50">Vacations</th>
+          <th className="px-4 py-3 font-semibold text-center bg-slate-50">Actions</th>
         </tr>
       </thead>
       <tbody className="divide-y divide-slate-100">

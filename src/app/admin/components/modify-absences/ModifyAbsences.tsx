@@ -250,7 +250,7 @@ export default function ModifyAbsences() {
         </div>
       ) : (
         <section
-          className="overflow-y-auto rounded-xl flex-1"
+          className="overflow-y-auto rounded-xl flex-1 custom-scrollbar"
           style={{ maxHeight: containerHeight ? `${containerHeight}px` : "66vh" }}
         >
           {!absences.length && (

@@ -66,7 +66,7 @@ export default function Notifications() {
       ) : (
         <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
           <ul
-            className="divide-y divide-slate-100 overflow-y-auto"
+            className="divide-y divide-slate-100 overflow-y-auto custom-scrollbar"
             style={{ maxHeight: containerHeight ? `${containerHeight}px` : "450px" }}
           >
             {notifications.map((notification, i) => (

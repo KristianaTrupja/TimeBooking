@@ -199,7 +199,7 @@ export default function Vacations() {
       </div>
 
       <div
-        className="overflow-y-auto rounded-xl flex-1"
+        className="overflow-y-auto rounded-xl flex-1 custom-scrollbar"
         style={{ maxHeight: containerHeight ? `${containerHeight}px` : "66vh" }}
       >
         {isTableLoading ? (

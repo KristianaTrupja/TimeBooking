@@ -164,7 +164,7 @@ function ProjectManage({
           id={`${id}-listbox`}
           role="listbox"
           aria-labelledby={id}
-          className="mt-1 bg-white border border-slate-200 rounded-lg overflow-hidden shadow-lg z-10"
+          className="absolute left-0 right-0 mt-1 bg-white border border-slate-200 rounded-lg overflow-hidden shadow-lg z-50 max-h-64 overflow-y-auto custom-scrollbar"
         >
           {sortedOptions.map((option, index) => (
             <li

@@ -107,7 +107,7 @@ function Selector({
           id={`${id}-listbox`}
           role="listbox"
           aria-labelledby={id}
-          className="absolute bg-white border border-gray-300 rounded-md mt-1 w-full z-10 max-h-60 overflow-y-auto shadow-lg"
+          className="absolute bg-white border border-gray-300 rounded-md mt-1 w-full z-10 max-h-60 overflow-y-auto shadow-lg custom-scrollbar"
         >
           {sortedOptions.map((option, index) => (
             <li

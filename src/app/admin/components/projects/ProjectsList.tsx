@@ -16,9 +16,9 @@ export default function ProjectList({
   const totalProjects = Object.values(selectors).flat().length;
 
   return (
-    <div className="lg:h-full lg:flex lg:flex-col lg:overflow-hidden">
+    <div className="flex flex-col">
       {/* Header */}
-      <div className="p-4 border-b border-slate-200 bg-white flex-shrink-0">
+      <div className="p-4 border-b border-slate-200 bg-white rounded-t-xl flex-shrink-0">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/25">
@@ -45,7 +45,7 @@ export default function ProjectList({
       </div>
 
       {/* List */}
-      <div className="lg:flex-1 lg:overflow-y-auto p-4 space-y-3 lg:min-h-0">
+      <div className="p-4 space-y-3">
         {companies.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 text-slate-400">
             <FolderOpen size={48} strokeWidth={1} />

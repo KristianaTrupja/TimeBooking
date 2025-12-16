@@ -24,7 +24,7 @@ export default function SidebarList({ sidebarProjects }: SidebarListProps) {
   }
 
   return (
-    <div className="overflow-auto">
+    <div className="overflow-auto custom-scrollbar">
       <div className="h-10 2xl:h-11 flex justify-center font-semibold text-white items-center bg-gradient-to-b from-slate-700 to-slate-800 rounded-tl-xl">
         Projects
       </div>

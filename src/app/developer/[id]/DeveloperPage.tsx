@@ -74,7 +74,7 @@ export default function Developer() {
         <NavigationSidebar activeTab={activeTab} onTabChange={setActiveTab} />
         
         {/* Scrollable content area */}
-        <div className="ml-64 flex-1 overflow-auto p-6" style={{ height: "calc(100vh - 72px)" }}>
+        <div className="ml-64 flex-1 overflow-auto p-6 custom-scrollbar" style={{ height: "calc(100vh - 72px)" }}>
             {activeTab === "time-reporting" ? (
                 <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm overflow-x-auto">
                     <SidebarHeader />

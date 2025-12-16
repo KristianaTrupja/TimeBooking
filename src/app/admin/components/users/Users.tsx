@@ -258,7 +258,7 @@ export default function Users() {
 
       {/* Table Section */}
       <section
-        className="overflow-y-auto rounded-xl flex-1 bg-white border border-slate-200 shadow-sm"
+        className="overflow-y-auto rounded-xl flex-1 bg-white border border-slate-200 shadow-sm custom-scrollbar"
         style={{ maxHeight: containerHeight ? `${containerHeight}px` : "66vh" }}
       >
         <UserTable

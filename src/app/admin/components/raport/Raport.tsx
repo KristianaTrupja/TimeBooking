@@ -221,7 +221,7 @@ export default function Raport() {
 
       {/* Table Section */}
       <section
-        className="overflow-hidden overflow-y-auto rounded-xl flex-1 bg-white border border-slate-200 shadow-sm"
+        className="overflow-hidden overflow-y-auto rounded-xl flex-1 bg-white border border-slate-200 shadow-sm custom-scrollbar"
         style={{ maxHeight: containerHeight ? `${containerHeight}px` : "66vh" }}
       >
         {timesheets === null || loading || needsNavigation || isNavigating ? (
@@ -230,7 +230,7 @@ export default function Raport() {
           </div>
         ) : (
           <table className="w-full">
-            <thead className="bg-slate-50 border-b border-slate-200 sticky top-0">
+            <thead className="bg-slate-50 border-b border-slate-200 sticky top-0 z-20">
               <tr className="text-left text-xs uppercase tracking-wider text-slate-500">
                 <th className="px-4 py-3 font-semibold w-16">#</th>
                 <th className="px-4 py-3 font-semibold">Employee</th>
