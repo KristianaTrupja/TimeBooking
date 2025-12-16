@@ -80,11 +80,11 @@ export default function Developer() {
                     <SidebarHeader />
                     <section className="flex min-w-max">
                         <Sidebar isOwner={isOwner} />
-                        <section className="relative flex-shrink-0 flex flex-col justify-between" style={{ fontFamily: "var(--font-anek-bangla)" }} >
-                            <div className="flex min-h-[500px]">
+                        <section className="flex-shrink-0 flex flex-col justify-between" style={{ fontFamily: "var(--font-anek-bangla)" }} >
+                            <div className="relative flex min-h-[500px]">
                                 {loadingProjects ? (
-                                <div className="absolute inset-0 flex items-center justify-center">
-                                    <Spinner />
+                                <div className="absolute inset-0 z-10">
+                                    <Spinner text="Loading calendar..." />
                                 </div>
                                 ) : (
                                 <>

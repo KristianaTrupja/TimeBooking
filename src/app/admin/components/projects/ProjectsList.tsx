@@ -16,34 +16,36 @@ export default function ProjectList({
   const totalProjects = Object.values(selectors).flat().length;
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="lg:h-full lg:flex lg:flex-col lg:overflow-hidden">
       {/* Header */}
-      <div className="p-6 border-b border-slate-200 bg-white">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/25">
-            <FolderOpen className="text-white" size={20} />
+      <div className="p-4 border-b border-slate-200 bg-white flex-shrink-0">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/25">
+              <FolderOpen className="text-white" size={18} />
+            </div>
+            <div>
+              <h2 className="text-lg font-semibold text-slate-800">Projects</h2>
+              <p className="text-xs text-slate-500">Manage company projects</p>
+            </div>
           </div>
-          <div>
-            <h2 className="text-xl font-semibold text-slate-800">Projects</h2>
-            <p className="text-sm text-slate-500">Manage company projects</p>
-          </div>
-        </div>
-        
-        {/* Stats */}
-        <div className="flex gap-4">
-          <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-100 rounded-lg">
-            <Building2 size={14} className="text-slate-500" />
-            <span className="text-sm font-medium text-slate-700">{companies.length} Companies</span>
-          </div>
-          <div className="flex items-center gap-2 px-3 py-1.5 bg-indigo-50 rounded-lg">
-            <FolderOpen size={14} className="text-indigo-500" />
-            <span className="text-sm font-medium text-indigo-700">{totalProjects} Projects</span>
+          
+          {/* Stats */}
+          <div className="flex gap-2">
+            <div className="flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 rounded-lg">
+              <Building2 size={12} className="text-slate-500" />
+              <span className="text-xs font-medium text-slate-700">{companies.length}</span>
+            </div>
+            <div className="flex items-center gap-1.5 px-2.5 py-1 bg-indigo-50 rounded-lg">
+              <FolderOpen size={12} className="text-indigo-500" />
+              <span className="text-xs font-medium text-indigo-700">{totalProjects}</span>
+            </div>
           </div>
         </div>
       </div>
 
       {/* List */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-3">
+      <div className="lg:flex-1 lg:overflow-y-auto p-4 space-y-3 lg:min-h-0">
         {companies.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 text-slate-400">
             <FolderOpen size={48} strokeWidth={1} />

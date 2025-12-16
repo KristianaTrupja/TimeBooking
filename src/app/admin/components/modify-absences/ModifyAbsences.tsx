@@ -245,8 +245,8 @@ export default function ModifyAbsences() {
 
       {/* Table Section */}
       {isLoading ? (
-        <div className="flex items-center justify-center flex-1">
-          <Spinner />
+        <div className="flex-1">
+          <Spinner text="Loading absences..." />
         </div>
       ) : (
         <section

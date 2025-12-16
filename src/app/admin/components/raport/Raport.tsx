@@ -225,8 +225,8 @@ export default function Raport() {
         style={{ maxHeight: containerHeight ? `${containerHeight}px` : "66vh" }}
       >
         {timesheets === null || loading || needsNavigation || isNavigating ? (
-          <div className="flex items-center justify-center h-64">
-            <Spinner />
+          <div className="h-64">
+            <Spinner text="Loading timesheets..." />
           </div>
         ) : (
           <table className="w-full">

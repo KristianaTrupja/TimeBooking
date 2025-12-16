@@ -15,7 +15,7 @@ export default function ProjectsForm({
   handleSubmit,
 }: ProjectsFormProps) {
   return (
-    <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 max-w-md">
+    <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5 w-full lg:max-w-sm xl:max-w-md">
       <div className="flex items-center gap-3 mb-6">
         <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/25">
           <FolderPlus className="text-white" size={20} />

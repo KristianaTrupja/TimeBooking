@@ -172,7 +172,7 @@ export default function Vacations() {
     }
   };
 
-  if (isInitialLoading) return <Spinner />;
+  if (isInitialLoading) return <Spinner text="Loading holidays..." />;
   return (
     <section ref={sectionRef} className="p-6 flex flex-col h-full">
       {/* Year Navigation Bar */}
@@ -203,7 +203,7 @@ export default function Vacations() {
         style={{ maxHeight: containerHeight ? `${containerHeight}px` : "66vh" }}
       >
         {isTableLoading ? (
-          <Spinner />
+          <Spinner size="sm" text="" />
         ) : (
           <VacationTable
             vacations={vacations}

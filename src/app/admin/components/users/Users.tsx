@@ -188,8 +188,8 @@ export default function Users() {
   }, [user]);
 
   if (isLoading) return (
-    <div className="flex items-center justify-center h-full">
-      <Spinner />
+    <div className="h-full">
+      <Spinner text="Loading employees..." />
     </div>
   );
 

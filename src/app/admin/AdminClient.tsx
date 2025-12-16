@@ -50,7 +50,7 @@ export default function AdminClient() {
         height: containerHeight ? `${containerHeight}px` : "66vh",
       }}
     >
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm h-full overflow-hidden">
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm h-full flex flex-col overflow-hidden">
         {tab === "raport" && (
             <CalendarProvider>
               <ProjectProvider>
