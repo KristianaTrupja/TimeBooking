@@ -33,7 +33,7 @@ export default function Sidebar() {
   return (
     <aside 
       className={`fixed left-0 flex flex-col py-6 z-40 bg-gradient-to-b from-slate-800 to-slate-900 shadow-xl transition-all duration-300 ${
-        isCollapsed ? "w-[72px]" : "w-64"
+        isCollapsed ? "w-[72px]" : "w-52 2xl:w-64"
       }`}
       style={{ top: "72px", height: "calc(100vh - 72px)", fontFamily: "var(--font-anek-bangla)" }}
     >
