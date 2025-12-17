@@ -15,6 +15,8 @@ type Props = {
   onDelete: (id: number) => void;
   onChange: (e: React.ChangeEvent<HTMLInputElement>, field: "date" | "holiday") => void;
   onSave: (id: number) => void;
+  savingId?: number | null;
+  deletingId?: number | null;
 };
 
 export default function VacationTable({
@@ -25,6 +27,8 @@ export default function VacationTable({
   onDelete,
   onChange,
   onSave,
+  savingId,
+  deletingId,
 }: Props) {
   const [sortField, setSortField] = useState<SortField | null>("date");
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
@@ -123,6 +127,7 @@ export default function VacationTable({
                   editedData={editedData}
                   onChange={onChange}
                   onSave={() => onSave(emp.id)}
+                  isSaving={savingId === emp.id}
                 />
               ) : (
                 <VacationRow
@@ -131,6 +136,7 @@ export default function VacationTable({
                   emp={emp}
                   onEdit={() => onEdit(emp.id)}
                   onDelete={() => onDelete(emp.id)}
+                  isDeleting={deletingId === emp.id}
                 />
               )
             )}

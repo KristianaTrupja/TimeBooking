@@ -17,6 +17,9 @@ export default function Vacations() {
   const [newHoliday, setNewHoliday] = useState({ date: "", holiday: "" });
   const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [isTableLoading, setIsTableLoading] = useState(false);
+  const [isAdding, setIsAdding] = useState(false);
+  const [savingId, setSavingId] = useState<number | null>(null);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
   const [containerHeight, setContainerHeight] = useState<number | null>(null);
   const [year, setYear] = useState(new Date().getFullYear());
 
@@ -90,6 +93,7 @@ export default function Vacations() {
   };
 
   const handleSave = async (id: number) => {
+    setSavingId(id);
     try {
       const res = await fetch("/api/vacations", {
         method: "PUT",
@@ -110,6 +114,8 @@ export default function Vacations() {
     } catch (error) {
       console.error(error);
       toast.error("Failed to update holiday");
+    } finally {
+      setSavingId(null);
     }
   };
 
@@ -120,6 +126,7 @@ export default function Vacations() {
     );
     if (!confirmed) return;
 
+    setDeletingId(id);
     try {
       const res = await fetch("/api/vacations", {
         method: "DELETE",
@@ -132,6 +139,8 @@ export default function Vacations() {
     } catch (error) {
       console.error(error);
       toast.error("Failed to delete holiday");
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -148,6 +157,7 @@ export default function Vacations() {
       return;
     }
 
+    setIsAdding(true);
     try {
       const res = await fetch("/api/vacations", {
         method: "POST",
@@ -169,6 +179,8 @@ export default function Vacations() {
     } catch (error) {
       console.error(error);
       toast.error("Failed to add holiday");
+    } finally {
+      setIsAdding(false);
     }
   };
 
@@ -301,6 +313,8 @@ export default function Vacations() {
             onDelete={handleDelete}
             onChange={handleChange}
             onSave={handleSave}
+            savingId={savingId}
+            deletingId={deletingId}
           />
         )}
       </section>
@@ -321,6 +335,7 @@ export default function Vacations() {
         onChange={handleNewChange}
         onSubmit={handleAdd}
         data={newHoliday}
+        isLoading={isAdding}
       />
     </section>
   );

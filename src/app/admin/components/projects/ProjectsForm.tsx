@@ -8,6 +8,7 @@ interface ProjectsFormProps {
   handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleSubmit: (e: React.FormEvent) => void;
   existingCompanies?: string[];
+  isSubmitting?: boolean;
 }
 
 export default function ProjectsForm({
@@ -15,6 +16,7 @@ export default function ProjectsForm({
   handleChange,
   handleSubmit,
   existingCompanies = [],
+  isSubmitting = false,
 }: ProjectsFormProps) {
   return (
     <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5 w-full lg:max-w-sm xl:max-w-md">
@@ -70,10 +72,11 @@ export default function ProjectsForm({
 
         <Button 
           type="submit"
+          loading={isSubmitting}
           className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-lg shadow-blue-500/25 py-2.5"
         >
           <Plus size={18} className="mr-2" />
-          Add Project
+          {isSubmitting ? "Adding..." : "Add Project"}
         </Button>
       </form>
     </div>

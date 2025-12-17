@@ -22,6 +22,7 @@ export const WorkHoursModal = ({
   const [inputValue, setInputValue] = useState(initialHours);
   const [textareaValue, setTextAreaValue] = useState(initialNote);
   const [inputError, setInputError] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   const handleSave = useCallback(async () => {
     const hours = parseFloat(inputValue.trim());
@@ -29,9 +30,14 @@ export const WorkHoursModal = ({
       setInputError("Only non-negative fractions of 0.25 are allowed");
       return;
     }
-    await onSave(hours, hours === 0 ? "" : textareaValue);
-    onClose();
-  }, [inputValue, textareaValue]);
+    setIsSaving(true);
+    try {
+      await onSave(hours, hours === 0 ? "" : textareaValue);
+      onClose();
+    } finally {
+      setIsSaving(false);
+    }
+  }, [inputValue, textareaValue, onSave, onClose]);
 
 
   return (
@@ -54,10 +60,11 @@ export const WorkHoursModal = ({
           <Button 
             onClick={handleSave} 
             disabled={!!inputError}
+            loading={isSaving}
             className="bg-gradient-to-r from-[#244B77] to-[#1a3a5c] hover:from-[#2d5a8a] hover:to-[#244B77] text-white font-medium px-6 py-2.5 rounded-xl shadow-md shadow-[#244B77]/20 disabled:opacity-40 disabled:shadow-none transition-all"
           >
             <Save size={16} className="mr-2" />
-            Save Hours
+            {isSaving ? "Saving..." : "Save Hours"}
           </Button>
         </div>
       }

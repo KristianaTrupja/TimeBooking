@@ -31,6 +31,8 @@ export default function ModifyAbsences() {
   const [absences, setAbsences] = useState<ExtAbsence[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [editingAbsence, setEditingAbsence] = useState<Absence | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
   const [filters, setFilters] = useState<Filters>(getInitialFiltersState());
   const [containerHeight, setContainerHeight] = useState<number | null>(null);
   const [scrollToAbsence, setScrollToAbsence] = useState<{ userId: number; startDate: string } | null>(null);
@@ -158,6 +160,7 @@ export default function ModifyAbsences() {
   const handleDelete = async (id: number) => {
     if (!confirm("Are you sure you want to delete this absence?")) return;
 
+    setDeletingId(id);
     try {
       const res = await fetch(`/api/absences?id=${id}`, { method: "DELETE" });
 
@@ -169,12 +172,15 @@ export default function ModifyAbsences() {
       }
     } catch (err) {
       console.error("Error deleting absence:", err);
+    } finally {
+      setDeletingId(null);
     }
   };
 
   const handleEditSubmit = async () => {
     if (!editingAbsence) return;
 
+    setIsSaving(true);
     try {
       const res = await fetch("/api/absences", {
         method: "PUT",
@@ -196,6 +202,8 @@ export default function ModifyAbsences() {
       }
     } catch (err) {
       console.error("Update error:", err);
+    } finally {
+      setIsSaving(false);
     }
   }
 
@@ -464,14 +472,23 @@ export default function ModifyAbsences() {
                                 <div className="flex items-center justify-center gap-2">
                                   <button 
                                     onClick={handleEditSubmit} 
-                                    className="p-1.5 rounded-lg bg-emerald-100 text-emerald-700 hover:bg-emerald-200 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-1"
+                                    disabled={isSaving}
+                                    className="p-1.5 rounded-lg bg-emerald-100 text-emerald-700 hover:bg-emerald-200 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed"
                                     aria-label="Save changes"
                                   >
-                                    <Check size={16} aria-hidden="true" />
+                                    {isSaving ? (
+                                      <svg className="animate-spin size-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                                      </svg>
+                                    ) : (
+                                      <Check size={16} aria-hidden="true" />
+                                    )}
                                   </button>
                                   <button 
                                     onClick={() => setEditingAbsence(null)} 
-                                    className="p-1.5 rounded-lg bg-slate-200 text-slate-700 hover:bg-slate-300 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-1"
+                                    disabled={isSaving}
+                                    className="p-1.5 rounded-lg bg-slate-200 text-slate-700 hover:bg-slate-300 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed"
                                     aria-label="Cancel editing"
                                   >
                                     <X size={16} aria-hidden="true" />
@@ -508,10 +525,18 @@ export default function ModifyAbsences() {
                                   </button>
                                   <button 
                                     onClick={() => handleDelete(absence.id)} 
-                                    className="p-2 rounded-lg hover:bg-rose-100 text-slate-600 hover:text-rose-600 transition-colors focus:outline-none focus:ring-2 focus:ring-rose-400 focus:ring-offset-1"
+                                    disabled={deletingId === absence.id}
+                                    className="p-2 rounded-lg hover:bg-rose-100 text-slate-600 hover:text-rose-600 transition-colors focus:outline-none focus:ring-2 focus:ring-rose-400 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed"
                                     aria-label={`Delete absence for ${user.username}`}
                                   >
-                                    <Trash2 size={16} aria-hidden="true" />
+                                    {deletingId === absence.id ? (
+                                      <svg className="animate-spin size-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                                      </svg>
+                                    ) : (
+                                      <Trash2 size={16} aria-hidden="true" />
+                                    )}
                                   </button>
                                 </div>
                               </td>

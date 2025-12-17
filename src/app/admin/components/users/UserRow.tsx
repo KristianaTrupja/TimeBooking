@@ -15,6 +15,8 @@ type Props = {
   onEdit: (user: UserType) => void;
   onDelete: (user: UserType) => void;
   onSave: () => void;
+  isSaving?: boolean;
+  isDeleting?: boolean;
 };
 
 const ROLE_OPTIONS = ["Dev", "Admin"];
@@ -34,6 +36,8 @@ export function UserRow({
   onEdit,
   onDelete,
   onSave,
+  isSaving,
+  isDeleting,
 }: Props) {
   return (
     <tr className={`transition-all hover:bg-slate-50 ${isEditing ? "bg-blue-50" : ""}`}>
@@ -115,10 +119,11 @@ export function UserRow({
             <Button 
               size="sm" 
               onClick={onSave}
+              loading={isSaving}
               className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white"
             >
               <Check size={14} className="mr-1" />
-              Save
+              {isSaving ? "Saving..." : "Save"}
             </Button>
           </td>
         </>
@@ -176,10 +181,18 @@ export function UserRow({
               </button>
               <button
                 onClick={() => onDelete(emp)}
-                className="p-2 rounded-lg hover:bg-rose-100 text-slate-600 hover:text-rose-600 transition-colors focus:outline-none focus:ring-2 focus:ring-rose-400"
+                disabled={isDeleting}
+                className="p-2 rounded-lg hover:bg-rose-100 text-slate-600 hover:text-rose-600 transition-colors focus:outline-none focus:ring-2 focus:ring-rose-400 disabled:opacity-50 disabled:cursor-not-allowed"
                 aria-label={`Delete employee: ${emp.username}`}
               >
-                <Trash2 size={16} aria-hidden="true" />
+                {isDeleting ? (
+                  <svg className="animate-spin size-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  </svg>
+                ) : (
+                  <Trash2 size={16} aria-hidden="true" />
+                )}
               </button>
             </div>
           </td>

@@ -14,6 +14,8 @@ type Props = {
   onEdit: (user: User) => void;
   onDelete: (user: User) => void;
   onSave: () => void;
+  isSaving?: boolean;
+  deletingId?: number | null;
 };
 
 export function UserTable({
@@ -24,6 +26,8 @@ export function UserTable({
   onEdit,
   onDelete,
   onSave,
+  isSaving,
+  deletingId,
 }: Props) {
   const [sortField, setSortField] = useState<SortField | null>("username");
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
@@ -139,6 +143,8 @@ export function UserTable({
             onEdit={onEdit}
             onDelete={onDelete}
             onSave={onSave}
+            isSaving={isSaving && editingId === emp.id}
+            isDeleting={deletingId === emp.id}
           />
         ))}
       </tbody>

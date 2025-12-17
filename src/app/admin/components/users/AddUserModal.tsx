@@ -10,9 +10,10 @@ type Props = {
   onClose: () => void;
   onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
   onSubmit: () => void;
+  isLoading?: boolean;
 };
 
-export function AddUserModal({ open, onClose, formData, onChange, onSubmit }: Props) {
+export function AddUserModal({ open, onClose, formData, onChange, onSubmit, isLoading }: Props) {
   return (
     <Modal
       isOpen={open}
@@ -31,10 +32,11 @@ export function AddUserModal({ open, onClose, formData, onChange, onSubmit }: Pr
       footer={
         <Button 
           onClick={onSubmit}
+          loading={isLoading}
           className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-lg shadow-blue-500/25"
         >
           <UserPlus size={16} className="mr-2" />
-          Add Employee
+          {isLoading ? "Adding..." : "Add Employee"}
         </Button>
       }
     >

@@ -42,6 +42,7 @@ export default function Absences() {
   const [absenceType, setAbsenceType] = useState<string | null>(null)
   const [employees, setEmployees] = useState<User[]| null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [remainingDays, setRemainingDays] = useState<APIRemainingDays | null>(null)
   const [holidays, setHolidays] = useState<string[]>([])
 
@@ -109,6 +110,7 @@ export default function Absences() {
       return;
     }
 
+    setIsSubmitting(true)
     try {
       const response = await fetch("/api/absences", {
         method: "POST",
@@ -134,6 +136,8 @@ export default function Absences() {
     } catch (error:unknown) {
       console.error( "Error creating absence:", error);
       flushError(error, "Error creating absence")
+    } finally {
+      setIsSubmitting(false)
     }
   };
 
@@ -339,6 +343,7 @@ export default function Absences() {
             <Button 
               onClick={handleCreateAbsence}
               disabled={!selectedEmployee || !startDate || !endDate || !absenceType}
+              loading={isSubmitting}
               className="w-full py-5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-lg shadow-blue-500/25 disabled:opacity-40 disabled:shadow-none"
             >
               <Send size={18} className="mr-2" />

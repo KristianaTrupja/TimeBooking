@@ -5,7 +5,7 @@ import ProjectsForm from "./ProjectsForm";
 import { FormData, ProjectEntry } from "@/types/project";
 import { toast, Toaster } from "sonner";
 import Spinner from "@/components/ui/Spinner";
-import { FolderKanban, Building2, Layers } from "lucide-react";
+import { FolderKanban } from "lucide-react";
 
 function formatSelectors(data: ProjectEntry[]): Record<string, ProjectEntry[]> {
   return data.reduce((acc, entry) => {
@@ -24,6 +24,7 @@ export default function Projects() {
   const [formData, setFormData] = useState<FormData>({ name: "", project: "" });
   const [selectors, setSelectors] = useState<Record<string, ProjectEntry[]>>({});
   const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     fetch("/api/projectList")
@@ -69,6 +70,7 @@ export default function Projects() {
         }
       }
 
+      setIsSubmitting(true);
       try {
         const response = await fetch("/api/projectList", {
           method: "POST",
@@ -92,6 +94,8 @@ export default function Projects() {
       } catch (error: any) {
         console.error("Error saving project:", error);
         toast.error(error.message || "An error occurred while attempting to add the project.");
+      } finally {
+        setIsSubmitting(false);
       }
     },
     [formData, selectors]
@@ -175,6 +179,7 @@ const onOptionsModified = useCallback(async (id: number, newValue: string, opera
             handleChange={handleChange}
             handleSubmit={handleSubmit}
             existingCompanies={Object.keys(selectors)}
+            isSubmitting={isSubmitting}
           />
         </div>
       </div>

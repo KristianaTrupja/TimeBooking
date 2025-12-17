@@ -21,6 +21,9 @@ export default function Users() {
     totalVacations: 0
   });
   const [isLoading, setIsLoading] = useState(true);
+  const [isAdding, setIsAdding] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
   const [user, setUser] = useState<{ users: User[] } | null>(null);
   const [containerHeight, setContainerHeight] = useState<number | null>(null);
   const sectionRef = useRef<HTMLElement>(null);
@@ -71,6 +74,7 @@ export default function Users() {
     if (!emp.id) return;
 
     if (window.confirm(`Are you sure you want to delete ${emp.username}?`)) {
+      setDeletingId(emp.id);
       try {
         const res = await fetch("/api/user", {
           method: "DELETE",
@@ -90,6 +94,8 @@ export default function Users() {
         }
       } catch {
         toast.error("Connection to server failed!");
+      } finally {
+        setDeletingId(null);
       }
     }
   };
@@ -118,6 +124,7 @@ export default function Users() {
     if (password.trim()) {
       payload.password = password;
     }
+    setIsSaving(true);
     try {
       const res = await fetch("/api/user", {
         method: "PUT",
@@ -143,6 +150,8 @@ export default function Users() {
       }
     } catch {
       toast.error("An error occurred while attempting to update!");
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -158,22 +167,27 @@ export default function Users() {
       toast.error("Weak password. Meet the requirements.");
       return;
     }
-    const response = await fetch("/api/user", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(formData),
-      cache: "no-store",
-    });
+    setIsAdding(true);
+    try {
+      const response = await fetch("/api/user", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+        cache: "no-store",
+      });
 
-    if (response.ok) {
-      toast.success("Employee was added successfully.");
-      setOpen(false);
-      window.location.reload();
-    } else {
-      const err = await response.json();
-      toast.error(
-        err.message || "Registration failed! Please try again."
-      );
+      if (response.ok) {
+        toast.success("Employee was added successfully.");
+        setOpen(false);
+        window.location.reload();
+      } else {
+        const err = await response.json();
+        toast.error(
+          err.message || "Registration failed! Please try again."
+        );
+      }
+    } finally {
+      setIsAdding(false);
     }
   };
 
@@ -269,6 +283,8 @@ export default function Users() {
           onEdit={startEditing}
           onDelete={deleteItem}
           onSave={saveChanges}
+          isSaving={isSaving}
+          deletingId={deletingId}
         />
       </section>
 
@@ -288,6 +304,7 @@ export default function Users() {
         formData={formData}
         onChange={handleInputChange}
         onSubmit={addNewEmployee}
+        isLoading={isAdding}
       />
       <Toaster position="top-right" richColors />
     </section>

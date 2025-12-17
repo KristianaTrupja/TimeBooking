@@ -13,6 +13,7 @@ export default function Sidebar({ isOwner }: { isOwner:boolean }) {
   const [projectsData, setProjectsData] = useState<ProjectData[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProjects, setSelectedProjects] = useState<string[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const groupProjects = (entries: ProjectEntry[]): ProjectData[] => {
     const grouped = entries.reduce((acc, { id, company, project }) => {
@@ -45,7 +46,7 @@ export default function Sidebar({ isOwner }: { isOwner:boolean }) {
     );
   };
 
-const handleSubmit = () => {
+const handleSubmit = async () => {
   const selected: ProjectData[] = projectsData
     .map(({ company, projects }) => {
       const filtered = projects.filter(p =>
@@ -74,9 +75,14 @@ const handleSubmit = () => {
     })
   );
 
-  setSidebarProjects(mergedProjects);
-  setSelectedProjects([]);
-  setIsModalOpen(false);
+  setIsSubmitting(true);
+  try {
+    await setSidebarProjects(mergedProjects);
+    setSelectedProjects([]);
+    setIsModalOpen(false);
+  } finally {
+    setIsSubmitting(false);
+  }
 };
 
 
@@ -100,6 +106,7 @@ const handleSubmit = () => {
         sidebarProjects={sidebarProjects}
         toggleSelection={toggleProjectSelection}
         handleSubmit={handleSubmit}
+        isSubmitting={isSubmitting}
       />
     </>
   );

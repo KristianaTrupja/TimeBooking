@@ -12,6 +12,7 @@ interface ProjectModalProps {
   sidebarProjects: ProjectData[];
   toggleProjectSelection: (company: string, project: string) => void;
   handleSubmit: () => void;
+  isSubmitting?: boolean;
 }
 
 export default function ProjectModal({
@@ -22,6 +23,7 @@ export default function ProjectModal({
   sidebarProjects,
   toggleProjectSelection,
   handleSubmit,
+  isSubmitting,
 }: ProjectModalProps) {
   const sidebarProjectKeys = new Set(
     sidebarProjects.flatMap((group) =>
@@ -63,10 +65,11 @@ export default function ProjectModal({
           <Button 
             onClick={handleSubmit}
             disabled={selectedCount === 0}
+            loading={isSubmitting}
             className="bg-gradient-to-r from-[#244B77] to-[#1a3a5c] hover:from-[#2d5a8a] hover:to-[#244B77] text-white px-6 py-2 rounded-xl shadow-md shadow-[#244B77]/20 disabled:opacity-40 disabled:shadow-none transition-all"
           >
             <FolderPlus size={16} className="mr-2" />
-            Add Selected
+            {isSubmitting ? "Adding..." : "Add Selected"}
           </Button>
         </div>
       }

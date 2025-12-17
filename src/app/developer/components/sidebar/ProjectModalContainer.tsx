@@ -8,6 +8,7 @@ export default function ProjectModalContainer({
   sidebarProjects,
   toggleSelection,
   handleSubmit,
+  isSubmitting,
 }: any){
     return(
         <ProjectModal
@@ -18,6 +19,7 @@ export default function ProjectModalContainer({
           sidebarProjects={sidebarProjects}
           toggleProjectSelection={toggleSelection}
           handleSubmit={handleSubmit}
+          isSubmitting={isSubmitting}
         />
     )
 };
