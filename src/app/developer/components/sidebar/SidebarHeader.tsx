@@ -49,7 +49,7 @@ export default function SidebarHeader() {
       case "LOCKED":
         return "text-slate-700 bg-slate-100 border-slate-200";
       default:
-        return "text-slate-500 bg-white border-slate-200";
+        return "text-sky-700 bg-sky-50 border-sky-200";
     }
   };
 

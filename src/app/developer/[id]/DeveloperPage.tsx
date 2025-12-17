@@ -109,22 +109,23 @@ export default function Developer() {
                             {!loadingProjects && <TotalBar isOwner={isOwner} />}
                         </div>
                     </section>
-                    <div className="flex justify-between items-center pt-4 mt-auto flex-shrink-0">
+                    {/* Status Bar - Separated from calendar */}
+                    <div className="mt-4 -mx-6 -mb-6 px-6 py-3 bg-gradient-to-r from-slate-50 via-slate-100 to-slate-50 border-t border-slate-200 flex justify-between items-center flex-shrink-0 rounded-b-2xl">
                         <CalendarLegend />
-                        <div className="flex items-center gap-4">
-                        {isOwner && !metadata?.isLocked && (
-                            <>
-                            <Button 
-                                disabled={isSubmitting} 
-                                onClick={handleSubmit}
-                                className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-lg shadow-blue-500/25 border-0 transition-all duration-300"
-                            >
-                                <Send size={16} className="mr-2" />
-                                Submit timesheet
-                            </Button>
-                            <SaveButton />
-                            </>
-                        )}
+                        <div className="flex items-center gap-3">
+                            {isOwner && !metadata?.isLocked && (
+                                <>
+                                <Button 
+                                    disabled={isSubmitting} 
+                                    onClick={handleSubmit}
+                                    className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-lg shadow-blue-500/25 border-0 transition-all duration-300"
+                                >
+                                    <Send size={16} className="mr-2" />
+                                    Submit timesheet
+                                </Button>
+                                <SaveButton />
+                                </>
+                            )}
                         </div>
                     </div>
                 </div>
