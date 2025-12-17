@@ -300,83 +300,107 @@ export default function DeveloperVacations() {
         </div>
 
         {/* Filter Toggle */}
-        <div className="flex justify-end mt-4">
-          <button
-            onClick={() => setShowFilters(!showFilters)}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm transition-all duration-200 ${
-              showFilters || hasFiltersApplied()
-                ? "bg-[#244B77] text-white shadow-md"
-                : "bg-slate-100 text-slate-700 hover:bg-slate-200"
-            }`}
-          >
-            <Filter size={16} />
-            Filters
-            {hasFiltersApplied() && (
-              <span className="w-2 h-2 rounded-full bg-cyan-400" />
-            )}
-          </button>
-        </div>
+        {!showFilters && (
+          <div className="flex justify-end mt-4">
+            <button
+              onClick={() => setShowFilters(true)}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm transition-all duration-200 ${
+                hasFiltersApplied()
+                  ? "bg-[#244B77] text-white shadow-md"
+                  : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+              }`}
+            >
+              <Filter size={16} />
+              Filters
+              {hasFiltersApplied() && (
+                <span className="w-2 h-2 rounded-full bg-cyan-400" />
+              )}
+            </button>
+          </div>
+        )}
 
         {/* Filters Panel */}
         {showFilters && (
-          <div className="mt-4 p-4 bg-slate-50 rounded-xl border border-slate-200">
-            <div className="flex flex-wrap items-end gap-4">
-              {/* Date Range */}
-              <div className="flex gap-3">
-                <div>
-                  <label htmlFor="filter-start" className="text-xs font-semibold text-slate-700 mb-1.5 block">
-                    From
-                  </label>
-                  <input
-                    id="filter-start"
-                    type="date"
-                    value={filters.startDate.toISOString().slice(0, 10)}
-                    onChange={(e) => setFilters(prev => ({ ...prev, startDate: new Date(e.target.value) }))}
-                    className="px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#244B77]/30"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="filter-end" className="text-xs font-semibold text-slate-700 mb-1.5 block">
-                    To
-                  </label>
-                  <input
-                    id="filter-end"
-                    type="date"
-                    value={filters.endDate.toISOString().slice(0, 10)}
-                    onChange={(e) => setFilters(prev => ({ ...prev, endDate: new Date(e.target.value) }))}
-                    className="px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#244B77]/30"
-                  />
-                </div>
+          <div className="mt-4 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            {/* Header */}
+            <div className="flex justify-between items-center px-4 py-3 bg-gradient-to-r from-slate-50 to-slate-100 border-b border-slate-200">
+              <div className="flex items-center gap-2">
+                <Filter size={16} className="text-[#244B77]" />
+                <span className="text-sm font-semibold text-slate-800">Filter Absences</span>
               </div>
+              <button
+                onClick={() => setShowFilters(false)}
+                className="p-1 rounded-md hover:bg-slate-200 text-slate-400 hover:text-slate-600 transition-colors"
+                aria-label="Close filters"
+              >
+                <X size={16} />
+              </button>
+            </div>
+            
+            {/* Filter Controls */}
+            <div className="p-4">
+              <div className="flex flex-wrap items-end gap-4">
+                {/* Date Range */}
+                <div className="flex items-center gap-2">
+                  <div>
+                    <label htmlFor="filter-start" className="text-xs font-medium text-slate-500 mb-1 block">
+                      From
+                    </label>
+                    <input
+                      id="filter-start"
+                      type="date"
+                      value={filters.startDate.toISOString().slice(0, 10)}
+                      onChange={(e) => setFilters(prev => ({ ...prev, startDate: new Date(e.target.value) }))}
+                      className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#244B77]/20 focus:border-[#244B77]/30 transition-all"
+                    />
+                  </div>
+                  <span className="text-slate-400 mt-5">→</span>
+                  <div>
+                    <label htmlFor="filter-end" className="text-xs font-medium text-slate-500 mb-1 block">
+                      To
+                    </label>
+                    <input
+                      id="filter-end"
+                      type="date"
+                      value={filters.endDate.toISOString().slice(0, 10)}
+                      onChange={(e) => setFilters(prev => ({ ...prev, endDate: new Date(e.target.value) }))}
+                      className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#244B77]/20 focus:border-[#244B77]/30 transition-all"
+                    />
+                  </div>
+                </div>
 
-              {/* Type Filter */}
-              <div>
-                <label htmlFor="filter-type" className="text-xs font-semibold text-slate-700 mb-1.5 block">
-                  Type
-                </label>
-                <select
-                  id="filter-type"
-                  value={filters.selectedAbsenceType || ""}
-                  onChange={(e) => setFilters(prev => ({ ...prev, selectedAbsenceType: e.target.value || null }))}
-                  className="px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#244B77]/30 min-w-[140px]"
-                >
-                  <option value="">All Types</option>
-                  {ABSENCE_TYPES.map(type => (
-                    <option key={type} value={type}>{type}</option>
-                  ))}
-                </select>
+                {/* Divider */}
+                <div className="hidden sm:block w-px h-10 bg-slate-200" />
+
+                {/* Type Filter */}
+                <div>
+                  <label htmlFor="filter-type" className="text-xs font-medium text-slate-500 mb-1 block">
+                    Leave Type
+                  </label>
+                  <select
+                    id="filter-type"
+                    value={filters.selectedAbsenceType || ""}
+                    onChange={(e) => setFilters(prev => ({ ...prev, selectedAbsenceType: e.target.value || null }))}
+                    className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#244B77]/20 focus:border-[#244B77]/30 min-w-[150px] transition-all"
+                  >
+                    <option value="">All Types</option>
+                    {ABSENCE_TYPES.map(type => (
+                      <option key={type} value={type}>{type}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Reset Button */}
+                {hasFiltersApplied() && (
+                  <button
+                    onClick={handleResetFilters}
+                    className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all border border-transparent hover:border-rose-200"
+                  >
+                    <X size={14} />
+                    Clear
+                  </button>
+                )}
               </div>
-
-              {/* Reset Button */}
-              {hasFiltersApplied() && (
-                <button
-                  onClick={handleResetFilters}
-                  className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
-                >
-                  <X size={14} />
-                  Reset
-                </button>
-              )}
             </div>
           </div>
         )}
