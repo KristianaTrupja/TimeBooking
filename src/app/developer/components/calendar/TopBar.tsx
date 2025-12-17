@@ -25,7 +25,7 @@ export default function TopBar({ hoveredColIndex }: { hoveredColIndex: number | 
 
   if (absenceLoading || loading) return null;
   return (
-    <div className="flex bg-gradient-to-b from-slate-700 to-slate-800 items-center sticky h-10 2xl:h-11">
+    <div className="flex bg-gradient-to-r from-[#244B77] via-[#2d5a8a] to-[#244B77] items-center sticky h-10 2xl:h-11 rounded-t-lg">
       {days.map((dayStr, colIndex) => {
         const day = parseInt(dayStr, 10);
         const date = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
@@ -35,12 +35,12 @@ export default function TopBar({ hoveredColIndex }: { hoveredColIndex: number | 
         const today = day === todayDate && month === todayMonth && year === todayYear
 
         const classList = [
-          "w-9 h-10 2xl:w-10 2xl:h-11 flex justify-center items-center border-r border-slate-600 font-medium text-sm transition-colors",
-          isWeekend(year, month, day) ? "bg-slate-600/50 text-slate-300" : "text-white",
-          isHoliday && "!bg-emerald-600/40 !text-emerald-200",
-          isAbsentDay && "!bg-amber-600/40 !text-amber-200",
-          hoveredColIndex === colIndex && !isWeekend(year, month, day) && !isHoliday && !isAbsentDay && "!bg-blue-600/30",
-          today && "!bg-blue-500 !text-white font-bold ring-2 ring-blue-400 ring-inset"
+          "w-9 h-10 2xl:w-10 2xl:h-11 flex justify-center items-center border-r border-white/10 font-medium text-sm transition-colors",
+          isWeekend(year, month, day) ? "bg-white/10 text-white/70" : "text-white",
+          isHoliday && "!bg-emerald-500/30 !text-emerald-200",
+          isAbsentDay && "!bg-amber-500/30 !text-amber-200",
+          hoveredColIndex === colIndex && !isWeekend(year, month, day) && !isHoliday && !isAbsentDay && "!bg-white/20",
+          today && "!bg-cyan-400 !text-[#244B77] font-bold shadow-lg shadow-cyan-400/30"
         ]
           .filter(Boolean)
           .join(" ");

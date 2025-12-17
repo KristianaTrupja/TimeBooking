@@ -1,0 +1,24 @@
+export default function CalendarLegend() {
+  const legendItems = [
+    { label: "Weekend", color: "bg-slate-300" },
+    { label: "Official Holiday", color: "bg-emerald-400" },
+    { label: "Vacation / Absence", color: "bg-amber-400" },
+    { label: "Pending (unsaved)", color: "bg-blue-400" },
+  ];
+
+  return (
+    <div className="flex flex-col gap-1">
+      <span className="text-xs text-slate-500">Timereportings status</span>
+      <div className="flex">
+        {legendItems.map((item) => (
+          <div
+            key={item.label}
+            title={item.label}
+            className={`w-6 h-3 ${item.color} cursor-default hover:brightness-110 transition-all first:rounded-l last:rounded-r`}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+

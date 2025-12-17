@@ -57,10 +57,30 @@ export default function WorkDay({
 
   const isHovered = hoveredColIndex === colIndex || hoveredProjectKey === projectKey;
 
+  // Determine background and text colors based on day type (priority order)
+  const getDayStyles = () => {
+    if (isHoliday) {
+      return "bg-emerald-50 text-emerald-700";
+    }
+    if (isAbsentDay) {
+      return "bg-amber-50 text-amber-700";
+    }
+    if (isWeekendDay) {
+      return "bg-slate-200/70 text-slate-500";
+    }
+    // Normal day
+    if (isDisabled) {
+      return "bg-slate-50 text-slate-500";
+    }
+    return "bg-white hover:bg-blue-50 cursor-pointer text-slate-700";
+  };
+
+  const canClick = !isAbsentDay && !isDisabled && !isHoliday && !isWeekendDay;
+
   return (
     <>
       <div
-        onClick={() => !isAbsentDay && !isDisabled && setIsModalOpen(true)}
+        onClick={() => canClick && setIsModalOpen(true)}
         onMouseEnter={() => {
           setHoveredColIndex(colIndex);
           setHoveredProjectKey(projectKey);
@@ -71,8 +91,9 @@ export default function WorkDay({
         }}
         title={title ?? undefined}
         className={`relative w-9 h-9 2xl:w-10 2xl:h-10 flex items-center justify-center text-sm border-r border-b border-slate-200 transition-all duration-150
-          ${isHoliday ? "bg-emerald-50 text-emerald-700" : isDisabled ? "bg-slate-50 text-slate-400 font-medium" : isAbsentDay ? "bg-amber-50 text-amber-700 cursor-default" : isWeekendDay ? "bg-slate-100 text-slate-500" : "bg-white hover:bg-blue-50 cursor-pointer text-slate-700"}
-          ${isHovered && !isDisabled && !isWeekendDay && !isHoliday && !isAbsentDay && "!bg-blue-50"}
+          ${getDayStyles()}
+          ${!canClick ? "cursor-default" : ""}
+          ${isHovered && canClick && "!bg-blue-50"}
           ${isPending ? "font-semibold !text-blue-600 !bg-blue-50 ring-1 ring-inset ring-blue-300" : ""}
         `}
       >

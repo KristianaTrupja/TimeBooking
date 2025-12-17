@@ -25,7 +25,7 @@ export default function SidebarList({ sidebarProjects }: SidebarListProps) {
 
   return (
     <div className="overflow-auto custom-scrollbar">
-      <div className="h-10 2xl:h-11 flex justify-center font-semibold text-white items-center bg-gradient-to-b from-slate-700 to-slate-800 rounded-tl-xl">
+      <div className="h-10 2xl:h-11 flex justify-center font-semibold text-white items-center bg-gradient-to-r from-[#244B77] to-[#1a3a5c] rounded-tl-xl">
         Projects
       </div>
       {sidebarProjects.sort((a, b) => a.company.localeCompare(b.company)).map(({ company, projects }) => (

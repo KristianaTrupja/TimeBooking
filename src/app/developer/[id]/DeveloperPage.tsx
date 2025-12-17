@@ -21,6 +21,7 @@ import { User } from "next-auth";
 import { getSession } from "next-auth/react";
 import NavigationSidebar from "../components/navigation/NavigationSidebar";
 import DeveloperVacations from "../components/vacations/DeveloperVacations";
+import CalendarLegend from "../components/calendar/CalendarLegend";
 
 type Tab = "time-reporting" | "vacations";
 
@@ -108,7 +109,9 @@ export default function Developer() {
                             {!loadingProjects && <TotalBar isOwner={isOwner} />}
                         </div>
                     </section>
-                    <div className="flex justify-end items-center gap-4 pt-4 mt-auto flex-shrink-0">
+                    <div className="flex justify-between items-center pt-4 mt-auto flex-shrink-0">
+                        <CalendarLegend />
+                        <div className="flex items-center gap-4">
                         {isOwner && !metadata?.isLocked && (
                             <>
                             <Button 
@@ -122,6 +125,7 @@ export default function Developer() {
                             <SaveButton />
                             </>
                         )}
+                        </div>
                     </div>
                 </div>
             ) : (

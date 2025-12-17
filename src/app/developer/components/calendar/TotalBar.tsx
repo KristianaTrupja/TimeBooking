@@ -35,7 +35,7 @@ export default function TotalBar({ isOwner=false }: { isOwner:boolean }) {
   return (
     <div className="h-full flex flex-col justify-between bg-gradient-to-b from-blue-50 to-blue-100 min-w-[90px] rounded-r-xl border-l border-slate-200 shadow-md">
       <div className="flex-1 flex flex-col items-center min-h-0">
-        <div className="w-full h-10 2xl:h-11 flex justify-center items-center font-semibold text-sm bg-gradient-to-b from-slate-700 to-slate-800 text-white rounded-tr-xl flex-shrink-0">
+        <div className="w-full h-10 2xl:h-11 flex justify-center items-center font-semibold text-sm bg-gradient-to-r from-[#1a3a5c] to-[#244B77] text-white rounded-tr-xl flex-shrink-0">
           Total
         </div>
         {sidebarProjects.map((group) => (
