@@ -81,7 +81,7 @@ export default function Developer() {
                     <SidebarHeader />
                     <section className="flex flex-1 min-h-0" style={{ fontFamily: "var(--font-anek-bangla)" }}>
                         {/* Projects Sidebar - Sticky Left */}
-                        <div className="sticky flex-1 left-0 z-20 bg-white flex-shrink-0 h-full">
+                        <div className="sticky left-0 z-20 bg-white flex-shrink-0 h-full">
                             <Sidebar isOwner={isOwner} />
                         </div>
                         
@@ -108,6 +108,9 @@ export default function Developer() {
                         <div className="sticky right-0 z-20 bg-white flex-shrink-0 h-full">
                             {!loadingProjects && <TotalBar isOwner={isOwner} />}
                         </div>
+                        
+                        {/* Empty space filler - pushes calendar left */}
+                        <div className="flex-1 bg-slate-50/50" />
                     </section>
                     {/* Status Bar - Separated from calendar */}
                     <div className="mt-4 -mx-6 -mb-6 px-6 py-3 bg-gradient-to-r from-slate-50 via-slate-100 to-slate-50 border-t border-slate-200 flex justify-between items-center flex-shrink-0 rounded-b-2xl">
