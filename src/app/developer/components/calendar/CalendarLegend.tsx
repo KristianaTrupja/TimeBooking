@@ -1,14 +1,20 @@
+"use client";
+
+import { useLanguage } from "@/app/context/LanguageContext";
+
 export default function CalendarLegend() {
+  const { t } = useLanguage();
+  
   const legendItems = [
-    { label: "Weekend", color: "bg-slate-300" },
-    { label: "Official Holiday", color: "bg-emerald-400" },
-    { label: "Vacation / Absence", color: "bg-amber-400" },
-    { label: "Pending (unsaved)", color: "bg-blue-400" },
+    { label: t.weekend, color: "bg-slate-300" },
+    { label: t.officialHoliday, color: "bg-emerald-400" },
+    { label: t.vacationAbsence, color: "bg-amber-400" },
+    { label: t.pendingUnsaved, color: "bg-blue-400" },
   ];
 
   return (
     <div className="flex flex-col gap-1">
-      <span className="text-xs text-slate-500">Timereportings status</span>
+      <span className="text-xs text-slate-500">{t.timereportingsStatus}</span>
       <div className="flex">
         {legendItems.map((item) => (
           <div

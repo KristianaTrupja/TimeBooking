@@ -1,5 +1,6 @@
 import React, { useRef, useState } from "react";
 import { Popover, PopoverButton, PopoverPanel } from '@headlessui/react'
+import { useLanguage } from "@/app/context/LanguageContext";
 
 type AbsPopoverData = {
     currentYear: { year:number, daysLeft:number, daysSpent:number },
@@ -15,6 +16,7 @@ type AbsPopoverProps = {
 export default function AbsPopover({ data }:AbsPopoverProps) {
   const [isOpen, setIsOpen] = useState(false)
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const { t } = useLanguage();
 
     const handleMouseEnter = () => {
     if (timeoutRef.current) {
@@ -36,9 +38,9 @@ export default function AbsPopover({ data }:AbsPopoverProps) {
         onMouseLeave={handleMouseLeave}
     >
         <PopoverButton className="outline-none">
-            Vacations Left:
+            {t.vacationsLeft}:
             <span className="font-bold">
-                <span> {data.totalDaysLeft} {data.totalDaysLeft === 1 ? " Day" : " Days"}</span>
+                <span> {data.totalDaysLeft} {data.totalDaysLeft === 1 ? t.day : t.days}</span>
             </span>
         </PopoverButton>
         <PopoverPanel
@@ -53,9 +55,9 @@ export default function AbsPopover({ data }:AbsPopoverProps) {
         >
             <table>
                 <tr className="font-bold text-xs">
-                    <td>Year</td>
-                    <td>Left (days)</td>
-                    <td>Spent (2025)</td>
+                    <td>{t.year}</td>
+                    <td>{t.left}</td>
+                    <td>{t.spent} ({new Date().getFullYear()})</td>
                 </tr>
                 <tr>
                     <td>{data.currentYear.year}</td>
@@ -68,7 +70,7 @@ export default function AbsPopover({ data }:AbsPopoverProps) {
                     <td className="text-center">{data.lastYear.daysSpent}</td>
                 </tr>
                 <tr className="font-bold">
-                    <td>Total</td>
+                    <td>{t.total}</td>
                     <td className="text-center">{data.totalDaysLeft}</td>
                     <td className="text-center">{data.currentYear.daysSpent + data.lastYear.daysSpent}</td>
                 </tr>

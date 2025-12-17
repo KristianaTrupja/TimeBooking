@@ -2,6 +2,7 @@ import React, { useState, useCallback, useMemo } from "react";
 import { User, UserFormData } from "@/types/user";
 import { UserRow } from "./UserRow";
 import { ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+import { useLanguage } from "@/app/context/LanguageContext";
 
 type SortField = "username" | "email" | "role" | "totalVacations";
 type SortDirection = "asc" | "desc" | null;
@@ -61,6 +62,8 @@ export function UserTable({
     return <ArrowUpDown size={14} className="text-slate-400" />;
   }, [sortField, sortDirection]);
 
+  const { t } = useLanguage();
+
   const sortedEmployees = useMemo(() => {
     const sorted = [...employees];
     
@@ -100,7 +103,7 @@ export function UserTable({
               onClick={() => handleSort("username")}
               className="flex items-center gap-1.5 hover:text-slate-900 transition-colors"
             >
-              Employee {getSortIcon("username")}
+              {t.employee} {getSortIcon("username")}
             </button>
           </th>
           <th className="px-4 py-3 font-bold bg-slate-100">
@@ -108,7 +111,7 @@ export function UserTable({
               onClick={() => handleSort("email")}
               className="flex items-center gap-1.5 hover:text-slate-900 transition-colors"
             >
-              Email {getSortIcon("email")}
+              {t.email} {getSortIcon("email")}
             </button>
           </th>
           <th className="px-4 py-3 font-bold bg-slate-100">
@@ -116,19 +119,19 @@ export function UserTable({
               onClick={() => handleSort("role")}
               className="flex items-center gap-1.5 hover:text-slate-900 transition-colors"
             >
-              Role {getSortIcon("role")}
+              {t.role} {getSortIcon("role")}
             </button>
           </th>
-          <th className="px-4 py-3 font-bold bg-slate-100">Password</th>
+          <th className="px-4 py-3 font-bold bg-slate-100">{t.password}</th>
           <th className="px-4 py-3 font-bold bg-slate-100">
             <button 
               onClick={() => handleSort("totalVacations")}
               className="flex items-center gap-1.5 hover:text-slate-900 transition-colors"
             >
-              Vacations {getSortIcon("totalVacations")}
+              {t.vacations} {getSortIcon("totalVacations")}
             </button>
           </th>
-          <th className="px-4 py-3 font-bold text-center bg-slate-100">Actions</th>
+          <th className="px-4 py-3 font-bold text-center bg-slate-100">{t.actions}</th>
         </tr>
       </thead>
       <tbody className="divide-y divide-slate-100">

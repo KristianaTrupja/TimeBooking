@@ -22,6 +22,7 @@ import { getSession } from "next-auth/react";
 import NavigationSidebar from "../components/navigation/NavigationSidebar";
 import DeveloperVacations from "../components/vacations/DeveloperVacations";
 import CalendarLegend from "../components/calendar/CalendarLegend";
+import { useLanguage } from "@/app/context/LanguageContext";
 
 type Tab = "time-reporting" | "vacations";
 
@@ -31,6 +32,7 @@ export default function Developer() {
     const { month, year } = useCalendar();
     const { loadingProjects } = useProjects();
     const { isCollapsed } = useSidebar();
+    const { t } = useLanguage();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [loggedInUser, setLoggedInUser] = useState<User | null>(null);
     const [activeTab, setActiveTab] = useState<Tab>("time-reporting");
@@ -91,7 +93,7 @@ export default function Developer() {
                                 <div className="relative flex">
                                     {loadingProjects ? (
                                         <div className="absolute inset-0 z-10">
-                                            <Spinner text="Loading calendar..." />
+                                            <Spinner text={t.loadingCalendar} />
                                         </div>
                                     ) : (
                                         <>
@@ -124,7 +126,7 @@ export default function Developer() {
                                     className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-lg shadow-blue-500/25 border-0 transition-all duration-300"
                                 >
                                     <Send size={16} className="mr-2" />
-                                    Submit timesheet
+                                    {t.submitTimesheet}
                                 </Button>
                                 <SaveButton />
                                 </>

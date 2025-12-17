@@ -10,6 +10,7 @@ import { AbsenceProvider } from "@/app/context/AbsencesContext";
 import { SidebarProvider } from "@/app/context/SidebarContext";
 import Link from "next/link";
 import { Clock } from "lucide-react";
+import DeveloperHeaderActions from "../components/header/DeveloperHeaderActions";
 
 export default async function DashboardLayout({
   children,
@@ -85,15 +86,10 @@ export default async function DashboardLayout({
                           </span>
                         </div>
                       </Link>
-                      <div className="flex items-center gap-3">
-                        <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                        <h4 className="text-slate-700 font-medium text-base tracking-wide">
-                          {displayedUsername}
-                          <span className="ml-2 px-2 py-0.5 rounded-full text-xs bg-emerald-100 text-emerald-700">
-                            {displayedRole?.toLowerCase() === "admin" ? "Admin" : "Developer"}
-                          </span>
-                        </h4>
-                      </div>
+                      <DeveloperHeaderActions 
+                        displayedUsername={displayedUsername} 
+                        displayedRole={displayedRole} 
+                      />
                     </div>
                   </header>
                   

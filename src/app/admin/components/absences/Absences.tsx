@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import Selector from "@/app/components/Selector";
@@ -7,6 +9,7 @@ import { AbsenceType } from "@/types/absence";
 import { flushError } from "@/app/utils/flushError";
 import { toast } from "sonner";
 import { getBusinessDays } from "@/app/utils/dateUtils";
+import { useLanguage } from "@/app/context/LanguageContext";
 import { 
   CalendarDays, 
   Send, 
@@ -36,6 +39,7 @@ const leaveTypeStyles: Record<string, { icon: React.ReactNode; gradient: string;
 }
 
 export default function Absences() {
+  const { t } = useLanguage();
   const [selectedEmployee, setSelectedEmployee] = useState<string | null>(null)
   const [startDate, setStartDate] = useState<string>("")
   const [endDate, setEndDate] = useState<string>("")
@@ -45,6 +49,14 @@ export default function Absences() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [remainingDays, setRemainingDays] = useState<APIRemainingDays | null>(null)
   const [holidays, setHolidays] = useState<string[]>([])
+  
+  // Translation map for absence types
+  const absenceTypeLabels: Record<string, string> = {
+    VACATION: t.vacation,
+    SICK: t.sick,
+    PERSONAL: t.personal,
+    PARENTAL: t.parental,
+  };
 
   useEffect(() => {
     if(!selectedEmployee) return
@@ -152,7 +164,7 @@ export default function Absences() {
 
   if(isLoading) return (
     <div className="h-full">
-      <Spinner text="Loading..." />
+      <Spinner text={t.loading} />
     </div>
   )
 
@@ -165,17 +177,17 @@ export default function Absences() {
             <CalendarDays className="text-white" size={20} />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-slate-900">Leave Management</h1>
-            <p className="text-sm text-slate-600">Assign time-off to team members</p>
+            <h1 className="text-xl font-bold text-slate-900">{t.leaveManagement}</h1>
+            <p className="text-sm text-slate-600">{t.assignTimeOff}</p>
           </div>
         </div>
         
         {/* Quick Stats */}
         <div className="flex gap-3">
-          <div className="px-4 py-2 bg-slate-100 rounded-xl flex items-center gap-2 border border-slate-200" title="Total Employees">
+          <div className="px-4 py-2 bg-slate-100 rounded-xl flex items-center gap-2 border border-slate-200" title={t.employees}>
             <Users size={16} className="text-slate-600" aria-hidden="true" />
             <span className="text-slate-800 font-bold">{employees?.length || 0}</span>
-            <span className="text-slate-600 text-sm font-medium">employees</span>
+            <span className="text-slate-600 text-sm font-medium">{t.employees.toLowerCase()}</span>
           </div>
         </div>
       </div>
@@ -192,13 +204,13 @@ export default function Absences() {
             <div className="mb-6">
               <div className="flex items-center gap-2 mb-3">
                 <Users size={16} className="text-[#244B77]" aria-hidden="true" />
-                <span className="text-slate-800 font-semibold">Employee</span>
+                <span className="text-slate-800 font-semibold">{t.employee}</span>
               </div>
               <Selector
                 id="selector-employee"
                 options={employees?.map((user) => user.username) || []}
                 onChange={setSelectedEmployee}
-                placeholder="Select an employee..."
+                placeholder={t.selectEmployee + "..."}
                 className="bg-slate-50 text-slate-800 border border-slate-200 rounded-xl hover:border-[#244B77]/30 transition-colors"
                 value={selectedEmployee || ""}
                 sorted={true}
@@ -209,11 +221,11 @@ export default function Absences() {
             <div className="mb-6">
               <div className="flex items-center gap-2 mb-3">
                 <Clock size={16} className="text-[#244B77]" aria-hidden="true" />
-                <span className="text-slate-800 font-semibold">Leave Period</span>
+                <span className="text-slate-800 font-semibold">{t.leavePeriod}</span>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="start-date" className="text-xs text-slate-600 font-medium mb-1.5 block">Start Date</label>
+                  <label htmlFor="start-date" className="text-xs text-slate-600 font-medium mb-1.5 block">{t.startDate}</label>
                   <input
                     id="start-date"
                     type="date"
@@ -223,7 +235,7 @@ export default function Absences() {
                   />
                 </div>
                 <div>
-                  <label htmlFor="end-date" className="text-xs text-slate-600 font-medium mb-1.5 block">End Date</label>
+                  <label htmlFor="end-date" className="text-xs text-slate-600 font-medium mb-1.5 block">{t.endDate}</label>
                   <input
                     id="end-date"
                     type="date"
@@ -239,7 +251,7 @@ export default function Absences() {
             <div>
               <div className="flex items-center gap-2 mb-3">
                 <Sparkles size={16} className="text-[#244B77]" aria-hidden="true" />
-                <span className="text-slate-800 font-semibold">Leave Type</span>
+                <span className="text-slate-800 font-semibold">{t.leaveType}</span>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {absenceTypes.map((type) => {

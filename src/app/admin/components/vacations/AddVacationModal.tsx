@@ -1,5 +1,6 @@
 import { Modal } from "@/app/components/ui/Modal";
 import { CalendarPlus, Calendar, Tag, Plus } from "lucide-react";
+import { useLanguage } from "@/app/context/LanguageContext";
 
 type Props = {
   isOpen: boolean;
@@ -11,6 +12,8 @@ type Props = {
 };
 
 export default function AddVacationModal({ isOpen, onClose, data, onChange, onSubmit, isLoading }: Props) {
+  const { t } = useLanguage();
+  
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       {/* Header */}
@@ -19,15 +22,15 @@ export default function AddVacationModal({ isOpen, onClose, data, onChange, onSu
           <CalendarPlus size={22} />
         </div>
         <div>
-          <h2 className="text-lg font-semibold text-slate-800">Add New Holiday</h2>
-          <p className="text-sm text-slate-500">Create an official holiday entry</p>
+          <h2 className="text-lg font-semibold text-slate-800">{t.addNewHoliday}</h2>
+          <p className="text-sm text-slate-500">{t.createHolidayEntry}</p>
         </div>
       </div>
 
       <div className="space-y-4">
         {/* Date Input */}
         <div>
-          <label className="block text-sm font-medium text-slate-600 mb-1.5">Date</label>
+          <label className="block text-sm font-medium text-slate-600 mb-1.5">{t.date}</label>
           <div className="relative">
             <Calendar size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
@@ -41,7 +44,7 @@ export default function AddVacationModal({ isOpen, onClose, data, onChange, onSu
 
         {/* Holiday Name Input */}
         <div>
-          <label className="block text-sm font-medium text-slate-600 mb-1.5">Holiday Name</label>
+          <label className="block text-sm font-medium text-slate-600 mb-1.5">{t.holidayName}</label>
           <div className="relative">
             <Tag size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
@@ -68,7 +71,7 @@ export default function AddVacationModal({ isOpen, onClose, data, onChange, onSu
           ) : (
             <Plus size={18} />
           )}
-          {isLoading ? "Adding..." : "Add Holiday"}
+          {isLoading ? t.adding : t.addHoliday}
         </button>
       </div>
     </Modal>

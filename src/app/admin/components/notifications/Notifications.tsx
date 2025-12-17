@@ -4,9 +4,11 @@ import { Bell, Inbox } from "lucide-react";
 import Notification from "./Notification";
 import { useNotifications } from "@/app/context/NotificationContext";
 import { useEffect, useRef, useState, useCallback } from "react";
+import { useLanguage } from "@/app/context/LanguageContext";
 
 export default function Notifications() {
   const { notifications, markAsRead, fetchAllNotifications } = useNotifications()
+  const { t } = useLanguage();
   const [containerHeight, setContainerHeight] = useState<number | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
@@ -42,15 +44,15 @@ export default function Notifications() {
             <Bell size={20} />
           </div>
           <div>
-            <h2 className="text-lg font-semibold text-slate-800">Notifications</h2>
+            <h2 className="text-lg font-semibold text-slate-800">{t.notifications}</h2>
             <p className="text-sm text-slate-500">
-              {unreadCount > 0 ? `${unreadCount} unread` : "All caught up"}
+              {unreadCount > 0 ? `${unreadCount} ${t.unread}` : t.allCaughtUp}
             </p>
           </div>
         </div>
         {notifications.length > 0 && (
           <span className="px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-sm font-medium">
-            {notifications.length} total
+            {notifications.length} {t.total.toLowerCase()}
           </span>
         )}
       </div>
@@ -59,8 +61,8 @@ export default function Notifications() {
         <div className="bg-white rounded-xl border border-slate-200 shadow-sm">
           <div className="flex flex-col items-center justify-center py-16">
             <Inbox size={48} className="text-slate-300 mb-3" />
-            <p className="text-lg font-medium text-slate-500">No notifications</p>
-            <p className="text-sm text-slate-400">You&apos;re all caught up!</p>
+            <p className="text-lg font-medium text-slate-500">{t.noNotifications}</p>
+            <p className="text-sm text-slate-400">{t.youreAllCaughtUp}</p>
           </div>
         </div>
       ) : (

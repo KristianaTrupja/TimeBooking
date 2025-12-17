@@ -4,6 +4,7 @@ import Dropdown from "@/components/ui/Dropdown";
 import { useState, useEffect, useRef } from "react";
 import { SubmissionStatus, Timesheet } from "@/types/timesheet";
 import { Eye, Clock, User } from "lucide-react";
+import { useLanguage } from "@/app/context/LanguageContext";
 
 type PropTypes = {
     timesheet:Timesheet,
@@ -33,6 +34,7 @@ export default function RaportEntry({timesheet, month, year, index, adminId, onA
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [isHighlighted, setIsHighlighted] = useState(false)
     const rowRef = useRef<HTMLTableRowElement>(null);
+    const { t } = useLanguage();
 
     // Handle scroll-to effect
     useEffect(() => {
@@ -89,7 +91,7 @@ export default function RaportEntry({timesheet, month, year, index, adminId, onA
             <div className="flex items-center gap-2">
                 <Clock size={14} className="text-slate-500" />
                 <span className="font-bold text-slate-800">{timesheet.totalHours.toFixed(2)}</span>
-                <span className="text-slate-500 text-sm">hrs</span>
+                <span className="text-slate-500 text-sm">{t.hrs}</span>
             </div>
         </td>
         <td className="px-4 py-4">
@@ -100,7 +102,7 @@ export default function RaportEntry({timesheet, month, year, index, adminId, onA
                     className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 gap-1.5 text-md"
                 >
                     <Eye size={14} />
-                    View
+                    {t.view}
                 </Button>
             </Link>
         </td>
@@ -124,7 +126,7 @@ export default function RaportEntry({timesheet, month, year, index, adminId, onA
                 size="sm"
                 className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
             >
-                Apply
+                {t.apply}
             </Button>
         </td>
     </tr>

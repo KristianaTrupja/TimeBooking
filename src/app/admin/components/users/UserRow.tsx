@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Trash2, Pencil, User, Mail, Shield, Key, Calendar, Check } from "lucide-react";
 import { User as UserType, UserFormData } from "@/types/user";
 import { isPasswordStrong } from "@/lib/utils";
+import { useLanguage } from "@/app/context/LanguageContext";
 
 type Props = {
   emp: UserType;
@@ -39,6 +40,8 @@ export function UserRow({
   isSaving,
   isDeleting,
 }: Props) {
+  const { t } = useLanguage();
+  
   return (
     <tr className={`transition-all hover:bg-slate-50 ${isEditing ? "bg-blue-50" : ""}`}>
       {/* Number */}
@@ -93,14 +96,14 @@ export function UserRow({
                 type="password"
                 value={formData.password}
                 onChange={onChange}
-                placeholder="Leave blank to keep"
+                placeholder={t.leaveBlankToKeep}
                 autoComplete="off"
                 className={`w-full px-3 py-1.5 text-sm border rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                   formData.password && !isPasswordStrong(formData.password) ? "border-rose-400" : "border-blue-300"
                 }`}
               />
               {formData.password && !isPasswordStrong(formData.password) && (
-                <p className="text-xs text-rose-500 mt-1">Weak password</p>
+                <p className="text-xs text-rose-500 mt-1">{t.weakPassword}</p>
               )}
             </div>
           </td>
@@ -123,7 +126,7 @@ export function UserRow({
               className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white"
             >
               <Check size={14} className="mr-1" />
-              {isSaving ? "Saving..." : "Save"}
+              {isSaving ? t.saving : t.save}
             </Button>
           </td>
         </>
@@ -166,7 +169,7 @@ export function UserRow({
             <div className="flex items-center gap-2">
               <Calendar size={14} className="text-slate-500" />
               <span className="font-bold text-slate-800">{emp.totalVacations}</span>
-              <span className="text-slate-500 text-sm">days</span>
+              <span className="text-slate-500 text-sm">{t.days}</span>
             </div>
           </td>
           {/* Actions */}

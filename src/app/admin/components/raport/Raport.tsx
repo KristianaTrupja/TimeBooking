@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useEffect, useMemo, useState, useRef, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -13,12 +15,14 @@ import MonthYearPicker from "@/app/developer/components/monthYear/MonthYearPicke
 import RaportEntry from "./RaportEntry";
 import { useTimeSheet } from "@/app/context/TimeSheetContext";
 import { SubmissionStatus } from "@/types/timesheet";
+import { useLanguage } from "@/app/context/LanguageContext";
 
 export default function Raport() {
   const { loading } = useWorkHours();
   const { timesheets, fetchTimesheets, updateTimesheetStatus } = useTimeSheet()
   const { year, month, goToPreviousMonth, goToNextMonth, setMonthAndYear } = useCalendar();
   const searchParams = useSearchParams();
+  const { t, language } = useLanguage();
   const [scrollToUserId, setScrollToUserId] = useState<number | null>(null);
   const [isNavigating, setIsNavigating] = useState(false);
   const [hasProcessedParams, setHasProcessedParams] = useState(false);
@@ -111,11 +115,11 @@ export default function Raport() {
   }, [year, month]);
 
   const formattedDate = useMemo(() => {
-    return new Date(year, month).toLocaleString("default", {
+    return new Date(year, month).toLocaleString(language === "de" ? "de-DE" : "en-US", {
       month: "long",
       year: "numeric",
     });
-  }, [year, month]);
+  }, [year, month, language]);
 
   async function handleSubmissionStatusUpdate(submissionId:number, status: keyof typeof SubmissionStatus){
     try {
@@ -204,8 +208,8 @@ export default function Raport() {
               <FileText className="text-white" size={20} />
             </div>
             <div>
-              <h1 className="text-xl font-semibold text-slate-800">Timesheets</h1>
-              <p className="text-sm text-slate-500">Review and manage employee submissions</p>
+              <h1 className="text-xl font-semibold text-slate-800">{t.timesheets}</h1>
+              <p className="text-sm text-slate-500">{t.reviewSubmissions}</p>
             </div>
           </div>
           
@@ -241,7 +245,7 @@ export default function Raport() {
               </div>
               <div>
                 <p className="text-2xl font-bold text-slate-800">{stats.total}</p>
-                <p className="text-xs text-slate-500">Total Employees</p>
+                <p className="text-xs text-slate-500">{t.totalEmployees}</p>
               </div>
             </div>
           </div>
@@ -252,7 +256,7 @@ export default function Raport() {
               </div>
               <div>
                 <p className="text-2xl font-bold text-amber-700">{stats.pending}</p>
-                <p className="text-xs text-amber-600">Pending Review</p>
+                <p className="text-xs text-amber-600">{t.pendingReview}</p>
               </div>
             </div>
           </div>
@@ -263,7 +267,7 @@ export default function Raport() {
               </div>
               <div>
                 <p className="text-2xl font-bold text-emerald-700">{stats.approved}</p>
-                <p className="text-xs text-emerald-600">Approved</p>
+                <p className="text-xs text-emerald-600">{t.approved}</p>
               </div>
             </div>
           </div>
@@ -274,7 +278,7 @@ export default function Raport() {
               </div>
               <div>
                 <p className="text-2xl font-bold text-blue-700">{stats.totalHours.toFixed(0)}</p>
-                <p className="text-xs text-blue-600">Total Hours</p>
+                <p className="text-xs text-blue-600">{t.totalHours}</p>
               </div>
             </div>
           </div>
@@ -288,7 +292,7 @@ export default function Raport() {
       >
         {timesheets === null || loading || needsNavigation || isNavigating ? (
           <div className="h-64">
-            <Spinner text="Loading timesheets..." />
+            <Spinner text={t.loadingTimesheets} />
           </div>
         ) : (
           <table className="w-full">
@@ -300,7 +304,7 @@ export default function Raport() {
                     onClick={() => handleSort("employee")}
                     className="flex items-center gap-1.5 hover:text-slate-900 transition-colors"
                   >
-                    Employee {getSortIcon("employee")}
+                    {t.employee} {getSortIcon("employee")}
                   </button>
                 </th>
                 <th className="px-4 py-3 font-bold bg-slate-100">
@@ -308,19 +312,19 @@ export default function Raport() {
                     onClick={() => handleSort("hours")}
                     className="flex items-center gap-1.5 hover:text-slate-900 transition-colors"
                   >
-                    Hours {getSortIcon("hours")}
+                    {t.hours} {getSortIcon("hours")}
                   </button>
                 </th>
-                <th className="px-4 py-3 font-bold bg-slate-100">Details</th>
+                <th className="px-4 py-3 font-bold bg-slate-100">{t.details}</th>
                 <th className="px-4 py-3 font-bold bg-slate-100">
                   <button 
                     onClick={() => handleSort("status")}
                     className="flex items-center gap-1.5 hover:text-slate-900 transition-colors"
                   >
-                    Status {getSortIcon("status")}
+                    {t.status} {getSortIcon("status")}
                   </button>
                 </th>
-                <th className="px-4 py-3 font-bold bg-slate-100">Action</th>
+                <th className="px-4 py-3 font-bold bg-slate-100">{t.action}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">

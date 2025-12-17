@@ -2,6 +2,7 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { FormData } from "@/types/project";
 import { Building2, FolderPlus, Plus } from "lucide-react";
+import { useLanguage } from "@/app/context/LanguageContext";
 
 interface ProjectsFormProps {
   formData: FormData;
@@ -18,6 +19,8 @@ export default function ProjectsForm({
   existingCompanies = [],
   isSubmitting = false,
 }: ProjectsFormProps) {
+  const { t } = useLanguage();
+  
   return (
     <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5 w-full lg:max-w-sm xl:max-w-md">
       <div className="flex items-center gap-3 mb-6">
@@ -25,8 +28,8 @@ export default function ProjectsForm({
           <FolderPlus className="text-white" size={20} />
         </div>
         <div>
-          <h3 className="text-lg font-bold text-slate-900">New Project</h3>
-          <p className="text-sm text-slate-600">Add a project to a company</p>
+          <h3 className="text-lg font-bold text-slate-900">{t.newProject}</h3>
+          <p className="text-sm text-slate-600">{t.addToCompany}</p>
         </div>
       </div>
 
@@ -34,7 +37,7 @@ export default function ProjectsForm({
         <div>
           <label htmlFor="name" className="flex items-center gap-2 text-sm font-semibold text-slate-800 mb-2">
             <Building2 size={14} className="text-slate-600" />
-            Company Name
+            {t.companyName}
           </label>
           <input
             id="name"
@@ -57,7 +60,7 @@ export default function ProjectsForm({
         <div>
           <label htmlFor="project" className="flex items-center gap-2 text-sm font-semibold text-slate-800 mb-2">
             <FolderPlus size={14} className="text-slate-600" />
-            Project Name
+            {t.projectName}
           </label>
           <input
             id="project"
@@ -76,7 +79,7 @@ export default function ProjectsForm({
           className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-lg shadow-blue-500/25 py-2.5"
         >
           <Plus size={18} className="mr-2" />
-          {isSubmitting ? "Adding..." : "Add Project"}
+          {isSubmitting ? t.adding : t.addProject}
         </Button>
       </form>
     </div>

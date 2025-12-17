@@ -8,8 +8,10 @@ import AddVacationModal from "./AddVacationModal";
 import { Holiday } from "@/types/holiday";
 import Spinner from "@/components/ui/Spinner";
 import { toast } from "sonner";
+import { useLanguage } from "@/app/context/LanguageContext";
 
 export default function Vacations() {
+  const { t } = useLanguage();
   const [vacations, setVacations] = useState<Holiday[]>([]);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editedData, setEditedData] = useState({ date: "", holiday: "" });
@@ -201,7 +203,7 @@ export default function Vacations() {
     return { total: vacations.length, upcoming, past, nextHoliday };
   }, [vacations]);
 
-  if (isInitialLoading) return <Spinner text="Loading holidays..." />;
+  if (isInitialLoading) return <Spinner text={t.loadingHolidays} />;
   return (
     <section ref={sectionRef} className="p-6 flex flex-col h-full">
       {/* Header Section */}
@@ -213,8 +215,8 @@ export default function Vacations() {
               <CalendarHeart className="text-white" size={20} />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-slate-900">Official Holidays</h1>
-              <p className="text-sm text-slate-600">Manage public holidays and days off</p>
+              <h1 className="text-xl font-bold text-slate-900">{t.officialHolidays}</h1>
+              <p className="text-sm text-slate-600">{t.managePublicHolidays}</p>
             </div>
           </div>
           
@@ -253,7 +255,7 @@ export default function Vacations() {
               </div>
               <div>
                 <p className="text-2xl font-bold text-slate-800">{stats.total}</p>
-                <p className="text-xs text-slate-500">Total Holidays</p>
+                <p className="text-xs text-slate-500">{t.totalHolidaysLabel}</p>
               </div>
             </div>
           </div>
@@ -264,7 +266,7 @@ export default function Vacations() {
               </div>
               <div>
                 <p className="text-2xl font-bold text-emerald-700">{stats.upcoming}</p>
-                <p className="text-xs text-emerald-600">Upcoming</p>
+                <p className="text-xs text-emerald-600">{t.upcoming}</p>
               </div>
             </div>
           </div>
@@ -275,7 +277,7 @@ export default function Vacations() {
               </div>
               <div>
                 <p className="text-2xl font-bold text-amber-700">{stats.past}</p>
-                <p className="text-xs text-amber-600">Past</p>
+                <p className="text-xs text-amber-600">{t.past}</p>
               </div>
             </div>
           </div>
@@ -288,7 +290,7 @@ export default function Vacations() {
                 <p className="text-sm font-bold text-rose-700 truncate max-w-[120px]" title={stats.nextHoliday?.title}>
                   {stats.nextHoliday?.title || "—"}
                 </p>
-                <p className="text-xs text-rose-600">Next Holiday</p>
+                <p className="text-xs text-rose-600">{t.nextHoliday}</p>
               </div>
             </div>
           </div>
@@ -302,7 +304,7 @@ export default function Vacations() {
       >
         {isTableLoading ? (
           <div className="h-64">
-            <Spinner size="sm" text="Loading holidays..." />
+            <Spinner size="sm" text={t.loadingHolidays} />
           </div>
         ) : (
           <VacationTable
@@ -325,7 +327,7 @@ export default function Vacations() {
           className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-lg shadow-blue-500/25 gap-2"
         >
           <Plus size={18} />
-          Add Holiday
+          {t.addHoliday}
         </Button>
       </div>
 

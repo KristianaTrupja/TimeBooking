@@ -2,6 +2,7 @@ import { useCallback, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Modal } from "@/app/components/ui/Modal";
 import { Clock, FileText, Save } from "lucide-react";
+import { useLanguage } from "@/app/context/LanguageContext";
 
 type Props = {
   isOpen: boolean;
@@ -23,6 +24,7 @@ export const WorkHoursModal = ({
   const [textareaValue, setTextAreaValue] = useState(initialNote);
   const [inputError, setInputError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const { t } = useLanguage();
 
   const handleSave = useCallback(async () => {
     const hours = parseFloat(inputValue.trim());
@@ -50,8 +52,8 @@ export const WorkHoursModal = ({
             <Clock className="text-white" size={20} />
           </div>
           <div>
-            <h2 className="text-xl font-semibold text-slate-800">Log Work Hours</h2>
-            <p className="text-sm text-slate-400 font-normal">Record your time for this project</p>
+            <h2 className="text-xl font-semibold text-slate-800">{t.logWorkHours}</h2>
+            <p className="text-sm text-slate-400 font-normal">{t.recordTime}</p>
           </div>
         </div>
       }
@@ -64,7 +66,7 @@ export const WorkHoursModal = ({
             className="bg-gradient-to-r from-[#244B77] to-[#1a3a5c] hover:from-[#2d5a8a] hover:to-[#244B77] text-white font-medium px-6 py-2.5 rounded-xl shadow-md shadow-[#244B77]/20 disabled:opacity-40 disabled:shadow-none transition-all"
           >
             <Save size={16} className="mr-2" />
-            {isSaving ? "Saving..." : "Save Hours"}
+            {isSaving ? t.saving : t.saveHours}
           </Button>
         </div>
       }
@@ -75,7 +77,7 @@ export const WorkHoursModal = ({
         <div>
           <div className="flex items-center gap-2 mb-2">
             <Clock size={14} className="text-[#244B77]" />
-            <label className="text-sm font-medium text-slate-700">Hours Worked</label>
+            <label className="text-sm font-medium text-slate-700">{t.hoursWorked}</label>
           </div>
           <input
             autoFocus
@@ -89,7 +91,7 @@ export const WorkHoursModal = ({
               setInputValue(e.target.value);
               const val = parseFloat(e.target.value);
               if (isNaN(val) || val < 0 || val % 0.25 !== 0) {
-                setInputError("Only non-negative fractions of 0.25 are allowed");
+                setInputError(t.hoursValidation);
               } else {
                 setInputError(null);
               }
@@ -107,21 +109,21 @@ export const WorkHoursModal = ({
               {inputError}
             </p>
           )}
-          <p className="text-xs text-slate-400 mt-2 text-center">Use increments of 0.25 (e.g., 1, 1.25, 1.5, 1.75)</p>
+          <p className="text-xs text-slate-400 mt-2 text-center">{t.hoursHint}</p>
         </div>
 
         {/* Note Input */}
         <div>
           <div className="flex items-center gap-2 mb-2">
             <FileText size={14} className="text-[#244B77]" />
-            <label className="text-sm font-medium text-slate-700">Description</label>
-            <span className="text-xs text-slate-400">(optional)</span>
+            <label className="text-sm font-medium text-slate-700">{t.description}</label>
+            <span className="text-xs text-slate-400">({t.optional})</span>
           </div>
           <textarea
             value={textareaValue}
             onChange={(e) => setTextAreaValue(e.target.value)}
             className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#244B77]/30 focus:border-[#244B77]/50 transition-all resize-none"
-            placeholder="What did you work on?"
+            placeholder={t.whatDidYouWorkOn}
             rows={3}
           />
         </div>

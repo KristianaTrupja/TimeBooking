@@ -3,6 +3,7 @@ import { Modal } from "@/app/components/ui/Modal";
 import { Button } from "@/components/ui/button";
 import { isPasswordStrong } from "@/lib/utils";
 import { UserPlus, User, Mail, Key, Shield } from "lucide-react";
+import { useLanguage } from "@/app/context/LanguageContext";
 
 type Props = {
   open: boolean;
@@ -14,6 +15,8 @@ type Props = {
 };
 
 export function AddUserModal({ open, onClose, formData, onChange, onSubmit, isLoading }: Props) {
+  const { t } = useLanguage();
+  
   return (
     <Modal
       isOpen={open}
@@ -24,8 +27,8 @@ export function AddUserModal({ open, onClose, formData, onChange, onSubmit, isLo
             <UserPlus className="text-white" size={20} />
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-slate-800">New Employee</h3>
-            <p className="text-sm text-slate-500 font-normal">Add a team member</p>
+            <h3 className="text-lg font-semibold text-slate-800">{t.newEmployee}</h3>
+            <p className="text-sm text-slate-500 font-normal">{t.addTeamMember}</p>
           </div>
         </div>
       }
@@ -36,18 +39,18 @@ export function AddUserModal({ open, onClose, formData, onChange, onSubmit, isLo
           className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-lg shadow-blue-500/25"
         >
           <UserPlus size={16} className="mr-2" />
-          {isLoading ? "Adding..." : "Add Employee"}
+          {isLoading ? t.adding : t.addEmployee}
         </Button>
       }
     >
       <p className="mb-6 text-slate-500 text-sm">
-        Fill in the required fields to create a new user and set a secure password.
+        {t.fillRequiredFields}
       </p>
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-2">
             <User size={14} className="text-slate-400" />
-            Full Name
+            {t.fullName}
           </label>
           <input 
             name="username" 
@@ -60,7 +63,7 @@ export function AddUserModal({ open, onClose, formData, onChange, onSubmit, isLo
         <div>
           <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-2">
             <Mail size={14} className="text-slate-400" />
-            Email
+            {t.email}
           </label>
           <input 
             name="email" 
@@ -74,7 +77,7 @@ export function AddUserModal({ open, onClose, formData, onChange, onSubmit, isLo
         <div>
           <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-2">
             <Key size={14} className="text-slate-400" />
-            Password
+            {t.password}
           </label>
           <input 
             name="password" 
@@ -88,13 +91,13 @@ export function AddUserModal({ open, onClose, formData, onChange, onSubmit, isLo
             }`}
           />
           {formData.password && !isPasswordStrong(formData.password) && (
-            <p className="text-xs text-rose-500 mt-1">Min 8 chars, 1 uppercase, 1 number, 1 symbol</p>
+            <p className="text-xs text-rose-500 mt-1">{t.passwordValidation}</p>
           )}
         </div>
         <div>
           <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-2">
             <Shield size={14} className="text-slate-400" />
-            Role
+            {t.role}
           </label>
           <select 
             name="role"
@@ -102,9 +105,9 @@ export function AddUserModal({ open, onClose, formData, onChange, onSubmit, isLo
             onChange={onChange}
             className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
-            <option value="" disabled>Choose Role</option>
-            <option value="Dev">Dev</option>
-            <option value="Admin">Admin</option>
+            <option value="" disabled>{t.chooseRole}</option>
+            <option value="Dev">{t.developer}</option>
+            <option value="Admin">{t.admin}</option>
           </select>
         </div>
       </div>

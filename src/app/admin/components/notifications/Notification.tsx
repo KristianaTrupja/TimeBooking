@@ -4,17 +4,13 @@ import { Notification as Notif } from "@/types/notification";
 import { useRouter } from "next/navigation";
 import { ReactNode } from "react";
 import { FileText, Calendar, Clock, ChevronRight } from "lucide-react";
+import { useLanguage } from "@/app/context/LanguageContext";
 
 type NotificationProps = {
     children?: ReactNode,
     markAsRead: (notificationId:string) => void
     notification: Notif
 }
-
-const actionMap = new Map([
-    ["VIEW_TIMESHEET", { label: "Review in Raports", goTo: "/admin?tab=raport", icon: FileText }],
-    ["VIEW_ABSENCE", { label: "View Absences", goTo: "/admin?tab=modify-absences", icon: Calendar }]
-])
 
 // Parse message and render **text** as bold
 function renderMessageWithBold(message: string): ReactNode {
@@ -58,8 +54,19 @@ function buildActionUrl(
     return `/admin?${params.toString()}`;
 }
 
+const actionConfig = {
+    VIEW_TIMESHEET: { goTo: "/admin?tab=raport", icon: FileText },
+    VIEW_ABSENCE: { goTo: "/admin?tab=modify-absences", icon: Calendar }
+} as const;
+
 export default function Notification({ notification, markAsRead = ()=>{}, children }: NotificationProps) {
-    const action = actionMap.get(notification.actionType || "")
+    const { t } = useLanguage();
+    const actionType = notification.actionType as keyof typeof actionConfig;
+    const action = actionType ? actionConfig[actionType] : undefined;
+    const actionLabels = {
+        VIEW_TIMESHEET: t.reviewInRaports,
+        VIEW_ABSENCE: t.viewAbsences
+    };
     const ActionIcon = action?.icon;
     const router = useRouter();
 
@@ -109,7 +116,7 @@ export default function Notification({ notification, markAsRead = ()=>{}, childr
           {children && children}
           
           {/* Action button */}
-          {action && ActionIcon && (
+          {action && ActionIcon && actionType && (
             <button 
               onClick={(e) => {
                 e.stopPropagation();
@@ -118,7 +125,7 @@ export default function Notification({ notification, markAsRead = ()=>{}, childr
               className="inline-flex items-center gap-1.5 px-3 py-1.5 mt-1 text-xs font-medium text-blue-600 bg-blue-100 rounded-lg hover:bg-blue-200 transition-colors"
             >
               <ActionIcon size={12} />
-              {action.label}
+              {actionLabels[actionType]}
               <ChevronRight size={12} />
             </button>
           )}

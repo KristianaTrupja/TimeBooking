@@ -8,10 +8,12 @@ import { useSearchParams } from "next/navigation";
 import WorkStatus from "../status/workStatus";
 import MonthYearPicker from "../monthYear/MonthYearPicker";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/app/context/LanguageContext";
 
 export default function SidebarHeader() {
   const searchParams = useSearchParams();
   const [isInitialized, setIsInitialized] = useState(false);
+  const { t, language } = useLanguage();
 
   // Memoized search params parsing
   const { passedMonth, passedYear } = useMemo(() => {
@@ -23,13 +25,23 @@ export default function SidebarHeader() {
   const { year, month, goToNextMonth, goToPreviousMonth, setMonthAndYear } = useCalendar();
   const { activeTimesheet } = useWorkHours();
 
-  // Memoized formatted date
+  // Memoized formatted date with language support
   const formattedDate = useMemo(() => {
-    return new Date(year, month).toLocaleString("default", {
+    return new Date(year, month).toLocaleString(language === "de" ? "de-DE" : "en-US", {
       month: "long",
       year: "numeric",
     });
-  }, [year, month]);
+  }, [year, month, language]);
+  
+  const getStatusLabel = (status: string | undefined) => {
+    switch (status) {
+      case "PENDING": return t.pending;
+      case "REJECTED": return t.rejected;
+      case "APPROVED": return t.approved;
+      case "LOCKED": return t.locked;
+      default: return t.draft;
+    }
+  };
 
   useEffect(() => {
     if (!isNaN(passedMonth) && !isNaN(passedYear)) {
@@ -83,8 +95,8 @@ export default function SidebarHeader() {
       </div>
       <div className="flex items-center gap-2">
         <WorkStatus />
-        <div className={`capitalize flex justify-center items-center text-xs font-semibold px-3 py-1.5 rounded-lg border ${getStatusStyle(activeTimesheet?.status)}`}>
-          {activeTimesheet ? activeTimesheet.status : "DRAFT"}
+        <div className={`flex justify-center items-center text-xs font-semibold px-3 py-1.5 rounded-lg border ${getStatusStyle(activeTimesheet?.status)}`}>
+          {getStatusLabel(activeTimesheet?.status)}
         </div>
       </div>
     </div>

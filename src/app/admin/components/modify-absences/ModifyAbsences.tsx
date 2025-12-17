@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useCallback, useEffect, useState, useRef, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import { FilePenLine, Trash2, CalendarX, User as UserIcon, Calendar, Check, X, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
@@ -10,6 +12,7 @@ import Spinner from "@/components/ui/Spinner";
 import FilterAbsences from "../absence-filters/FilterAbsences";
 import { getEndOfMonth } from "@/app/utils/dateUtils";
 import { toast } from "sonner";
+import { useLanguage } from "@/app/context/LanguageContext";
 
 const ABSENCE_TYPES: (keyof typeof AbsenceType)[] = ["VACATION", "SICK", "PERSONAL", "PARENTAL"]
 
@@ -26,6 +29,7 @@ function getInitialFiltersState(): Filters {
 
 export default function ModifyAbsences() {
   const searchParams = useSearchParams();
+  const { t } = useLanguage();
 
   const [employees, setEmployees] = useState<User[]>([]);
   const [absences, setAbsences] = useState<ExtAbsence[]>([]);
@@ -285,17 +289,17 @@ export default function ModifyAbsences() {
             <CalendarX className="text-white" size={20} aria-hidden="true" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-slate-900">Absence Records</h1>
-            <p className="text-sm text-slate-600">View and manage employee absences</p>
+            <h1 className="text-xl font-bold text-slate-900">{t.absenceRecords}</h1>
+            <p className="text-sm text-slate-600">{t.viewManageAbsences}</p>
           </div>
         </div>
         
         {/* Stats */}
         <div className="flex gap-3">
-          <div className="px-4 py-2 bg-slate-100 rounded-xl flex items-center gap-2 border border-slate-200" title="Total Records">
+          <div className="px-4 py-2 bg-slate-100 rounded-xl flex items-center gap-2 border border-slate-200" title={t.records}>
             <Calendar size={16} className="text-slate-600" aria-hidden="true" />
             <span className="text-slate-800 font-bold">{absences.length}</span>
-            <span className="text-slate-600 text-sm font-medium">records</span>
+            <span className="text-slate-600 text-sm font-medium">{t.records}</span>
           </div>
         </div>
       </div>
@@ -316,7 +320,7 @@ export default function ModifyAbsences() {
       {/* Table Section */}
       {isLoading ? (
         <div className="flex-1">
-          <Spinner text="Loading absences..." />
+          <Spinner text={t.loadingAbsences} />
         </div>
       ) : (
         <section
@@ -326,8 +330,8 @@ export default function ModifyAbsences() {
           {!absences.length && (
             <div className="flex flex-col items-center justify-center py-16 bg-white rounded-xl border border-slate-200">
               <CalendarX size={48} className="text-slate-400 mb-3" aria-hidden="true" />
-              <p className="text-lg font-semibold text-slate-700">No absences found</p>
-              <p className="text-sm text-slate-500 font-medium">Try adjusting your filters</p>
+              <p className="text-lg font-semibold text-slate-700">{t.noAbsencesFound}</p>
+              <p className="text-sm text-slate-500 font-medium">{t.adjustFilters}</p>
             </div>
           )}
          
@@ -344,7 +348,7 @@ export default function ModifyAbsences() {
                     <UserIcon size={16} className="text-white" aria-hidden="true" />
                   </div>
                   <span className="text-white font-bold">{user.username}</span>
-                  <span className="ml-auto text-white/80 text-sm font-medium">{userAbsences.length} {userAbsences.length === 1 ? "absence" : "absences"}</span>
+                  <span className="ml-auto text-white/80 text-sm font-medium">{userAbsences.length} {userAbsences.length === 1 ? t.absence : t.absences}</span>
                 </div>
                 
                 {/* Table */}
@@ -357,7 +361,7 @@ export default function ModifyAbsences() {
                           onClick={() => handleSort("startDate")}
                           className="flex items-center gap-1.5 hover:text-slate-900 transition-colors"
                         >
-                          Start Date {getSortIcon("startDate")}
+                          {t.startDate} {getSortIcon("startDate")}
                         </button>
                       </th>
                       <th className="px-4 py-3 font-bold bg-slate-100">
@@ -365,7 +369,7 @@ export default function ModifyAbsences() {
                           onClick={() => handleSort("endDate")}
                           className="flex items-center gap-1.5 hover:text-slate-900 transition-colors"
                         >
-                          End Date {getSortIcon("endDate")}
+                          {t.endDate} {getSortIcon("endDate")}
                         </button>
                       </th>
                       <th className="px-4 py-3 font-bold bg-slate-100">
@@ -373,7 +377,7 @@ export default function ModifyAbsences() {
                           onClick={() => handleSort("type")}
                           className="flex items-center gap-1.5 hover:text-slate-900 transition-colors"
                         >
-                          Type {getSortIcon("type")}
+                          {t.type} {getSortIcon("type")}
                         </button>
                       </th>
                       <th className="px-4 py-3 font-bold bg-slate-100">
@@ -381,10 +385,10 @@ export default function ModifyAbsences() {
                           onClick={() => handleSort("days")}
                           className="flex items-center gap-1.5 hover:text-slate-900 transition-colors"
                         >
-                          Days {getSortIcon("days")}
+                          {t.days} {getSortIcon("days")}
                         </button>
                       </th>
-                      <th className="px-4 py-3 font-bold text-center bg-slate-100">Actions</th>
+                      <th className="px-4 py-3 font-bold text-center bg-slate-100">{t.actions}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">

@@ -3,6 +3,7 @@ import VacationRow from "./VacationRow";
 import VacationEditRow from "./VacationEditRow";
 import { Holiday } from "@/types/holiday";
 import { CalendarDays, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+import { useLanguage } from "@/app/context/LanguageContext";
 
 type SortField = "date" | "title";
 type SortDirection = "asc" | "desc" | null;
@@ -62,6 +63,8 @@ export default function VacationTable({
     return <ArrowUpDown size={14} className="text-slate-400" />;
   }, [sortField, sortDirection]);
 
+  const { t } = useLanguage();
+
   // Sort vacations
   const sortedVacations = useMemo(() => {
     const sorted = [...vacations];
@@ -91,8 +94,8 @@ export default function VacationTable({
       {vacations?.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16">
           <CalendarDays size={48} className="text-slate-400 mb-3" aria-hidden="true" />
-          <p className="text-lg font-semibold text-slate-700">No holidays found</p>
-          <p className="text-sm text-slate-500 font-medium">Add a new holiday to get started</p>
+          <p className="text-lg font-semibold text-slate-700">{t.noHolidaysFound}</p>
+          <p className="text-sm text-slate-500 font-medium">{t.addHolidayToStart}</p>
         </div>
       ) : (
         <table className="w-full">
@@ -104,7 +107,7 @@ export default function VacationTable({
                   onClick={() => handleSort("date")}
                   className="flex items-center gap-1.5 hover:text-slate-900 transition-colors"
                 >
-                  Date {getSortIcon("date")}
+                  {t.date} {getSortIcon("date")}
                 </button>
               </th>
               <th className="px-4 py-3 font-bold bg-slate-100">
@@ -112,10 +115,10 @@ export default function VacationTable({
                   onClick={() => handleSort("title")}
                   className="flex items-center gap-1.5 hover:text-slate-900 transition-colors"
                 >
-                  Holiday Name {getSortIcon("title")}
+                  {t.holidayName} {getSortIcon("title")}
                 </button>
               </th>
-              <th className="px-4 py-3 font-bold text-center bg-slate-100">Actions</th>
+              <th className="px-4 py-3 font-bold text-center bg-slate-100">{t.actions}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">

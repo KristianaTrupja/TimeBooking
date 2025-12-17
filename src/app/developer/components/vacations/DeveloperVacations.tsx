@@ -18,6 +18,7 @@ import {
 import { AbsenceType, ExtAbsence } from "@/types/absence";
 import Spinner from "@/components/ui/Spinner";
 import { getEndOfMonth } from "@/app/utils/dateUtils";
+import { useLanguage } from "@/app/context/LanguageContext";
 
 const ABSENCE_TYPES: (keyof typeof AbsenceType)[] = ["VACATION", "SICK", "PERSONAL", "PARENTAL"];
 
@@ -69,6 +70,7 @@ type SortDirection = "asc" | "desc" | null;
 
 export default function DeveloperVacations() {
   const pathname = usePathname();
+  const { t } = useLanguage();
   const [absences, setAbsences] = useState<ExtAbsence[]>([]);
   const [remainingDays, setRemainingDays] = useState<APIRemainingDays | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -76,6 +78,14 @@ export default function DeveloperVacations() {
   const [showFilters, setShowFilters] = useState(false);
   const [sortField, setSortField] = useState<SortField | null>("startDate");
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
+  
+  // Translation map for absence types
+  const absenceTypeLabels: Record<string, string> = {
+    VACATION: t.vacation,
+    SICK: t.sick,
+    PERSONAL: t.personal,
+    PARENTAL: t.parental,
+  };
 
   // Get user ID from URL
   const userId = useMemo(() => {
@@ -233,8 +243,8 @@ export default function DeveloperVacations() {
             <CalendarDays className="text-white" size={24} />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">My Leaves</h1>
-            <p className="text-sm text-slate-600">View your time-off history</p>
+            <h1 className="text-2xl font-bold text-slate-900">{t.myLeaveBalance}</h1>
+            <p className="text-sm text-slate-600">{t.leaveHistory}</p>
           </div>
         </div>
 
@@ -244,11 +254,11 @@ export default function DeveloperVacations() {
           <div className="bg-gradient-to-br from-[#244B77] to-[#1a3a5c] rounded-xl p-4 text-white">
             <div className="flex items-center gap-2 mb-2">
               <div className="w-2 h-2 rounded-full bg-cyan-300 animate-pulse" />
-              <span className="text-cyan-300 text-xs font-semibold uppercase tracking-wider">Available</span>
+              <span className="text-cyan-300 text-xs font-semibold uppercase tracking-wider">{t.availableDays}</span>
             </div>
             <p className="text-3xl font-bold">
               {remainingDays?.totalDaysLeft ?? "—"}
-              <span className="text-lg font-normal text-white/70 ml-1">days</span>
+              <span className="text-lg font-normal text-white/70 ml-1">{t.days}</span>
             </p>
           </div>
 
@@ -262,10 +272,10 @@ export default function DeveloperVacations() {
             </div>
             <p className="text-2xl font-bold text-slate-800">
               {remainingDays?.currentYear.daysLeft ?? "—"}
-              <span className="text-sm font-normal text-slate-500 ml-1">remaining</span>
+              <span className="text-sm font-normal text-slate-500 ml-1">{t.remainingDays.toLowerCase()}</span>
             </p>
             <p className="text-xs text-slate-500 mt-1">
-              {remainingDays?.currentYear.daysSpent ?? 0} days used
+              {remainingDays?.currentYear.daysSpent ?? 0} {t.usedDays.toLowerCase()}
             </p>
           </div>
 
@@ -274,12 +284,12 @@ export default function DeveloperVacations() {
             <div className="flex items-center gap-2 mb-2">
               <Calendar size={14} className="text-amber-600" />
               <span className="text-xs font-semibold text-amber-700 uppercase tracking-wider">
-                {remainingDays?.lastYear.year || new Date().getFullYear() - 1} Carried
+                {remainingDays?.lastYear.year || new Date().getFullYear() - 1} {t.lastYear}
               </span>
             </div>
             <p className="text-2xl font-bold text-amber-700">
               {remainingDays?.lastYear.daysLeft ?? "—"}
-              <span className="text-sm font-normal text-amber-600 ml-1">days</span>
+              <span className="text-sm font-normal text-amber-600 ml-1">{t.days}</span>
             </p>
           </div>
 
@@ -287,14 +297,14 @@ export default function DeveloperVacations() {
           <div className="bg-blue-50 rounded-xl p-4 border border-blue-200">
             <div className="flex items-center gap-2 mb-2">
               <Palmtree size={14} className="text-blue-600" />
-              <span className="text-xs font-semibold text-blue-700 uppercase tracking-wider">Period Total</span>
+              <span className="text-xs font-semibold text-blue-700 uppercase tracking-wider">{t.totalDays}</span>
             </div>
             <p className="text-2xl font-bold text-blue-700">
               {stats.totalDays}
-              <span className="text-sm font-normal text-blue-600 ml-1">days</span>
+              <span className="text-sm font-normal text-blue-600 ml-1">{t.days}</span>
             </p>
             <p className="text-xs text-blue-600 mt-1">
-              {absences.length} {absences.length === 1 ? "record" : "records"}
+              {absences.length} {absences.length === 1 ? t.day : t.days}
             </p>
           </div>
         </div>
@@ -311,7 +321,7 @@ export default function DeveloperVacations() {
               }`}
             >
               <Filter size={16} />
-              Filters
+              {t.filters}
               {hasFiltersApplied() && (
                 <span className="w-2 h-2 rounded-full bg-cyan-400" />
               )}
@@ -326,12 +336,12 @@ export default function DeveloperVacations() {
             <div className="flex justify-between items-center px-4 py-3 bg-gradient-to-r from-slate-50 to-slate-100 border-b border-slate-200">
               <div className="flex items-center gap-2">
                 <Filter size={16} className="text-[#244B77]" />
-                <span className="text-sm font-semibold text-slate-800">Filter Absences</span>
+                <span className="text-sm font-semibold text-slate-800">{t.filters}</span>
               </div>
               <button
                 onClick={() => setShowFilters(false)}
                 className="p-1 rounded-md hover:bg-slate-200 text-slate-400 hover:text-slate-600 transition-colors"
-                aria-label="Close filters"
+                aria-label={t.close}
               >
                 <X size={16} />
               </button>
@@ -344,7 +354,7 @@ export default function DeveloperVacations() {
                 <div className="flex items-center gap-2">
                   <div>
                     <label htmlFor="filter-start" className="text-xs font-medium text-slate-500 mb-1 block">
-                      From
+                      {t.from}
                     </label>
                     <input
                       id="filter-start"
@@ -357,7 +367,7 @@ export default function DeveloperVacations() {
                   <span className="text-slate-400 mt-5">→</span>
                   <div>
                     <label htmlFor="filter-end" className="text-xs font-medium text-slate-500 mb-1 block">
-                      To
+                      {t.to}
                     </label>
                     <input
                       id="filter-end"
@@ -375,7 +385,7 @@ export default function DeveloperVacations() {
                 {/* Type Filter */}
                 <div>
                   <label htmlFor="filter-type" className="text-xs font-medium text-slate-500 mb-1 block">
-                    Leave Type
+                    {t.type}
                   </label>
                   <select
                     id="filter-type"
@@ -383,9 +393,9 @@ export default function DeveloperVacations() {
                     onChange={(e) => setFilters(prev => ({ ...prev, selectedAbsenceType: e.target.value || null }))}
                     className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#244B77]/20 focus:border-[#244B77]/30 min-w-[150px] transition-all"
                   >
-                    <option value="">All Types</option>
+                    <option value="">{t.type}</option>
                     {ABSENCE_TYPES.map(type => (
-                      <option key={type} value={type}>{type}</option>
+                      <option key={type} value={type}>{absenceTypeLabels[type] || type}</option>
                     ))}
                   </select>
                 </div>
@@ -397,7 +407,7 @@ export default function DeveloperVacations() {
                     className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all border border-transparent hover:border-rose-200"
                   >
                     <X size={14} />
-                    Clear
+                    {t.reset}
                   </button>
                 )}
               </div>
@@ -410,16 +420,16 @@ export default function DeveloperVacations() {
       <div className="overflow-y-auto custom-scrollbar" style={{ maxHeight: "calc(100vh - 450px)", minHeight: "300px" }}>
         {isLoading ? (
           <div className="h-64">
-            <Spinner text="Loading your leaves..." />
+            <Spinner text={t.loading} />
           </div>
         ) : sortedAbsences.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16">
             <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mb-4">
               <CalendarDays size={32} className="text-slate-400" />
             </div>
-            <p className="text-lg font-semibold text-slate-700">No leaves found</p>
+            <p className="text-lg font-semibold text-slate-700">{t.noLeavesFound}</p>
             <p className="text-sm text-slate-500 mt-1">
-              {hasFiltersApplied() ? "Try adjusting your filters" : "You haven't taken any time off yet"}
+              {hasFiltersApplied() ? t.reset : t.noLeavesFound}
             </p>
           </div>
         ) : (
@@ -432,7 +442,7 @@ export default function DeveloperVacations() {
                     onClick={() => handleSort("type")}
                     className="flex items-center gap-1.5 hover:text-slate-900 transition-colors"
                   >
-                    Type {getSortIcon("type")}
+                    {t.type} {getSortIcon("type")}
                   </button>
                 </th>
                 <th className="px-6 py-3 font-bold bg-slate-100">
@@ -440,7 +450,7 @@ export default function DeveloperVacations() {
                     onClick={() => handleSort("startDate")}
                     className="flex items-center gap-1.5 hover:text-slate-900 transition-colors"
                   >
-                    Start Date {getSortIcon("startDate")}
+                    {t.startDate} {getSortIcon("startDate")}
                   </button>
                 </th>
                 <th className="px-6 py-3 font-bold bg-slate-100">
@@ -448,7 +458,7 @@ export default function DeveloperVacations() {
                     onClick={() => handleSort("endDate")}
                     className="flex items-center gap-1.5 hover:text-slate-900 transition-colors"
                   >
-                    End Date {getSortIcon("endDate")}
+                    {t.endDate} {getSortIcon("endDate")}
                   </button>
                 </th>
                 <th className="px-6 py-3 font-bold bg-slate-100 text-center">
@@ -456,7 +466,7 @@ export default function DeveloperVacations() {
                     onClick={() => handleSort("days")}
                     className="flex items-center gap-1.5 hover:text-slate-900 transition-colors mx-auto"
                   >
-                    Days {getSortIcon("days")}
+                    {t.days} {getSortIcon("days")}
                   </button>
                 </th>
               </tr>

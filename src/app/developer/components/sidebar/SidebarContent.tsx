@@ -1,9 +1,14 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import SidebarList from "./SidebarList";
 import { ProjectData } from "@/types/project";
 import { Plus } from "lucide-react";
+import { useLanguage } from "@/app/context/LanguageContext";
 
 export default function SidebarContent({ isLocked, isOwner=false, sidebarProjects, openModal }: {isLocked?:boolean, isOwner:boolean, sidebarProjects: ProjectData[], openModal: () => void }) {
+  const { t } = useLanguage();
+  
   return (
     <aside className="h-full w-full  min-w-[160px]  bg-gradient-to-b from-slate-50 to-slate-100 rounded-l-xl border-r border-slate-200 flex flex-col justify-between shadow-md">
       <div className="flex-1 min-h-0">
@@ -16,7 +21,7 @@ export default function SidebarContent({ isLocked, isOwner=false, sidebarProject
             onClick={openModal}
           >
             <Plus size={18} className="mr-2" />
-            Add Project
+            {t.addProject}
           </Button>
         </div>
       )}

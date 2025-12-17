@@ -1,4 +1,5 @@
 import { Check, X } from "lucide-react";
+import { useLanguage } from "@/app/context/LanguageContext";
 
 type Props = {
   index: number;
@@ -10,6 +11,8 @@ type Props = {
 };
 
 export default function VacationEditRow({ index, editedData, onChange, onSave, onCancel, isSaving }: Props) {
+  const { t } = useLanguage();
+  
   return (
     <tr className="bg-blue-50">
       <td className="px-4 py-4">
@@ -18,7 +21,7 @@ export default function VacationEditRow({ index, editedData, onChange, onSave, o
         </span>
       </td>
       <td className="px-4 py-4">
-        <label htmlFor={`date-${index}`} className="sr-only">Holiday date</label>
+        <label htmlFor={`date-${index}`} className="sr-only">{t.date}</label>
         <input
           id={`date-${index}`}
           type="date"
@@ -28,12 +31,12 @@ export default function VacationEditRow({ index, editedData, onChange, onSave, o
         />
       </td>
       <td className="px-4 py-4">
-        <label htmlFor={`holiday-${index}`} className="sr-only">Holiday name</label>
+        <label htmlFor={`holiday-${index}`} className="sr-only">{t.holidayName}</label>
         <input
           id={`holiday-${index}`}
           value={editedData.holiday}
           onChange={(e) => onChange(e, "holiday")}
-          placeholder="Holiday name"
+          placeholder={t.holidayName}
           className="w-full px-3 py-1.5 border border-blue-300 rounded-lg text-sm bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-400"
         />
       </td>

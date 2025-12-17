@@ -1,4 +1,5 @@
 import { Trash2, Pencil, Calendar } from "lucide-react";
+import { useLanguage } from "@/app/context/LanguageContext";
 
 type Props = {
   emp: { id: number; date: string; title: string };
@@ -9,9 +10,11 @@ type Props = {
 };
 
 export default function VacationRow({ emp, index, onEdit, onDelete, isDeleting }: Props) {
+  const { language } = useLanguage();
+  
   function formatToDayMonth(dateStr: string): string {
     const date = new Date(dateStr);
-    return date.toLocaleDateString("en-GB", {
+    return date.toLocaleDateString(language === 'de' ? "de-DE" : "en-GB", {
       day: "2-digit",
       month: "long",
     });

@@ -6,6 +6,7 @@ import { FormData, ProjectEntry } from "@/types/project";
 import { toast, Toaster } from "sonner";
 import Spinner from "@/components/ui/Spinner";
 import { FolderKanban } from "lucide-react";
+import { useLanguage } from "@/app/context/LanguageContext";
 
 function formatSelectors(data: ProjectEntry[]): Record<string, ProjectEntry[]> {
   return data.reduce((acc, entry) => {
@@ -21,6 +22,7 @@ function formatSelectors(data: ProjectEntry[]): Record<string, ProjectEntry[]> {
 
 
 export default function Projects() {
+  const { t } = useLanguage();
   const [formData, setFormData] = useState<FormData>({ name: "", project: "" });
   const [selectors, setSelectors] = useState<Record<string, ProjectEntry[]>>({});
   const [isLoading, setIsLoading] = useState(true);
@@ -143,7 +145,7 @@ const onOptionsModified = useCallback(async (id: number, newValue: string, opera
 
   if(isLoading) return (
     <div className="h-full">
-      <Spinner text="Loading projects..." />
+      <Spinner text={t.loadingProjects} />
     </div>
   );
 
@@ -156,8 +158,8 @@ const onOptionsModified = useCallback(async (id: number, newValue: string, opera
             <FolderKanban className="text-white" size={20} />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-slate-900">Project Management</h1>
-            <p className="text-sm text-slate-600">Organize companies and their projects</p>
+            <h1 className="text-xl font-bold text-slate-900">{t.projectManagement}</h1>
+            <p className="text-sm text-slate-600">{t.organizeCompanies}</p>
           </div>
         </div>
       </div>

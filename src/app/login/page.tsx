@@ -6,12 +6,14 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { isPasswordStrong } from "@/lib/utils";
 import { Loader2, Clock, Calendar } from "lucide-react";
+import { useLanguage } from "@/app/context/LanguageContext";
 
 export default function Login() {
   const [data, setData] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
+  const { t } = useLanguage();
 
   useEffect(() => {
     setMounted(true);
@@ -21,7 +23,7 @@ export default function Login() {
     e.preventDefault();
 
     if (!isPasswordStrong(data.password)) {
-      toast.error("Password nuk është i sigurt. Kontrolloni kërkesat.");
+      toast.error(t.passwordNotSecure);
       return;
     }
 
@@ -35,7 +37,7 @@ export default function Login() {
 
     if (res?.error) {
       console.log("SignIn Error", res.error);
-      toast.error("Oops! Dicka shkoi gabim. Ju lutem provoni përsëri!");
+      toast.error(t.somethingWentWrong);
       setLoading(false);
     } else {
       const session = await getSession();
@@ -46,7 +48,7 @@ export default function Login() {
       } else if (role?.toLowerCase() === "dev") {
         router.push(`/developer/${session?.user?.id}`);
       } else {
-        toast.error("No valid role assigned to this user.");
+        toast.error(t.noValidRole);
         setLoading(false);
       }
     }
@@ -98,21 +100,21 @@ export default function Login() {
             DELA<span className="text-cyan-400">tech</span>
           </h1>
           <p className={`mt-2 text-lg text-slate-300 font-light tracking-wide transition-all duration-500 delay-300 ${mounted ? 'opacity-100' : 'opacity-0'}`}>
-            Time Booking System
+            {t.timeBookingSystem}
           </p>
         </div>
 
         {/* Login Card */}
         <div className={`backdrop-blur-xl bg-white/[0.08] border border-white/10 rounded-3xl p-8 md:p-10 shadow-2xl shadow-black/20 transition-all duration-500 delay-400 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
           <div className="mb-8">
-            <h2 className="text-2xl font-semibold text-white">Welcome back</h2>
-            <p className="text-slate-400 mt-1">Sign in to continue to your dashboard</p>
+            <h2 className="text-2xl font-semibold text-white">{t.welcomeBack}</h2>
+            <p className="text-slate-400 mt-1">{t.signInToContinue}</p>
           </div>
 
           <form className="space-y-6" onSubmit={onSubmit}>
             <div className="space-y-2">
               <label htmlFor="email" className="block text-sm font-medium text-slate-300">
-                Email Address
+                {t.emailAddress}
               </label>
               <input
                 id="email"
@@ -128,7 +130,7 @@ export default function Login() {
 
             <div className="space-y-2">
               <label htmlFor="password" className="block text-sm font-medium text-slate-300">
-                Password
+                {t.password}
               </label>
               <input
                 id="password"
@@ -146,7 +148,7 @@ export default function Login() {
               />
               {!isPasswordStrong(data.password) && data.password && (
                 <p className="text-xs text-red-400 mt-2 leading-relaxed">
-                  Password must contain at least 8 characters, one uppercase letter A-Z, one number, and one special symbol (! @ # $ % ^ & * ( ) . _ - + =).
+                  {t.passwordRequirements}
                 </p>
               )}
             </div>
@@ -159,10 +161,10 @@ export default function Login() {
               {loading ? (
                 <>
                   <Loader2 className="w-5 h-5 animate-spin" />
-                  <span>Signing in...</span>
+                  <span>{t.signingIn}</span>
                 </>
               ) : (
-                "Sign In"
+                t.signIn
               )}
             </button>
           </form>
@@ -170,7 +172,7 @@ export default function Login() {
 
         {/* Footer */}
         <p className={`text-center mt-8 text-sm text-slate-500 transition-all duration-500 delay-500 ${mounted ? 'opacity-100' : 'opacity-0'}`}>
-          © {new Date().getFullYear()} DELAtech. All rights reserved.
+          © {new Date().getFullYear()} DELAtech. {t.allRightsReserved}
         </p>
       </div>
     </div>

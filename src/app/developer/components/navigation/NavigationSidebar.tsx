@@ -5,6 +5,7 @@ import { signOut } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useSidebar } from "@/app/context/SidebarContext";
+import { useLanguage } from "@/app/context/LanguageContext";
 
 type Tab = "time-reporting" | "vacations";
 
@@ -17,10 +18,11 @@ export default function NavigationSidebar({ activeTab, onTabChange }: Navigation
   const searchParams = useSearchParams();
   const adminId = searchParams.get("adminId");
   const { isCollapsed, toggleSidebar } = useSidebar();
+  const { t } = useLanguage();
 
   const menuItems = [
-    { id: "time-reporting" as Tab, label: "Time Reporting", icon: Calendar },
-    { id: "vacations" as Tab, label: "Vacations", icon: Palmtree },
+    { id: "time-reporting" as Tab, label: t.timeReporting, icon: Calendar },
+    { id: "vacations" as Tab, label: t.vacations, icon: Palmtree },
   ];
 
   const handleLogout = () => {
@@ -50,7 +52,7 @@ export default function NavigationSidebar({ activeTab, onTabChange }: Navigation
       {/* Navigation Label */}
       {!isCollapsed && (
         <div className="px-4 mb-4">
-          <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Navigation</span>
+          <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">{t.navigation}</span>
         </div>
       )}
 
@@ -81,28 +83,28 @@ export default function NavigationSidebar({ activeTab, onTabChange }: Navigation
       <div className={`mt-4 pt-4 border-t border-slate-700 ${isCollapsed ? "px-2" : "px-3"}`}>
         {!isCollapsed && (
           <div className="px-4 mb-3">
-            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Actions</span>
+            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">{t.actions}</span>
           </div>
         )}
         {adminId && (
           <Link
             href={`/admin/?adminId=${adminId}`}
             aria-label="Go to admin dashboard"
-            title={isCollapsed ? "Go to Admin" : undefined}
+            title={isCollapsed ? t.goToAdmin : undefined}
             className={`group flex items-center ${isCollapsed ? "justify-center" : ""} gap-3 ${isCollapsed ? "px-0 py-3" : "px-4 py-3"} rounded-xl transition-all duration-300 text-slate-200 hover:text-amber-400 hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 focus:ring-offset-slate-900`}
           >
             <Shield size={20} aria-hidden="true" className="flex-shrink-0 group-hover:scale-110 transition-transform" />
-            {!isCollapsed && <span className="font-medium">Go to Admin</span>}
+            {!isCollapsed && <span className="font-medium">{t.goToAdmin}</span>}
           </Link>
         )}
         <button
           onClick={handleLogout}
           aria-label="Log out of your account"
-          title={isCollapsed ? "Log Out" : undefined}
+          title={isCollapsed ? t.signOut : undefined}
           className={`group w-full flex items-center ${isCollapsed ? "justify-center" : ""} gap-3 ${isCollapsed ? "px-0 py-3" : "px-4 py-3"} rounded-xl transition-all duration-300 text-left text-slate-200 hover:text-rose-400 hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-rose-400 focus:ring-offset-2 focus:ring-offset-slate-900`}
         >
           <LogOut size={20} aria-hidden="true" className="flex-shrink-0 group-hover:scale-110 transition-transform" />
-          {!isCollapsed && <span className="font-medium">Log Out</span>}
+          {!isCollapsed && <span className="font-medium">{t.signOut}</span>}
         </button>
       </div>
     </aside>

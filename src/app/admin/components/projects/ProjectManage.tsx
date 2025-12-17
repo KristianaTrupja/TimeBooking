@@ -4,6 +4,7 @@ import { ProjectEntry } from "@/types/project";
 import { Delete, FilePenLine, LoaderCircle, Save, ChevronDown, Building2, FileText } from "lucide-react";
 import { useMemo, useRef, useEffect, memo, useState, MouseEvent } from "react";
 import { toast } from "sonner";
+import { useLanguage } from "@/app/context/LanguageContext";
 
 interface ProjectManageProps {
   id: string;
@@ -31,6 +32,7 @@ function ProjectManage({
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editValue, setEditValue] = useState("");
   const [pendingId, setPendingId] = useState<number | null>(null);
+  const { t } = useLanguage();
 
   const sortedOptions = useMemo(
     () => [...options].sort((a, b) => a.project.localeCompare(b.project)),
@@ -84,11 +86,11 @@ function ProjectManage({
       setPendingId(entry.id);
       try {
         await onOptionsModified(entry.id, editValue.trim(), 'update');
-        toast.success("Project updated successfully.");
+        toast.success(t.projectUpdated);
         setEditingId(null);
         setEditValue("");
       } catch (error: any) {
-        toast.error(error.message || "Error updating the project!");
+        toast.error(error.message || t.somethingWentWrong);
       } finally {
         setPendingId(null);
       }
@@ -99,15 +101,15 @@ function ProjectManage({
     e.stopPropagation()
     if(!window) return //implement some other confirmation deleting logic if not in browser
 
-    const confirmed = confirm("Are you sure you want to delete this project?")
+    const confirmed = confirm(t.confirmDelete)
 
     if (onOptionsModified && confirmed) {
       setPendingId(entry.id);
       try {
         await onOptionsModified(entry.id, entry.project, 'delete');
-        toast.success("Project deleted successfully.");
+        toast.success(t.projectDeleted);
       } catch (error: any) {
-        toast.error(error.message || "Error deleting the project!");
+        toast.error(error.message || t.somethingWentWrong);
       } finally {
         setPendingId(null);
       }
@@ -148,7 +150,7 @@ function ProjectManage({
           <div className="text-left">
             <span className="font-semibold">{label}</span>
             <span className={`ml-2 text-xs font-medium ${isOpen ? "text-white/80" : "text-slate-600"}`}>
-              ({sortedOptions.length} projects)
+              ({sortedOptions.length} {t.projects.toLowerCase()})
             </span>
           </div>
         </div>

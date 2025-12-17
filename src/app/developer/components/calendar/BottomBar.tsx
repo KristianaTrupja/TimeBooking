@@ -9,6 +9,7 @@ import { useMemo, useState, useEffect } from "react";
 import { useAbsenceContext } from "@/app/context/AbsencesContext";
 import { useIsAbsentDay } from "@/app/hooks/useIsAbsentDay";
 import { useHolidayContext } from "@/app/context/HolidayContext";
+import { useLanguage } from "@/app/context/LanguageContext";
 
 export default function BottomBar() {
   const { month, year } = useCalendar();
@@ -18,6 +19,7 @@ export default function BottomBar() {
   const userId = useMemo(() => pathname?.split("/")[2] || "", [pathname]);
   const [days, setDays] = useState<string[]>([]);
   const [absences, absenceLoading] = useAbsenceContext();
+  const { t } = useLanguage();
 
   useEffect(() => {
     setDays(getDaysInMonth(year, month));
@@ -49,7 +51,7 @@ export default function BottomBar() {
           bgColor = "bg-slate-100 text-slate-500";
         }
 
-        const tooltip = [formattedDate, isHoliday && holidayTitle, isAbsentDay && `Absence: ${absenceType}`]
+        const tooltip = [formattedDate, isHoliday && holidayTitle, isAbsentDay && `${t.absence}: ${absenceType}`]
           .filter(Boolean)
           .join(" | ");
 

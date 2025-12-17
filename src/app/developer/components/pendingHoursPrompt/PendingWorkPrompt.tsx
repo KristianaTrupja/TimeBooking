@@ -7,11 +7,13 @@ import { useSaveWorkHours } from "@/app/hooks/useSaveWorkHours";
 import { useCalendar } from "@/app/context/CalendarContext";
 import { useWorkHours } from "@/app/context/WorkHoursContext";
 import { toast } from "sonner";
+import { useLanguage } from "@/app/context/LanguageContext";
 
 export const PendingWorkPrompt = () => {
   const [pendingKeys, setPendingKeys] = useState<string[]>([]);
   const { year, month, refreshPendingStatus, showPendingDataModal, setShowPendingDataModal, isPending, setIsSaved } = useCalendar();
   const { setWorkHoursForProject, reloadWorkHours } = useWorkHours();
+  const { t } = useLanguage();
 
   const hasPrompted = useRef(false);
 
@@ -75,19 +77,19 @@ export const PendingWorkPrompt = () => {
     }
 
     keysToRemove.forEach((key) => sessionStorage.removeItem(key));
-    toast.success("All work hours have been saved!");
+    toast.success(t.allWorkHoursSaved);
     refreshPendingStatus();
     setShowPendingDataModal(false);
     setIsSaved(true)
   };
   return (
-    <Modal isOpen={showPendingDataModal} onClose={() => setShowPendingDataModal(false)} title="Pending Hours">
-      <p className="mb-4">You have unsaved work hours. Do you want to keep them for now or discard them?</p>
+    <Modal isOpen={showPendingDataModal} onClose={() => setShowPendingDataModal(false)} title={t.pendingHours}>
+      <p className="mb-4">{t.unsavedWorkHoursMessage}</p>
       <div className="flex justify-end gap-2">
         <Button variant="outline" onClick={discardPending}>
-          Discard
+          {t.discard}
         </Button>
-        <Button onClick={handleClick}>Keep</Button>
+        <Button onClick={handleClick}>{t.keep}</Button>
       </div>
     </Modal>
   );

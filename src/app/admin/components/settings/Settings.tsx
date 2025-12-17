@@ -5,10 +5,12 @@ import { useRouter } from "next/navigation";
 import { Settings, Users, Pencil, User, Mail, Lock, Save, ChevronRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { useLanguage } from "@/app/context/LanguageContext";
 
 export default function SettingsPage() {
   const { data: session } = useSession();
   const router = useRouter();
+  const { t } = useLanguage();
 
   const [formData, setFormData] = useState({
     username: "",
@@ -63,32 +65,33 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="p-6 max-w-3xl">
+    <div className="p-6 h-full overflow-y-auto custom-scrollbar">
+      <div className="max-w-3xl">
       {/* Header */}
       <div className="flex items-center gap-3 mb-6">
         <div className="p-2.5 rounded-xl bg-slate-700 text-white">
           <Settings size={20} />
         </div>
         <div>
-          <h2 className="text-lg font-semibold text-slate-800">Profile Settings</h2>
-          <p className="text-sm text-slate-500">Manage your account information</p>
+          <h2 className="text-lg font-semibold text-slate-800">{t.profileSettings}</h2>
+          <p className="text-sm text-slate-500">{t.manageAccount}</p>
         </div>
       </div>
 
       {/* Profile Form Card */}
       <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 mb-6">
-        <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wider mb-4">Account Information</h3>
+        <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wider mb-4">{t.accountInfo}</h3>
         
         <div className="space-y-4">
           {/* Full Name */}
           <div>
-            <label className="block text-sm font-medium text-slate-600 mb-1.5">Full Name</label>
+            <label className="block text-sm font-medium text-slate-600 mb-1.5">{t.fullName}</label>
             <div className="relative">
               <User size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
               <input
                 type="text"
                 name="username"
-                placeholder="Enter name"
+                placeholder={t.enterName}
                 value={formData.username}
                 onChange={handleChange}
                 className="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-700 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-colors"
@@ -98,13 +101,13 @@ export default function SettingsPage() {
 
           {/* Email */}
           <div>
-            <label className="block text-sm font-medium text-slate-600 mb-1.5">Email</label>
+            <label className="block text-sm font-medium text-slate-600 mb-1.5">{t.email}</label>
             <div className="relative">
               <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
               <input
                 type="email"
                 name="email"
-                placeholder="Enter email"
+                placeholder={t.enterEmail}
                 value={formData.email}
                 onChange={handleChange}
                 className="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-700 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-colors"
@@ -114,13 +117,13 @@ export default function SettingsPage() {
 
           {/* Password */}
           <div>
-            <label className="block text-sm font-medium text-slate-600 mb-1.5">Password</label>
+            <label className="block text-sm font-medium text-slate-600 mb-1.5">{t.password}</label>
             <div className="relative">
               <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
               <input
                 type="password"
                 name="password"
-                placeholder="Change password (leave empty to keep current)"
+                placeholder={t.changePassword}
                 value={formData.password}
                 onChange={handleChange}
                 className="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-700 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-colors"
@@ -142,47 +145,48 @@ export default function SettingsPage() {
             ) : (
               <Save size={16} />
             )}
-            {isSaving ? "Saving..." : "Save Changes"}
+            {isSaving ? t.saving : t.saveChanges}
           </button>
         </div>
       </div>
 
-      {/* Quick Links Card */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
-        <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wider mb-4">Quick Links</h3>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <button
-            onClick={() => handleNavigate("users")}
-            className="group flex items-center justify-between p-4 bg-slate-50 border border-slate-200 rounded-xl hover:bg-blue-50 hover:border-blue-200 transition-all text-left"
-          >
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-slate-200 group-hover:bg-blue-100 transition-colors">
-                <Users size={18} className="text-slate-600 group-hover:text-blue-600" />
+        {/* Quick Links Card */}
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 mb-6">
+          <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wider mb-4">{t.quickLinks}</h3>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <button
+              onClick={() => handleNavigate("users")}
+              className="group flex items-center justify-between p-4 bg-slate-50 border border-slate-200 rounded-xl hover:bg-blue-50 hover:border-blue-200 transition-all text-left"
+            >
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-slate-200 group-hover:bg-blue-100 transition-colors">
+                  <Users size={18} className="text-slate-600 group-hover:text-blue-600" />
+                </div>
+                <div>
+                  <p className="font-medium text-slate-800 group-hover:text-blue-700">{t.users}</p>
+                  <p className="text-xs text-slate-500">{t.manageEmployees}</p>
+                </div>
               </div>
-              <div>
-                <p className="font-medium text-slate-800 group-hover:text-blue-700">Users</p>
-                <p className="text-xs text-slate-500">Manage employees</p>
-              </div>
-            </div>
-            <ChevronRight size={18} className="text-slate-400 group-hover:text-blue-500" />
-          </button>
+              <ChevronRight size={18} className="text-slate-400 group-hover:text-blue-500" />
+            </button>
 
-          <button
-            onClick={() => handleNavigate("modify-absences")}
-            className="group flex items-center justify-between p-4 bg-slate-50 border border-slate-200 rounded-xl hover:bg-blue-50 hover:border-blue-200 transition-all text-left"
-          >
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-slate-200 group-hover:bg-blue-100 transition-colors">
-                <Pencil size={18} className="text-slate-600 group-hover:text-blue-600" />
+            <button
+              onClick={() => handleNavigate("modify-absences")}
+              className="group flex items-center justify-between p-4 bg-slate-50 border border-slate-200 rounded-xl hover:bg-blue-50 hover:border-blue-200 transition-all text-left"
+            >
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-slate-200 group-hover:bg-blue-100 transition-colors">
+                  <Pencil size={18} className="text-slate-600 group-hover:text-blue-600" />
+                </div>
+                <div>
+                  <p className="font-medium text-slate-800 group-hover:text-blue-700">{t.absences}</p>
+                  <p className="text-xs text-slate-500">{t.manageLeaveDays}</p>
+                </div>
               </div>
-              <div>
-                <p className="font-medium text-slate-800 group-hover:text-blue-700">Absences</p>
-                <p className="text-xs text-slate-500">Manage leave days</p>
-              </div>
-            </div>
-            <ChevronRight size={18} className="text-slate-400 group-hover:text-blue-500" />
-          </button>
+              <ChevronRight size={18} className="text-slate-400 group-hover:text-blue-500" />
+            </button>
+          </div>
         </div>
       </div>
     </div>

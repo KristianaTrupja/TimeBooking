@@ -3,11 +3,8 @@ import { useCallback } from "react";
 import { Bell, Settings } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useNotifications } from "@/app/context/NotificationContext";
-
-const navItems = [
-  { icon: Bell, label: "Notifications", tab: "notifications" },
-  { icon: Settings, label: "Settings", tab: "settings" }
-];
+import { useLanguage } from "@/app/context/LanguageContext";
+import HeaderLanguageSwitcher from "@/components/ui/HeaderLanguageSwitcher";
 
 export default function HeaderNav() {
   const router = useRouter();
@@ -15,13 +12,21 @@ export default function HeaderNav() {
   const searchParams = useSearchParams();
   const currentTab = searchParams.get("tab") || "raport";
   const { unreadNotificationsCount } = useNotifications();
+  const { t } = useLanguage();
+
+  const navItems = [
+    { icon: Bell, label: t.notifications || "Notifications", tab: "notifications" },
+    { icon: Settings, label: t.settings, tab: "settings" }
+  ];
 
   const handleClick = useCallback((tab: string) => {
     router.push(`${pathname}?tab=${tab}`);
   }, [router, pathname]);
 
   return (
-    <nav className="flex items-center gap-2" role="navigation" aria-label="Quick actions">
+    <nav className="flex items-center gap-3" role="navigation" aria-label="Quick actions">
+      <HeaderLanguageSwitcher />
+      <div className="h-6 w-px bg-slate-200" />
       {navItems.map((item) => {
         const isActive = currentTab === item.tab;
         const Icon = item.icon;

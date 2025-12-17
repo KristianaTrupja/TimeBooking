@@ -1,8 +1,11 @@
+"use client";
+
 import { Modal } from "@/app/components/ui/Modal";
 import { Button } from "@/components/ui/button";
 import { ProjectData } from "@/types/project";
 import { Building2, FolderPlus, Check, Lock } from "lucide-react";
 import clsx from "clsx";
+import { useLanguage } from "@/app/context/LanguageContext";
 
 interface ProjectModalProps {
   isOpen: boolean;
@@ -25,6 +28,8 @@ export default function ProjectModal({
   handleSubmit,
   isSubmitting,
 }: ProjectModalProps) {
+  const { t } = useLanguage();
+  
   const sidebarProjectKeys = new Set(
     sidebarProjects.flatMap((group) =>
       group.projects.map((proj) => `${group.company}-${proj.projectKey}`)
@@ -43,8 +48,8 @@ export default function ProjectModal({
             <FolderPlus className="text-white" size={20} />
           </div>
           <div>
-            <h2 className="text-xl font-semibold text-slate-800">Add Projects</h2>
-            <p className="text-sm text-slate-400 font-normal">Select projects to add to your sidebar</p>
+            <h2 className="text-xl font-semibold text-slate-800">{t.availableProjects}</h2>
+            <p className="text-sm text-slate-400 font-normal">{t.selectProjects}</p>
           </div>
         </div>
       }
@@ -56,10 +61,10 @@ export default function ProjectModal({
                 <span className="w-6 h-6 rounded-full bg-[#244B77] text-white text-xs flex items-center justify-center font-medium">
                   {selectedCount}
                 </span>
-                project{selectedCount !== 1 ? "s" : ""} selected
+                {t.projects.toLowerCase()}
               </span>
             ) : (
-              "No projects selected"
+              t.noProjectsFound
             )}
           </span>
           <Button 
@@ -69,7 +74,7 @@ export default function ProjectModal({
             className="bg-gradient-to-r from-[#244B77] to-[#1a3a5c] hover:from-[#2d5a8a] hover:to-[#244B77] text-white px-6 py-2 rounded-xl shadow-md shadow-[#244B77]/20 disabled:opacity-40 disabled:shadow-none transition-all"
           >
             <FolderPlus size={16} className="mr-2" />
-            {isSubmitting ? "Adding..." : "Add Selected"}
+            {t.addSelected}
           </Button>
         </div>
       }
@@ -148,7 +153,7 @@ export default function ProjectModal({
         {projectsData.length === 0 && (
           <div className="text-center py-12">
             <FolderPlus size={48} className="mx-auto text-slate-200 mb-3" />
-            <p className="text-slate-400">No projects available</p>
+            <p className="text-slate-400">{t.noProjectsFound}</p>
           </div>
         )}
       </div>

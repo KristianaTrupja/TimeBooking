@@ -8,8 +8,10 @@ import { User, UserFormData } from "@/types/user";
 import Spinner from "@/components/ui/Spinner";
 import { isPasswordStrong } from "@/lib/utils";
 import { Users as UsersIcon, UserPlus, Shield, Code } from "lucide-react";
+import { useLanguage } from "@/app/context/LanguageContext";
 
 export default function Users() {
+  const { t } = useLanguage();
   const [open, setOpen] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [formData, setFormData] = useState<UserFormData>({
@@ -203,7 +205,7 @@ export default function Users() {
 
   if (isLoading) return (
     <div className="h-full">
-      <Spinner text="Loading employees..." />
+      <Spinner text={t.loadingEmployees} />
     </div>
   );
 
@@ -218,8 +220,8 @@ export default function Users() {
               <UsersIcon className="text-white" size={20} />
             </div>
             <div>
-              <h1 className="text-xl font-semibold text-slate-800">Employee Management</h1>
-              <p className="text-sm text-slate-500">Manage team members and their roles</p>
+              <h1 className="text-xl font-semibold text-slate-800">{t.employeeManagement}</h1>
+              <p className="text-sm text-slate-500">{t.manageTeam}</p>
             </div>
           </div>
           
@@ -228,7 +230,7 @@ export default function Users() {
             className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-lg shadow-blue-500/25"
           >
             <UserPlus size={18} className="mr-2" />
-            Add Employee
+            {t.addEmployee}
           </Button>
         </div>
 
@@ -241,7 +243,7 @@ export default function Users() {
               </div>
               <div>
                 <p className="text-2xl font-bold text-slate-800">{stats.total}</p>
-                <p className="text-xs text-slate-500">Total</p>
+                <p className="text-xs text-slate-500">{t.total}</p>
               </div>
             </div>
           </div>
@@ -252,7 +254,7 @@ export default function Users() {
               </div>
               <div>
                 <p className="text-2xl font-bold text-violet-700">{stats.admins}</p>
-                <p className="text-xs text-violet-600">Admins</p>
+                <p className="text-xs text-violet-600">{t.admins}</p>
               </div>
             </div>
           </div>
@@ -263,7 +265,7 @@ export default function Users() {
               </div>
               <div>
                 <p className="text-2xl font-bold text-emerald-700">{stats.devs}</p>
-                <p className="text-xs text-emerald-600">Developers</p>
+                <p className="text-xs text-emerald-600">{t.developers}</p>
               </div>
             </div>
           </div>

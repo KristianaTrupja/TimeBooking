@@ -4,21 +4,23 @@ import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { FileText, FolderKanban, Users, CalendarPlus, CalendarCheck, Palmtree, LogOut, ChevronLeft, ChevronRight } from "lucide-react";
 import { useSidebar } from "@/app/context/SidebarContext";
-
-const sidebarItems = [
-  { title: "Timesheets", tab: "raport", icon: FileText },
-  { title: "Projects", tab: "projects", icon: FolderKanban },
-  { title: "Employees", tab: "users", icon: Users },
-  { title: "Grant Leave", tab: "absences", icon: CalendarPlus },
-  { title: "View Leaves", tab: "modify-absences", icon: CalendarCheck },
-  { title: "Official Holidays", tab: "holidays", icon: Palmtree }
-];
+import { useLanguage } from "@/app/context/LanguageContext";
 
 export default function Sidebar() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { isCollapsed, toggleSidebar } = useSidebar();
+  const { t } = useLanguage();
+
+  const sidebarItems = [
+    { title: t.timesheets, tab: "raport", icon: FileText },
+    { title: t.projects, tab: "projects", icon: FolderKanban },
+    { title: t.employees, tab: "users", icon: Users },
+    { title: t.grantLeave, tab: "absences", icon: CalendarPlus },
+    { title: t.viewLeaves, tab: "modify-absences", icon: CalendarCheck },
+    { title: t.officialHolidays, tab: "holidays", icon: Palmtree }
+  ];
 
   const currentTab = searchParams.get("tab") || "raport";
 
@@ -52,7 +54,7 @@ export default function Sidebar() {
 
       {/* Navigation Label */}
       <div className={`px-4 mb-4 ${isCollapsed ? "hidden" : ""}`}>
-        <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Navigation</span>
+        <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">{t.navigation}</span>
       </div>
 
       <nav className={`flex flex-col gap-2 flex-1 ${isCollapsed ? "px-2" : "px-3"}`} role="navigation" aria-label="Admin navigation">
@@ -83,17 +85,17 @@ export default function Sidebar() {
       <div className={`mt-4 pt-4 border-t border-slate-700 ${isCollapsed ? "px-2" : "px-3"}`}>
         {!isCollapsed && (
           <div className="px-4 mb-3">
-            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Actions</span>
+            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">{t.actions}</span>
           </div>
         )}
         <button
           onClick={handleLogout}
           aria-label="Log out of your account"
-          title={isCollapsed ? "Log Out" : undefined}
+          title={isCollapsed ? t.signOut : undefined}
           className={`group w-full flex items-center ${isCollapsed ? "justify-center" : ""} gap-3 ${isCollapsed ? "px-0 py-3" : "px-4 py-3"} rounded-xl transition-all duration-300 text-left text-slate-200 hover:text-rose-400 hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-rose-400 focus:ring-offset-2 focus:ring-offset-slate-900`}
         >
           <LogOut size={20} aria-hidden="true" className="flex-shrink-0 group-hover:scale-110 transition-transform" />
-          {!isCollapsed && <span className="font-medium">Log Out</span>}
+          {!isCollapsed && <span className="font-medium">{t.signOut}</span>}
         </button>
       </div>
     </aside>

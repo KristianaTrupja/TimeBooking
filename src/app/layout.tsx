@@ -3,6 +3,7 @@ import { Keania_One, Anek_Bangla, Inter } from "next/font/google";
 import "./globals.css";
 import { NotificationProvider } from "./context/NotificationContext";
 import { TimeSheetProvider } from "./context/TimeSheetContext";
+import { LanguageProvider } from "./context/LanguageContext";
 import { Toaster } from "sonner";
 
 const keanianOne = Keania_One({
@@ -46,11 +47,13 @@ export default function RootLayout({
       <body
         className={`${keanianOne.variable} ${anekBangla.variable} ${inter.variable} antialiased`}
       >
-        <NotificationProvider>
-          <TimeSheetProvider>
-            {children}
-          </TimeSheetProvider>
-        </NotificationProvider>
+        <LanguageProvider>
+          <NotificationProvider>
+            <TimeSheetProvider>
+              {children}
+            </TimeSheetProvider>
+          </NotificationProvider>
+        </LanguageProvider>
         <Toaster duration={10000} richColors={true} position="top-center" />
       </body>
     </html>
