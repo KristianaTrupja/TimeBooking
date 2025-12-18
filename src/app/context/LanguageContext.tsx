@@ -279,6 +279,21 @@ interface Translations {
   // Form placeholders
   selectAnOption: string;
   leavePeriod: string;
+  
+  // Grant Leave Tab
+  daysAvailable: string;
+  remaining: string;
+  carriedOver: string;
+  selectEmployeeToViewBalance: string;
+  requestSummary: string;
+  duration: string;
+  businessDay: string;
+  period: string;
+  pleaseFillAllFields: string;
+  selectedEmployeeNotFound: string;
+  failedToCreateAbsence: string;
+  absenceCreatedSuccessfully: string;
+  errorCreatingAbsence: string;
 }
 
 const translations: Record<Language, Translations> = {
@@ -557,6 +572,21 @@ const translations: Record<Language, Translations> = {
     // Form placeholders
     selectAnOption: "Select an option",
     leavePeriod: "Leave Period",
+    
+    // Grant Leave Tab
+    daysAvailable: "days available",
+    remaining: "remaining",
+    carriedOver: "carried over",
+    selectEmployeeToViewBalance: "Select an employee to view their leave balance",
+    requestSummary: "Request Summary",
+    duration: "Duration",
+    businessDay: "business day",
+    period: "Period",
+    pleaseFillAllFields: "Please fill in all fields",
+    selectedEmployeeNotFound: "Selected employee not found",
+    failedToCreateAbsence: "Failed to create absence",
+    absenceCreatedSuccessfully: "Absence created successfully!",
+    errorCreatingAbsence: "Error creating absence",
   },
   de: {
     // Navigation & Headers
@@ -833,6 +863,21 @@ const translations: Record<Language, Translations> = {
     // Form placeholders
     selectAnOption: "Option auswählen",
     leavePeriod: "Abwesenheitszeitraum",
+    
+    // Grant Leave Tab
+    daysAvailable: "Tage verfügbar",
+    remaining: "verbleibend",
+    carriedOver: "übertragen",
+    selectEmployeeToViewBalance: "Wählen Sie einen Mitarbeiter aus, um dessen Urlaubskonto anzuzeigen",
+    requestSummary: "Anfrageübersicht",
+    duration: "Dauer",
+    businessDay: "Arbeitstag",
+    period: "Zeitraum",
+    pleaseFillAllFields: "Bitte füllen Sie alle Felder aus",
+    selectedEmployeeNotFound: "Ausgewählter Mitarbeiter nicht gefunden",
+    failedToCreateAbsence: "Abwesenheit konnte nicht erstellt werden",
+    absenceCreatedSuccessfully: "Abwesenheit erfolgreich erstellt!",
+    errorCreatingAbsence: "Fehler beim Erstellen der Abwesenheit",
   },
 };
 

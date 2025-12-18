@@ -50,13 +50,13 @@ export default function Absences() {
   const [remainingDays, setRemainingDays] = useState<APIRemainingDays | null>(null)
   const [holidays, setHolidays] = useState<string[]>([])
   
-  // Translation map for absence types
-  const absenceTypeLabels: Record<string, string> = {
+  // Translation map for absence types - memoized to update when language changes
+  const absenceTypeLabels = useMemo<Record<string, string>>(() => ({
     VACATION: t.vacation,
     SICK: t.sick,
     PERSONAL: t.personal,
     PARENTAL: t.parental,
-  };
+  }), [t]);
 
   useEffect(() => {
     if(!selectedEmployee) return
@@ -84,7 +84,7 @@ export default function Absences() {
 
         if(!userRes.ok) {
           const error = await userRes.json()
-          throw new Error(error ? error : "Failed to fetch users")
+          throw new Error(error ? error : t.somethingWentWrong)
         }
 
         const userData = await userRes.json();
@@ -100,7 +100,7 @@ export default function Absences() {
         }
       } catch (err) {
         console.error("Failed to fetch data:", err)
-        flushError(err, "Failed to fetch users")
+        flushError(err, t.somethingWentWrong)
       }
       finally {
         setIsLoading(false)
@@ -112,13 +112,13 @@ export default function Absences() {
 
   async function handleCreateAbsence() {
     if (!selectedEmployee || !startDate || !endDate || !absenceType) {
-      flushError(new Error("Please fill in all fields"))
+      flushError(new Error(t.pleaseFillAllFields))
       return
     }
 
     const user = employees?.find((u) => u.username === selectedEmployee)
     if (!user) {
-      flushError(new Error("Selected employee not found"))
+      flushError(new Error(t.selectedEmployeeNotFound))
       return;
     }
 
@@ -136,7 +136,7 @@ export default function Absences() {
       });
 
       const data = await response.json();
-      if (!response.ok) throw new Error(data.message || "Failed to create absence");
+      if (!response.ok) throw new Error(data.message || t.failedToCreateAbsence);
       // Reset form
       setSelectedEmployee(null);
       setStartDate("");
@@ -144,10 +144,10 @@ export default function Absences() {
       setAbsenceType(null);
       setRemainingDays(null)
 
-      toast.success(data.message || "Absence created successfully!")
+      toast.success(data.message || t.absenceCreatedSuccessfully)
     } catch (error:unknown) {
       console.error( "Error creating absence:", error);
-      flushError(error, "Error creating absence")
+      flushError(error, t.errorCreatingAbsence)
     } finally {
       setIsSubmitting(false)
     }
@@ -271,7 +271,7 @@ export default function Absences() {
                       <div className={`mb-2 ${isSelected ? "text-white" : ""}`}>
                         {style.icon}
                       </div>
-                      <span className="text-xs font-semibold">{type}</span>
+                      <span className="text-xs font-semibold">{absenceTypeLabels[type]}</span>
                       {isSelected && (
                         <div className="absolute top-2 right-2 w-2 h-2 rounded-full bg-white/80" />
                       )}
@@ -289,32 +289,32 @@ export default function Absences() {
           <div className="bg-gradient-to-br from-[#244B77] to-[#1a3a5c] rounded-2xl p-5 shadow-lg">
             <div className="flex items-center gap-2 mb-4">
               <div className="w-2 h-2 rounded-full bg-cyan-300 animate-pulse" aria-hidden="true" />
-              <span className="text-cyan-300 text-xs font-semibold uppercase tracking-wider">Leave Balance</span>
+              <span className="text-cyan-300 text-xs font-semibold uppercase tracking-wider">{t.leaveBalance}</span>
             </div>
             
             {remainingDays ? (
               <>
                 <div className="flex items-baseline gap-2 mb-4">
                   <span className="text-4xl font-bold text-white">{remainingDays.totalDaysLeft}</span>
-                  <span className="text-white/80 font-medium">days available</span>
+                  <span className="text-white/80 font-medium">{t.daysAvailable}</span>
                 </div>
                 <div className="grid grid-cols-2 gap-3 text-xs">
                   <div className="bg-white/15 rounded-xl p-3 border border-white/20">
                     <span className="text-white/70 font-medium">{remainingDays.currentYear.year}</span>
                     <p className="text-cyan-300 font-bold text-lg">{remainingDays.currentYear.daysLeft}d</p>
-                    <span className="text-white/60 text-[10px] font-medium">remaining</span>
+                    <span className="text-white/60 text-[10px] font-medium">{t.remaining}</span>
                   </div>
                   <div className="bg-white/15 rounded-xl p-3 border border-white/20">
                     <span className="text-white/70 font-medium">{remainingDays.lastYear.year}</span>
                     <p className="text-amber-300 font-bold text-lg">{remainingDays.lastYear.daysLeft}d</p>
-                    <span className="text-white/60 text-[10px] font-medium">carried over</span>
+                    <span className="text-white/60 text-[10px] font-medium">{t.carriedOver}</span>
                   </div>
                 </div>
               </>
             ) : (
               <div className="py-6 text-center">
                 <Users size={32} className="mx-auto text-white/40 mb-3" aria-hidden="true" />
-                <p className="text-white/70 text-sm font-medium">Select an employee to view their leave balance</p>
+                <p className="text-white/70 text-sm font-medium">{t.selectEmployeeToViewBalance}</p>
               </div>
             )}
           </div>
@@ -323,29 +323,29 @@ export default function Absences() {
           <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
             <div className="flex items-center gap-2 mb-4">
               <TrendingUp size={16} className="text-[#244B77]" aria-hidden="true" />
-              <span className="text-slate-800 font-semibold">Request Summary</span>
+              <span className="text-slate-800 font-semibold">{t.requestSummary}</span>
             </div>
 
             {/* Summary Details */}
             <div className="space-y-3 mb-5">
               <div className="flex justify-between items-center py-2 border-b border-slate-100">
-                <span className="text-slate-600 text-sm font-medium">Employee</span>
+                <span className="text-slate-600 text-sm font-medium">{t.employee}</span>
                 <span className="text-slate-800 font-semibold text-sm">{selectedEmployee || "—"}</span>
               </div>
               <div className="flex justify-between items-center py-2 border-b border-slate-100">
-                <span className="text-slate-600 text-sm font-medium" title="Business days (excludes weekends and holidays)">Duration</span>
-                <span className="text-slate-800 font-semibold text-sm" title="Business days (excludes weekends and holidays)">
-                  {numberOfDays > 0 ? `${numberOfDays} business ${numberOfDays === 1 ? "day" : "days"}` : "—"}
+                <span className="text-slate-600 text-sm font-medium" title={t.businessDays}>{t.duration}</span>
+                <span className="text-slate-800 font-semibold text-sm" title={t.businessDays}>
+                  {numberOfDays > 0 ? `${numberOfDays} ${numberOfDays === 1 ? t.businessDay : t.businessDays.toLowerCase()}` : "—"}
                 </span>
               </div>
               <div className="flex justify-between items-center py-2 border-b border-slate-100">
-                <span className="text-slate-600 text-sm font-medium">Type</span>
+                <span className="text-slate-600 text-sm font-medium">{t.type}</span>
                 <span className={`font-semibold text-sm ${absenceType ? leaveTypeStyles[absenceType]?.softText : "text-slate-800"}`}>
-                  {absenceType || "—"}
+                  {absenceType ? absenceTypeLabels[absenceType] : "—"}
                 </span>
               </div>
               <div className="flex justify-between items-center py-2">
-                <span className="text-slate-600 text-sm font-medium">Period</span>
+                <span className="text-slate-600 text-sm font-medium">{t.period}</span>
                 <span className="text-slate-800 font-semibold text-sm">
                   {startDate && endDate ? `${startDate} → ${endDate}` : "—"}
                 </span>
@@ -359,7 +359,7 @@ export default function Absences() {
               className="w-full py-5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-lg shadow-blue-500/25 disabled:opacity-40 disabled:shadow-none"
             >
               <Send size={18} className="mr-2" />
-              Grant Leave
+              {t.grantLeave}
             </Button>
           </div>
         </div>
