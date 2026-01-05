@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
 
     console.log("year and month are required!", year, month, projects, userId);
 
-    if (!year || !month || !Array.isArray(projects)) {
+    if (!year || isNaN(month) || !Array.isArray(projects)) {
       throw new ValidationError("year and month are required!");
     }
 
