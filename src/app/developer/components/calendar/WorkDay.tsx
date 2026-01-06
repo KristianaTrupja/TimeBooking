@@ -60,19 +60,19 @@ export default function WorkDay({
   // Determine background and text colors based on day type (priority order)
   const getDayStyles = () => {
     if (isHoliday) {
-      return "bg-emerald-50 text-emerald-700";
+      return "bg-emerald-200 text-emerald-700";
     }
     if (isAbsentDay) {
-      return "bg-amber-50 text-amber-700";
+      return "bg-amber-200 text-amber-700";
     }
     if (isWeekendDay) {
       return "bg-slate-200/70 text-slate-500";
     }
     // Normal day
     if (isDisabled) {
-      return "bg-slate-50 text-slate-500";
+      return "bg-slate-100 text-slate-500";
     }
-    return "bg-white hover:bg-blue-50 cursor-pointer text-slate-700";
+    return "bg-white hover:bg-blue-200 cursor-pointer text-slate-700";
   };
 
   const canClick = !isAbsentDay && !isDisabled && !isHoliday && !isWeekendDay;
