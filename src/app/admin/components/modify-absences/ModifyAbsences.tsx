@@ -492,7 +492,7 @@ export default function ModifyAbsences() {
                                   <button 
                                     onClick={() => setEditingAbsence(null)} 
                                     disabled={isSaving}
-                                    className="p-1.5 rounded-lg bg-slate-200 text-slate-700 hover:bg-slate-300 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="p-1.5 rounded-lg bg-slate-200 text-slate-700 hover:bg-slate-100 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed"
                                     aria-label="Cancel editing"
                                   >
                                     <X size={16} aria-hidden="true" />

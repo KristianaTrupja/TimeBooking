@@ -42,10 +42,10 @@ export default function BottomBar() {
         let borderColor = "border-slate-300";
         if (isAbsentDay) {
           borderColor = "border-amber-400";
-          bgColor = "bg-amber-50 text-amber-700";
+          bgColor = "bg-amber-100 text-amber-700";
         } else if (isHoliday) {
           borderColor = "border-emerald-400";
-          bgColor = "bg-emerald-50 text-emerald-700";
+          bgColor = "bg-emerald-100 text-emerald-700";
         } else if (isWeekendDay) {
           borderColor = "border-slate-400";
           bgColor = "bg-slate-100 text-slate-500";

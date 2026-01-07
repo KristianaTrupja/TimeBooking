@@ -115,7 +115,7 @@ export default function Developer() {
                         <div className="flex-1 bg-slate-50/50" />
                     </section>
                     {/* Status Bar - Separated from calendar */}
-                    <div className="mt-4 -mx-6 -mb-6 px-6 py-3 bg-gradient-to-r from-slate-50 via-slate-100 to-slate-50 border-t border-slate-200 flex justify-between items-center flex-shrink-0 rounded-b-2xl">
+                    <div className="mt-4 -mx-6 -mb-6 px-6 py-3 border-t border-slate-200 flex justify-between items-center flex-shrink-0 rounded-b-2xl">
                         <CalendarLegend />
                         <div className="flex items-center gap-3">
                             {isOwner && !metadata?.isLocked && (
