@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { AuthenticationError, AuthorizationError, ConflictError, RecordNotFoundError, ValidationError } from "@/lib/errors/errors";
 import { handleApiError } from "@/lib/errors/handlers";
 import { notifyUser, notifyUsersByRole } from "@/lib/notificationsLib";
+import { sendTimesheetConfirmationEmail } from "@/lib/email";
 import { NotificationType, SubmissionStatus } from "@prisma/client";
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
@@ -134,6 +135,43 @@ export async function POST(req: Request) {
       actionMonth: month,
       actionYear: year,
     });
+
+    // Send email notifications to all admin users
+    try {
+      const adminUsers = await db.user.findMany({
+        where: {
+          role: "Admin",
+        },
+        select: {
+          email: true,
+        },
+      });
+
+      // Filter out null/empty emails and extract email addresses
+      const adminEmails = adminUsers
+        .map((user) => user.email)
+        .filter((email): email is string => email !== null && email !== undefined && email.trim() !== "");
+
+      if (adminEmails.length > 0) {
+        const monthString = formatDate(new Date(submission.periodEnd));
+        const emailResult = await sendTimesheetConfirmationEmail(
+          adminEmails,
+          session.user.username || "Developer",
+          monthString
+        );
+
+        if (emailResult.success) {
+          console.log(`Successfully sent ${emailResult.sent} email(s) to admin users`);
+        } else {
+          console.error(`Failed to send emails to admin users. Failed: ${emailResult.failed}`);
+        }
+      } else {
+        console.warn("No admin emails found to send timesheet confirmation notification");
+      }
+    } catch (emailError) {
+      // Don't fail the submission if email sending fails
+      console.error("Error sending email notifications:", emailError);
+    }
 
     return NextResponse.json(
       {
