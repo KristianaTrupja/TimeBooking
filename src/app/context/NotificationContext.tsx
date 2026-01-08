@@ -1,7 +1,6 @@
 "use client";
 import { CreateNotificationInput, NotificationType, Notification } from "@/types/notification";
 import { createContext, useContext, useState, ReactNode, useEffect, useMemo } from "react";
-import { promises as fs } from 'fs';
 
 type NotificationContextType = {
     notifications: Notification[]
@@ -10,6 +9,7 @@ type NotificationContextType = {
     fetchAllNotifications: () => void
     fetchNotification: (notificationId:string) => Promise<Notification | null>
     markAsRead: (notificationId: string ) => void
+    deleteReadNotifications: () => Promise<void>
 }
 
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
@@ -82,8 +82,25 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
         }
     }
 
+    async function deleteReadNotifications() {
+        try {
+            const response = await fetch('/api/notifications?readOnly=true', {
+                method: "DELETE"
+            })
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            // Remove read notifications from state
+            const updatedNotifications = notifications.filter(n => !n.isRead)
+            setNotifications(updatedNotifications)
+        }
+        catch(err){
+            console.error("Failed to delete read notifications:", err)
+        }
+    }
+
   return (
-    <NotificationContext.Provider value={{notifications, unreadNotificationsCount, createNotification, fetchAllNotifications, fetchNotification, markAsRead}}>
+    <NotificationContext.Provider value={{notifications, unreadNotificationsCount, createNotification, fetchAllNotifications, fetchNotification, markAsRead, deleteReadNotifications}}>
       {children}
     </NotificationContext.Provider>
   );

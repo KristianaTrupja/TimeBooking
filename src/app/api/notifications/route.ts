@@ -61,4 +61,56 @@ export async function PUT(req: Request) {
   }
 }
 
+export async function DELETE(req: Request) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) {
+      throw new AuthenticationError("Unauthorized")
+    }
+    
+    const userId = Number(session.user.id);
+    const { searchParams } = new URL(req.url);
+    const deleteRead = searchParams.get("readOnly");
+    
+    if (deleteRead === "true") {
+      // Delete all read notifications for this user
+      const result = await db.notifications.deleteMany({
+        where: {
+          userId,
+          isRead: true,
+        },
+      });
+
+      return NextResponse.json(
+        { 
+          message: `Deleted ${result.count} read notification(s) successfully`,
+          deletedCount: result.count 
+        },
+        { status: 200 }
+      );
+    } else {
+      // Delete a specific notification
+      const notificationId = searchParams.get("id");
+      
+      if (!notificationId) {
+        throw new ValidationError("No notification ID was provided!", "id");
+      }
+
+      await db.notifications.delete({
+        where: {
+          id: notificationId,
+          userId,
+        },
+      });
+
+      return NextResponse.json(
+        { message: "Notification deleted successfully" },
+        { status: 200 }
+      );
+    }
+  } catch (error) {
+    return handleApiError(error);
+  }
+}
+
 

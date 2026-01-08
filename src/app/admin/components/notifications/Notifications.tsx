@@ -1,19 +1,33 @@
 "use client";
 
-import { Bell, Inbox } from "lucide-react";
+import { Bell, Inbox, Trash2 } from "lucide-react";
 import Notification from "./Notification";
 import { useNotifications } from "@/app/context/NotificationContext";
 import { useEffect, useRef, useState, useCallback } from "react";
 import { useLanguage } from "@/app/context/LanguageContext";
+import { toast } from "sonner";
 
 export default function Notifications() {
-  const { notifications, markAsRead, fetchAllNotifications } = useNotifications()
+  const { notifications, markAsRead, fetchAllNotifications, deleteReadNotifications } = useNotifications()
   const { t } = useLanguage();
   const [containerHeight, setContainerHeight] = useState<number | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
 
   const unreadCount = notifications.filter(n => !n.isRead).length;
+  const readCount = notifications.filter(n => n.isRead).length;
+
+  const handleDeleteRead = async () => {
+    if (readCount === 0) {
+      toast.info("No read notifications to delete");
+      return;
+    }
+
+    if (window.confirm(`Are you sure you want to delete ${readCount} read notification(s)?`)) {
+      await deleteReadNotifications();
+      toast.success(`Deleted ${readCount} read notification(s)`);
+    }
+  };
 
   const calculateHeight = useCallback(() => {
     if (containerRef.current && headerRef.current) {
@@ -50,11 +64,23 @@ export default function Notifications() {
             </p>
           </div>
         </div>
-        {notifications.length > 0 && (
-          <span className="px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-sm font-medium">
-            {notifications.length} {t.total.toLowerCase()}
-          </span>
-        )}
+        <div className="flex items-center gap-2">
+          {notifications.length > 0 && (
+            <span className="px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-sm font-medium">
+              {notifications.length} {t.total.toLowerCase()}
+            </span>
+          )}
+          {readCount > 0 && (
+            <button
+              onClick={handleDeleteRead}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-rose-600 bg-rose-50 rounded-lg hover:bg-rose-100 transition-colors"
+              title="Delete all read notifications"
+            >
+              <Trash2 size={14} />
+              {t.deleteRead}
+            </button>
+          )}
+        </div>
       </div>
 
       {notifications.length === 0 ? (

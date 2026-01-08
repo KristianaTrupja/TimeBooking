@@ -208,6 +208,7 @@ interface Translations {
   unread: string;
   noNotifications: string;
   youreAllCaughtUp: string;
+  deleteRead: string;
   
   // Login Page
   welcomeBack: string;
@@ -501,6 +502,7 @@ const translations: Record<Language, Translations> = {
     unread: "unread",
     noNotifications: "No notifications",
     youreAllCaughtUp: "You're all caught up!",
+    deleteRead: "Delete Read",
     
     // Login Page
     welcomeBack: "Welcome back",
@@ -792,6 +794,7 @@ const translations: Record<Language, Translations> = {
     unread: "ungelesen",
     noNotifications: "Keine Benachrichtigungen",
     youreAllCaughtUp: "Alles erledigt!",
+    deleteRead: "Gelesene löschen",
     
     // Login Page
     welcomeBack: "Willkommen zurück",
