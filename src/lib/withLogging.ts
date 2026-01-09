@@ -18,6 +18,8 @@ export function withLogging(handler: RouteHandler): RouteHandler {
 
     // If want to DISABLE withLogging, enable the next line
     // return response
+
+    
     
     const duration = Date.now() - start;
     const timestamp = new Date().toLocaleString('en-GB', { 
