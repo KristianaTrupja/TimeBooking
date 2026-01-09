@@ -38,6 +38,7 @@
     "@types/bcrypt": "^5.0.2",
     "@types/file-saver": "^2.0.7",
     "@types/node": "^20.19.6",
+    "@types/nodemailer": "^7.0.4",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "autoprefixer": "^10.4.21",
