@@ -15,7 +15,7 @@ import SaveButton from "../components/calendarActionButtons/SaveButton";
 import SidebarHeader from "../components/sidebar/SidebarHeader";
 import Sidebar from "../components/sidebar/Sidebar";
 import { Button } from '@/components/ui/button'
-import { Send } from "lucide-react"
+import { Send, AlertTriangle } from "lucide-react"
 import { flushError } from "@/app/utils/flushError";
 import { User } from "next-auth";
 import { getSession } from "next-auth/react";
@@ -23,6 +23,7 @@ import NavigationSidebar from "../components/navigation/NavigationSidebar";
 import DeveloperVacations from "../components/vacations/DeveloperVacations";
 import CalendarLegend from "../components/calendar/CalendarLegend";
 import { useLanguage } from "@/app/context/LanguageContext";
+import { Modal } from "@/app/components/ui/Modal";
 
 type Tab = "time-reporting" | "vacations";
 
@@ -36,6 +37,7 @@ export default function Developer() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [loggedInUser, setLoggedInUser] = useState<User | null>(null);
     const [activeTab, setActiveTab] = useState<Tab>("time-reporting");
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
 
     const userId = useMemo(() => {
         const segments = pathname?.split("/") || [];
@@ -50,8 +52,13 @@ export default function Developer() {
         });
     }, []);
 
-    const handleSubmit = useCallback(async () => {
+    const handleSubmitClick = useCallback(() => {
+        setShowConfirmModal(true);
+    }, []);
+
+    const handleConfirmSubmit = useCallback(async () => {
         if (isSubmitting) return;
+        setShowConfirmModal(false);
         setIsSubmitting(true);
         try {
             await submitTimesheet(month, year, userId);
@@ -122,7 +129,7 @@ export default function Developer() {
                                 <>
                                 <Button 
                                     disabled={isSubmitting} 
-                                    onClick={handleSubmit}
+                                    onClick={handleSubmitClick}
                                     className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-lg shadow-blue-500/25 border-0 transition-all duration-300"
                                 >
                                     <Send size={16} className="mr-2" />
@@ -138,6 +145,46 @@ export default function Developer() {
                 <DeveloperVacations />
             )}
         </div>
+        
+        {/* Confirmation Modal */}
+        <Modal
+            isOpen={showConfirmModal}
+            onClose={() => setShowConfirmModal(false)}
+            title={t.confirmSubmitTimesheet}
+            className="max-w-md"
+            footer={
+                <div className="flex justify-end gap-3">
+                    <Button
+                        variant="ghost"
+                        onClick={() => setShowConfirmModal(false)}
+                        disabled={isSubmitting}
+                    >
+                        {t.cancel}
+                    </Button>
+                    <Button
+                        onClick={handleConfirmSubmit}
+                        disabled={isSubmitting}
+                        className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white"
+                    >
+                        {isSubmitting ? t.saving : t.submitTimesheet}
+                    </Button>
+                </div>
+            }
+        >
+            <div className="space-y-4">
+                <div className="flex items-start gap-3 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                    <AlertTriangle className="text-amber-600 flex-shrink-0 mt-0.5" size={20} />
+                    <div className="flex-1">
+                        <p className="text-sm font-medium text-amber-900 mb-1">
+                            {t.submitTimesheetWarning}
+                        </p>
+                        <p className="text-sm text-amber-700">
+                            {t.submitTimesheetWarningDetail}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </Modal>
     </div>         
     );
 }

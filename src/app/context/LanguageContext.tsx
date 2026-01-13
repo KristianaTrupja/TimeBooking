@@ -242,6 +242,9 @@ interface Translations {
   addToCompany: string;
   viewOptions: string;
   confirmDelete: string;
+  confirmSubmitTimesheet: string;
+  submitTimesheetWarning: string;
+  submitTimesheetWarningDetail: string;
   projectUpdated: string;
   projectDeleted: string;
   
@@ -536,6 +539,9 @@ const translations: Record<Language, Translations> = {
     addToCompany: "Add a project to a company",
     viewOptions: "View Options",
     confirmDelete: "Are you sure you want to delete this project?",
+    confirmSubmitTimesheet: "Are you sure you want to submit this timesheet?",
+    submitTimesheetWarning: "Warning: You will not be able to modify working hours for this month after submission.",
+    submitTimesheetWarningDetail: "If you need to make changes, please contact an administrator.",
     projectUpdated: "Project updated successfully.",
     projectDeleted: "Project deleted successfully.",
     
@@ -828,6 +834,9 @@ const translations: Record<Language, Translations> = {
     addToCompany: "Projekt zu einem Unternehmen hinzufügen",
     viewOptions: "Optionen anzeigen",
     confirmDelete: "Möchten Sie dieses Projekt wirklich löschen?",
+    confirmSubmitTimesheet: "Sind Sie sicher, dass Sie diese Zeiterfassung einreichen möchten?",
+    submitTimesheetWarning: "Warnung: Sie können die Arbeitsstunden für diesen Monat nach der Einreichung nicht mehr ändern.",
+    submitTimesheetWarningDetail: "Wenn Sie Änderungen vornehmen müssen, wenden Sie sich bitte an einen Administrator.",
     projectUpdated: "Projekt erfolgreich aktualisiert.",
     projectDeleted: "Projekt erfolgreich gelöscht.",
     
