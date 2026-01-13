@@ -235,12 +235,28 @@ export async function GET(req: Request) {
             username: true,
           },
         },
-        workHours: {
-          select: {
-            hours: true,
-          },
+      },
+    });
+
+    // Fetch ALL work hours for all users in this period (not just those linked to submissions)
+    const allWorkHours = await db.workHours.findMany({
+      where: {
+        date: {
+          gte: periodStart,
+          lte: periodEnd,
         },
       },
+      select: {
+        userId: true,
+        hours: true,
+      },
+    });
+
+    // Calculate total hours per user
+    const hoursByUser = new Map<number, number>();
+    allWorkHours.forEach((wh) => {
+      const current = hoursByUser.get(wh.userId) || 0;
+      hoursByUser.set(wh.userId, current + wh.hours);
     });
 
     // Create a map of userId -> submission data
@@ -253,14 +269,14 @@ export async function GET(req: Request) {
           submittedAt: sub.submittedAt,
           approvedAt: sub.approvedAt,
           rejectedAt: sub.rejectedAt,
-          totalHours: sub.workHours.reduce((sum, wh) => sum + wh.hours, 0),
         },
       ])
     );
 
-    // Combine user data with submission data
+    // Combine user data with submission data and total hours
     const timesheetData = users.map((user) => {
       const submission = submissionMap.get(user.id);
+      const totalHours = hoursByUser.get(user.id) || 0;
       
       return {
         userId: user.id,
@@ -268,7 +284,7 @@ export async function GET(req: Request) {
         email: user.email,
         role: user.role,
         submission: submission || null,
-        totalHours: submission?.totalHours || 0,
+        totalHours,
         status: submission?.status || null,
       };
     });
