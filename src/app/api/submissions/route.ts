@@ -205,8 +205,8 @@ export async function GET(req: Request) {
     const month = monthParam ? parseInt(monthParam) : today.getMonth() + 1;
     const year = yearParam ? parseInt(yearParam) : today.getFullYear();
 
-    // Calculate period boundaries
-    const periodStart = new Date(year, month - 1, 1);
+    // Calculate period boundaries (using same logic as workhours API)
+    const periodStart = new Date(year, month - 1, 1, 0, 0, 0, 0);
     const periodEnd = new Date(year, month, 0, 23, 59, 59, 999);
 
     // Fetch all users
@@ -235,11 +235,90 @@ export async function GET(req: Request) {
             username: true,
           },
         },
+        workHours: {
+          select: {
+            hours: true,
+          },
+        },
       },
     });
 
-    // Fetch ALL work hours for all users in this period (not just those linked to submissions)
-    const allWorkHours = await db.workHours.findMany({
+    // Link any unlinked work hours to their submissions (cleanup legacy data)
+    const unlinkedWorkHours = await db.workHours.findMany({
+      where: {
+        date: {
+          gte: periodStart,
+          lte: periodEnd,
+        },
+        submissionId: null,
+      },
+      select: {
+        id: true,
+        userId: true,
+        date: true,
+      },
+    });
+
+    // Link unlinked work hours to their corresponding submissions
+    if (unlinkedWorkHours.length > 0) {
+      const submissionMap = new Map(
+        submissions.map((sub) => [
+          sub.userId,
+          sub.id,
+        ])
+      );
+
+      for (const wh of unlinkedWorkHours) {
+        const submissionId = submissionMap.get(wh.userId);
+        if (submissionId) {
+          await db.workHours.update({
+            where: { id: wh.id },
+            data: { submissionId },
+          });
+        } else {
+          // Create submission for unlinked work hours
+          const submission = await db.timeSheetSubmission.create({
+            data: {
+              userId: wh.userId,
+              periodStart,
+              periodEnd,
+              status: "DRAFT",
+            },
+          });
+          await db.workHours.update({
+            where: { id: wh.id },
+            data: { submissionId: submission.id },
+          });
+        }
+      }
+
+      // Refetch submissions after linking
+      const updatedSubmissions = await db.timeSheetSubmission.findMany({
+        where: {
+          periodStart,
+          periodEnd,
+        },
+        include: {
+          user: {
+            select: {
+              id: true,
+              username: true,
+            },
+          },
+          workHours: {
+            select: {
+              hours: true,
+            },
+          },
+        },
+      });
+      submissions.length = 0;
+      submissions.push(...updatedSubmissions);
+    }
+
+    // Fetch ALL work hours for the period to ensure we have accurate totals
+    // This ensures we include work hours that were just updated/linked
+    const allWorkHoursInPeriod = await db.workHours.findMany({
       where: {
         date: {
           gte: periodStart,
@@ -249,12 +328,13 @@ export async function GET(req: Request) {
       select: {
         userId: true,
         hours: true,
+        submissionId: true,
       },
     });
 
-    // Calculate total hours per user
+    // Calculate total hours per user from ALL work hours in the period
     const hoursByUser = new Map<number, number>();
-    allWorkHours.forEach((wh) => {
+    allWorkHoursInPeriod.forEach((wh) => {
       const current = hoursByUser.get(wh.userId) || 0;
       hoursByUser.set(wh.userId, current + wh.hours);
     });
@@ -273,7 +353,7 @@ export async function GET(req: Request) {
       ])
     );
 
-    // Combine user data with submission data and total hours
+    // Combine user data with submission data and total hours from ALL work hours
     const timesheetData = users.map((user) => {
       const submission = submissionMap.get(user.id);
       const totalHours = hoursByUser.get(user.id) || 0;
@@ -283,12 +363,11 @@ export async function GET(req: Request) {
         username: user.username,
         email: user.email,
         role: user.role,
-        submission: submission || null,
+        submission: submission || null, 
         totalHours,
         status: submission?.status || null,
       };
     });
-
     return NextResponse.json(
       {
         timesheets: timesheetData,

@@ -148,8 +148,15 @@ export async function POST(req: NextRequest) {
         submissionId: submission.id,
       },
     });
-      return workingHours;
-  });
+    console.log({
+      id: workingHours.id,
+      date: workingHours.date.toISOString().split('T')[0],
+      hours: workingHours.hours,
+      projectId: workingHours.projectId,
+      submissionId: workingHours.submissionId,
+    }, "POST: Created/Updated WorkHours");
+    return workingHours;
+    });
 
     return NextResponse.json(entry, { status: 201 });
   } catch (error) {
@@ -175,25 +182,58 @@ export async function PUT(req: NextRequest) {
     throw new ValidationError('Missing required fields', 'date/userId/projectId')
   }
 
-    const updated = await db.workHours.upsert({
-      where: {
-        userId_date_projectId: {
-          userId,
-          date: new Date(date),
-          projectId,
+    const targetDate = new Date(date);
+    const periodStart = getStartOfMonth(targetDate);
+    const periodEnd = getEndOfMonth(targetDate);
+
+    const updated = await db.$transaction(async (tx) => {
+      // Ensure submission exists for this period
+      const submission = await tx.timeSheetSubmission.upsert({
+        where: {
+          userId_periodStart_periodEnd: {
+            userId,
+            periodStart,
+            periodEnd,
+          },
         },
-      },
-      update: {
-        hours,
-        note,
-      },
-      create: {
-        userId,
-        date: new Date(date),
-        projectId,
-        hours,
-        note,
-      },
+        update: {},
+        create: {
+          userId,
+          periodStart,
+          periodEnd,
+          status: "DRAFT",
+        },
+      });
+
+      if (submission.status === "LOCKED") {
+        throw new TimesheetLockedError()
+      }
+
+      // Update or create work hours and link to submission
+      const workingHours = await tx.workHours.upsert({
+        where: {
+          userId_date_projectId: {
+            userId,
+            date: targetDate,
+            projectId,
+          },
+        },
+        update: {
+          hours,
+          note,
+          submissionId: submission.id,
+        },
+        create: {
+          date: targetDate,
+          hours,
+          note,
+          userId,
+          projectId,
+          submissionId: submission.id,
+        },
+      });
+
+      return workingHours;
     });
 
     return NextResponse.json(updated);
