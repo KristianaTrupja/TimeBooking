@@ -6,6 +6,8 @@ export type User = {
     password: string;
     createdAt?: string;
     updatedAt?: string;
+    isActive: boolean;
+    deletedAt: Date | null;
     totalVacations: number
   };
   

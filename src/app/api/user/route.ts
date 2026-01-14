@@ -73,11 +73,15 @@ export async function POST(req: Request) {
   }
 }
 
-export async function GET() {
+export async function GET(req: Request) {
   const today = new Date()
   const currentYear = today.getFullYear()
+  const { searchParams } = new URL(req.url);
+  const includeInactive = searchParams.get("includeInactive") === "true";
+  
   try {
     const users = await db.user.findMany({
+      where: includeInactive ? {} : { isActive: true },  // Include inactive if requested
       select: {
         id: true,
         username: true,
@@ -86,6 +90,8 @@ export async function GET() {
         password: true,
         createdAt: true,
         updatedAt: true,
+        isActive: true,
+        deletedAt: true,
         vacations: {
           where: {
             year: currentYear,
@@ -118,11 +124,47 @@ export async function DELETE(req: Request) {
       throw new ValidationError("User ID is required", 'id')
     }
 
-    await db.user.delete({ where: { id } });
-    return NextResponse.json(
-      { message: "User deleted successfully" },
-      { status: 200 }
-    );
+    // Check if user has any related data
+    const [workHoursCount, absencesCount, vacationsCount, submissionsCount, notificationsCount, sidebarProjectsCount] = await Promise.all([
+      db.workHours.count({ where: { userId: id } }),
+      db.absence.count({ where: { userId: id } }),
+      db.totalVacationDays.count({ where: { userId: id } }),
+      db.timeSheetSubmission.count({ where: { userId: id } }),
+      db.notifications.count({ where: { userId: id } }),
+      db.sidebarProject.count({ where: { userId: id } }),
+    ]);
+
+    const hasRelatedData = 
+      workHoursCount > 0 || 
+      absencesCount > 0 || 
+      vacationsCount > 0 || 
+      submissionsCount > 0 || 
+      notificationsCount > 0 || 
+      sidebarProjectsCount > 0;
+
+    if (hasRelatedData) {
+      // Soft delete: set isActive to false and record deletion timestamp
+      await db.user.update({
+        where: { id },
+        data: {
+          isActive: false,
+          deletedAt: new Date(),
+        },
+      });
+      
+      return NextResponse.json(
+        { message: "User deactivated successfully. Their data has been preserved." },
+        { status: 200 }
+      );
+    } else {
+      // Hard delete: user has no related data, safe to remove completely
+      await db.user.delete({ where: { id } });
+      
+      return NextResponse.json(
+        { message: "User deleted successfully." },
+        { status: 200 }
+      );
+    }
   } catch (error) {
     return handleApiError(error)
   }

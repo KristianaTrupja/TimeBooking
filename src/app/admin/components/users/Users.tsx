@@ -75,7 +75,7 @@ export default function Users() {
   const deleteItem = async (emp: User) => {
     if (!emp.id) return;
 
-    if (window.confirm(`Are you sure you want to delete ${emp.username}?`)) {
+    if (window.confirm(`Are you sure you want to delete ${emp.username}? If they have existing data (work hours, absences, etc.), they will be deactivated instead of deleted.`)) {
       setDeletingId(emp.id);
       try {
         const res = await fetch("/api/user", {
@@ -86,13 +86,14 @@ export default function Users() {
         });
 
         if (res.ok) {
+          const data = await res.json();
           setUser((prev) => ({
             users: prev?.users.filter((u) => u.id !== emp.id) || [],
           }));
-          toast.success("Employee data successfully deleted.");
+          toast.success(data.message);
         } else {
           const err = await res.json();
-          toast.error(err.message || "Deleting failed!");
+          toast.error(err.message || "Operation failed!");
         }
       } catch {
         toast.error("Connection to server failed!");

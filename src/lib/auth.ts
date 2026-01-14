@@ -33,7 +33,7 @@ export const authOptions: NextAuthOptions = {
 
             console.log("existingUser", existingUser);
             
-            if(!existingUser){
+            if(!existingUser || !existingUser.isActive){
                 return null;
             }
 

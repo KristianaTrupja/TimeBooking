@@ -111,7 +111,7 @@ export default function ModifyAbsences() {
 
       const [absRes, userRes] = await Promise.all([
         fetch(`/api/absences?${params.toString()}`, { cache: "no-store" }),
-        fetch("/api/user", { cache: "no-store" }),
+        fetch("/api/user?includeInactive=true", { cache: "no-store" }),
       ]);
 
       const absData = await absRes.json();
@@ -340,14 +340,21 @@ export default function ModifyAbsences() {
 
             if (userAbsences.length === 0) return null;
 
+            const isInactive = !user.isActive;
+
             return (
-              <div key={userIndex} className="mb-5 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+              <div key={userIndex} className={`mb-5 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden ${isInactive ? 'opacity-75' : ''}`}>
                 {/* User Header */}
-                <div className="bg-gradient-to-r from-[#244B77] to-[#1a3a5c] px-5 py-3 flex items-center gap-3">
+                <div className={`bg-gradient-to-r ${isInactive ? 'from-slate-400 to-slate-500' : 'from-[#244B77] to-[#1a3a5c]'} px-5 py-3 flex items-center gap-3`}>
                   <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
                     <UserIcon size={16} className="text-white" aria-hidden="true" />
                   </div>
-                  <span className="text-white font-bold">{user.username}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-white font-bold">{user.username}</span>
+                    {isInactive && (
+                      <span className="text-white/80 text-xs italic">(Inactive)</span>
+                    )}
+                  </div>
                   <span className="ml-auto text-white/80 text-sm font-medium">{userAbsences.length} {userAbsences.length === 1 ? t.absence : t.absences}</span>
                 </div>
                 

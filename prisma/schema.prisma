@@ -23,8 +23,6 @@ model User {
   password  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  // ✅ Soft delete
   isActive  Boolean   @default(true)
   deletedAt DateTime?
 
@@ -33,7 +31,6 @@ model User {
   vacations      TotalVacationDays[]
   workHours      WorkHours[]
   SidebarProject SidebarProject[]
-
   notifications       Notifications[]
   submissions         TimeSheetSubmission[]
   approvedSubmissions TimeSheetSubmission[] @relation("Approver")
