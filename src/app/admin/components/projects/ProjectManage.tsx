@@ -168,11 +168,13 @@ function ProjectManage({
           aria-labelledby={id}
           className="absolute left-0 right-0 mt-1 bg-white border border-slate-200 rounded-lg overflow-hidden shadow-lg z-50 max-h-64 overflow-y-auto custom-scrollbar"
         >
-          {sortedOptions.map((option, index) => (
+          {sortedOptions.map((option, index) => {
+            const isInactive = !option.isActive;
+            return (
             <li
               key={index}
               role="option"
-              className="group border-b border-slate-100 last:border-b-0"
+              className={`group border-b border-slate-100 last:border-b-0 ${isInactive ? 'opacity-60' : ''}`}
             >
               {editingId === option.id ? (
                 <div className="flex items-center gap-2 p-3 bg-blue-50">
@@ -207,11 +209,16 @@ function ProjectManage({
                   </Button>
                 </div>
               ) : (
-                <div className="flex items-center justify-between p-3 hover:bg-slate-50 transition-colors">
+                <div className={`flex items-center justify-between p-3 transition-colors ${
+                  isInactive ? 'bg-slate-200 hover:bg-slate-300' : 'hover:bg-slate-50'
+                }`}>
                   <div className="flex items-center gap-3">
-                    <FileText size={14} className="text-slate-500" />
-                    <span className={`text-sm font-medium text-slate-800 ${isAnyPending ? "opacity-50" : ""}`}>
+                    <FileText size={14} className={isInactive ? "text-slate-400" : "text-slate-500"} />
+                    <span className={`text-sm font-medium ${
+                      isInactive ? 'text-slate-600' : 'text-slate-800'
+                    } ${isAnyPending ? "opacity-50" : ""}`}>
                       {option.project}
+                      {isInactive && <span className="ml-2 text-xs italic text-slate-500">(Inactive)</span>}
                     </span>
                   </div>
                   {pendingId === option.id ? (
@@ -222,7 +229,7 @@ function ProjectManage({
                         onClick={(e) => onEdit(e, option)}
                         className="p-1.5 rounded-md hover:bg-blue-100 text-slate-600 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400"
                         aria-label={`Edit project: ${option.project}`}
-                        disabled={isAnyPending}
+                        disabled={isAnyPending || isInactive}
                       >
                         <FilePenLine size={14} aria-hidden="true" />
                       </button>
@@ -239,7 +246,8 @@ function ProjectManage({
                 </div>
               )}
             </li>
-          ))}
+          )})}
+
         </ul>
       )}
     </div>

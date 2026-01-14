@@ -1,5 +1,6 @@
 export type DayBoxProps = {
   isDisabled?:boolean
+  isProjectInactive?: boolean
   dayData: WorkEntry
   date: string;
   projectKey: string;

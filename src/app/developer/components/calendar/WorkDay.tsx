@@ -13,6 +13,7 @@ import { useHolidayContext } from "@/app/context/HolidayContext";
 export default function WorkDay({
   dayData,
   isDisabled,
+  isProjectInactive = false,
   date,
   projectKey,
   userId,
@@ -59,6 +60,10 @@ export default function WorkDay({
 
   // Determine background and text colors based on day type (priority order)
   const getDayStyles = () => {
+    // Inactive project styling - override all other styles
+    if (isProjectInactive) {
+      return "bg-slate-300/50 text-slate-400 cursor-not-allowed";
+    }
     if (isHoliday) {
       return "bg-emerald-100 text-emerald-700";
     }
@@ -75,7 +80,7 @@ export default function WorkDay({
     return "bg-white hover:bg-blue-200 cursor-pointer text-slate-700";
   };
 
-  const canClick = !isAbsentDay && !isDisabled && !isHoliday && !isWeekendDay;
+  const canClick = !isAbsentDay && !isDisabled && !isHoliday && !isWeekendDay && !isProjectInactive;
 
   return (
     <>
@@ -94,7 +99,8 @@ export default function WorkDay({
           ${getDayStyles()}
           ${!canClick ? "cursor-default" : ""}
           ${isHovered && canClick && "!bg-blue-100"}
-          ${isPending ? "font-semibold !text-blue-600 !bg-blue-100 ring-1 ring-inset ring-blue-200" : ""}
+          ${isPending && !isProjectInactive ? "font-semibold !text-blue-600 !bg-blue-100 ring-1 ring-inset ring-blue-200" : ""}
+          ${isProjectInactive ? "opacity-60" : ""}
         `}
 
          

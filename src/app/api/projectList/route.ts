@@ -23,13 +23,19 @@ export async function POST(req: Request) {
   }
 }
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
+    const { searchParams } = new URL(req.url);
+    const includeInactive = searchParams.get("includeInactive") === "true";
+
     const projects = await db.projects.findMany({
+      where: includeInactive ? {} : { isActive: true },
       select: {
         id: true,
         company: true,
         project: true,
+        isActive: true,
+        deletedAt: true,
       },
     });
 
@@ -71,11 +77,48 @@ export async function DELETE(req: Request) {
       throw new ValidationError("Project ID is required", "id")
     }
 
-    await db.projects.delete({ where: { id:Number(projectId) } });
-    return NextResponse.json(
-      { message: "Project deleted successfully" },
-      { status: 200 }
-    );
+    const projectIdNum = Number(projectId);
+
+    // Check if project has any related data
+    const [workHoursCount, sidebarProjectsCount] = await Promise.all([
+      db.workHours.count({ where: { projectId: projectIdNum } }),
+      db.sidebarProject.count({ 
+        where: { 
+          projectKey: {
+            in: await db.projects.findUnique({ 
+              where: { id: projectIdNum },
+              select: { project: true }
+            }).then(p => p ? [p.project] : [])
+          }
+        } 
+      }),
+    ]);
+
+    const hasRelatedData = workHoursCount > 0 || sidebarProjectsCount > 0;
+
+    if (hasRelatedData) {
+      // Soft delete: set isActive to false and record deletion timestamp
+      await db.projects.update({
+        where: { id: projectIdNum },
+        data: {
+          isActive: false,
+          deletedAt: new Date(),
+        },
+      });
+      
+      return NextResponse.json(
+        { message: "Project deactivated successfully. Historical data has been preserved." },
+        { status: 200 }
+      );
+    } else {
+      // Hard delete: project has no related data, safe to remove completely
+      await db.projects.delete({ where: { id: projectIdNum } });
+      
+      return NextResponse.json(
+        { message: "Project deleted successfully." },
+        { status: 200 }
+      );
+    }
   } catch (error) {
     return handleApiError(error)
   }

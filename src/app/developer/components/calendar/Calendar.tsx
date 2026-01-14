@@ -38,7 +38,9 @@ export default function Calendar({ isOwner=false }: { isOwner:boolean }) {
             {/* Company label row */}
             <div className="flex items-center h-9 2xl:h-10 px-2 font-semibold bg-slate-100 border-b border-slate-200" />
             {/* Project rows */}
-            {companyBlock.projects.map((proj: Project) => (
+            {companyBlock.projects.map((proj: Project) => {
+              const isProjectInactive = !proj.isActive;
+              return (
               <div className="flex" key={proj.projectKey}>
                 {daysArray.map((day,dayIndex) => {
                   const date = formatDate(year, month, day);
@@ -47,7 +49,8 @@ export default function Calendar({ isOwner=false }: { isOwner:boolean }) {
                   return (
                     <WorkDay
                       dayData={dayData}
-                      isDisabled={!isOwner || metadata?.isLocked}
+                      isDisabled={!isOwner || metadata?.isLocked || isProjectInactive}
+                      isProjectInactive={isProjectInactive}
                       key={`${proj.projectKey}-${day}`}
                       date={date}
                       projectKey={proj.projectKey}
@@ -61,7 +64,7 @@ export default function Calendar({ isOwner=false }: { isOwner:boolean }) {
                   );
                 })}
               </div>
-            ))}
+            )})}
           </React.Fragment>
         ))}
       </div>

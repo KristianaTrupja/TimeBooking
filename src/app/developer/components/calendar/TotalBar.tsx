@@ -45,13 +45,18 @@ export default function TotalBar({ isOwner=false }: { isOwner:boolean }) {
              font-semibold bg-slate-100 border-b border-slate-200" />
             {group.projects.map((proj) => {
               const total = getTotalHoursForProjectInMonth(userId, proj.projectKey, month + 1, year);
+              const isInactive = !proj.isActive;
               return (
                 <div
-                  className="total-field flex h-9 2xl:h-10 gap-2 items-center justify-center border-b border-slate-200 relative px-3 bg-white/50"
+                  className={`total-field flex h-9 2xl:h-10 gap-2 items-center justify-center border-b border-slate-200 relative px-3 ${
+                    isInactive ? 'bg-slate-300/50 opacity-60' : 'bg-white/50'
+                  }`}
                   key={proj.projectKey}
                 >
-                  <div className="font-medium text-slate-700">{total.toFixed(2)}</div>
-                  {isOwner && !metadata?.isLocked && <Delete
+                  <div className={`font-medium ${isInactive ? 'text-slate-500' : 'text-slate-700'}`}>
+                    {total.toFixed(2)}
+                  </div>
+                  {isOwner && !metadata?.isLocked && !isInactive && <Delete
                     className="w-4 h-4 text-rose-400 hover:text-rose-600 cursor-pointer transition-colors"
                     onClick={() => removeProject(proj.projectKey)}
                   />}
