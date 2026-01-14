@@ -66,13 +66,14 @@ export default function RaportEntry({timesheet, month, year, index, adminId, onA
         }
     }
 
-    const isDisabled = !timesheet.submission || !timesheet.status || timesheet.status === "DRAFT" || isSubmitting;
-    const statusStyle = statusBadgeStyles[timesheet.status || "DRAFT"];
+  const isDisabled = !timesheet.submission || !timesheet.status || timesheet.status === "DRAFT" || isSubmitting;
+  const statusStyle = statusBadgeStyles[timesheet.status || "DRAFT"];
+  const isInactive = !timesheet.isActive;
 
-    return (
+  return (
     <tr
         ref={rowRef}
-        className={`transition-all duration-300 hover:bg-slate-50 ${isHighlighted ? scrollHighlight : ""}`}
+        className={`transition-all duration-300 ${isInactive ? 'bg-slate-100/50 opacity-75' : 'hover:bg-slate-50'} ${isHighlighted ? scrollHighlight : ""}`}
     >
         <td className="px-4 py-4">
             <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-slate-100 text-slate-600 text-xs font-semibold">
@@ -81,10 +82,17 @@ export default function RaportEntry({timesheet, month, year, index, adminId, onA
         </td>
         <td className="px-4 py-4">
             <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-slate-200 to-slate-300 flex items-center justify-center">
-                    <User size={16} className="text-slate-600" />
+                <div className={`w-9 h-9 rounded-full bg-gradient-to-br ${isInactive ? 'from-slate-300 to-slate-400' : 'from-slate-200 to-slate-300'} flex items-center justify-center`}>
+                    <User size={16} className={isInactive ? "text-slate-500" : "text-slate-600"} />
                 </div>
-                <span className="font-bold text-slate-900">{timesheet.username}</span>
+                <div className="flex flex-col">
+                    <span className={`font-bold ${isInactive ? 'text-slate-500' : 'text-slate-900'}`}>
+                        {timesheet.username}
+                    </span>
+                    {isInactive && (
+                        <span className="text-xs text-slate-500 italic">(Inactive)</span>
+                    )}
+                </div>
             </div>
         </td>
         <td className="px-4 py-4">

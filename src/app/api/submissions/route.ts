@@ -209,13 +209,15 @@ export async function GET(req: Request) {
     const periodStart = new Date(year, month - 1, 1, 0, 0, 0, 0);
     const periodEnd = new Date(year, month, 0, 23, 59, 59, 999);
 
-    // Fetch all users
+    // Fetch all users (including inactive for historical data)
     const users = await db.user.findMany({
       select: {
         id: true,
         username: true,
         email: true,
         role: true,
+        isActive: true,
+        deletedAt: true,
       },
       orderBy: {
         username: 'asc',
@@ -354,20 +356,42 @@ export async function GET(req: Request) {
     );
 
     // Combine user data with submission data and total hours from ALL work hours
-    const timesheetData = users.map((user) => {
-      const submission = submissionMap.get(user.id);
-      const totalHours = hoursByUser.get(user.id) || 0;
-      
-      return {
-        userId: user.id,
-        username: user.username,
-        email: user.email,
-        role: user.role,
-        submission: submission || null, 
-        totalHours,
-        status: submission?.status || null,
-      };
-    });
+    const timesheetData = users
+      .map((user) => {
+        const submission = submissionMap.get(user.id);
+        const totalHours = hoursByUser.get(user.id) || 0;
+        
+        return {
+          userId: user.id,
+          username: user.username,
+          email: user.email,
+          role: user.role,
+          isActive: user.isActive,
+          deletedAt: user.deletedAt,
+          submission: submission || null, 
+          totalHours,
+          status: submission?.status || null,
+        };
+      })
+      .filter((timesheet) => {
+        // If user is active, always include
+        if (timesheet.isActive) {
+          return true;
+        }
+        
+        // If user is inactive (deleted)
+        if (!timesheet.isActive && timesheet.deletedAt) {
+          const deletedDate = new Date(timesheet.deletedAt);
+          // Include user only if the period START is before or in the same month as deletion
+          // AND they have work hours in this period
+          if (periodStart <= deletedDate && timesheet.totalHours > 0) {
+            return true;
+          }
+          return false;
+        }
+        
+        return true;
+      });
     return NextResponse.json(
       {
         timesheets: timesheetData,

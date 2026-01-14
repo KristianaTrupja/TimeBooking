@@ -16,11 +16,11 @@ export default function Sidebar({ isOwner }: { isOwner:boolean }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const groupProjects = (entries: ProjectEntry[]): ProjectData[] => {
-    const grouped = entries.reduce((acc, { id, company, project }) => {
+    const grouped = entries.reduce((acc, { id, company, project, isActive }) => {
       if (!acc[company]) acc[company] = [];
-      acc[company].push({ title: project, projectKey: `PID-${id}` });
+      acc[company].push({ title: project, projectKey: `PID-${id}`, isActive });
       return acc;
-    }, {} as Record<string, { title: string; projectKey: string }[]>);
+    }, {} as Record<string, { title: string; projectKey: string; isActive: boolean }[]>);
 
     return Object.entries(grouped).map(([company, projects]) => ({ company, projects }));
   };

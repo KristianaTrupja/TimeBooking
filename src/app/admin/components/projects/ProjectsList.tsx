@@ -12,8 +12,17 @@ export default function ProjectList({
   selectors,
   onOptionsModified
 }: ProjectListProps) {
-  const companies = Object.keys(selectors).sort((a, b) => a.localeCompare(b));
-  const totalProjects = Object.values(selectors).flat().length;
+  // Filter to only show active projects
+  const activeSelectors = Object.entries(selectors).reduce((acc, [company, projects]) => {
+    const activeProjects = projects.filter(p => p.isActive);
+    if (activeProjects.length > 0) {
+      acc[company] = activeProjects;
+    }
+    return acc;
+  }, {} as { [key: string]: ProjectEntry[] });
+
+  const companies = Object.keys(activeSelectors).sort((a, b) => a.localeCompare(b));
+  const totalProjects = Object.values(activeSelectors).flat().length;
 
   return (
     <div className="flex flex-col">
@@ -26,7 +35,7 @@ export default function ProjectList({
             </div>
             <div>
               <h2 className="text-lg font-bold text-slate-900">Projects</h2>
-              <p className="text-xs text-slate-600">Manage company projects</p>
+              <p className="text-xs text-slate-600">Manage active projects</p>
             </div>
           </div>
           
@@ -34,7 +43,7 @@ export default function ProjectList({
           <div className="flex gap-2">
             <div 
               className="flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 rounded-lg cursor-help"
-              title={`${companies.length} ${companies.length === 1 ? 'company' : 'companies'} registered`}
+              title={`${companies.length} ${companies.length === 1 ? 'company' : 'companies'} with active projects`}
             >
               <Building2 size={12} className="text-slate-600" aria-hidden="true" />
               <span className="text-xs font-bold text-slate-800">{companies.length}</span>
@@ -42,7 +51,7 @@ export default function ProjectList({
             </div>
             <div 
               className="flex items-center gap-1.5 px-2.5 py-1 bg-indigo-50 rounded-lg cursor-help"
-              title={`${totalProjects} ${totalProjects === 1 ? 'project' : 'projects'} total`}
+              title={`${totalProjects} active ${totalProjects === 1 ? 'project' : 'projects'}`}
             >
               <FolderOpen size={12} className="text-indigo-600" aria-hidden="true" />
               <span className="text-xs font-bold text-indigo-800">{totalProjects}</span>
@@ -57,7 +66,7 @@ export default function ProjectList({
         {companies.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 text-slate-500">
             <FolderOpen size={48} strokeWidth={1} />
-            <p className="mt-3 text-sm font-medium">No projects yet</p>
+            <p className="mt-3 text-sm font-medium">No active projects</p>
           </div>
         ) : (
           companies.map((company) => (
@@ -66,7 +75,7 @@ export default function ProjectList({
               label={company}
               id={company}
               editable={true}
-              options={selectors[company]}
+              options={activeSelectors[company]}
               placeholder="View Projects"
               onOptionsModified={onOptionsModified}
             />

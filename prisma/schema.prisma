@@ -23,16 +23,19 @@ model User {
   password  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  isActive  Boolean   @default(true)
+  deletedAt DateTime?
 
+  // Relations
   absences       Absence[]
-  vacations     TotalVacationDays[]
+  vacations      TotalVacationDays[]
   workHours      WorkHours[]
   SidebarProject SidebarProject[]
-
   notifications       Notifications[]
   submissions         TimeSheetSubmission[]
   approvedSubmissions TimeSheetSubmission[] @relation("Approver")
 }
+
 
 model Holidays {
   id   Int    @id @default(autoincrement())
@@ -51,6 +54,7 @@ model Projects {
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  deletedAt DateTime?
 
   workHours WorkHours[]
 

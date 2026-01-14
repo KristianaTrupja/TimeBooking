@@ -21,11 +21,37 @@ export async function GET(req: NextRequest) {
       select: { company: true, title: true, projectKey: true },
     });
   
+    // Extract project IDs from projectKeys (format: PID-{id})
+    const projectIds = rawProjects
+      .map(p => {
+        const match = p.projectKey.match(/PID-(\d+)/);
+        return match ? parseInt(match[1]) : null;
+      })
+      .filter((id): id is number => id !== null);
+  
+    // Fetch isActive status for all projects
+    const projectsStatus = await db.projects.findMany({
+      where: { id: { in: projectIds } },
+      select: { id: true, isActive: true },
+    });
+  
+    const projectStatusMap = new Map(projectsStatus.map(p => [p.id, p.isActive]));
+  
     const groupedProjects = rawProjects.reduce((acc, proj) => {
       if (!acc[proj.company]) acc[proj.company] = [];
-      acc[proj.company].push({ title: proj.title, projectKey: proj.projectKey });
+      
+      // Extract project ID and get isActive status
+      const match = proj.projectKey.match(/PID-(\d+)/);
+      const projectId = match ? parseInt(match[1]) : null;
+      const isActive = projectId !== null ? projectStatusMap.get(projectId) ?? true : true;
+      
+      acc[proj.company].push({ 
+        title: proj.title, 
+        projectKey: proj.projectKey,
+        isActive 
+      });
       return acc;
-    }, {} as Record<string, { title: string; projectKey: string }[]>);
+    }, {} as Record<string, { title: string; projectKey: string; isActive: boolean }[]>);
   
     const response = Object.entries(groupedProjects).map(([company, projects]) => ({
       company,

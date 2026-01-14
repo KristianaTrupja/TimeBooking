@@ -29,7 +29,7 @@ export default function Projects() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    fetch("/api/projectList")
+    fetch("/api/projectList?includeInactive=true")
       .then((res) => res.json())
       .then((jsonData) => {
         if (!Array.isArray(jsonData)) {
@@ -63,7 +63,9 @@ export default function Projects() {
         .find(key => key.toLowerCase() === nameInput.toLowerCase());
 
       if (existingCompanyKey) {
+        // Only check against active projects
         const projectExists = selectors[existingCompanyKey]
+          .filter(p => p.isActive)
           .some(p => p.project.toLowerCase() === projectInput.toLowerCase());
 
         if (projectExists) {
@@ -118,6 +120,7 @@ const onOptionsModified = useCallback(async (id: number, newValue: string, opera
       const data = await response.json();
       throw new Error(data.message || "Failed to update project");
     }
+    toast.success("Project updated successfully");
   } else if (operation === "delete") {
     const response = await fetch(`/api/projectList?projectId=${id}`, {
       method: "DELETE",
@@ -127,9 +130,12 @@ const onOptionsModified = useCallback(async (id: number, newValue: string, opera
       const data = await response.json();
       throw new Error(data.message || "Failed to delete project");
     }
+    
+    const data = await response.json();
+    toast.success(data.message);
   }
 
-  const res = await fetch("/api/projectList");
+  const res = await fetch("/api/projectList?includeInactive=true");
   const jsonData = await res.json();
   setSelectors(formatSelectors(jsonData));
 }, []);

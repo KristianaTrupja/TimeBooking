@@ -4,6 +4,8 @@ export type Timesheet = {
     username: string,
     email: string,
     role: string,
+    isActive: boolean,
+    deletedAt: Date | null,
     submission: Submission | null,
     totalHours: number,
     status: keyof typeof SubmissionStatus,
