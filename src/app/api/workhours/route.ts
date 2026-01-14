@@ -91,8 +91,7 @@ export async function POST(req: NextRequest) {
 
     const body = await req.json();
     const { date, hours, note, userId, projectId } = body;
-
-    if (!date || !hours || !userId || !projectId) {
+    if (!date || (hours < 0) || !userId || !projectId) {
       throw new ValidationError('Missing required fields', 'date/hours/userId/projectId')
     }
 

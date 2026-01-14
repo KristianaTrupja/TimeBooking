@@ -186,11 +186,6 @@ export function WorkHoursProvider({ children }: { children: ReactNode }) {
 
     // If setting 0 hours
     if (hours === 0) {
-      if (!entryExists) {
-        toast.error("Cannot add 0 hours to an empty cell.");
-        return;
-      }
-
       // Delete from database
       try {
         const res = await fetch(
