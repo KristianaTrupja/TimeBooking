@@ -24,8 +24,13 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  // ✅ Soft delete
+  isActive  Boolean   @default(true)
+  deletedAt DateTime?
+
+  // Relations
   absences       Absence[]
-  vacations     TotalVacationDays[]
+  vacations      TotalVacationDays[]
   workHours      WorkHours[]
   SidebarProject SidebarProject[]
 
@@ -33,6 +38,7 @@ model User {
   submissions         TimeSheetSubmission[]
   approvedSubmissions TimeSheetSubmission[] @relation("Approver")
 }
+
 
 model Holidays {
   id   Int    @id @default(autoincrement())
