@@ -56,21 +56,22 @@ const handleSubmit = async () => {
     })
     .filter(Boolean) as ProjectData[];
 
-  const mergedMap: Record<string, Map<string, string>> = {};
+  const mergedMap: Record<string, Map<string, { title: string; isActive: boolean }>> = {};
 
   [...sidebarProjects, ...selected].forEach(({ company, projects }) => {
     if (!mergedMap[company]) mergedMap[company] = new Map();
-    projects.forEach(({ projectKey, title }) =>
-      mergedMap[company].set(projectKey, title)
+    projects.forEach(({ projectKey, title, isActive }) =>
+      mergedMap[company].set(projectKey, { title, isActive })
     );
   });
 
   const mergedProjects: ProjectData[] = Object.entries(mergedMap).map(
     ([company, map]) => ({
       company,
-      projects: Array.from(map.entries()).map(([projectKey, title]) => ({
+      projects: Array.from(map.entries()).map(([projectKey, { title, isActive }]) => ({
         title,
         projectKey,
+        isActive,
       })),
     })
   );

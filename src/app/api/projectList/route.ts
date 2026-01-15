@@ -84,12 +84,7 @@ export async function DELETE(req: Request) {
       db.workHours.count({ where: { projectId: projectIdNum } }),
       db.sidebarProject.count({ 
         where: { 
-          projectKey: {
-            in: await db.projects.findUnique({ 
-              where: { id: projectIdNum },
-              select: { project: true }
-            }).then(p => p ? [p.project] : [])
-          }
+          projectKey: `PID-${projectIdNum}`
         } 
       }),
     ]);

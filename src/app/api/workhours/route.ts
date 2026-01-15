@@ -147,13 +147,6 @@ export async function POST(req: NextRequest) {
         submissionId: submission.id,
       },
     });
-    console.log({
-      id: workingHours.id,
-      date: workingHours.date.toISOString().split('T')[0],
-      hours: workingHours.hours,
-      projectId: workingHours.projectId,
-      submissionId: workingHours.submissionId,
-    }, "POST: Created/Updated WorkHours");
     return workingHours;
     });
 
