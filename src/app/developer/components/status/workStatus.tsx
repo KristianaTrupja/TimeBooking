@@ -16,7 +16,7 @@ export default function WorkStatus() {
 
   if (isSaved) {
     return (
-      <div className={`bg-green-500 text-white px-3 py-1 m-2 rounded shadow text-sm font-semibold`}>
+      <div className={`flex justify-center items-center text-xs font-semibold px-3 py-1.5 rounded-lg border border-green-200 bg-green-500 text-white m-2 shadow`}>
         Saved
       </div>
     );
