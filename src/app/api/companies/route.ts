@@ -101,14 +101,11 @@ export async function DELETE(req: NextRequest) {
       throw new ValidationError("Company ID is required", "companyId");
     }
 
-    // Check if company has any projects
-    const projectsCount = await db.projects.count({ where: { companyId } });
-    
-    // Check if any sidebar projects reference this company's name
-    const company = await db.company.findUnique({ where: { id: companyId } });
-    const sidebarProjectsCount = company 
-      ? await db.sidebarProject.count({ where: { company: company.name } })
-      : 0;
+    // Check if company has any projects or sidebar projects
+    const [projectsCount, sidebarProjectsCount] = await Promise.all([
+      db.projects.count({ where: { companyId } }),
+      db.sidebarProject.count({ where: { companyId } }),
+    ]);
 
     const hasRelatedData = projectsCount > 0 || sidebarProjectsCount > 0;
 

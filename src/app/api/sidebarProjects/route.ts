@@ -18,7 +18,17 @@ export async function GET(req: NextRequest) {
   
     const rawProjects = await db.sidebarProject.findMany({
       where: { userId, year, month },
-      select: { company: true, title: true, projectKey: true },
+      select: { 
+        companyId: true,
+        title: true, 
+        projectKey: true,
+        company: {
+          select: {
+            name: true,
+            isActive: true
+          }
+        }
+      },
     });
   
     // Extract project IDs from projectKeys (format: PID-{id})
@@ -38,23 +48,25 @@ export async function GET(req: NextRequest) {
     const projectStatusMap = new Map(projectsStatus.map(p => [p.id, p.isActive]));
   
     const groupedProjects = rawProjects.reduce((acc, proj) => {
-      if (!acc[proj.company]) acc[proj.company] = [];
+      const companyName = proj.company.name;
+      if (!acc[companyName]) acc[companyName] = { companyId: proj.companyId, projects: [] };
       
       // Extract project ID and get isActive status
       const match = proj.projectKey.match(/PID-(\d+)/);
       const projectId = match ? parseInt(match[1]) : null;
       const isActive = projectId !== null ? projectStatusMap.get(projectId) ?? true : true;
       
-      acc[proj.company].push({ 
+      acc[companyName].projects.push({ 
         title: proj.title, 
         projectKey: proj.projectKey,
         isActive 
       });
       return acc;
-    }, {} as Record<string, { title: string; projectKey: string; isActive: boolean }[]>);
+    }, {} as Record<string, { companyId: number; projects: { title: string; projectKey: string; isActive: boolean }[] }>);
   
-    const response = Object.entries(groupedProjects).map(([company, projects]) => ({
+    const response = Object.entries(groupedProjects).map(([company, { companyId, projects }]) => ({
       company,
+      companyId,
       projects,
     }));
   
@@ -88,7 +100,7 @@ export async function POST(req: NextRequest) {
     const projectsToCreate = projects.flatMap((group) =>
       group.projects.map((project:any) => ({
         userId: loggedInUserId,
-        company: group.company,
+        companyId: group.companyId,
         title: project.title,
         projectKey: project.projectKey,
         year,

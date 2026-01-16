@@ -54,7 +54,8 @@ model Company {
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
-  projects Projects[]
+  projects        Projects[]
+  sidebarProjects SidebarProject[]
 
   @@index([isActive])
 }
@@ -135,9 +136,10 @@ model WorkHours {
 }
 
 model SidebarProject {
-  id         String @id @default(cuid())
+  id         String  @id @default(cuid())
   userId     Int
-  company    String  // Denormalized for display - derived from project
+  companyId  Int
+  company    Company @relation(fields: [companyId], references: [id], onDelete: Restrict)
   title      String
   projectKey String
   month      Int
@@ -146,6 +148,7 @@ model SidebarProject {
   user User @relation(fields: [userId], references: [id])
 
   @@index([userId, month, year])
+  @@index([companyId])
 }
 
 model Notifications {
