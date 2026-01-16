@@ -92,6 +92,7 @@ interface Translations {
   
   // Admin sidebar
   timesheets: string;
+  companies: string;
   employees: string;
   viewLeaves: string;
   officialHolidays: string;
@@ -170,6 +171,13 @@ interface Translations {
   loadingTimesheets: string;
   details: string;
   action: string;
+
+  // Companies
+  companyManagement: string;
+  companiesDescription: string;
+  activeCompanies: string;
+  newCompany: string;
+  addCompany: string;
   
   // Projects
   projectManagement: string;
@@ -389,6 +397,7 @@ const translations: Record<Language, Translations> = {
     
     // Admin sidebar
     timesheets: "Timesheets",
+    companies: "Companies",
     employees: "Employees",
     viewLeaves: "View Leaves",
     officialHolidays: "Official Holidays",
@@ -467,6 +476,13 @@ const translations: Record<Language, Translations> = {
     loadingTimesheets: "Loading timesheets...",
     details: "Details",
     action: "Action",
+
+    // Companies
+    companyManagement: "Company Management",
+    companiesDescription: "Manage all companies in your organizations",
+    activeCompanies: "Active Companies",
+    newCompany: "New Company",
+    addCompany: "Add Company",
     
     // Projects
     projectManagement: "Project Management",
@@ -684,6 +700,7 @@ const translations: Record<Language, Translations> = {
     
     // Admin sidebar
     timesheets: "Zeitnachweise",
+    companies: "Unternehmen",
     employees: "Mitarbeiter",
     viewLeaves: "Urlaub anzeigen",
     officialHolidays: "Feiertage",
@@ -716,6 +733,13 @@ const translations: Record<Language, Translations> = {
     startDate: "Startdatum",
     endDate: "Enddatum",
     loading: "Laden...",
+    
+    // Companies
+    companyManagement: "Unternehmensverwaltung",
+    companiesDescription: "Alle Unternehmen in Ihrer Organisation verwalten",
+    activeCompanies: "Aktive Unternehmen",
+    newCompany: "Neues Unternehmen",
+    addCompany: "Unternehmen hinzufügen",
     
     // Projects
     availableProjects: "Verfügbare Projekte",

@@ -15,7 +15,7 @@ export default function Sidebar() {
 
   const sidebarItems = [
     { title: t.timesheets, tab: "raport", icon: FileText },
-    { title: "Companies", tab: "companies", icon: Building2 },
+    { title: t.companies, tab: "companies", icon: Building2 },
     { title: t.projects, tab: "projects", icon: FolderKanban },
     { title: t.employees, tab: "users", icon: Users },
     { title: t.grantLeave, tab: "absences", icon: CalendarPlus },
