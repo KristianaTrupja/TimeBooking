@@ -6,12 +6,29 @@ import { NextResponse } from "next/server";
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { company, project } = body;
+    const { company: companyName, project } = body;
 
-    if(!company || !project) throw new ValidationError("company, project fields are required!", "company/project")
+    if(!companyName || !project) throw new ValidationError("company, project fields are required!", "company/project")
+
+    // Find or create company
+    let company = await db.company.findUnique({
+      where: { name: companyName.trim() }
+    });
+
+    if (!company) {
+      company = await db.company.create({
+        data: { name: companyName.trim() }
+      });
+    }
 
     const newProject = await db.projects.create({
-      data: { company, project },
+      data: { 
+        companyId: company.id, 
+        project: project.trim() 
+      },
+      include: {
+        company: true,
+      },
     });
 
     return NextResponse.json(
@@ -30,12 +47,15 @@ export async function GET(req: Request) {
 
     const projects = await db.projects.findMany({
       where: includeInactive ? {} : { isActive: true },
-      select: {
-        id: true,
-        company: true,
-        project: true,
-        isActive: true,
-        deletedAt: true,
+      include: {
+        company: {
+          select: {
+            id: true,
+            name: true,
+            isActive: true,
+            deletedAt: true,
+          }
+        }
       },
     });
 

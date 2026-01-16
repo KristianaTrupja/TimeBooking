@@ -46,11 +46,24 @@ model Holidays {
   @@unique([date])
   @@index([date])
 }
+model Company {
+  id        Int       @id @default(autoincrement())
+  name      String    @unique
+  isActive  Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  projects Projects[]
+
+  @@index([isActive])
+}
 
 model Projects {
-  id      Int    @id @default(autoincrement())
-  company String
-  project String
+  id        Int      @id @default(autoincrement())
+  companyId Int
+  company   Company  @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  project   String
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -58,8 +71,9 @@ model Projects {
 
   workHours WorkHours[]
 
-  @@unique([company, project])
+  @@unique([companyId, project])
   @@index([isActive])
+  @@index([companyId])
 }
 
 enum AbsenceType {
@@ -123,7 +137,7 @@ model WorkHours {
 model SidebarProject {
   id         String @id @default(cuid())
   userId     Int
-  company    String
+  company    String  // Denormalized for display - derived from project
   title      String
   projectKey String
   month      Int

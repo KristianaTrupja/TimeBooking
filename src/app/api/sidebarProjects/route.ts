@@ -102,7 +102,7 @@ export async function POST(req: NextRequest) {
       }),
       db.sidebarProject.createMany({
         data: projectsToCreate,
-        skipDuplicates: true, // Optional: skip if somehow duplicates exist
+        skipDuplicates: true,
       }),
     ]);
 

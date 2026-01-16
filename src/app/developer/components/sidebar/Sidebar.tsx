@@ -17,12 +17,17 @@ export default function Sidebar({ isOwner }: { isOwner:boolean }) {
 
   const groupProjects = (entries: ProjectEntry[]): ProjectData[] => {
     const grouped = entries.reduce((acc, { id, company, project, isActive }) => {
-      if (!acc[company]) acc[company] = [];
-      acc[company].push({ title: project, projectKey: `PID-${id}`, isActive });
+      const companyName = company.name;
+      if (!acc[companyName]) acc[companyName] = { companyId: company.id, projects: [] };
+      acc[companyName].projects.push({ title: project, projectKey: `PID-${id}`, isActive });
       return acc;
-    }, {} as Record<string, { title: string; projectKey: string; isActive: boolean }[]>);
+    }, {} as Record<string, { companyId: number; projects: { title: string; projectKey: string; isActive: boolean }[] }>);
 
-    return Object.entries(grouped).map(([company, projects]) => ({ company, projects }));
+    return Object.entries(grouped).map(([company, { companyId, projects }]) => ({ 
+      company, 
+      companyId,
+      projects 
+    }));
   };
 
   useEffect(() => {
@@ -48,27 +53,33 @@ export default function Sidebar({ isOwner }: { isOwner:boolean }) {
 
 const handleSubmit = async () => {
   const selected: ProjectData[] = projectsData
-    .map(({ company, projects }) => {
+    .map(({ company, companyId, projects }) => {
       const filtered = projects.filter(p =>
         selectedProjects.includes(`${company}-${p.projectKey}`)
       );
-      return filtered.length ? { company, projects: filtered } : null;
+      return filtered.length ? { company, companyId, projects: filtered } : null;
     })
     .filter(Boolean) as ProjectData[];
 
-  const mergedMap: Record<string, Map<string, { title: string; isActive: boolean }>> = {};
+  const mergedMap: Record<string, { companyId: number; projects: Map<string, { title: string; isActive: boolean }> }> = {};
 
-  [...sidebarProjects, ...selected].forEach(({ company, projects }) => {
-    if (!mergedMap[company]) mergedMap[company] = new Map();
+  [...sidebarProjects, ...selected].forEach(({ company, companyId, projects }) => {
+    if (!mergedMap[company]) {
+      mergedMap[company] = {
+        companyId,
+        projects: new Map()
+      };
+    }
     projects.forEach(({ projectKey, title, isActive }) =>
-      mergedMap[company].set(projectKey, { title, isActive })
+      mergedMap[company].projects.set(projectKey, { title, isActive })
     );
   });
 
   const mergedProjects: ProjectData[] = Object.entries(mergedMap).map(
-    ([company, map]) => ({
+    ([company, { companyId, projects }]) => ({
       company,
-      projects: Array.from(map.entries()).map(([projectKey, { title, isActive }]) => ({
+      companyId,
+      projects: Array.from(projects.entries()).map(([projectKey, { title, isActive }]) => ({
         title,
         projectKey,
         isActive,

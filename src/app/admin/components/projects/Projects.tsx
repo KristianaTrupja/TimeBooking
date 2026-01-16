@@ -10,10 +10,11 @@ import { useLanguage } from "@/app/context/LanguageContext";
 
 function formatSelectors(data: ProjectEntry[]): Record<string, ProjectEntry[]> {
   return data.reduce((acc, entry) => {
-    acc[entry.company] ??= [];
+    const companyName = entry.company.name;
+    acc[companyName] ??= [];
     
-    if (!acc[entry.company].find(project => project.id === entry.id)) {
-      acc[entry.company].push(entry);
+    if (!acc[companyName].find(project => project.id === entry.id)) {
+      acc[companyName].push(entry);
     }
     
     return acc;
