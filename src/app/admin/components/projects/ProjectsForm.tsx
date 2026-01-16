@@ -1,28 +1,29 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { FormData } from "@/types/project";
+import { FormData, Company } from "@/types/project";
 import { Building2, FolderPlus, Plus } from "lucide-react";
 import { useLanguage } from "@/app/context/LanguageContext";
 
 interface ProjectsFormProps {
   formData: FormData;
-  handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  companies: Company[];
+  handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
   handleSubmit: (e: React.FormEvent) => void;
-  existingCompanies?: string[];
   isSubmitting?: boolean;
 }
 
 export default function ProjectsForm({
   formData,
+  companies,
   handleChange,
   handleSubmit,
-  existingCompanies = [],
   isSubmitting = false,
 }: ProjectsFormProps) {
   const { t } = useLanguage();
+  const activeCompanies = companies.filter(c => c.isActive);
   
   return (
-    <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5 w-full lg:max-w-sm xl:max-w-md">
+    <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5 w-full">
       <div className="flex items-center gap-3 mb-6">
         <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/25">
           <FolderPlus className="text-white" size={20} />
@@ -35,26 +36,30 @@ export default function ProjectsForm({
 
       <form onSubmit={handleSubmit} className="space-y-5">
         <div>
-          <label htmlFor="name" className="flex items-center gap-2 text-sm font-semibold text-slate-800 mb-2">
+          <label htmlFor="companyId" className="flex items-center gap-2 text-sm font-semibold text-slate-800 mb-2">
             <Building2 size={14} className="text-slate-600" />
             {t.companyName}
           </label>
-          <input
-            id="name"
-            name="name"
-            value={formData.name}
+          <select
+            id="companyId"
+            name="companyId"
+            value={formData.companyId || ""}
             onChange={handleChange}
-            type="text"
-            list="company-suggestions"
-            autoComplete="off"
-            className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-            placeholder="e.g., Omegaventus"
-          />
-          <datalist id="company-suggestions">
-            {existingCompanies.map((company) => (
-              <option key={company} value={company} />
+            required
+            className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all cursor-pointer"
+          >
+            <option value="">Select a company</option>
+            {activeCompanies.map((company) => (
+              <option key={company.id} value={company.id}>
+                {company.name}
+              </option>
             ))}
-          </datalist>
+          </select>
+          {activeCompanies.length === 0 && (
+            <p className="mt-2 text-xs text-amber-600 flex items-center gap-1">
+              ⚠️ No companies available. Please go to the <strong className="mx-1">Companies</strong> tab to create one first.
+            </p>
+          )}
         </div>
 
         <div>

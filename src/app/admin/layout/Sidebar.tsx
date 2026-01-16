@@ -2,7 +2,7 @@
 
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { signOut } from "next-auth/react";
-import { FileText, FolderKanban, Users, CalendarPlus, CalendarCheck, Palmtree, LogOut, ChevronLeft, ChevronRight } from "lucide-react";
+import { FileText, FolderKanban, Users, CalendarPlus, CalendarCheck, Palmtree, LogOut, ChevronLeft, ChevronRight, Building2 } from "lucide-react";
 import { useSidebar } from "@/app/context/SidebarContext";
 import { useLanguage } from "@/app/context/LanguageContext";
 
@@ -15,6 +15,7 @@ export default function Sidebar() {
 
   const sidebarItems = [
     { title: t.timesheets, tab: "raport", icon: FileText },
+    { title: "Companies", tab: "companies", icon: Building2 },
     { title: t.projects, tab: "projects", icon: FolderKanban },
     { title: t.employees, tab: "users", icon: Users },
     { title: t.grantLeave, tab: "absences", icon: CalendarPlus },

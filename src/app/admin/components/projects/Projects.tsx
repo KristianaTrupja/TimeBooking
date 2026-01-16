@@ -2,7 +2,7 @@
 import React, { useState, useCallback, useEffect, useMemo } from "react";
 import ProjectList from "./ProjectsList";
 import ProjectsForm from "./ProjectsForm";
-import { FormData, ProjectEntry } from "@/types/project";
+import { FormData, ProjectEntry, Company } from "@/types/project";
 import { toast, Toaster } from "sonner";
 import Spinner from "@/components/ui/Spinner";
 import { FolderKanban } from "lucide-react";
@@ -24,55 +24,68 @@ function formatSelectors(data: ProjectEntry[]): Record<string, ProjectEntry[]> {
 
 export default function Projects() {
   const { t } = useLanguage();
-  const [formData, setFormData] = useState<FormData>({ name: "", project: "" });
+  const [formData, setFormData] = useState<FormData>({ companyId: undefined, project: "" });
   const [selectors, setSelectors] = useState<Record<string, ProjectEntry[]>>({});
+  const [companies, setCompanies] = useState<Company[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  useEffect(() => {
-    fetch("/api/projectList?includeInactive=true")
-      .then((res) => res.json())
-      .then((jsonData) => {
-        if (!Array.isArray(jsonData)) {
-          console.error("Expected an array but got:", jsonData);
+  const fetchData = useCallback(() => {
+    Promise.all([
+      fetch("/api/projectList?includeInactive=true").then(res => res.json()),
+      fetch("/api/companies?includeInactive=true").then(res => res.json())
+    ])
+      .then(([projectsData, companiesData]) => {
+        if (!Array.isArray(projectsData)) {
+          console.error("Expected projects array but got:", projectsData);
           return;
         }
-        setSelectors(formatSelectors(jsonData));
+        if (!Array.isArray(companiesData)) {
+          console.error("Expected companies array but got:", companiesData);
+          return;
+        }
+        setSelectors(formatSelectors(projectsData));
+        setCompanies(companiesData);
       })
-      .catch((err) => console.error("Failed to fetch projects", err))
+      .catch((err) => console.error("Failed to fetch data", err))
       .finally(() => { setTimeout(() => { setIsLoading(false);}, 500);});
   }, []);
 
-  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ 
+      ...prev, 
+      [name]: name === 'companyId' ? Number(value) : value 
+    }));
   }, []);
 
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault();
-      const nameInput = formData.name.trim();
       const projectInput = formData.project.trim();
 
-      if (!nameInput || !projectInput) {
-        toast.error("Please, fill in both fields!");
+      if (!formData.companyId || !projectInput) {
+        toast.error("Please select a company and enter a project name!");
         return;
       }
 
-      const existingCompanyKey = Object.keys(selectors)
-        .find(key => key.toLowerCase() === nameInput.toLowerCase());
+      // Check if project already exists for this company
+      const company = companies.find(c => c.id === formData.companyId);
+      const companyName = company?.name || "";
+      const existingProjects = selectors[companyName] || [];
+      
+      const projectExists = existingProjects
+        .filter(p => p.isActive)
+        .some(p => p.project.toLowerCase() === projectInput.toLowerCase());
 
-      if (existingCompanyKey) {
-        // Only check against active projects
-        const projectExists = selectors[existingCompanyKey]
-          .filter(p => p.isActive)
-          .some(p => p.project.toLowerCase() === projectInput.toLowerCase());
-
-        if (projectExists) {
-          toast.error("This project already exists!");
-          return;
-        }
+      if (projectExists) {
+        toast.error("This project already exists for this company!");
+        return;
       }
 
       setIsSubmitting(true);
@@ -82,7 +95,10 @@ export default function Projects() {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ company: nameInput, project: projectInput }),
+          body: JSON.stringify({ 
+            company: companyName, // Send company name for API compatibility
+            project: projectInput 
+          }),
         });
 
         if (!response.ok) {
@@ -90,12 +106,9 @@ export default function Projects() {
           throw new Error(data.message || "Failed to save project to backend");
         }
 
-        const res = await fetch("/api/projectList");
-        const jsonData = await res.json();
-        setSelectors(formatSelectors(jsonData));
-
+        fetchData();
         toast.success("Project was added successfully");
-        setFormData({ name: "", project: "" });
+        setFormData({ companyId: undefined, project: "" });
       } catch (error: any) {
         console.error("Error saving project:", error);
         toast.error(error.message || "An error occurred while attempting to add the project.");
@@ -103,7 +116,7 @@ export default function Projects() {
         setIsSubmitting(false);
       }
     },
-    [formData, selectors]
+    [formData, selectors, companies, fetchData]
   );
 
 
@@ -136,10 +149,8 @@ const onOptionsModified = useCallback(async (id: number, newValue: string, opera
     toast.success(data.message);
   }
 
-  const res = await fetch("/api/projectList?includeInactive=true");
-  const jsonData = await res.json();
-  setSelectors(formatSelectors(jsonData));
-}, []);
+  fetchData();
+}, [fetchData]);
 
 
 
@@ -185,9 +196,9 @@ const onOptionsModified = useCallback(async (id: number, newValue: string, opera
         <div className="w-full lg:flex-1 flex items-start justify-center pb-6 lg:pb-0 lg:sticky lg:top-0">
           <ProjectsForm
             formData={formData}
+            companies={companies}
             handleChange={handleChange}
             handleSubmit={handleSubmit}
-            existingCompanies={Object.keys(selectors)}
             isSubmitting={isSubmitting}
           />
         </div>

@@ -1,7 +1,9 @@
-import type { Company } from "./company";
+import type { Company as CompanyType } from "./company";
+
+export type Company = CompanyType;
 
 export interface FormData {
-  name: string;
+  companyId?: number;
   project: string;
 }
 

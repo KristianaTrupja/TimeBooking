@@ -3,6 +3,7 @@
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState, useRef, useCallback } from "react";
 import Raport from "./components/raport/Raport";
+import Companies from "./components/companies/Companies";
 import Projects from "./components/projects/Projects";
 import Users from "./components/users/Users";
 import Absences from "./components/absences/Absences";
@@ -59,6 +60,7 @@ export default function AdminClient() {
               </ProjectProvider>
             </CalendarProvider>
         )}
+        {tab === "companies" && <Companies />}
         {tab === "projects" && <Projects />}
         {tab === "users" && <Users />}
         {tab === "absences" && <Absences />}
