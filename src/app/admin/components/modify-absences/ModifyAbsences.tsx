@@ -359,11 +359,11 @@ export default function ModifyAbsences() {
                 </div>
                 
                 {/* Table */}
-                <table className="w-full">
+                <table className="w-full table-fixed">
                   <thead className="bg-slate-100 border-b border-slate-200">
                     <tr className="text-left text-xs uppercase tracking-wider text-slate-600">
-                      <th className="px-4 py-3 font-bold w-12 bg-slate-100">#</th>
-                      <th className="px-4 py-3 font-bold bg-slate-100">
+                      <th className="px-4 py-3 font-bold bg-slate-100" style={{ width: "60px" }}>#</th>
+                      <th className="px-4 py-3 font-bold bg-slate-100" style={{ width: "150px" }}>
                         <button 
                           onClick={() => handleSort("startDate")}
                           className="flex items-center gap-1.5 hover:text-slate-900 transition-colors"
@@ -371,7 +371,7 @@ export default function ModifyAbsences() {
                           {t.startDate} {getSortIcon("startDate")}
                         </button>
                       </th>
-                      <th className="px-4 py-3 font-bold bg-slate-100">
+                      <th className="px-4 py-3 font-bold bg-slate-100" style={{ width: "150px" }}>
                         <button 
                           onClick={() => handleSort("endDate")}
                           className="flex items-center gap-1.5 hover:text-slate-900 transition-colors"
@@ -379,7 +379,7 @@ export default function ModifyAbsences() {
                           {t.endDate} {getSortIcon("endDate")}
                         </button>
                       </th>
-                      <th className="px-4 py-3 font-bold bg-slate-100">
+                      <th className="px-4 py-3 font-bold bg-slate-100" style={{ width: "180px" }}>
                         <button 
                           onClick={() => handleSort("type")}
                           className="flex items-center gap-1.5 hover:text-slate-900 transition-colors"
@@ -387,7 +387,7 @@ export default function ModifyAbsences() {
                           {t.type} {getSortIcon("type")}
                         </button>
                       </th>
-                      <th className="px-4 py-3 font-bold bg-slate-100">
+                      <th className="px-4 py-3 font-bold bg-slate-100" style={{ width: "100px" }}>
                         <button 
                           onClick={() => handleSort("days")}
                           className="flex items-center gap-1.5 hover:text-slate-900 transition-colors"
@@ -395,7 +395,7 @@ export default function ModifyAbsences() {
                           {t.days} {getSortIcon("days")}
                         </button>
                       </th>
-                      <th className="px-4 py-3 font-bold text-center bg-slate-100">{t.actions}</th>
+                      <th className="px-4 py-3 font-bold text-center bg-slate-100" style={{ width: "120px" }}>{t.actions}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
