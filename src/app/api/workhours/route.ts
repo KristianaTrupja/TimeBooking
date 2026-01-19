@@ -234,6 +234,104 @@ export async function PUT(req: NextRequest) {
   }
 }
 
+// PATCH: Batch save multiple work hours
+export async function PATCH(req: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) {
+      throw new AuthenticationError("Unauthorized");
+    }
+
+    const body = await req.json();
+    const { workHours } = body;
+
+    if (!Array.isArray(workHours) || workHours.length === 0) {
+      throw new ValidationError('workHours must be a non-empty array', 'workHours');
+    }
+
+    // Validate all entries belong to the authenticated user
+    const sessionUserId = parseInt(String(session.user.id), 10);
+    const invalidEntries = workHours.filter((entry: any) => entry.userId !== sessionUserId);
+    if (invalidEntries.length > 0) {
+      throw new AuthorizationError("FORBIDDEN: You are not authorized to modify these working hours");
+    }
+
+    // Process all work hours in a single transaction
+    const results = await db.$transaction(async (tx) => {
+      const savedEntries = [];
+
+      for (const entry of workHours) {
+        const { date, hours, note, userId, projectId } = entry;
+
+        if (!date || typeof hours !== 'number' || hours < 0 || !userId || !projectId) {
+          throw new ValidationError('Invalid work hour entry', 'date/hours/userId/projectId');
+        }
+
+        const targetDate = new Date(date);
+        const periodStart = getStartOfMonth(targetDate);
+        const periodEnd = getEndOfMonth(targetDate);
+
+        // Ensure submission exists for this period
+        const submission = await tx.timeSheetSubmission.upsert({
+          where: {
+            userId_periodStart_periodEnd: {
+              userId,
+              periodStart,
+              periodEnd,
+            },
+          },
+          update: {},
+          create: {
+            userId,
+            periodStart,
+            periodEnd,
+            status: "DRAFT",
+          },
+        });
+
+        if (submission.status === "LOCKED") {
+          throw new TimesheetLockedError();
+        }
+
+        // Upsert work hours
+        const workingHours = await tx.workHours.upsert({
+          where: {
+            userId_date_projectId: {
+              userId,
+              date: targetDate,
+              projectId,
+            },
+          },
+          update: {
+            hours,
+            note,
+            submissionId: submission.id,
+          },
+          create: {
+            date: targetDate,
+            hours,
+            note,
+            userId,
+            projectId,
+            submissionId: submission.id,
+          },
+        });
+
+        savedEntries.push(workingHours);
+      }
+      return savedEntries;
+    });
+
+    return NextResponse.json({ 
+      success: true, 
+      count: results.length,
+      message: `Successfully saved ${results.length} work hour entries` 
+    }, { status: 200 });
+  } catch (error) {
+    return handleApiError(error);
+  }
+}
+
 // DELETE: Remove a work entry
 export async function DELETE(req: NextRequest) {
   

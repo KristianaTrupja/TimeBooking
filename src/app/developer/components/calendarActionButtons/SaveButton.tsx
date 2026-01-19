@@ -18,9 +18,16 @@ export default function SaveButton() {
   const handleClick = async () => {
     setIsSaving(true);
     const keysToRemove: string[] = [];
-    let hasError
+    const workHoursToSave: Array<{
+      date: string;
+      hours: number;
+      note: string;
+      userId: number;
+      projectId: number;
+    }> = [];
 
     try {
+      // Collect all work hours from sessionStorage
       for (let i = 0; i < sessionStorage.length; i++) {
         const key = sessionStorage.key(i);
         if (key?.startsWith("workhours_")) {
@@ -30,28 +37,53 @@ export default function SaveButton() {
           if (!value) continue;
 
           const { hours, note } = JSON.parse(value);
-          const save = useSaveWorkHours({
-            date,
-            userId,
-            projectKey,
-            reloadWorkHours,
-            setWorkHoursForProject,
-            month,
-            year,
+          const projectId = parseInt(projectKey.split("-")[1], 10);
+          const isoDate = new Date(`${date}T00:00:00Z`).toISOString();
+
+          workHoursToSave.push({
+            date: isoDate,
+            hours,
+            note,
+            userId: parseInt(userId, 10),
+            projectId,
           });
-          try {
-            await save(hours, note);
-            keysToRemove.push(key);
-          } catch (error) {
-            hasError = true
-            toast.error((error as Error)?.message || "Failed to save working hours")
-          }
+
+          // Update local state optimistically
+          await setWorkHoursForProject(date, userId, projectKey, hours, note);
+          keysToRemove.push(key);
         }
       }
-      if(hasError) return
+
+      if (workHoursToSave.length === 0) {
+        toast.info("No work hours to save");
+        return;
+      }
+
+      // Send all work hours in a single batch request
+      const response = await fetch("/api/workhours", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ workHours: workHoursToSave }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to save working hours");
+      }
+
+      // Clear sessionStorage and reload work hours
       keysToRemove.forEach((key) => sessionStorage.removeItem(key));
-      toast.success("All work hours have been saved!");
+      
+      // Reload work hours for the current user
+      if (workHoursToSave.length > 0) {
+        const firstEntry = workHoursToSave[0];
+        await reloadWorkHours(String(firstEntry.userId), month + 1, year);
+      }
+
+      toast.success(`Successfully saved ${workHoursToSave.length} work hour ${workHoursToSave.length === 1 ? 'entry' : 'entries'}!`);
       setIsSaved(true);
+    } catch (error) {
+      toast.error((error as Error)?.message || "Failed to save working hours");
     } finally {
       setIsSaving(false);
     }

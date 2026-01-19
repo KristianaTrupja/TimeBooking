@@ -51,36 +51,76 @@ export const PendingWorkPrompt = () => {
 
   const handleClick = async () => {
     const keysToRemove: string[] = [];
+    const workHoursToSave: Array<{
+      date: string;
+      hours: number;
+      note: string;
+      userId: number;
+      projectId: number;
+    }> = [];
 
-    for (let i = 0; i < sessionStorage.length; i++) {
-      const key = sessionStorage.key(i);
-      if (key?.startsWith("workhours_")) {
-        const parts = key.split("_");
-        const [, userId, projectKey, date] = parts;
-        const value = sessionStorage.getItem(key);
-        if (!value) continue;
+    try {
+      // Collect all work hours from sessionStorage
+      for (let i = 0; i < sessionStorage.length; i++) {
+        const key = sessionStorage.key(i);
+        if (key?.startsWith("workhours_")) {
+          const parts = key.split("_");
+          const [, userId, projectKey, date] = parts;
+          const value = sessionStorage.getItem(key);
+          if (!value) continue;
 
-        const { hours, note } = JSON.parse(value);
-        const save = useSaveWorkHours({
-          date,
-          userId,
-          projectKey,
-          reloadWorkHours,
-          setWorkHoursForProject,
-          month,
-          year,
-        });
+          const { hours, note } = JSON.parse(value);
+          const projectId = parseInt(projectKey.split("-")[1], 10);
+          const isoDate = new Date(`${date}T00:00:00Z`).toISOString();
 
-        await save(hours, note);
-        keysToRemove.push(key);
+          workHoursToSave.push({
+            date: isoDate,
+            hours,
+            note,
+            userId: parseInt(userId, 10),
+            projectId,
+          });
+
+          // Update local state optimistically
+          await setWorkHoursForProject(date, userId, projectKey, hours, note);
+          keysToRemove.push(key);
+        }
       }
-    }
 
-    keysToRemove.forEach((key) => sessionStorage.removeItem(key));
-    toast.success(t.allWorkHoursSaved);
-    refreshPendingStatus();
-    setShowPendingDataModal(false);
-    setIsSaved(true)
+      if (workHoursToSave.length === 0) {
+        toast.info("No work hours to save");
+        setShowPendingDataModal(false);
+        return;
+      }
+
+      // Send all work hours in a single batch request
+      const response = await fetch("/api/workhours", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ workHours: workHoursToSave }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to save working hours");
+      }
+
+      // Clear sessionStorage and reload work hours
+      keysToRemove.forEach((key) => sessionStorage.removeItem(key));
+      
+      // Reload work hours for the current user
+      if (workHoursToSave.length > 0) {
+        const firstEntry = workHoursToSave[0];
+        await reloadWorkHours(String(firstEntry.userId), month + 1, year);
+      }
+
+      toast.success(t.allWorkHoursSaved);
+      refreshPendingStatus();
+      setShowPendingDataModal(false);
+      setIsSaved(true);
+    } catch (error) {
+      toast.error((error as Error)?.message || "Failed to save working hours");
+    }
   };
   return (
     <Modal isOpen={showPendingDataModal} onClose={() => setShowPendingDataModal(false)} title={t.pendingHours}>
