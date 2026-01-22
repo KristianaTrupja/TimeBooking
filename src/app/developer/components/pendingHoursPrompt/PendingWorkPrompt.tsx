@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Modal } from "@/app/components/ui/Modal";
-import { useSaveWorkHours } from "@/app/hooks/useSaveWorkHours";
 import { useCalendar } from "@/app/context/CalendarContext";
 import { useWorkHours } from "@/app/context/WorkHoursContext";
 import { toast } from "sonner";
@@ -12,7 +11,7 @@ import { useLanguage } from "@/app/context/LanguageContext";
 export const PendingWorkPrompt = () => {
   const [pendingKeys, setPendingKeys] = useState<string[]>([]);
   const { year, month, refreshPendingStatus, showPendingDataModal, setShowPendingDataModal, isPending, setIsSaved } = useCalendar();
-  const { setWorkHoursForProject, reloadWorkHours } = useWorkHours();
+  const { reloadWorkHours } = useWorkHours();
   const { t } = useLanguage();
 
   const hasPrompted = useRef(false);
@@ -81,8 +80,6 @@ export const PendingWorkPrompt = () => {
             projectId,
           });
 
-          // Update local state optimistically
-          await setWorkHoursForProject(date, userId, projectKey, hours, note);
           keysToRemove.push(key);
         }
       }

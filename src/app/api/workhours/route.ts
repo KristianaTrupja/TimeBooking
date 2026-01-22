@@ -260,6 +260,15 @@ export async function PATCH(req: NextRequest) {
     const results = await db.$transaction(async (tx) => {
       const savedEntries = [];
 
+      // Group work hours by period (userId + periodStart + periodEnd)
+      const periodGroups = new Map<string, {
+        userId: number;
+        periodStart: Date;
+        periodEnd: Date;
+        entries: typeof workHours;
+      }>();
+
+      // Validate and group entries
       for (const entry of workHours) {
         const { date, hours, note, userId, projectId } = entry;
 
@@ -270,8 +279,25 @@ export async function PATCH(req: NextRequest) {
         const targetDate = new Date(date);
         const periodStart = getStartOfMonth(targetDate);
         const periodEnd = getEndOfMonth(targetDate);
+        const periodKey = `${userId}-${periodStart.getTime()}-${periodEnd.getTime()}`;
 
-        // Ensure submission exists for this period
+        if (!periodGroups.has(periodKey)) {
+          periodGroups.set(periodKey, {
+            userId,
+            periodStart,
+            periodEnd,
+            entries: [],
+          });
+        }
+
+        periodGroups.get(periodKey)!.entries.push(entry);
+      }
+
+      // Process each period group
+      for (const [periodKey, group] of periodGroups) {
+        const { userId, periodStart, periodEnd, entries } = group;
+
+        // Ensure submission exists once per period
         const submission = await tx.timeSheetSubmission.upsert({
           where: {
             userId_periodStart_periodEnd: {
@@ -293,32 +319,38 @@ export async function PATCH(req: NextRequest) {
           throw new TimesheetLockedError();
         }
 
-        // Upsert work hours
-        const workingHours = await tx.workHours.upsert({
-          where: {
-            userId_date_projectId: {
-              userId,
-              date: targetDate,
-              projectId,
-            },
-          },
-          update: {
-            hours,
-            note,
-            submissionId: submission.id,
-          },
-          create: {
-            date: targetDate,
-            hours,
-            note,
-            userId,
-            projectId,
-            submissionId: submission.id,
-          },
-        });
+        // Save all work hours for this period
+        for (const entry of entries) {
+          const { date, hours, note, projectId } = entry;
+          const targetDate = new Date(date);
 
-        savedEntries.push(workingHours);
+          const workingHours = await tx.workHours.upsert({
+            where: {
+              userId_date_projectId: {
+                userId,
+                date: targetDate,
+                projectId,
+              },
+            },
+            update: {
+              hours,
+              note,
+              submissionId: submission.id,
+            },
+            create: {
+              date: targetDate,
+              hours,
+              note,
+              userId,
+              projectId,
+              submissionId: submission.id,
+            },
+          });
+
+          savedEntries.push(workingHours);
+        }
       }
+
       return savedEntries;
     });
 

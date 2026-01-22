@@ -4,14 +4,13 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useCalendar } from "@/app/context/CalendarContext";
 import { useWorkHours } from "@/app/context/WorkHoursContext";
-import { useSaveWorkHours } from "@/app/hooks/useSaveWorkHours";
 import { toast } from "sonner";
 import { Save } from "lucide-react";
 import { useLanguage } from "@/app/context/LanguageContext";
 
 export default function SaveButton() {
   const { year, month, setIsSaved } = useCalendar();
-  const { setWorkHoursForProject, reloadWorkHours } = useWorkHours();
+  const { reloadWorkHours } = useWorkHours();
   const { t } = useLanguage();
   const [isSaving, setIsSaving] = useState(false);
 
@@ -48,8 +47,6 @@ export default function SaveButton() {
             projectId,
           });
 
-          // Update local state optimistically
-          await setWorkHoursForProject(date, userId, projectKey, hours, note);
           keysToRemove.push(key);
         }
       }
