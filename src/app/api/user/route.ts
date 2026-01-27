@@ -8,6 +8,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { AuthenticationError, AuthorizationError, ConflictError, ValidationError } from "@/lib/errors/errors";
 import { handleApiError } from "@/lib/errors/handlers";
+import { invalidateUserSession } from "@/lib/sessionInvalidation";
 
 export async function POST(req: Request) {
   try {
@@ -152,6 +153,9 @@ export async function DELETE(req: Request) {
         },
       });
       
+      // Flag user's session for immediate refresh (will force logout)
+      invalidateUserSession(id);
+      
       return NextResponse.json(
         { message: "User deactivated successfully. Their data has been preserved." },
         { status: 200 }
@@ -159,6 +163,9 @@ export async function DELETE(req: Request) {
     } else {
       // Hard delete: user has no related data, safe to remove completely
       await db.user.delete({ where: { id } });
+      
+      // Flag user's session for immediate refresh (will force logout)
+      invalidateUserSession(id);
       
       return NextResponse.json(
         { message: "User deleted successfully." },
@@ -217,6 +224,9 @@ export async function PUT(req: Request) {
     const results = await db.$transaction(txOperation);
     const updatedUser = results[0]
     const updatedVacation = results[1]
+
+    // Flag this user's session for refresh (forces session update on next check)
+    invalidateUserSession(id);
 
     const userWithVacation = {
       ...updatedUser,

@@ -3,6 +3,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { db } from "./db";
 import { compare } from "bcrypt";
+import { shouldRefreshSession, clearSessionInvalidation } from "./sessionInvalidation";
 
 export const authOptions: NextAuthOptions = {
     adapter: PrismaAdapter(db),
@@ -54,18 +55,68 @@ export const authOptions: NextAuthOptions = {
         })
       ],
       callbacks: {
-        async jwt({ token, user }) {
+        async jwt({ token, user, trigger }) {
+          // On sign in, set initial token data
           if (user) {
             return {
               ...token,
               username: user.username,
               role: user.role,
               id: user.id,
+              lastRefresh: Date.now(),
             };
           }
+
+          // Only refresh when:
+          // 1. Explicitly triggered via update() 
+          // 2. User has been flagged for session invalidation (by admin)
+          const userId = parseInt(token.id as string);
+          const needsRefresh = trigger === "update" && shouldRefreshSession(userId);
+
+          if (token.id && needsRefresh) {
+            try {
+              const dbUser = await db.user.findUnique({
+                where: { id: parseInt(token.id as string) },
+                select: {
+                  id: true,
+                  email: true,
+                  username: true,
+                  role: true,
+                  isActive: true,
+                },
+              });
+
+              // If user not found or inactive, return null to force logout
+              if (!dbUser || !dbUser.isActive) {
+                return null as any;
+              }
+
+              // Clear the invalidation flag
+              clearSessionInvalidation(userId);
+
+              // Update token with fresh data from database
+              return {
+                ...token,
+                username: dbUser.username,
+                role: dbUser.role,
+                email: dbUser.email,
+                lastRefresh: Date.now(),
+              };
+            } catch (error) {
+              console.error("Error refreshing token:", error);
+              // Return existing token if DB query fails
+              return token;
+            }
+          }
+
           return token;
         },
         async session({ session, token }) {
+          // If token is invalid (user inactive/deleted), return null
+          if (!token) {
+            return null as any;
+          }
+
           return {
             ...session,
             user: {
