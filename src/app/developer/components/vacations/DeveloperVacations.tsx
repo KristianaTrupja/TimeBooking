@@ -17,7 +17,6 @@ import {
 } from "lucide-react";
 import { AbsenceType, ExtAbsence } from "@/types/absence";
 import Spinner from "@/components/ui/Spinner";
-import { getEndOfMonth } from "@/app/utils/dateUtils";
 import { useLanguage } from "@/app/context/LanguageContext";
 
 const ABSENCE_TYPES: (keyof typeof AbsenceType)[] = ["VACATION", "SICK", "PERSONAL", "PARENTAL"];
@@ -61,7 +60,7 @@ function getInitialFiltersState() {
   return {
     selectedAbsenceType: null as string | null,
     startDate: new Date(now.getFullYear(), 0, 1),
-    endDate: getEndOfMonth(now),
+    endDate: new Date(now.getFullYear(), 11, 31), // End of current year instead of end of current month
   };
 }
 

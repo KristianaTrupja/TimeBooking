@@ -10,7 +10,6 @@ import { User } from "@/types/user";
 import { Absence, AbsenceType, ExtAbsence, Filters } from "@/types/absence";
 import Spinner from "@/components/ui/Spinner";
 import FilterAbsences from "../absence-filters/FilterAbsences";
-import { getEndOfMonth } from "@/app/utils/dateUtils";
 import { toast } from "sonner";
 import { useLanguage } from "@/app/context/LanguageContext";
 
@@ -22,7 +21,7 @@ function getInitialFiltersState(): Filters {
     selectedAbsenceType: null,
     selectedEmployee: null,
     startDate: new Date(now.getFullYear(), 0, 1),
-    endDate: getEndOfMonth(now)
+    endDate: new Date(now.getFullYear(), 11, 31) // End of current year instead of end of current month
   }
 }
 
