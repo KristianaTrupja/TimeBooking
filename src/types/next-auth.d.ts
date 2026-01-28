@@ -15,6 +15,5 @@ declare module "next-auth/jwt" {
   interface JWT {
     username: string;
     role: string;
-    lastRefresh?: number;
   }
 }
