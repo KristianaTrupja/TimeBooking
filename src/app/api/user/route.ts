@@ -16,7 +16,13 @@ export async function POST(req: Request) {
       throw new AuthenticationError("Unauthorized")
     }
   
-    if (session.user.role !== "Admin") {
+    // Don't trust JWT role (can be stale). Validate from DB.
+    const requester = await db.user.findUnique({
+      where: { id: Number(session.user.id) },
+      select: { role: true, isActive: true },
+    });
+
+    if (!requester?.isActive || requester.role !== "Admin") {
       throw new AuthorizationError("Only administrators can create users");
     }
     
@@ -173,9 +179,31 @@ export async function DELETE(req: Request) {
 
 export async function PUT(req: Request) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) {
+      throw new AuthenticationError("Unauthorized")
+    }
+
+    // Admins can update anyone; users can update themselves (profile/settings).
+    // But NEVER trust JWT role: always read requester role from DB.
+    const requester = await db.user.findUnique({
+      where: { id: Number(session.user.id) },
+      select: { id: true, role: true, isActive: true },
+    });
+
+    if (!requester?.isActive) {
+      throw new AuthorizationError("Forbidden")
+    }
+
     const { id, username, email, password, role, totalVacations } = await req.json();
     if (!id) {
       throw new ValidationError("User ID is required", 'id')
+    }
+
+    const isSelfUpdate = Number(id) === Number(requester.id);
+    const isAdmin = requester.role === "Admin";
+    if (!isAdmin && !isSelfUpdate) {
+      throw new AuthorizationError("Forbidden")
     }
 
     const updateData: any = { username, email, role };

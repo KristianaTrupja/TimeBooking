@@ -4,6 +4,7 @@ import "./globals.css";
 import { NotificationProvider } from "./context/NotificationContext";
 import { TimeSheetProvider } from "./context/TimeSheetContext";
 import { LanguageProvider } from "./context/LanguageContext";
+import { Providers } from "./providers";
 import { Toaster } from "sonner";
 
 const keanianOne = Keania_One({
@@ -47,13 +48,13 @@ export default function RootLayout({
       <body
         className={`${keanianOne.variable} ${anekBangla.variable} ${inter.variable} antialiased`}
       >
-        <LanguageProvider>
-          <NotificationProvider>
-            <TimeSheetProvider>
-              {children}
-            </TimeSheetProvider>
-          </NotificationProvider>
-        </LanguageProvider>
+        <Providers>
+          <LanguageProvider>
+            <NotificationProvider>
+              <TimeSheetProvider>{children}</TimeSheetProvider>
+            </NotificationProvider>
+          </LanguageProvider>
+        </Providers>
         <Toaster duration={10000} richColors={true} position="top-center" />
       </body>
     </html>

@@ -192,7 +192,13 @@ export async function GET(req: Request) {
       throw new AuthenticationError("Unauthorized")
     }
   
-    if (session.user.role !== "Admin") {
+    // Don't trust JWT role (can be stale). Validate from DB.
+    const requester = await db.user.findUnique({
+      where: { id: Number(session.user.id) },
+      select: { role: true, isActive: true },
+    });
+
+    if (!requester?.isActive || requester.role !== "Admin") {
       throw new AuthorizationError("Forbidden")
     }
 
@@ -416,7 +422,13 @@ export async function PUT(req: Request) {
       throw new AuthenticationError("Unauthorized")
     }
   
-    if (session.user.role !== "Admin") {
+    // Don't trust JWT role (can be stale). Validate from DB.
+    const requester = await db.user.findUnique({
+      where: { id: Number(session.user.id) },
+      select: { role: true, isActive: true },
+    });
+
+    if (!requester?.isActive || requester.role !== "Admin") {
       throw new AuthorizationError("Forbidden")
     }
 

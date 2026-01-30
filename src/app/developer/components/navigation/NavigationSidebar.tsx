@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useSidebar } from "@/app/context/SidebarContext";
 import { useLanguage } from "@/app/context/LanguageContext";
+import { useEffect, useMemo, useState } from "react";
 
 type Tab = "time-reporting" | "vacations";
 
@@ -19,6 +20,30 @@ export default function NavigationSidebar({ activeTab, onTabChange }: Navigation
   const adminId = searchParams.get("adminId");
   const { isCollapsed, toggleSidebar } = useSidebar();
   const { t } = useLanguage();
+  const [dbRole, setDbRole] = useState<string | null>(null);
+
+  // If the user was promoted to Admin, don't wait for JWT refresh.
+  // Fetch role from DB so UI updates immediately.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch("/api/me", { cache: "no-store" });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!cancelled) setDbRole(data?.role ?? null);
+      } catch {
+        // ignore
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const canGoToAdmin = useMemo(() => {
+    return Boolean(adminId) || dbRole?.toLowerCase() === "admin";
+  }, [adminId, dbRole]);
 
   const menuItems = [
     { id: "time-reporting" as Tab, label: t.timeReporting, icon: Calendar },
@@ -86,9 +111,9 @@ export default function NavigationSidebar({ activeTab, onTabChange }: Navigation
             <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">{t.actions}</span>
           </div>
         )}
-        {adminId && (
+        {canGoToAdmin && (
           <Link
-            href={`/admin/?adminId=${adminId}`}
+            href={adminId ? `/admin/?adminId=${adminId}` : "/admin"}
             aria-label="Go to admin dashboard"
             title={isCollapsed ? t.goToAdmin : undefined}
             className={`group flex items-center ${isCollapsed ? "justify-center" : ""} gap-3 ${isCollapsed ? "px-0 py-3" : "px-4 py-3"} rounded-xl transition-all duration-300 text-slate-200 hover:text-amber-400 hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 focus:ring-offset-slate-900`}
