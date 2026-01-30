@@ -1,6 +1,6 @@
 "use client";
 
-import { Calendar, Palmtree, Shield, LogOut, ChevronLeft, ChevronRight } from "lucide-react";
+import { Calendar, Palmtree, CalendarDays, Shield, LogOut, ChevronLeft, ChevronRight } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -8,7 +8,7 @@ import { useSidebar } from "@/app/context/SidebarContext";
 import { useLanguage } from "@/app/context/LanguageContext";
 import { useEffect, useMemo, useState } from "react";
 
-type Tab = "time-reporting" | "vacations";
+type Tab = "time-reporting" | "vacations" | "holidays";
 
 interface NavigationSidebarProps {
   activeTab: Tab;
@@ -48,6 +48,7 @@ export default function NavigationSidebar({ activeTab, onTabChange }: Navigation
   const menuItems = [
     { id: "time-reporting" as Tab, label: t.timeReporting, icon: Calendar },
     { id: "vacations" as Tab, label: t.vacations, icon: Palmtree },
+    { id: "holidays" as Tab, label: t.holidays, icon: CalendarDays },
   ];
 
   const handleLogout = () => {

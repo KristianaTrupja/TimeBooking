@@ -21,11 +21,12 @@ import { User } from "next-auth";
 import { getSession } from "next-auth/react";
 import NavigationSidebar from "../components/navigation/NavigationSidebar";
 import DeveloperVacations from "../components/vacations/DeveloperVacations";
+import DeveloperHolidays from "../components/holidays/DeveloperHolidays";
 import CalendarLegend from "../components/calendar/CalendarLegend";
 import { useLanguage } from "@/app/context/LanguageContext";
 import { Modal } from "@/app/components/ui/Modal";
 
-type Tab = "time-reporting" | "vacations";
+type Tab = "time-reporting" | "vacations" | "holidays";
 
 export default function Developer() {
     const { reloadWorkHours, metadata, submitTimesheet } = useWorkHours();
@@ -141,8 +142,10 @@ export default function Developer() {
                         </div>
                     </div>
                 </div>
-            ) : (
+            ) : activeTab === "vacations" ? (
                 <DeveloperVacations />
+            ) : (
+                <DeveloperHolidays />
             )}
         </div>
         
