@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from "@/lib/db";
-import { getEndOfMonthUTC, getStartOfMonthUTC, getTimesheetPeriodKeyUTC } from '@/app/utils/dateUtils';
+import { getEndOfMonth, getStartOfMonth } from '@/app/utils/dateUtils';
 import { handleApiError } from '@/lib/errors/handlers';
 import { AuthenticationError, AuthorizationError, TimesheetLockedError, ValidationError } from '@/lib/errors/errors';
 import { getServerSession } from 'next-auth';
@@ -18,8 +18,8 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const periodStart = new Date(Date.UTC(parseInt(year), parseInt(month) - 1, 1, 0, 0, 0, 0));
-    const periodEnd = new Date(Date.UTC(parseInt(year), parseInt(month), 0, 23, 59, 59, 999));
+    const periodStart = new Date(parseInt(year), parseInt(month) - 1, 1);
+    const periodEnd = new Date(parseInt(year), parseInt(month), 0, 23, 59, 59, 999);
     // Fetch ALL work hours for the period, regardless of submission status
     const workhours = await db.workHours.findMany({
       where: {
@@ -45,13 +45,14 @@ export async function GET(req: NextRequest) {
     });
 
     // Separately fetch submission (may not exist for draft/legacy periods)
-    // Avoid exact DateTime equality lookups (legacy timezone-shifted values exist)
-    const submission = await db.timeSheetSubmission.findFirst({
+    const submission = await db.timeSheetSubmission.findUnique({
       where: {
-        userId: parseInt(userId),
-        periodEnd: { gte: periodStart, lte: periodEnd },
+        userId_periodStart_periodEnd: {
+          userId: parseInt(userId),
+          periodStart,
+          periodEnd,
+        },
       },
-      orderBy: { updatedAt: "desc" },
     });
 
     const totalHours = workhours.reduce((sum, entry) => sum + entry.hours, 0)
@@ -99,38 +100,26 @@ export async function POST(req: NextRequest) {
     }
 
     const targetDate = new Date(date);
-    const periodStart = getStartOfMonthUTC(targetDate);
-    const periodEnd = getEndOfMonthUTC(targetDate);
+    const periodStart = getStartOfMonth(targetDate);
+    const periodEnd = getEndOfMonth(targetDate);
 
     const entry = await db.$transaction(async (tx) => {
-      const { periodYear, periodMonth } = getTimesheetPeriodKeyUTC(targetDate);
-      // Step 1 compatible: find/update/create without relying on a new unique key
-      let submission = await tx.timeSheetSubmission.findFirst({
+      const submission = await tx.timeSheetSubmission.upsert({
         where: {
-          userId,
-          periodYear,
-          periodMonth,
-        },
-        orderBy: { updatedAt: "desc" },
-      });
-
-      if (!submission) {
-        submission = await tx.timeSheetSubmission.create({
-          data: {
+          userId_periodStart_periodEnd: {
             userId,
-            periodYear,
-            periodMonth,
             periodStart,
             periodEnd,
-            status: "DRAFT",
           },
-        });
-      } else {
-        submission = await tx.timeSheetSubmission.update({
-          where: { id: submission.id },
-          data: { periodYear, periodMonth, periodStart, periodEnd },
-        });
-      }
+        },
+        update: {},
+        create: {
+          userId,
+          periodStart,
+          periodEnd,
+          status: "DRAFT",
+        },
+      });
 
       if (submission.status === "LOCKED") {
         throw new TimesheetLockedError()
@@ -186,39 +175,27 @@ export async function PUT(req: NextRequest) {
   }
 
     const targetDate = new Date(date);
-    const periodStart = getStartOfMonthUTC(targetDate);
-    const periodEnd = getEndOfMonthUTC(targetDate);
+    const periodStart = getStartOfMonth(targetDate);
+    const periodEnd = getEndOfMonth(targetDate);
 
     const updated = await db.$transaction(async (tx) => {
-      const { periodYear, periodMonth } = getTimesheetPeriodKeyUTC(targetDate);
-
-      // Step 1 compatible: find/update/create without relying on a new unique key
-      let submission = await tx.timeSheetSubmission.findFirst({
+      // Ensure submission exists for this period
+      const submission = await tx.timeSheetSubmission.upsert({
         where: {
-          userId,
-          periodYear,
-          periodMonth,
-        },
-        orderBy: { updatedAt: "desc" },
-      });
-
-      if (!submission) {
-        submission = await tx.timeSheetSubmission.create({
-          data: {
+          userId_periodStart_periodEnd: {
             userId,
-            periodYear,
-            periodMonth,
             periodStart,
             periodEnd,
-            status: "DRAFT",
           },
-        });
-      } else {
-        submission = await tx.timeSheetSubmission.update({
-          where: { id: submission.id },
-          data: { periodYear, periodMonth, periodStart, periodEnd },
-        });
-      }
+        },
+        update: {},
+        create: {
+          userId,
+          periodStart,
+          periodEnd,
+          status: "DRAFT",
+        },
+      });
 
       if (submission.status === "LOCKED") {
         throw new TimesheetLockedError()
@@ -286,8 +263,6 @@ export async function PATCH(req: NextRequest) {
       // Group work hours by period (userId + periodStart + periodEnd)
       const periodGroups = new Map<string, {
         userId: number;
-        periodYear: number;
-        periodMonth: number;
         periodStart: Date;
         periodEnd: Date;
         entries: typeof workHours;
@@ -302,16 +277,13 @@ export async function PATCH(req: NextRequest) {
         }
 
         const targetDate = new Date(date);
-        const periodStart = getStartOfMonthUTC(targetDate);
-        const periodEnd = getEndOfMonthUTC(targetDate);
-        const { periodYear, periodMonth } = getTimesheetPeriodKeyUTC(targetDate);
-        const periodKey = `${userId}-${periodYear}-${periodMonth}`;
+        const periodStart = getStartOfMonth(targetDate);
+        const periodEnd = getEndOfMonth(targetDate);
+        const periodKey = `${userId}-${periodStart.getTime()}-${periodEnd.getTime()}`;
 
         if (!periodGroups.has(periodKey)) {
           periodGroups.set(periodKey, {
             userId,
-            periodYear,
-            periodMonth,
             periodStart,
             periodEnd,
             entries: [],
@@ -323,32 +295,25 @@ export async function PATCH(req: NextRequest) {
 
       // Process each period group
       for (const [periodKey, group] of periodGroups) {
-        const { userId, periodYear, periodMonth, periodStart, periodEnd, entries } = group;
+        const { userId, periodStart, periodEnd, entries } = group;
 
         // Ensure submission exists once per period
-        // Step 1 compatible: find/update/create without relying on a new unique key
-        let submission = await tx.timeSheetSubmission.findFirst({
-          where: { userId, periodYear, periodMonth },
-          orderBy: { updatedAt: "desc" },
-        });
-
-        if (!submission) {
-          submission = await tx.timeSheetSubmission.create({
-            data: {
+        const submission = await tx.timeSheetSubmission.upsert({
+          where: {
+            userId_periodStart_periodEnd: {
               userId,
-              periodYear,
-              periodMonth,
               periodStart,
               periodEnd,
-              status: "DRAFT",
             },
-          });
-        } else {
-          submission = await tx.timeSheetSubmission.update({
-            where: { id: submission.id },
-            data: { periodYear, periodMonth, periodStart, periodEnd },
-          });
-        }
+          },
+          update: {},
+          create: {
+            userId,
+            periodStart,
+            periodEnd,
+            status: "DRAFT",
+          },
+        });
 
         if (submission.status === "LOCKED") {
           throw new TimesheetLockedError();

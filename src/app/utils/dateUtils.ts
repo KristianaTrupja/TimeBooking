@@ -42,18 +42,6 @@ export function getStartOfMonth(input: Date | string ):Date {
 }
 
 /**
- * Like getStartOfMonth, but uses UTC setters to avoid timezone shifts.
- * Use this for persisted period boundaries (e.g. timesheets).
- */
-export function getStartOfMonthUTC(input: Date | string): Date {
-  const date = input instanceof Date ? input : new Date(input);
-  const start = new Date(date);
-  start.setUTCDate(1);
-  start.setUTCHours(0, 0, 0, 0);
-  return start;
-}
-
-/**
  * 
  * @param input, which is date string or date object
  * @returns A date object corresponding last day of that month
@@ -66,35 +54,6 @@ export function getEndOfMonth(input: Date | string):Date {
   endOfMonth.setHours(23, 59, 59, 999)
   return endOfMonth
 }
-
-/**
- * Like getEndOfMonth, but uses UTC setters to avoid timezone shifts.
- * Use this for persisted period boundaries (e.g. timesheets).
- */
-export function getEndOfMonthUTC(input: Date | string): Date {
-  const date = input instanceof Date ? input : new Date(input);
-  const end = new Date(date);
-  end.setUTCMonth(end.getUTCMonth() + 1);
-  end.setUTCDate(0);
-  end.setUTCHours(23, 59, 59, 999);
-  return end;
-}
-
-/**
- * Canonical UTC month boundaries for timesheets based on a date.
- */
-export function getTimesheetPeriodUTC(date: Date): { periodStart: Date; periodEnd: Date } {
-  const year = date.getUTCFullYear();
-  const month = date.getUTCMonth() + 1; // 1-indexed
-  const periodStart = new Date(Date.UTC(year, month - 1, 1, 0, 0, 0, 0));
-  const periodEnd = new Date(Date.UTC(year, month, 0, 23, 59, 59, 999));
-  return { periodStart, periodEnd };
-}
-
-export function getTimesheetPeriodKeyUTC(date: Date): { periodYear: number; periodMonth: number } {
-  return { periodYear: date.getUTCFullYear(), periodMonth: date.getUTCMonth() + 1 };
-}
-
 
 
 export function getBusinessDays(
