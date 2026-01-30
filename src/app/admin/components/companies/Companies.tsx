@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Company } from "@/types/project";
 import { Building2, FilePenLine, Delete, LoaderCircle, Save, X, Plus } from "lucide-react";
-import { toast, Toaster } from "sonner";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/app/context/LanguageContext";
 
@@ -348,7 +348,6 @@ export default function Companies() {
         </div>
       </div>
 
-      <Toaster position="top-right" richColors />
     </section>
   );
 }

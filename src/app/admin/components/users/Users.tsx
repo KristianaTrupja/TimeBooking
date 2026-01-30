@@ -3,7 +3,7 @@ import React, { useEffect, useState, useRef, useCallback, useMemo } from "react"
 import { Button } from "@/components/ui/button";
 import { AddUserModal } from "./AddUserModal";
 import { UserTable } from "./UserTable";
-import { toast, Toaster } from "sonner";
+import { toast } from "sonner";
 import { User, UserFormData } from "@/types/user";
 import Spinner from "@/components/ui/Spinner";
 import { isPasswordStrong } from "@/lib/utils";
@@ -180,9 +180,18 @@ export default function Users() {
       });
 
       if (response.ok) {
-        toast.success("Employee was added successfully.");
+        const data = await response.json();
+        const createdUser: User | undefined = data?.user;
+        toast.success(data?.message || "Employee was added successfully.");
         setOpen(false);
-        window.location.reload();
+        if (createdUser?.id) {
+          setUser((prev) => {
+            const next = [...(prev?.users || []), createdUser].sort((a, b) =>
+              a.username.localeCompare(b.username)
+            );
+            return { users: next };
+          });
+        }
       } else {
         const err = await response.json();
         toast.error(
@@ -309,7 +318,6 @@ export default function Users() {
         onSubmit={addNewEmployee}
         isLoading={isAdding}
       />
-      <Toaster position="top-right" richColors />
     </section>
   );
 }

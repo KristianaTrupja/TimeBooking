@@ -35,9 +35,6 @@ export const metadata: Metadata = {
   },
 }
 
-console.log("test build");
-
-
 export default function RootLayout({
   children,
 }: Readonly<{

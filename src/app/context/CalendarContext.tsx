@@ -60,8 +60,20 @@ export const CalendarProvider = ({ children }: { children: React.ReactNode }) =>
 
   useEffect(() => {
     refreshPendingStatus();
-    const interval = setInterval(refreshPendingStatus, 500);
-    return () => clearInterval(interval);
+    // Avoid tight polling; we already call `refreshPendingStatus()` whenever we
+    // add/remove pending workhours. As a fallback, re-check on focus/visibility.
+    const onFocus = () => refreshPendingStatus();
+    const onVisibility = () => {
+      if (document.visibilityState === "visible") refreshPendingStatus();
+    };
+
+    window.addEventListener("focus", onFocus);
+    document.addEventListener("visibilitychange", onVisibility);
+
+    return () => {
+      window.removeEventListener("focus", onFocus);
+      document.removeEventListener("visibilitychange", onVisibility);
+    };
   }, []);
 
   const setMonthAndYear = async (newMonth: number, newYear: number, animation = false) => {

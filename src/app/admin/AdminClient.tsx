@@ -14,7 +14,6 @@ import { CalendarProvider } from "@/app/context/CalendarContext";
 import { ProjectProvider } from "@/app/context/ProjectContext";
 import Notifications from "./components/notifications/Notifications";
 import Settings from "./components/settings/Settings";
-import { SessionProvider } from "next-auth/react";
 
 export default function AdminClient() {
   const searchParams = useSearchParams();
@@ -67,7 +66,7 @@ export default function AdminClient() {
         {tab === "modify-absences" && <ModifyAbsences />}
         {tab === "holidays" && <Vacations />}
         {tab === "notifications" && <Notifications/>}
-        {tab === "settings" && <SessionProvider><Settings /></SessionProvider>}
+        {tab === "settings" && <Settings />}
       </div>
     </section>
   );

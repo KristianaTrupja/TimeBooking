@@ -3,7 +3,7 @@ import React, { useState, useCallback, useEffect, useMemo } from "react";
 import ProjectList from "./ProjectsList";
 import ProjectsForm from "./ProjectsForm";
 import { FormData, ProjectEntry, Company } from "@/types/project";
-import { toast, Toaster } from "sonner";
+import { toast } from "sonner";
 import Spinner from "@/components/ui/Spinner";
 import { FolderKanban } from "lucide-react";
 import { useLanguage } from "@/app/context/LanguageContext";
@@ -203,7 +203,6 @@ const onOptionsModified = useCallback(async (id: number, newValue: string, opera
           />
         </div>
       </div>
-      <Toaster position="top-right" richColors />
     </section>
   );
 }

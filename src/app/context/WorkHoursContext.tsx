@@ -6,6 +6,7 @@ import React, {
   useState,
   ReactNode,
   useCallback,
+  useRef,
 } from "react";
 import { normalizeProjectKey } from "../utils/normalizeProjectKey";
 import { WorkHours } from "@/types/workDay";
@@ -53,6 +54,7 @@ export function WorkHoursProvider({ children }: { children: ReactNode }) {
   const [activeTimesheet, setActiveTimesheet] = useState<Submission | null>(null)
   const [metadata, setMetadata] = useState<{totalHours: number,isLocked: boolean,canEdit: boolean} | null>(null)
   const [loading, setLoading] = useState(false);
+  const fetchAbortRef = useRef<AbortController | null>(null);
 
   const fetchWorkHours = useCallback(
     async (userId: string, month?: number, year?: number) => {
@@ -61,9 +63,10 @@ export function WorkHoursProvider({ children }: { children: ReactNode }) {
         return;
       }
 
-      console.log("EXECUTION ::: fetchWorkHours", { userId, month, year });
-
+      // Abort any in-flight request before starting a new one
+      fetchAbortRef.current?.abort();
       const controller = new AbortController();
+      fetchAbortRef.current = controller;
       
       try {
         setLoading(true);
@@ -113,7 +116,6 @@ export function WorkHoursProvider({ children }: { children: ReactNode }) {
         
       } catch (error) {
         if (error instanceof Error && error.name === "AbortError") {
-          console.log("fetchWorkHours: Request was cancelled");
           return;
         }
 
@@ -125,8 +127,6 @@ export function WorkHoursProvider({ children }: { children: ReactNode }) {
       } finally {
         setLoading(false);
       }
-
-      return () => controller.abort();
     }, [])
 
 
