@@ -16,6 +16,13 @@ function formatDate(date:Date) {
     })
 }
 
+function getPeriodBoundsUTC(year: number, month: number) {
+  // Use UTC boundaries to avoid server timezone differences.
+  const periodStart = new Date(Date.UTC(year, month - 1, 1, 0, 0, 0, 0));
+  const periodEnd = new Date(Date.UTC(year, month, 0, 23, 59, 59, 999));
+  return { periodStart, periodEnd };
+}
+
 export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions);
@@ -36,23 +43,29 @@ export async function POST(req: Request) {
     }
 
     // Backend calculates period boundaries - business logic stays server-side
-    const periodStart = new Date(year, month -1, 1);
-    const periodEnd = new Date(year, month, 0, 23, 59, 59, 999);
+    const { periodStart, periodEnd } = getPeriodBoundsUTC(year, month);
+    const { periodYear, periodMonth } = { periodYear: year, periodMonth: month };
 
     const submission = await db.$transaction(async (tx) => {
-        let submission = await tx.timeSheetSubmission.findUnique({
-            where: {
-            userId_periodStart_periodEnd: {
-                userId,
-                periodStart,
-                periodEnd,
-            },
-            },
-        });
+        // IMPORTANT:
+        // - There can be legacy submissions created with timezone-shifted periodStart/periodEnd.
+        // - There can even be multiple submissions for the same user+month.
+        // So we match by (userId + month window) using periodEnd, not exact DateTime equality.
 
+        // If there is already a non-draft submission for this month, don't allow re-submit.
         if (submission && submission.status !== "DRAFT" && submission.status !== "REJECTED") {
-          throw new ConflictError(`Cannot submit timesheet with status: ${submission.status}`, undefined, { field:"submission.status" })
+          throw new ConflictError(
+            `Cannot submit timesheet with status: ${submission.status}`,
+            undefined,
+            { field: "submission.status" }
+          );
         }
+
+        // Step 1 compatible: there can be duplicates, so pick latest by updatedAt
+        let submission = await tx.timeSheetSubmission.findFirst({
+          where: { userId, periodYear, periodMonth },
+          orderBy: { updatedAt: "desc" },
+        });
 
         const submittableWorkHours = await tx.workHours.findMany({
             where: {
@@ -76,14 +89,22 @@ export async function POST(req: Request) {
         }
 
         if (!submission) {
-            submission = await tx.timeSheetSubmission.create({
-                data: {
-                    userId,
-                    periodStart,
-                    periodEnd,
-                    status: "DRAFT",
-                },
-            });
+          submission = await tx.timeSheetSubmission.create({
+            data: {
+              userId,
+              periodYear,
+              periodMonth,
+              periodStart,
+              periodEnd,
+              status: "DRAFT",
+            },
+          });
+        } else {
+          // Keep boundaries canonical
+          submission = await tx.timeSheetSubmission.update({
+            where: { id: submission.id },
+            data: { periodYear, periodMonth, periodStart, periodEnd },
+          });
         }
 
         // Linking any unlinked hours to the submission (handles legacy null cases)
@@ -212,8 +233,7 @@ export async function GET(req: Request) {
     const year = yearParam ? parseInt(yearParam) : today.getFullYear();
 
     // Calculate period boundaries (using same logic as workhours API)
-    const periodStart = new Date(year, month - 1, 1, 0, 0, 0, 0);
-    const periodEnd = new Date(year, month, 0, 23, 59, 59, 999);
+    const { periodStart, periodEnd } = getPeriodBoundsUTC(year, month);
 
     // Fetch all users (including inactive for historical data)
     const users = await db.user.findMany({
@@ -233,9 +253,10 @@ export async function GET(req: Request) {
     // Fetch all submissions for this period
     const submissions = await db.timeSheetSubmission.findMany({
       where: {
-        periodStart,
-        periodEnd,
+        // Match by periodEnd window to handle legacy timezone-shifted records
+        periodEnd: { gte: periodStart, lte: periodEnd },
       },
+      orderBy: { updatedAt: "desc" },
       include: {
         user: {
           select: {
@@ -269,12 +290,11 @@ export async function GET(req: Request) {
 
     // Link unlinked work hours to their corresponding submissions
     if (unlinkedWorkHours.length > 0) {
-      const submissionMap = new Map(
-        submissions.map((sub) => [
-          sub.userId,
-          sub.id,
-        ])
-      );
+      // If there are multiple submissions per user, prefer the latest one (submissions is ordered).
+      const submissionMap = new Map<number, number>();
+      for (const sub of submissions) {
+        if (!submissionMap.has(sub.userId)) submissionMap.set(sub.userId, sub.id);
+      }
 
       for (const wh of unlinkedWorkHours) {
         const submissionId = submissionMap.get(wh.userId);
@@ -303,9 +323,9 @@ export async function GET(req: Request) {
       // Refetch submissions after linking
       const updatedSubmissions = await db.timeSheetSubmission.findMany({
         where: {
-          periodStart,
-          periodEnd,
+          periodEnd: { gte: periodStart, lte: periodEnd },
         },
+        orderBy: { updatedAt: "desc" },
         include: {
           user: {
             select: {
@@ -348,18 +368,24 @@ export async function GET(req: Request) {
     });
 
     // Create a map of userId -> submission data
-    const submissionMap = new Map(
-      submissions.map((sub) => [
-        sub.userId,
-        {
-          id: sub.id,
-          status: sub.status,
-          submittedAt: sub.submittedAt,
-          approvedAt: sub.approvedAt,
-          rejectedAt: sub.rejectedAt,
-        },
-      ])
-    );
+    // If there are multiple submissions per user, prefer the latest one (submissions is ordered).
+    const submissionMap = new Map<number, {
+      id: number;
+      status: any;
+      submittedAt: Date | null;
+      approvedAt: Date | null;
+      rejectedAt: Date | null;
+    }>();
+    for (const sub of submissions) {
+      if (submissionMap.has(sub.userId)) continue;
+      submissionMap.set(sub.userId, {
+        id: sub.id,
+        status: sub.status,
+        submittedAt: sub.submittedAt,
+        approvedAt: sub.approvedAt,
+        rejectedAt: sub.rejectedAt,
+      });
+    }
 
     // Combine user data with submission data and total hours from ALL work hours
     const timesheetData = users

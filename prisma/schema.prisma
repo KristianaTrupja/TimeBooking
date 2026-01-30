@@ -186,6 +186,10 @@ model TimeSheetSubmission {
   userId Int
   user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  // Canonical key for a submission period (prevents timezone-based duplicates)
+  periodYear  Int
+  periodMonth Int
+
   periodStart DateTime
   periodEnd   DateTime
 
@@ -206,6 +210,8 @@ model TimeSheetSubmission {
   workHours WorkHours[]
 
   @@unique([userId, periodStart, periodEnd])
+  @@unique([userId, periodYear, periodMonth])
+  @@index([userId, periodYear, periodMonth])
   @@index([userId, status])
   @@index([status, periodStart])
 }
