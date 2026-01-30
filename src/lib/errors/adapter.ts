@@ -119,7 +119,18 @@ export class ErrorAdapter {
         );
 
       case 'P2002': {
-        const target = (error.meta?.target as string[]) || [];
+        // Ensure target is always an array - Prisma may return it as string, array, or other formats
+        let target: string[] = [];
+        if (error.meta?.target) {
+          if (Array.isArray(error.meta.target)) {
+            target = error.meta.target as string[];
+          } else if (typeof error.meta.target === 'string') {
+            target = [error.meta.target];
+          } else {
+            // Try to convert to array if it's some other format
+            target = [String(error.meta.target)];
+          }
+        }
         const model = error.meta?.modelName as string || 'Record';
         return new DuplicateRecordError(model, target, error);
       }
