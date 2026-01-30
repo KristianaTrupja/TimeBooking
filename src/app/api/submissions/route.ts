@@ -52,6 +52,12 @@ export async function POST(req: Request) {
         // - There can even be multiple submissions for the same user+month.
         // So we match by (userId + month window) using periodEnd, not exact DateTime equality.
 
+        // Step 1 compatible: there can be duplicates, so pick latest by updatedAt
+        let submission = await tx.timeSheetSubmission.findFirst({
+          where: { userId, periodYear, periodMonth },
+          orderBy: { updatedAt: "desc" },
+        });
+
         // If there is already a non-draft submission for this month, don't allow re-submit.
         if (submission && submission.status !== "DRAFT" && submission.status !== "REJECTED") {
           throw new ConflictError(
@@ -60,12 +66,6 @@ export async function POST(req: Request) {
             { field: "submission.status" }
           );
         }
-
-        // Step 1 compatible: there can be duplicates, so pick latest by updatedAt
-        let submission = await tx.timeSheetSubmission.findFirst({
-          where: { userId, periodYear, periodMonth },
-          orderBy: { updatedAt: "desc" },
-        });
 
         const submittableWorkHours = await tx.workHours.findMany({
             where: {
