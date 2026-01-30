@@ -308,6 +308,8 @@ export async function GET(req: Request) {
           const submission = await db.timeSheetSubmission.create({
             data: {
               userId: wh.userId,
+              periodYear: year,
+              periodMonth: month,
               periodStart,
               periodEnd,
               status: "DRAFT",
