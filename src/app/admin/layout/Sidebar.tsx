@@ -19,8 +19,8 @@ export default function Sidebar() {
     { title: t.projects, tab: "projects", icon: FolderKanban },
     { title: t.employees, tab: "users", icon: Users },
     { title: t.grantLeave, tab: "absences", icon: CalendarPlus },
-    { title: t.viewLeaves, tab: "modify-absences", icon: CalendarCheck },
-    { title: t.officialHolidays, tab: "holidays", icon: Palmtree }
+    { title: t.viewLeaves, tab: "modify-absences", icon: Palmtree },
+    { title: t.officialHolidays, tab: "holidays", icon: CalendarCheck }
   ];
 
   const currentTab = searchParams.get("tab") || "raport";

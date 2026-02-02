@@ -374,7 +374,7 @@ const translations: Record<Language, Translations> = {
     
     // Vacations / Absences
     absences: "Absences",
-    holidays: "Holidays",
+    holidays: "Official Holidays",
     leaveBalance: "Leave Balance",
     usedDays: "Used Days",
     remainingDays: "Remaining Days",
