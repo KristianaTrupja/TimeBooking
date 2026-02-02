@@ -54,6 +54,8 @@ export async function POST(req: Request) {
           throw new ConflictError(`Cannot submit timesheet with status: ${submission.status}`, undefined, { field:"submission.status" })
         }
 
+        
+
         const submittableWorkHours = await tx.workHours.findMany({
             where: {
             userId,
@@ -518,5 +520,3 @@ export async function DELETE(req: Request) {
       return handleApiError(error)
     }
 }
-
-
