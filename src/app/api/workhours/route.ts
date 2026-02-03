@@ -1,10 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from "@/lib/db";
-import { getEndOfMonth, getStartOfMonth } from '@/app/utils/dateUtils';
 import { handleApiError } from '@/lib/errors/handlers';
 import { AuthenticationError, AuthorizationError, TimesheetLockedError, ValidationError } from '@/lib/errors/errors';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
+
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
+function getPeriodBoundsUTCFromYearMonth(year: number, month: number) {
+  const periodStart = new Date(Date.UTC(year, month - 1, 1, 0, 0, 0, 0));
+  const periodEnd = new Date(Date.UTC(year, month, 0, 23, 59, 59, 999));
+  return { periodStart, periodEnd };
+}
+
+function getPeriodBoundsUTCFromDate(date: Date) {
+  const year = date.getUTCFullYear();
+  const month = date.getUTCMonth() + 1;
+  return getPeriodBoundsUTCFromYearMonth(year, month);
+}
 
 // GET: Fetch work hours
 export async function GET(req: NextRequest) {
@@ -18,8 +32,7 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const periodStart = new Date(parseInt(year), parseInt(month) - 1, 1);
-    const periodEnd = new Date(parseInt(year), parseInt(month), 0, 23, 59, 59, 999);
+    const { periodStart, periodEnd } = getPeriodBoundsUTCFromYearMonth(parseInt(year), parseInt(month));
     // Fetch ALL work hours for the period, regardless of submission status
     const workhours = await db.workHours.findMany({
       where: {
@@ -45,14 +58,12 @@ export async function GET(req: NextRequest) {
     });
 
     // Separately fetch submission (may not exist for draft/legacy periods)
-    const submission = await db.timeSheetSubmission.findUnique({
+    const submission = await db.timeSheetSubmission.findFirst({
       where: {
-        userId_periodStart_periodEnd: {
-          userId: parseInt(userId),
-          periodStart,
-          periodEnd,
-        },
+        userId: parseInt(userId),
+        periodEnd: { gte: periodStart, lte: periodEnd },
       },
+      orderBy: { updatedAt: "desc" },
     });
 
     const totalHours = workhours.reduce((sum, entry) => sum + entry.hours, 0)
@@ -100,8 +111,7 @@ export async function POST(req: NextRequest) {
     }
 
     const targetDate = new Date(date);
-    const periodStart = getStartOfMonth(targetDate);
-    const periodEnd = getEndOfMonth(targetDate);
+    const { periodStart, periodEnd } = getPeriodBoundsUTCFromDate(targetDate);
 
     const entry = await db.$transaction(async (tx) => {
       const submission = await tx.timeSheetSubmission.upsert({
@@ -175,8 +185,7 @@ export async function PUT(req: NextRequest) {
   }
 
     const targetDate = new Date(date);
-    const periodStart = getStartOfMonth(targetDate);
-    const periodEnd = getEndOfMonth(targetDate);
+    const { periodStart, periodEnd } = getPeriodBoundsUTCFromDate(targetDate);
 
     const updated = await db.$transaction(async (tx) => {
       // Ensure submission exists for this period
@@ -277,8 +286,7 @@ export async function PATCH(req: NextRequest) {
         }
 
         const targetDate = new Date(date);
-        const periodStart = getStartOfMonth(targetDate);
-        const periodEnd = getEndOfMonth(targetDate);
+        const { periodStart, periodEnd } = getPeriodBoundsUTCFromDate(targetDate);
         const periodKey = `${userId}-${periodStart.getTime()}-${periodEnd.getTime()}`;
 
         if (!periodGroups.has(periodKey)) {

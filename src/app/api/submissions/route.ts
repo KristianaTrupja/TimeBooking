@@ -9,11 +9,21 @@ import { NotificationType, SubmissionStatus } from "@prisma/client";
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 function formatDate(date:Date) {
     return new Date(date).toLocaleString("default", {
         month: "long",
         year: "numeric",
+        timeZone: "UTC",
     })
+}
+
+function getPeriodBoundsUTC(year: number, month: number) {
+  const periodStart = new Date(Date.UTC(year, month - 1, 1, 0, 0, 0, 0));
+  const periodEnd = new Date(Date.UTC(year, month, 0, 23, 59, 59, 999));
+  return { periodStart, periodEnd };
 }
 
 export async function POST(req: Request) {
@@ -35,24 +45,41 @@ export async function POST(req: Request) {
       throw new AuthorizationError("FORBIDDEN: You are not authorized to submit this timesheet!")
     }
 
-    // Backend calculates period boundaries - business logic stays server-side
-    const periodStart = new Date(year, month -1, 1);
-    const periodEnd = new Date(year, month, 0, 23, 59, 59, 999);
+    // Canonical UTC month boundaries (prevents timezone drift between local and deployed)
+    const { periodStart, periodEnd } = getPeriodBoundsUTC(year, month);
 
     const submission = await db.$transaction(async (tx) => {
-        let submission = await tx.timeSheetSubmission.findUnique({
-            where: {
-            userId_periodStart_periodEnd: {
-                userId,
-                periodStart,
-                periodEnd,
-            },
-            },
+        // IMPORTANT:
+        // Legacy rows may have timezone-shifted periodStart/periodEnd.
+        // Match by month window using periodEnd range, not exact DateTime equality.
+
+        // If there's already a non-draft submission in this month, block re-submit.
+        const existingNonDraft = await tx.timeSheetSubmission.findFirst({
+          where: {
+            userId,
+            periodEnd: { gte: periodStart, lte: periodEnd },
+            status: { notIn: ["DRAFT", "REJECTED"] },
+          },
+          orderBy: { updatedAt: "desc" },
         });
 
-        if (submission && submission.status !== "DRAFT" && submission.status !== "REJECTED") {
-          throw new ConflictError(`Cannot submit timesheet with status: ${submission.status}`, undefined, { field:"submission.status" })
+        if (existingNonDraft) {
+          throw new ConflictError(
+            `Cannot submit timesheet with status: ${existingNonDraft.status}`,
+            undefined,
+            { field: "submission.status" }
+          );
         }
+
+        // Pick latest draft/rejected submission in that month (if multiple exist)
+        let submission = await tx.timeSheetSubmission.findFirst({
+          where: {
+            userId,
+            periodEnd: { gte: periodStart, lte: periodEnd },
+            status: { in: ["DRAFT", "REJECTED"] },
+          },
+          orderBy: { updatedAt: "desc" },
+        });
 
         
 
@@ -78,14 +105,20 @@ export async function POST(req: Request) {
         }
 
         if (!submission) {
-            submission = await tx.timeSheetSubmission.create({
-                data: {
-                    userId,
-                    periodStart,
-                    periodEnd,
-                    status: "DRAFT",
-                },
-            });
+          submission = await tx.timeSheetSubmission.create({
+            data: {
+              userId,
+              periodStart,
+              periodEnd,
+              status: "DRAFT",
+            },
+          });
+        } else {
+          // Normalize boundaries to canonical UTC for future reads
+          submission = await tx.timeSheetSubmission.update({
+            where: { id: submission.id },
+            data: { periodStart, periodEnd },
+          });
         }
 
         // Linking any unlinked hours to the submission (handles legacy null cases)
@@ -213,9 +246,8 @@ export async function GET(req: Request) {
     const month = monthParam ? parseInt(monthParam) : today.getMonth() + 1;
     const year = yearParam ? parseInt(yearParam) : today.getFullYear();
 
-    // Calculate period boundaries (using same logic as workhours API)
-    const periodStart = new Date(year, month - 1, 1, 0, 0, 0, 0);
-    const periodEnd = new Date(year, month, 0, 23, 59, 59, 999);
+    // Canonical UTC month boundaries (prevents env/local timezone drift)
+    const { periodStart, periodEnd } = getPeriodBoundsUTC(year, month);
 
     // Fetch all users (including inactive for historical data)
     const users = await db.user.findMany({
@@ -235,9 +267,9 @@ export async function GET(req: Request) {
     // Fetch all submissions for this period
     const submissions = await db.timeSheetSubmission.findMany({
       where: {
-        periodStart,
-        periodEnd,
+        periodEnd: { gte: periodStart, lte: periodEnd },
       },
+      orderBy: { updatedAt: "desc" },
       include: {
         user: {
           select: {
@@ -271,12 +303,11 @@ export async function GET(req: Request) {
 
     // Link unlinked work hours to their corresponding submissions
     if (unlinkedWorkHours.length > 0) {
-      const submissionMap = new Map(
-        submissions.map((sub) => [
-          sub.userId,
-          sub.id,
-        ])
-      );
+      // If there are multiple submissions per user, prefer the latest (submissions is ordered).
+      const submissionMap = new Map<number, number>();
+      for (const sub of submissions) {
+        if (!submissionMap.has(sub.userId)) submissionMap.set(sub.userId, sub.id);
+      }
 
       for (const wh of unlinkedWorkHours) {
         const submissionId = submissionMap.get(wh.userId);
@@ -305,9 +336,9 @@ export async function GET(req: Request) {
       // Refetch submissions after linking
       const updatedSubmissions = await db.timeSheetSubmission.findMany({
         where: {
-          periodStart,
-          periodEnd,
+          periodEnd: { gte: periodStart, lte: periodEnd },
         },
+        orderBy: { updatedAt: "desc" },
         include: {
           user: {
             select: {
