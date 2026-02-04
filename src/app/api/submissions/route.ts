@@ -380,19 +380,26 @@ export async function GET(req: Request) {
       hoursByUser.set(wh.userId, current + wh.hours);
     });
 
-    // Create a map of userId -> submission data
-    const submissionMap = new Map(
-      submissions.map((sub) => [
-        sub.userId,
-        {
-          id: sub.id,
-          status: sub.status,
-          submittedAt: sub.submittedAt,
-          approvedAt: sub.approvedAt,
-          rejectedAt: sub.rejectedAt,
-        },
-      ])
-    );
+    // Create a map of userId -> submission data.
+    // IMPORTANT: if multiple submissions exist per user in this period, prefer the latest.
+    // `submissions` is ordered by updatedAt desc.
+    const submissionMap = new Map<number, {
+      id: number;
+      status: SubmissionStatus;
+      submittedAt: Date | null;
+      approvedAt: Date | null;
+      rejectedAt: Date | null;
+    }>();
+    for (const sub of submissions) {
+      if (submissionMap.has(sub.userId)) continue;
+      submissionMap.set(sub.userId, {
+        id: sub.id,
+        status: sub.status,
+        submittedAt: sub.submittedAt,
+        approvedAt: sub.approvedAt,
+        rejectedAt: sub.rejectedAt,
+      });
+    }
 
     // Combine user data with submission data and total hours from ALL work hours
     const timesheetData = users
