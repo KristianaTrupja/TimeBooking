@@ -2,7 +2,7 @@
 import { useCalendar } from "@/app/context/CalendarContext";
 import { useWorkHours } from "@/app/context/WorkHoursContext";
 import { useMemo, useState } from "react";
-import { Delete } from "lucide-react";
+import { Delete, AlertTriangle } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useProjects } from "@/app/context/ProjectContext";
 import { useLanguage } from "@/app/context/LanguageContext";
@@ -123,7 +123,19 @@ export default function TotalBar({ isOwner=false }: { isOwner:boolean }) {
     <Modal
       isOpen={!!confirmProjectKey}
       onClose={() => (isForceDeleting ? null : setConfirmProjectKey(null))}
-      title="Delete project?"
+      title={
+        <div className="flex items-center justify-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-rose-600 to-amber-600 flex items-center justify-center shadow-md">
+            <AlertTriangle className="text-white" size={20} />
+          </div>
+          <div className="text-left">
+            <h2 className="text-xl font-semibold text-slate-800">{t.deleteProjectTitle}</h2>
+            <p className="text-sm text-slate-400 font-normal">
+              {t.deleteProjectSubtitle}
+            </p>
+          </div>
+        </div>
+      }
       className="max-w-md"
       footer={
         <div className="flex justify-end gap-3">
@@ -131,23 +143,28 @@ export default function TotalBar({ isOwner=false }: { isOwner:boolean }) {
             variant="ghost"
             onClick={() => setConfirmProjectKey(null)}
             disabled={isForceDeleting}
+            className="rounded-xl"
           >
-            Cancel
+            {t.cancel}
           </Button>
           <Button
             onClick={handleForceDelete}
             disabled={isForceDeleting}
-            className="bg-gradient-to-r from-rose-600 to-amber-600 hover:from-rose-500 hover:to-amber-500 text-white"
+            className="bg-gradient-to-r from-rose-600 to-amber-600 hover:from-rose-500 hover:to-amber-500 text-white rounded-xl shadow-md shadow-rose-600/20 transition-all"
           >
-            {isForceDeleting ? "Deleting..." : "Delete"}
+            {isForceDeleting ? t.deleting : t.delete}
           </Button>
         </div>
       }
     >
-      <p className="text-sm text-slate-700">
-        This project has <span className="font-semibold">{confirmHours.toFixed(2)}</span> hours logged for this month.
-        Deleting it will also permanently remove those work hours.
-      </p>
+      <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
+        <p className="text-sm text-slate-700 leading-relaxed">
+          {t.deleteProjectHoursLogged.replace("{hours}", confirmHours.toFixed(2))}
+        </p>
+        <p className="text-sm text-slate-500 mt-2 leading-relaxed">
+          {t.deleteProjectWarning}
+        </p>
+      </div>
     </Modal>
     </>
   );

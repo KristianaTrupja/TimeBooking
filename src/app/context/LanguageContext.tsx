@@ -292,6 +292,13 @@ interface Translations {
   selectAnOption: string;
   leavePeriod: string;
   
+  // Delete Project Modal
+  deleteProjectTitle: string;
+  deleteProjectSubtitle: string;
+  deleteProjectHoursLogged: string;
+  deleteProjectWarning: string;
+  deleting: string;
+  
   // Grant Leave Tab
   daysAvailable: string;
   remaining: string;
@@ -597,6 +604,13 @@ const translations: Record<Language, Translations> = {
     selectAnOption: "Select an option",
     leavePeriod: "Leave Period",
     
+    // Delete Project Modal
+    deleteProjectTitle: "Delete project?",
+    deleteProjectSubtitle: "This will remove the project and its hours",
+    deleteProjectHoursLogged: "This project has {hours} hours logged for this month.",
+    deleteProjectWarning: "If you continue, we will permanently delete those work hours and remove the project from your sidebar.",
+    deleting: "Deleting...",
+    
     // Grant Leave Tab
     daysAvailable: "days available",
     remaining: "remaining",
@@ -899,6 +913,13 @@ const translations: Record<Language, Translations> = {
     // Form placeholders
     selectAnOption: "Option auswählen",
     leavePeriod: "Abwesenheitszeitraum",
+    
+    // Delete Project Modal
+    deleteProjectTitle: "Projekt löschen?",
+    deleteProjectSubtitle: "Dadurch werden das Projekt und seine Stunden entfernt",
+    deleteProjectHoursLogged: "Für dieses Projekt wurden {hours} Stunden in diesem Monat erfasst.",
+    deleteProjectWarning: "Wenn Sie fortfahren, werden diese Arbeitsstunden dauerhaft gelöscht und das Projekt aus Ihrer Seitenleiste entfernt.",
+    deleting: "Löschen...",
     
     // Grant Leave Tab
     daysAvailable: "Tage verfügbar",
