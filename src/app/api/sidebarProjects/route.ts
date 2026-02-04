@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { handleApiError } from "@/lib/errors/handlers";
-import { AuthenticationError, AuthorizationError, RecordNotFoundError, ValidationError } from "@/lib/errors/errors";
+import { AuthenticationError, AuthorizationError, RecordNotFoundError, TimesheetLockedError, ValidationError } from "@/lib/errors/errors";
 
 export async function GET(req: NextRequest) {
   try {
@@ -135,10 +135,74 @@ export async function DELETE(req: NextRequest) {
     
     const userId = session.user.id;
     const body = await req.json();
-    const { projectKey, year, month } = body;
+    const { projectKey, year, month, force } = body;
 
     if (!projectKey || !year || !month) {
       throw new ValidationError("projectKey, year, and month are required", "projectKey/year/month")
+    }
+
+    // Force delete removes both the sidebar project and all workhours for that project
+    // in the given month/year for the logged-in user.
+    if (force === true) {
+      const projectIdMatch = String(projectKey).match(/PID-(\d+)/);
+      const projectId = projectIdMatch ? Number(projectIdMatch[1]) : NaN;
+      if (!Number.isFinite(projectId)) {
+        throw new ValidationError("Invalid projectKey format", "projectKey");
+      }
+
+      const monthIndex = Number(month); // SidebarProject months are stored as 0-indexed
+      const y = Number(year);
+      if (!Number.isFinite(monthIndex) || !Number.isFinite(y)) {
+        throw new ValidationError("Invalid year/month", "year/month");
+      }
+
+      const periodStart = new Date(Date.UTC(y, monthIndex, 1, 0, 0, 0, 0));
+      const periodEnd = new Date(Date.UTC(y, monthIndex + 1, 0, 23, 59, 59, 999));
+
+      // Safety: don't allow destructive deletion if the timesheet is locked/pending/approved.
+      const submission = await db.timeSheetSubmission.findFirst({
+        where: {
+          userId: Number(userId),
+          periodEnd: { gte: periodStart, lte: periodEnd },
+        },
+        orderBy: { updatedAt: "desc" },
+      });
+
+      const locked =
+        submission?.status === "PENDING" ||
+        submission?.status === "APPROVED" ||
+        submission?.status === "LOCKED";
+      if (locked) {
+        throw new TimesheetLockedError();
+      }
+
+      const [sidebarResult, workHoursResult] = await db.$transaction([
+        db.sidebarProject.deleteMany({
+          where: {
+            userId: Number(userId),
+            projectKey,
+            year: y,
+            month: monthIndex,
+          },
+        }),
+        db.workHours.deleteMany({
+          where: {
+            userId: Number(userId),
+            projectId,
+            date: { gte: periodStart, lte: periodEnd },
+          },
+        }),
+      ]);
+
+      if (sidebarResult.count < 1) {
+        throw new RecordNotFoundError("Project", projectKey);
+      }
+
+      return NextResponse.json({
+        message: "Project and its work hours deleted successfully",
+        deletedSidebarProjects: sidebarResult.count,
+        deletedWorkHours: workHoursResult.count,
+      });
     }
 
     const result = await db.sidebarProject.deleteMany({
