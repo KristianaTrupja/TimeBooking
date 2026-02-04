@@ -135,29 +135,48 @@ export async function POST(req: NextRequest) {
         throw new TimesheetLockedError()
       }
 
-    const workingHours = await tx.workHours.upsert({
-      where: {
-        userId_date_projectId: {
-          userId,
-          date: targetDate,
-          projectId,
+      // If hours is 0, delete the entry instead of creating/updating
+      if (hours === 0) {
+        try {
+          await tx.workHours.delete({
+            where: {
+              userId_date_projectId: {
+                userId,
+                date: targetDate,
+                projectId,
+              },
+            },
+          });
+          return { deleted: true, userId, date: targetDate, projectId };
+        } catch {
+          // Entry doesn't exist, nothing to delete
+          return { deleted: true, userId, date: targetDate, projectId, notFound: true };
+        }
+      }
+
+      const workingHours = await tx.workHours.upsert({
+        where: {
+          userId_date_projectId: {
+            userId,
+            date: targetDate,
+            projectId,
+          },
         },
-      },
-      update: {
-        hours,
-        note,
-        submissionId: submission.id
-      },
-      create: {
-        date: targetDate,
-        hours,
-        note,
-        userId,
-        projectId,
-        submissionId: submission.id,
-      },
-    });
-    return workingHours;
+        update: {
+          hours,
+          note,
+          submissionId: submission.id
+        },
+        create: {
+          date: targetDate,
+          hours,
+          note,
+          userId,
+          projectId,
+          submissionId: submission.id,
+        },
+      });
+      return workingHours;
     });
 
     return NextResponse.json(entry, { status: 201 });
@@ -208,6 +227,25 @@ export async function PUT(req: NextRequest) {
 
       if (submission.status === "LOCKED") {
         throw new TimesheetLockedError()
+      }
+
+      // If hours is 0, delete the entry instead of saving it
+      if (hours === 0) {
+        try {
+          await tx.workHours.delete({
+            where: {
+              userId_date_projectId: {
+                userId,
+                date: targetDate,
+                projectId,
+              },
+            },
+          });
+          return { deleted: true, userId, date: targetDate, projectId };
+        } catch {
+          // Entry doesn't exist, nothing to delete
+          return { deleted: true, userId, date: targetDate, projectId, notFound: true };
+        }
       }
 
       // Update or create work hours and link to submission
@@ -331,6 +369,25 @@ export async function PATCH(req: NextRequest) {
         for (const entry of entries) {
           const { date, hours, note, projectId } = entry;
           const targetDate = new Date(date);
+
+          // If hours is 0, delete the entry instead of saving it
+          if (hours === 0) {
+            try {
+              await tx.workHours.delete({
+                where: {
+                  userId_date_projectId: {
+                    userId,
+                    date: targetDate,
+                    projectId,
+                  },
+                },
+              });
+              savedEntries.push({ deleted: true, userId, date: targetDate, projectId });
+            } catch {
+              // Entry doesn't exist, nothing to delete - that's fine
+            }
+            continue;
+          }
 
           const workingHours = await tx.workHours.upsert({
             where: {
