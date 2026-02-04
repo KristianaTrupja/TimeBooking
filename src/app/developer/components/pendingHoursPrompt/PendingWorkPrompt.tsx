@@ -7,9 +7,11 @@ import { useCalendar } from "@/app/context/CalendarContext";
 import { useWorkHours } from "@/app/context/WorkHoursContext";
 import { toast } from "sonner";
 import { useLanguage } from "@/app/context/LanguageContext";
+import { Clock } from "lucide-react";
 
 export const PendingWorkPrompt = () => {
   const [pendingKeys, setPendingKeys] = useState<string[]>([]);
+  const [isSaving, setIsSaving] = useState(false);
   const { year, month, refreshPendingStatus, showPendingDataModal, setShowPendingDataModal, isPending, setIsSaved } = useCalendar();
   const { reloadWorkHours } = useWorkHours();
   const { t } = useLanguage();
@@ -58,6 +60,7 @@ export const PendingWorkPrompt = () => {
       projectId: number;
     }> = [];
 
+    setIsSaving(true);
     try {
       // Collect all work hours from sessionStorage
       for (let i = 0; i < sessionStorage.length; i++) {
@@ -117,16 +120,52 @@ export const PendingWorkPrompt = () => {
       setIsSaved(true);
     } catch (error) {
       toast.error((error as Error)?.message || "Failed to save working hours");
+    } finally {
+      setIsSaving(false);
     }
   };
   return (
-    <Modal isOpen={showPendingDataModal} onClose={() => setShowPendingDataModal(false)} title={t.pendingHours}>
-      <p className="mb-4">{t.unsavedWorkHoursMessage}</p>
-      <div className="flex justify-end gap-2">
-        <Button variant="outline" onClick={discardPending}>
-          {t.discard}
-        </Button>
-        <Button onClick={handleClick}>{t.keep}</Button>
+    <Modal
+      isOpen={showPendingDataModal}
+      onClose={() => (isSaving ? null : setShowPendingDataModal(false))}
+      title={
+        <div className="flex items-center justify-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-md">
+            <Clock className="text-white" size={20} />
+          </div>
+          <div className="text-left">
+            <h2 className="text-xl font-semibold text-slate-800">{t.pendingHours}</h2>
+            <p className="text-sm text-slate-400 font-normal">
+              {pendingKeys.length} {pendingKeys.length === 1 ? "entry" : "entries"} pending
+            </p>
+          </div>
+        </div>
+      }
+      className="max-w-md"
+      footer={
+        <div className="flex justify-end gap-3">
+          <Button
+            variant="ghost"
+            onClick={discardPending}
+            disabled={isSaving}
+            className="rounded-xl"
+          >
+            {t.discard}
+          </Button>
+          <Button
+            onClick={handleClick}
+            disabled={isSaving}
+            className="bg-gradient-to-r from-[#244B77] to-[#1a3a5c] hover:from-[#2d5a8a] hover:to-[#244B77] text-white rounded-xl shadow-md shadow-[#244B77]/20 transition-all"
+          >
+            {isSaving ? t.saving : t.keep}
+          </Button>
+        </div>
+      }
+    >
+      <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
+        <p className="text-sm text-slate-700 leading-relaxed">
+          {t.unsavedWorkHoursMessage}
+        </p>
       </div>
     </Modal>
   );
