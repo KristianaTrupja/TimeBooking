@@ -44,3 +44,5 @@ export function logError(error: ApplicationError, requestId?: string): void {
     }
   }
 }
+
+
