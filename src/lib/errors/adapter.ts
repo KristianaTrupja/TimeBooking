@@ -42,6 +42,22 @@ export class ErrorAdapter {
     }
 
     if (error instanceof Prisma.PrismaClientInitializationError) {
+      // Check if it's a connection error specifically
+      const errorMessage = error.message.toLowerCase();
+      const isConnectionError = 
+        errorMessage.includes("can't reach database") ||
+        errorMessage.includes("can not reach database") ||
+        errorMessage.includes("connection") ||
+        errorMessage.includes("econnrefused") ||
+        errorMessage.includes("etimedout") ||
+        error.errorCode === 'P1001' || // Can't reach database server
+        error.errorCode === 'P1002' || // Connection timeout
+        error.errorCode === 'P1003';   // Database does not exist
+      
+      if (isConnectionError) {
+        return new DatabaseConnectionError(error);
+      }
+      
       return new ServiceUnavailableError('Database', error);
     }
 
@@ -80,10 +96,20 @@ export class ErrorAdapter {
       const nodeError = error as NodeJS.ErrnoException;
       
       if (nodeError.code === 'ECONNREFUSED') {
+        // Check if it's a database connection error
+        const errorMessage = (nodeError.message || '').toLowerCase();
+        if (errorMessage.includes('database') || errorMessage.includes('mysql') || errorMessage.includes('3306')) {
+          return new DatabaseConnectionError(error);
+        }
         return new ServiceUnavailableError('External service', error);
       }
       
       if (nodeError.code === 'ETIMEDOUT') {
+        // Check if it's a database connection timeout
+        const errorMessage = (nodeError.message || '').toLowerCase();
+        if (errorMessage.includes('database') || errorMessage.includes('mysql') || errorMessage.includes('3306')) {
+          return new DatabaseConnectionError(error);
+        }
         return new ServiceUnavailableError('Request timed out', error);
       }
     }
