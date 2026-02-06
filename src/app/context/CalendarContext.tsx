@@ -3,6 +3,9 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
+// Type for pending work hours data: { [projectKey]: { [date]: hours } }
+export type PendingWorkHoursData = Record<string, Record<string, number>>;
+
 interface CalendarContextProps {
   month: number;
   year: number;
@@ -16,6 +19,7 @@ interface CalendarContextProps {
   isSaved: boolean
   setIsSaved: (v: boolean) => void;
   setMonthAndYear: (month: number, year: number, animation?: boolean) => void;
+  pendingWorkHours: PendingWorkHoursData;
 }
 
 const CalendarContext = createContext<CalendarContextProps | undefined>(undefined);
@@ -29,6 +33,7 @@ export const CalendarProvider = ({ children }: { children: React.ReactNode }) =>
   const [showPendingDataModal, setShowPendingDataModal] = useState(false);
   const [isPending, setIsPending] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
+  const [pendingWorkHours, setPendingWorkHours] = useState<PendingWorkHoursData>({});
 
   const router = useRouter();
   const pathname = usePathname();
@@ -53,9 +58,42 @@ export const CalendarProvider = ({ children }: { children: React.ReactNode }) =>
     return false;
   };
 
+  // Parse all pending work hours from sessionStorage
+  const getPendingWorkHoursFromSession = (): PendingWorkHoursData => {
+    const data: PendingWorkHoursData = {};
+    if (typeof window === "undefined") return data;
+
+    for (let i = 0; i < sessionStorage.length; i++) {
+      const key = sessionStorage.key(i);
+      if (key?.startsWith("workhours_")) {
+        // Key format: workhours_${userId}_${projectKey}_${date}
+        const parts = key.split("_");
+        if (parts.length >= 4) {
+          const projectKey = parts[2]; // e.g., "PID-1"
+          const date = parts.slice(3).join("-"); // e.g., "2026-02-04"
+          const rawData = sessionStorage.getItem(key);
+          if (rawData) {
+            try {
+              const parsed = JSON.parse(rawData);
+              if (!data[projectKey]) {
+                data[projectKey] = {};
+              }
+              data[projectKey][date] = parsed.hours ?? 0;
+            } catch {
+              // Ignore parse errors
+            }
+          }
+        }
+      }
+    }
+    return data;
+  };
+
   const refreshPendingStatus = () => {
     const pending = hasWorkHoursInSession();
     setIsPending(pending);
+    // Also update the pending work hours data for immediate total calculation
+    setPendingWorkHours(getPendingWorkHoursFromSession());
   };
 
   useEffect(() => {
@@ -147,7 +185,7 @@ export const CalendarProvider = ({ children }: { children: React.ReactNode }) =>
 
   return (
     <CalendarContext.Provider
-      value={{ month, year, loading, goToPreviousMonth, goToNextMonth, showPendingDataModal, setShowPendingDataModal, isPending, refreshPendingStatus, isSaved, setIsSaved, setMonthAndYear, }}
+      value={{ month, year, loading, goToPreviousMonth, goToNextMonth, showPendingDataModal, setShowPendingDataModal, isPending, refreshPendingStatus, isSaved, setIsSaved, setMonthAndYear, pendingWorkHours }}
     >
       {children}
     </CalendarContext.Provider>

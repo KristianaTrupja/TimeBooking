@@ -9,17 +9,43 @@ import { useLanguage } from "@/app/context/LanguageContext";
 import { Modal } from "@/app/components/ui/Modal";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { normalizeProjectKey } from "@/app/utils/normalizeProjectKey";
 
 export default function TotalBar({ isOwner=false }: { isOwner:boolean }) {
   const pathname = usePathname();
   const userId = pathname.split("/")[2];
-  const { month, year } = useCalendar();
-  const { getTotalHoursForProjectInMonth, metadata, reloadWorkHours } = useWorkHours();
+  const { month, year, pendingWorkHours } = useCalendar();
+  const { getTotalHoursForProjectInMonth, metadata, reloadWorkHours, workHours } = useWorkHours();
   const { sidebarProjects, removeProject, loadingProjects } = useProjects();
   const { t } = useLanguage();
   const [confirmProjectKey, setConfirmProjectKey] = useState<string | null>(null);
   const [confirmHours, setConfirmHours] = useState<number>(0);
   const [isForceDeleting, setIsForceDeleting] = useState(false);
+
+  // Calculate effective total for a project including pending (unsaved) changes
+  const getEffectiveTotalForProject = (projectKey: string): number => {
+    const savedTotal = getTotalHoursForProjectInMonth(userId, projectKey, month + 1, year);
+    const pendingData = pendingWorkHours[projectKey];
+    
+    if (!pendingData) return savedTotal;
+
+    // For each pending entry, replace the saved value with the pending value
+    let adjustment = 0;
+    const normalizedKey = normalizeProjectKey(projectKey);
+    
+    for (const [dateStr, pendingHours] of Object.entries(pendingData)) {
+      const date = new Date(dateStr);
+      // Check if this date is in the current month/year (month is 0-indexed in state)
+      if (date.getMonth() === month && date.getFullYear() === year) {
+        // Get the saved hours for this specific date (to subtract)
+        const savedHoursForDate = workHours[dateStr]?.[userId]?.[normalizedKey]?.hours ?? 0;
+        // Adjustment = pending - saved (replace saved with pending)
+        adjustment += (pendingHours - savedHoursForDate);
+      }
+    }
+
+    return savedTotal + adjustment;
+  };
 
   const sum = useMemo(() => {
     if (!userId) return 0;
@@ -27,11 +53,12 @@ export default function TotalBar({ isOwner=false }: { isOwner:boolean }) {
       return (
         acc +
         group.projects.reduce((subAcc, proj) => {
-          return subAcc + getTotalHoursForProjectInMonth(userId, proj.projectKey, month + 1, year);
+          return subAcc + getEffectiveTotalForProject(proj.projectKey);
         }, 0)
       );
     }, 0);
-  }, [sidebarProjects, getTotalHoursForProjectInMonth, month, year, userId]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sidebarProjects, getTotalHoursForProjectInMonth, month, year, userId, pendingWorkHours, workHours]);
 
   if (!userId) {
     return <div className="p-4 text-red-600">User ID not found in URL.</div>;
@@ -94,7 +121,7 @@ export default function TotalBar({ isOwner=false }: { isOwner:boolean }) {
             <div className="project-field__name flex items-center w-full h-9 2xl:h-10
              font-semibold bg-slate-100 border-b border-slate-200" />
             {group.projects.map((proj) => {
-              const total = getTotalHoursForProjectInMonth(userId, proj.projectKey, month + 1, year);
+              const total = getEffectiveTotalForProject(proj.projectKey);
               const isInactive = !proj.isActive;
               return (
                 <div
