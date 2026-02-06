@@ -145,7 +145,30 @@ export class DatabaseConnectionError extends ServiceUnavailableError {
   constructor(cause?: unknown, poolMetadata?: { timeout?: number | string; connectionLimit?: number | string }) {
     super('Database', cause);
     
-    // Override message with more actionable information
+    // Check if it's a connection initialization error (can't reach server)
+    if (cause && typeof cause === 'object' && 'message' in cause) {
+      const errorMessage = String((cause as { message?: string }).message || '').toLowerCase();
+      if (errorMessage.includes("can't reach database") || 
+          errorMessage.includes("can not reach database") ||
+          errorMessage.includes("connection refused") ||
+          errorMessage.includes("connection timeout")) {
+        // Extract database host/port if available
+        const hostMatch = errorMessage.match(/(\d+\.\d+\.\d+\.\d+):(\d+)/);
+        if (hostMatch) {
+          this.message = `Cannot connect to database server at ${hostMatch[0]}. Please check: 1) DATABASE_URL environment variable is set correctly in Vercel, 2) Database server is running, 3) Database allows connections from Vercel's IP addresses.`;
+        } else {
+          this.message = `Cannot connect to database server. Please check: 1) DATABASE_URL environment variable is set correctly in Vercel, 2) Database server is running, 3) Database allows connections from Vercel's IP addresses.`;
+        }
+        this.metadata = {
+          ...this.metadata,
+          retryable: false, // Connection errors shouldn't be retried immediately
+          action: 'check_environment_variables_and_firewall'
+        };
+        return;
+      }
+    }
+    
+    // Override message with more actionable information for pool exhaustion
     if (poolMetadata?.timeout && poolMetadata?.connectionLimit) {
       this.message = `Database connection pool exhausted. Timeout: ${poolMetadata.timeout}s, Limit: ${poolMetadata.connectionLimit} connections. Please retry.`;
     }
