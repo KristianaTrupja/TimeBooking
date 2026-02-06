@@ -25,7 +25,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "WorkTime Hub",
+  title: "DELAtech Time System",
   description: "Time tracking and timesheet management system",
   icons: {
     icon: [
