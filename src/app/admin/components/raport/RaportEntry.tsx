@@ -98,7 +98,7 @@ export default function RaportEntry({timesheet, month, year, index, adminId, onA
         <td className="px-4 py-4">
             <div className="flex items-center gap-2">
                 <Clock size={14} className="text-slate-500" />
-                <span className="font-bold text-slate-800">{timesheet.totalHours.toFixed(2)}</span>
+                <span className="font-bold text-slate-800 min-w-[50px] text-right tabular-nums">{timesheet.totalHours.toFixed(2)}</span>
                 <span className="text-slate-500 text-sm">{t.hrs}</span>
             </div>
         </td>
