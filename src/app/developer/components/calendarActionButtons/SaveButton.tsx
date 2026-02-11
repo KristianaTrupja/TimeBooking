@@ -9,7 +9,7 @@ import { Save } from "lucide-react";
 import { useLanguage } from "@/app/context/LanguageContext";
 
 export default function SaveButton() {
-  const { year, month, setIsSaved } = useCalendar();
+  const { year, month, setIsSaved, refreshPendingStatus } = useCalendar();
   const { reloadWorkHours } = useWorkHours();
   const { t } = useLanguage();
   const [isSaving, setIsSaving] = useState(false);
@@ -70,6 +70,8 @@ export default function SaveButton() {
 
       // Clear sessionStorage and reload work hours
       keysToRemove.forEach((key) => sessionStorage.removeItem(key));
+      
+      refreshPendingStatus();
       
       // Reload work hours for the current user
       if (workHoursToSave.length > 0) {
