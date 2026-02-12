@@ -79,7 +79,7 @@ export function UserTable({
           comparison = a.username.localeCompare(b.username);
           break;
         case "email":
-          comparison = a.email.localeCompare(b.email);
+          comparison = (a.email ?? "").localeCompare(b.email ?? "");
           break;
         case "role":
           comparison = a.role.localeCompare(b.role);
