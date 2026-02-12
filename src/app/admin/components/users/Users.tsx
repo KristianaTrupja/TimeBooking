@@ -110,7 +110,7 @@ export default function Users() {
     setFormData({
       id: emp.id,
       username: emp.username,
-      email: emp.email,
+      email: emp.email ?? "",
       password: "",
       role: emp.role,
       totalVacations: emp.totalVacations
