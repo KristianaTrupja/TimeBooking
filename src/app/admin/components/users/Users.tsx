@@ -119,8 +119,14 @@ export default function Users() {
 
   const saveChanges = async () => {
     const { id, username, email, role, password, totalVacations } = formData;
-    if (!id || !username || !email || !role || (!isPasswordStrong(password) && password)) {
+    if (!id || !username || !role || (!isPasswordStrong(password) && password.trim())) {
       toast.error("Please fill-in the required fields!");
+      return;
+    }
+
+    // Email is required only for Admin role
+    if (role === "Admin" && !email) {
+      toast.error("Email is required for Admin users.");
       return;
     }
     const payload: any = { id, username, email, role, totalVacations: Number(totalVacations) };
@@ -161,8 +167,14 @@ export default function Users() {
   const addNewEmployee = async () => {
     const { username, email, password, role } = formData;
 
-    if (!username || !email || !password || !role) {
-      toast.error("Please fill-in all the fields.");
+    if (!username || !password || !role) {
+      toast.error("Please fill-in all required fields.");
+      return;
+    }
+
+    // Email is required only for Admin role
+    if (role === "Admin" && !email) {
+      toast.error("Email is required for Admin users.");
       return;
     }
 

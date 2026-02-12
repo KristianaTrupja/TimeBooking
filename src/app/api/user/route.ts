@@ -9,6 +9,8 @@ import { authOptions } from "@/lib/auth";
 import { AuthenticationError, AuthorizationError, ConflictError, ValidationError } from "@/lib/errors/errors";
 import { handleApiError } from "@/lib/errors/handlers";
 
+const ALLOWED_ROLES = new Set(["Admin", "Dev", "Employee"]);
+
 export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions);
@@ -29,27 +31,41 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { username, email, password, role } = body;
     
-    if (!username || !email || !password || !role) {
+    // Basic required fields (email is only required for Admin role)
+    if (!username || !password || !role) {
       throw new ValidationError(
-        "Missing required fields: username, email, password, and role are required",
-        "username/email/password/role"
+        "Missing required fields: username, password, and role are required",
+        "username/password/role"
       );
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      throw new ValidationError("Invalid email format", "email");
+    if (!ALLOWED_ROLES.has(role)) {
+      throw new ValidationError("Invalid role value", "role");
     }
 
-    const [existingUserByEmail, existingUserByName] = await Promise.all([
-      db.user.findUnique({ where: { email } }),
-      db.user.findUnique({ where: { username } })
-    ]);
-
-    if (existingUserByEmail) {
-      throw new ConflictError("User with this email already exists", undefined, { field: "email"})
+    // Email is required only for Admin role
+    if (role === "Admin" && !email) {
+      throw new ValidationError(
+        "Email is required for Admin users",
+        "email"
+      );
     }
 
+    // Validate email format if provided
+    if (email) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        throw new ValidationError("Invalid email format", "email");
+      }
+
+      // Check for existing email only if email is provided
+      const existingUserByEmail = await db.user.findUnique({ where: { email } });
+      if (existingUserByEmail) {
+        throw new ConflictError("User with this email already exists", undefined, { field: "email"});
+      }
+    }
+
+    const existingUserByName = await db.user.findUnique({ where: { username } });
     if (existingUserByName) {
       throw new ConflictError("User with this username already exists", undefined, { field: "username"});
     }
@@ -57,7 +73,7 @@ export async function POST(req: Request) {
     const hashedPassword = await hash(password, 10);
 
     const newUser = await db.user.create({
-      data: { username, email, password: hashedPassword, role },
+      data: { username, email: email || null, password: hashedPassword, role },
     });
 
     const { password: _, ...userWithoutPassword } = newUser;
@@ -206,7 +222,35 @@ export async function PUT(req: Request) {
       throw new AuthorizationError("Forbidden")
     }
 
-    const updateData: any = { username, email, role };
+    if (!ALLOWED_ROLES.has(role)) {
+      throw new ValidationError("Invalid role value", "role");
+    }
+
+    // If changing role to Admin, email is required
+    if (role === "Admin" && !email) {
+      throw new ValidationError(
+        "Email is required for Admin users",
+        "email"
+      );
+    }
+
+    // Validate email format if provided
+    if (email) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        throw new ValidationError("Invalid email format", "email");
+      }
+
+      // Check if email is already used by another user
+      const existingUserByEmail = await db.user.findFirst({
+        where: { email, NOT: { id: Number(id) } }
+      });
+      if (existingUserByEmail) {
+        throw new ConflictError("User with this email already exists", undefined, { field: "email" });
+      }
+    }
+
+    const updateData: any = { username, email: email || null, role };
     if (password) {
       updateData.password = await hash(password, 10);
     }

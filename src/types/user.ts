@@ -1,7 +1,7 @@
 export type User = {
     id: number;
     username: string;
-    email: string;
+    email: string | null;  // Optional for Developers, required for Admins
     role: string;
     password: string;
     createdAt?: string;

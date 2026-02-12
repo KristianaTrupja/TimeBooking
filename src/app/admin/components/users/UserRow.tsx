@@ -20,12 +20,13 @@ type Props = {
   isDeleting?: boolean;
 };
 
-const ROLE_OPTIONS = ["Dev", "Admin"];
+const ROLE_OPTIONS = ["Dev", "Employee", "Admin"];
 
 // Role badge styles
 const roleBadgeStyles: Record<string, string> = {
   Admin: "bg-violet-100 text-violet-700 border-violet-200",
   Dev: "bg-emerald-100 text-emerald-700 border-emerald-200",
+  Employee: "bg-blue-100 text-blue-700 border-blue-200",
 };
 
 export function UserRow({
@@ -65,13 +66,21 @@ export function UserRow({
           </td>
           {/* Email */}
           <td className="px-4 py-3">
-            <input
-              name="email"
-              type="text"
-              value={formData.email}
-              onChange={onChange}
-              className="w-full px-3 py-1.5 text-sm border border-blue-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+            <div>
+              <input
+                name="email"
+                type="text"
+                value={formData.email}
+                onChange={onChange}
+                placeholder={formData.role === "Admin" ? t.emailRequired : t.emailOptional}
+                className={`w-full px-3 py-1.5 text-sm border rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  formData.role === "Admin" && !formData.email ? "border-rose-400" : "border-blue-300"
+                }`}
+              />
+              {formData.role === "Admin" && !formData.email && (
+                <p className="text-xs text-rose-500 mt-1">{t.emailRequiredForAdmin}</p>
+              )}
+            </div>
           </td>
           {/* Role */}
           <td className="px-4 py-3">
@@ -145,7 +154,9 @@ export function UserRow({
           <td className="px-4 py-4">
             <div className="flex items-center gap-2">
               <Mail size={14} className="text-slate-500" />
-              <span className="text-slate-700">{emp.email}</span>
+              <span className={emp.email ? "text-slate-700" : "text-slate-400 italic"}>
+                {emp.email || t.noEmail}
+              </span>
             </div>
           </td>
           {/* Role */}

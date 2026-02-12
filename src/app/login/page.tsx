@@ -9,7 +9,7 @@ import { Loader2, Clock, Calendar } from "lucide-react";
 import { useLanguage } from "@/app/context/LanguageContext";
 
 export default function Login() {
-  const [data, setData] = useState({ email: "", password: "" });
+  const [data, setData] = useState({ username: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
@@ -31,7 +31,7 @@ export default function Login() {
 
     const res = await signIn("credentials", {
       redirect: false,
-      email: data.email,
+      username: data.username,
       password: data.password,
     });
 
@@ -45,7 +45,7 @@ export default function Login() {
 
       if (role?.toLowerCase() === "admin") {
         router.push(`/admin/?adminId=${session?.user?.id}`);
-      } else if (role?.toLowerCase() === "dev") {
+      } else if (role?.toLowerCase() === "dev" || role?.toLowerCase() === "employee") {
         router.push(`/developer/${session?.user?.id}`);
       } else {
         toast.error(t.noValidRole);
@@ -113,17 +113,17 @@ export default function Login() {
 
           <form className="space-y-6" onSubmit={onSubmit}>
             <div className="space-y-2">
-              <label htmlFor="email" className="block text-sm font-medium text-slate-300">
-                {t.emailAddress}
+              <label htmlFor="username" className="block text-sm font-medium text-slate-300">
+                {t.username}
               </label>
               <input
-                id="email"
-                name="email"
-                type="email"
-                value={data.email}
+                id="username"
+                name="username"
+                type="text"
+                value={data.username}
                 onChange={handleChange}
-                placeholder="your@email.com"
-                autoComplete="email"
+                placeholder="johndoe"
+                autoComplete="username"
                 className="w-full px-4 py-3.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50 transition-all duration-200"
               />
             </div>

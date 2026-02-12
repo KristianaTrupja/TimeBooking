@@ -20,16 +20,16 @@ export const authOptions: NextAuthOptions = {
         CredentialsProvider({
           name: "Credentials",
           credentials: {
-            email: { label: "Email", type: "text", placeholder: "Email" },
+            username: { label: "Username", type: "text", placeholder: "Username" },
             password: { label: "Password", type: "password" }
           },
           async authorize(credentials) {
-            if(!credentials?.email || !credentials?.password) {
+            if(!credentials?.username || !credentials?.password) {
                 return null;
             }
 
             const existingUser = await db.user.findUnique({
-               where: {email: credentials?.email} 
+               where: {username: credentials?.username} 
             })
             
             if(!existingUser || !existingUser.isActive){

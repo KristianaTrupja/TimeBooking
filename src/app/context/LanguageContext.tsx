@@ -65,6 +65,11 @@ interface Translations {
   status: string;
   name: string;
   email: string;
+  username: string;
+  emailRequired: string;
+  emailOptional: string;
+  emailRequiredForAdmin: string;
+  noEmail: string;
   role: string;
   
   // Vacations / Absences
@@ -377,6 +382,11 @@ const translations: Record<Language, Translations> = {
     status: "Status",
     name: "Name",
     email: "Email",
+    username: "Username",
+    emailRequired: "Required",
+    emailOptional: "Optional",
+    emailRequiredForAdmin: "Email is required for Admin users",
+    noEmail: "No email",
     role: "Role",
     
     // Vacations / Absences
@@ -687,6 +697,11 @@ const translations: Record<Language, Translations> = {
     status: "Status",
     name: "Name",
     email: "E-Mail",
+    username: "Benutzername",
+    emailRequired: "Erforderlich",
+    emailOptional: "Optional",
+    emailRequiredForAdmin: "E-Mail ist für Admin-Benutzer erforderlich",
+    noEmail: "Keine E-Mail",
     role: "Rolle",
     
     // Vacations / Absences

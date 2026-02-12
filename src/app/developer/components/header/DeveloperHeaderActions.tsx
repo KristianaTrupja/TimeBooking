@@ -11,7 +11,13 @@ interface DeveloperHeaderActionsProps {
 export default function DeveloperHeaderActions({ displayedUsername, displayedRole }: DeveloperHeaderActionsProps) {
   const { t } = useLanguage();
   
-  const roleLabel = displayedRole?.toLowerCase() === "admin" ? t.admin : t.developer;
+  const normalizedRole = displayedRole?.toLowerCase();
+  const roleLabel =
+    normalizedRole === "admin"
+      ? t.admin
+      : normalizedRole === "employee"
+      ? t.employee
+      : t.developer;
   
   return (
     <div className="flex items-center gap-4">

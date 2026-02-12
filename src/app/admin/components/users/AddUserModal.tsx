@@ -64,6 +64,11 @@ export function AddUserModal({ open, onClose, formData, onChange, onSubmit, isLo
           <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-2">
             <Mail size={14} className="text-slate-400" />
             {t.email}
+            {formData.role === "Admin" ? (
+              <span className="text-rose-500 text-xs">*</span>
+            ) : (
+              <span className="text-slate-400 text-xs">({t.optional})</span>
+            )}
           </label>
           <input 
             name="email" 
@@ -71,8 +76,13 @@ export function AddUserModal({ open, onClose, formData, onChange, onSubmit, isLo
             value={formData.email} 
             onChange={onChange} 
             placeholder="e.g., jdoe@example.com"
-            className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className={`w-full px-4 py-2.5 bg-slate-50 border rounded-lg text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+              formData.role === "Admin" && !formData.email ? "border-rose-400" : "border-slate-200"
+            }`}
           />
+          {formData.role === "Admin" && !formData.email && (
+            <p className="text-xs text-rose-500 mt-1">{t.emailRequiredForAdmin}</p>
+          )}
         </div>
         <div>
           <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-2">
@@ -107,6 +117,7 @@ export function AddUserModal({ open, onClose, formData, onChange, onSubmit, isLo
           >
             <option value="" disabled>{t.chooseRole}</option>
             <option value="Dev">{t.developer}</option>
+            <option value="Employee">{t.employee}</option>
             <option value="Admin">{t.admin}</option>
           </select>
         </div>

@@ -18,7 +18,7 @@ datasource db {
 model User {
   id        Int      @id @default(autoincrement())
   username  String   @unique
-  email     String   @unique
+  email     String?  @unique  // Optional for Developers, required for Admins
   role      String
   password  String
   createdAt DateTime @default(now())

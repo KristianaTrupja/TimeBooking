@@ -33,7 +33,7 @@ export const InputField = ({
   const isPasswordField = type === "password";
   const isRoleField = type === "role";
   const inputType = isPasswordField && showPassword ? "text" : type;
-  const ROLE_OPTIONS = ["Dev", "Admin"];
+  const ROLE_OPTIONS = ["Dev", "Employee", "Admin"];
 
   return (
     <>
