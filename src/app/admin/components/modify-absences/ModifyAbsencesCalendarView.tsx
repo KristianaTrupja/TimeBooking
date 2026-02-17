@@ -36,19 +36,20 @@ export default function ModifyAbsencesCalendarView({
 }: Props) {
   return (
     <section
-      className="overflow-auto rounded-xl flex-1 custom-scrollbar bg-white border border-slate-200 shadow-sm"
-      style={{ maxHeight: containerHeight ? `${containerHeight}px` : "66vh" }}
+      className="rounded-xl flex-1 bg-white border border-slate-200 shadow-sm flex flex-col min-h-0"
+      style={{ height: containerHeight ? `${containerHeight}px` : "66vh" }}
     >
-      <div className="sticky top-0 z-20 bg-gradient-to-r from-slate-50 to-white border-b border-slate-200 px-3 sm:px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-0">
-        <div className="flex items-center gap-2 sm:gap-3">
+      <div className="shrink-0 bg-gradient-to-r from-slate-50 to-white border-b border-slate-200 px-3 sm:px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-0">
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#244B77] to-[#1a3a5c] flex items-center justify-center shadow-sm">
             <Calendar className="text-white" size={14} />
           </div>
-          <div>
+          <div className="min-w-0">
             <p className="text-sm font-semibold text-slate-800">Leave Calendar View</p>
             {!isCompact && <p className="text-xs text-slate-500">Employees and day-off timeline</p>}
           </div>
         </div>
+
         <div className="flex items-center gap-2 bg-slate-100 rounded-xl p-1 border border-slate-200 w-full sm:w-auto justify-between sm:justify-start">
           <button
             onClick={onPrevMonth}
@@ -57,7 +58,9 @@ export default function ModifyAbsencesCalendarView({
           >
             <ChevronLeft size={16} />
           </button>
-          <span className="text-sm font-semibold text-slate-700 min-w-[140px] text-center flex-1 sm:flex-none">{monthLabel}</span>
+          <span className="text-sm font-semibold text-slate-700 min-w-[140px] text-center flex-1 sm:flex-none">
+            {monthLabel}
+          </span>
           <button
             onClick={onNextMonth}
             className="h-8 w-8 rounded-lg hover:bg-white text-slate-600 hover:text-slate-800 transition-colors flex items-center justify-center"
@@ -69,7 +72,7 @@ export default function ModifyAbsencesCalendarView({
       </div>
 
       {!isCompact && (
-        <div className="px-3 sm:px-4 py-2 border-b border-slate-200 bg-white flex flex-wrap items-center gap-2 text-xs text-slate-600">
+        <div className="shrink-0 px-3 sm:px-4 py-2 border-b border-slate-200 bg-white flex flex-wrap items-center gap-2 text-xs text-slate-600">
           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-teal-100 text-teal-700">Vacation</span>
           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-rose-100 text-rose-700">Sick</span>
           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-violet-100 text-violet-700">Personal</span>
@@ -77,7 +80,8 @@ export default function ModifyAbsencesCalendarView({
         </div>
       )}
 
-      <table className="w-full min-w-[1200px] border-collapse table-fixed">
+      <div className="flex-1 min-h-0 overflow-auto custom-scrollbar">
+        <table className="border-collapse">
           <thead className="sticky top-0 z-10 bg-slate-100 border-b border-slate-200">
             <tr className="text-xs uppercase tracking-wider text-slate-600">
               <th className="px-4 py-3 font-bold text-left w-[240px] sticky left-0 bg-slate-100 z-20 border-r border-slate-200">
@@ -86,7 +90,9 @@ export default function ModifyAbsencesCalendarView({
               {dayHeaders.map(({ day, shortWeekday, isWeekend }) => (
                 <th
                   key={day}
-                  className={`px-1 py-2 font-bold text-center border-r border-slate-200 ${isWeekend ? "bg-slate-200/70" : "bg-slate-100"}`}
+                  className={`px-1 py-2 font-bold text-center border-r border-slate-200 ${
+                    isWeekend ? "bg-slate-200/70" : "bg-slate-100"
+                  }`}
                 >
                   <div className="leading-tight">
                     <div className="text-[10px] text-slate-500">{shortWeekday.slice(0, 2)}</div>
@@ -96,18 +102,23 @@ export default function ModifyAbsencesCalendarView({
               ))}
             </tr>
           </thead>
+
           <tbody className="divide-y divide-slate-100 bg-white">
             {visibleEmployees.map((user) => (
               <tr key={user.id} className="hover:bg-slate-50/70 transition-colors">
-                <td className="px-4 py-2 h-10 sticky left-0 bg-white z-10 border-r border-slate-200">
+                <td className="px-4 py-2 h-10 bg-white z-10 border-r border-slate-200">
                   <div className="flex items-center gap-2">
                     <span className="font-medium text-slate-800 truncate">{user.username}</span>
                   </div>
                 </td>
+
                 {dayHeaders.map(({ day, isWeekend }) => {
                   const absenceType = getDayOffType(user.id, day);
                   return (
-                    <td key={`${user.id}-${day}`} className={`px-1 py-2 h-10 text-center text-[11px] ${getCellClass(absenceType, isWeekend)}`}>
+                    <td
+                      key={`${user.id}-${day}`}
+                      className={`px-1 py-2 h-10 w-10 text-center text-[11px] ${getCellClass(absenceType, isWeekend)}`}
+                    >
                       {absenceType ? "●" : ""}
                     </td>
                   );
@@ -115,7 +126,9 @@ export default function ModifyAbsencesCalendarView({
               </tr>
             ))}
           </tbody>
-      </table>
+        </table>
+      </div>
     </section>
   );
 }
+
