@@ -3,7 +3,7 @@
 import React, { useEffect, useMemo, useState, useRef, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, FileText, Users, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+import { ChevronLeft, ChevronRight, FileText, Users, ArrowUpDown, ArrowUp, ArrowDown, ChevronDown, ChevronUp } from "lucide-react";
 
 type SortField = "employee" | "hours" | "status";
 type SortDirection = "asc" | "desc" | null;
@@ -29,6 +29,7 @@ export default function Raport() {
   const [containerHeight, setContainerHeight] = useState<number | null>(null);
   const [sortField, setSortField] = useState<SortField | null>("employee");
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
+  const [isTableExpanded, setIsTableExpanded] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
   const navRef = useRef<HTMLDivElement>(null);
 
@@ -48,7 +49,7 @@ export default function Raport() {
     calculateHeight();
     window.addEventListener("resize", calculateHeight);
     return () => window.removeEventListener("resize", calculateHeight);
-  }, [calculateHeight]);
+  }, [calculateHeight, isTableExpanded]);
 
   // Check if we need to navigate to a different month/year from URL params (only on initial load)
   const monthParam = searchParams.get("month");
@@ -200,7 +201,7 @@ export default function Raport() {
   return (
     <section ref={sectionRef} className="p-6 h-full flex flex-col">
       {/* Header Section */}
-      <div ref={navRef} className="mb-6">
+      <div ref={navRef}>
         {/* Title and Navigation */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
@@ -214,7 +215,20 @@ export default function Raport() {
           </div>
           
           {/* Month Navigation */}
-          <div className="flex items-center gap-2 bg-slate-100 rounded-xl p-1">
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setIsTableExpanded((prev) => !prev)}
+              className={`h-9 w-9 rounded-xl border transition-all duration-200 flex items-center justify-center hover:scale-105 active:scale-95 ${
+                isTableExpanded
+                  ? "bg-gradient-to-br from-cyan-500 to-blue-600 text-white border-cyan-400 shadow-lg shadow-cyan-500/35 ring-2 ring-cyan-200/60"
+                  : "bg-gradient-to-br from-white to-slate-50 text-slate-700 border-slate-300 shadow-sm hover:shadow-md hover:border-cyan-400 hover:text-cyan-700"
+              }`}
+              aria-label={isTableExpanded ? "Collapse table view" : "Expand table view"}
+              title={isTableExpanded ? "Collapse table view" : "Expand table view"}
+            >
+              {isTableExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+            </button>
+            <div className="flex items-center gap-2 bg-slate-100 rounded-xl p-1">
             <Button 
               variant="ghost" 
               size="sm"
@@ -233,11 +247,12 @@ export default function Raport() {
             >
               <ChevronRight className="text-slate-600" size={18} />
             </Button>
+            </div>
           </div>
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-4 gap-4">
+        <div className={`${isTableExpanded ? "hidden" : "grid"} grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6`}>
           <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-4 border border-slate-200">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-lg bg-slate-200 flex items-center justify-center">

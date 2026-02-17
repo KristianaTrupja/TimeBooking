@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { User, UserFormData } from "@/types/user";
 import Spinner from "@/components/ui/Spinner";
 import { isPasswordStrong } from "@/lib/utils";
-import { Users as UsersIcon, UserPlus, Shield, Code } from "lucide-react";
+import { Users as UsersIcon, UserPlus, Shield, Code, ChevronDown, ChevronUp } from "lucide-react";
 import { useLanguage } from "@/app/context/LanguageContext";
 
 export default function Users() {
@@ -28,6 +28,7 @@ export default function Users() {
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [user, setUser] = useState<{ users: User[] } | null>(null);
   const [containerHeight, setContainerHeight] = useState<number | null>(null);
+  const [isTableExpanded, setIsTableExpanded] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
   const buttonRef = useRef<HTMLDivElement>(null);
 
@@ -47,7 +48,7 @@ export default function Users() {
     calculateHeight();
     window.addEventListener("resize", calculateHeight);
     return () => window.removeEventListener("resize", calculateHeight);
-  }, [calculateHeight, isLoading]);
+  }, [calculateHeight, isLoading, isTableExpanded]);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -234,7 +235,7 @@ export default function Users() {
   return (
     <section ref={sectionRef} className="p-6 flex flex-col h-full">
       {/* Header Section */}
-      <div ref={buttonRef} className="mb-6">
+      <div ref={buttonRef}>
         {/* Title and Add Button */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
@@ -246,18 +247,32 @@ export default function Users() {
               <p className="text-sm text-slate-500">{t.manageTeam}</p>
             </div>
           </div>
-          
-          <Button 
-            onClick={() => setOpen(true)}
-            className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-lg shadow-blue-500/25"
-          >
-            <UserPlus size={18} className="mr-2" />
-            {t.addEmployee}
-          </Button>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setIsTableExpanded((prev) => !prev)}
+              className={`h-10 w-10 rounded-xl border transition-all duration-200 flex items-center justify-center hover:scale-105 active:scale-95 ${
+                isTableExpanded
+                  ? "bg-gradient-to-br from-cyan-500 to-blue-600 text-white border-cyan-400 shadow-lg shadow-cyan-500/35 ring-2 ring-cyan-200/60"
+                  : "bg-gradient-to-br from-white to-slate-50 text-slate-700 border-slate-300 shadow-sm hover:shadow-md hover:border-cyan-400 hover:text-cyan-700"
+              }`}
+              aria-label={isTableExpanded ? "Collapse table view" : "Expand table view"}
+              title={isTableExpanded ? "Collapse table view" : "Expand table view"}
+            >
+              {isTableExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+            </button>
+            <Button 
+              onClick={() => setOpen(true)}
+              className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-lg shadow-blue-500/25"
+            >
+              <UserPlus size={18} className="mr-2" />
+              {t.addEmployee}
+            </Button>
+          </div>
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-3 gap-4 max-w-xl">
+        <div className={`${isTableExpanded ? "hidden" : "grid"} grid-cols-1 sm:grid-cols-3 gap-4 max-w-xl mb-6`}>
           <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-4 border border-slate-200">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-lg bg-slate-200 flex items-center justify-center">

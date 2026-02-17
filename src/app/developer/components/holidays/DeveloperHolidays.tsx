@@ -114,7 +114,7 @@ export default function DeveloperHolidays() {
   return (
     <section className="p-6 flex flex-col h-full">
       {/* Header Section */}
-      <div className="mb-6">
+      <div>
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-rose-400 to-pink-500 flex items-center justify-center shadow-lg shadow-rose-400/25">
@@ -151,7 +151,7 @@ export default function DeveloperHolidays() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-4 gap-4 mb-6">
           <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-4 border border-slate-200">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-lg bg-slate-200 flex items-center justify-center">

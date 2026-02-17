@@ -2,7 +2,7 @@
 
 import React, { useCallback, useEffect, useState, useRef, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
-import { CalendarX, Calendar, List, Grid3X3 } from "lucide-react";
+import { CalendarX, Calendar, List, Grid3X3, ChevronDown, ChevronUp } from "lucide-react";
 
 type SortField = "startDate" | "endDate" | "type" | "days";
 type SortDirection = "asc" | "desc" | null;
@@ -48,6 +48,7 @@ export default function ModifyAbsences() {
   const [viewMode, setViewMode] = useState<ViewMode>("list");
   const [calendarMonth, setCalendarMonth] = useState(new Date().getMonth());
   const [calendarYear, setCalendarYear] = useState(new Date().getFullYear());
+  const [isTableExpanded, setIsTableExpanded] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
   const filtersRef = useRef<HTMLElement>(null);
   const absenceRowRefs = useRef<Map<string, HTMLTableRowElement>>(new Map());
@@ -102,7 +103,7 @@ export default function ModifyAbsences() {
     calculateHeight();
     window.addEventListener("resize", calculateHeight);
     return () => window.removeEventListener("resize", calculateHeight);
-  }, [calculateHeight, isLoading]);
+  }, [calculateHeight, isLoading, isTableExpanded]);
 
   const fetchData = useCallback(async () => {
     try {
@@ -392,6 +393,18 @@ export default function ModifyAbsences() {
         
         {/* Stats */}
         <div className="flex gap-3">
+          <button
+            onClick={() => setIsTableExpanded((prev) => !prev)}
+            className={`h-10 w-10 rounded-xl border transition-all duration-200 flex items-center justify-center hover:scale-105 active:scale-95 ${
+              isTableExpanded
+                ? "bg-gradient-to-br from-cyan-500 to-blue-600 text-white border-cyan-400 shadow-lg shadow-cyan-500/35 ring-2 ring-cyan-200/60"
+                : "bg-gradient-to-br from-white to-slate-50 text-slate-700 border-slate-300 shadow-sm hover:shadow-md hover:border-cyan-400 hover:text-cyan-700"
+            }`}
+            aria-label={isTableExpanded ? "Collapse table view" : "Expand table view"}
+            title={isTableExpanded ? "Collapse table view" : "Expand table view"}
+          >
+            {isTableExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+          </button>
           <div className="flex items-center gap-1 p-1 bg-slate-100 border border-slate-200 rounded-xl">
             <button
               onClick={() => setViewMode("list")}
@@ -423,7 +436,7 @@ export default function ModifyAbsences() {
       </div>
 
       {/* Filters Card */}
-      <section ref={filtersRef} className="mb-5 bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
+      <section ref={filtersRef} className={`${isTableExpanded ? "hidden" : "block"} mb-5 bg-white rounded-xl border border-slate-200 p-4 shadow-sm`}>
         <FilterAbsences
           absences={absences}
           employees={employees} 
@@ -451,6 +464,7 @@ export default function ModifyAbsences() {
           onPrevMonth={handlePrevMonth}
           onNextMonth={handleNextMonth}
           employeeLabel={t.employee}
+          isCompact={isTableExpanded}
         />
       ) : (
         <ModifyAbsencesListView
