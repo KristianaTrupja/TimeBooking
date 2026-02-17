@@ -14,8 +14,8 @@ import { useSidebar } from "@/app/context/SidebarContext";
 import SaveButton from "../components/calendarActionButtons/SaveButton";
 import SidebarHeader from "../components/sidebar/SidebarHeader";
 import Sidebar from "../components/sidebar/Sidebar";
-import { Button } from '@/components/ui/button'
-import { Send, AlertTriangle } from "lucide-react"
+import { Button } from '@/components/ui/button';
+import { Send, Lock } from "lucide-react";
 import { flushError } from "@/app/utils/flushError";
 import { User } from "next-auth";
 import { getSession } from "next-auth/react";
@@ -176,9 +176,9 @@ export default function Developer() {
         >
             <div className="space-y-4">
                 <div className="flex items-start gap-3 p-4 bg-amber-50 border border-amber-200 rounded-lg">
-                    <AlertTriangle className="text-amber-600 flex-shrink-0 mt-0.5" size={20} />
+                    <Lock className="text-amber-600 flex-shrink-0 mt-0.5" size={20} />
                     <div className="flex-1">
-                        <p className="text-sm font-medium text-amber-900 mb-1">
+                        <p className="text-sm font-bold text-amber-900 mb-1">
                             {t.submitTimesheetWarning}
                         </p>
                         <p className="text-sm text-amber-700">

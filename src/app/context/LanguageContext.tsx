@@ -573,8 +573,8 @@ const translations: Record<Language, Translations> = {
     viewOptions: "View Options",
     confirmDelete: "Are you sure you want to delete this project?",
     confirmSubmitTimesheet: "Are you sure you want to submit this timesheet?",
-    submitTimesheetWarning: "Warning: You will not be able to modify working hours for this month after submission.",
-    submitTimesheetWarningDetail: "If you need to make changes, please contact an administrator.",
+    submitTimesheetWarning: "Submitting will lock this month’s hours.",
+    submitTimesheetWarningDetail: "Corrections require administrator approval.",
     projectUpdated: "Project updated successfully.",
     projectDeleted: "Project deleted successfully.",
     
@@ -888,8 +888,8 @@ const translations: Record<Language, Translations> = {
     viewOptions: "Optionen anzeigen",
     confirmDelete: "Möchten Sie dieses Projekt wirklich löschen?",
     confirmSubmitTimesheet: "Sind Sie sicher, dass Sie diese Zeiterfassung einreichen möchten?",
-    submitTimesheetWarning: "Warnung: Sie können die Arbeitsstunden für diesen Monat nach der Einreichung nicht mehr ändern.",
-    submitTimesheetWarningDetail: "Wenn Sie Änderungen vornehmen müssen, wenden Sie sich bitte an einen Administrator.",
+    submitTimesheetWarning: "Einreichen wird diesen Monatsstunden sperren.",
+    submitTimesheetWarningDetail: "Korrekturen erfordern Administrator-Genehmigung.",
     projectUpdated: "Projekt erfolgreich aktualisiert.",
     projectDeleted: "Projekt erfolgreich gelöscht.",
     
