@@ -264,6 +264,7 @@ interface Translations {
   // Raport (Timesheet) Entry
   hrs: string;
   view: string;
+  download: string;
   
   // Vacation Popover
   vacationsLeft: string;
@@ -581,6 +582,7 @@ const translations: Record<Language, Translations> = {
     // Raport (Timesheet) Entry
     hrs: "hrs",
     view: "View",
+    download: "Download",
     
     // Vacation Popover
     vacationsLeft: "Vacations Left",
@@ -896,6 +898,7 @@ const translations: Record<Language, Translations> = {
     // Raport (Timesheet) Entry
     hrs: "Std",
     view: "Ansehen",
+    download: "Herunterladen",
     
     // Vacation Popover
     vacationsLeft: "Verbleibender Urlaub",

@@ -340,6 +340,7 @@ export default function Raport() {
                   </button>
                 </th>
                 <th className="px-4 py-3 font-bold bg-slate-100">{t.action}</th>
+                <th className="px-4 py-3 font-bold bg-slate-100 text-center">{t.download}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">

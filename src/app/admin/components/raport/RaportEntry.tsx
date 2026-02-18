@@ -3,8 +3,10 @@ import { Button } from "@/components/ui/button";
 import Dropdown from "@/components/ui/Dropdown";
 import { useState, useEffect, useRef } from "react";
 import { SubmissionStatus, Timesheet } from "@/types/timesheet";
-import { Eye, Clock, User } from "lucide-react";
+import { Eye, Clock, User, FileSpreadsheet } from "lucide-react";
 import { useLanguage } from "@/app/context/LanguageContext";
+import { exportTimesheetToExcel, type EmployeeTimesheetData } from "@/app/utils/excelExport";
+import { toast } from "sonner";
 
 type PropTypes = {
     timesheet:Timesheet,
@@ -33,6 +35,7 @@ export default function RaportEntry({timesheet, month, year, index, adminId, onA
     const [selectedStatus, setSelectedStatus] = useState(timesheet.status)
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [isHighlighted, setIsHighlighted] = useState(false)
+    const [isDownloading, setIsDownloading] = useState(false)
     const rowRef = useRef<HTMLTableRowElement>(null);
     const { t } = useLanguage();
 
@@ -63,6 +66,28 @@ export default function RaportEntry({timesheet, month, year, index, adminId, onA
             console.log(error)
         } finally {
             setIsSubmitting(false)
+        }
+    }
+
+    async function handleDownloadExcel() {
+        try {
+            setIsDownloading(true);
+            const response = await fetch(
+                `/api/timesheets/${timesheet.userId}/export?month=${month}&year=${year}`
+            );
+
+            if (!response.ok) {
+                throw new Error("Failed to fetch timesheet data");
+            }
+
+            const data: EmployeeTimesheetData = await response.json();
+            exportTimesheetToExcel(data);
+            toast.success("Excel file downloaded successfully!");
+        } catch (error) {
+            console.error("Error downloading Excel:", error);
+            toast.error("Failed to download Excel file");
+        } finally {
+            setIsDownloading(false);
         }
     }
 
@@ -107,9 +132,9 @@ export default function RaportEntry({timesheet, month, year, index, adminId, onA
                 <Button
                     variant="ghost"
                     size="sm"
-                    className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 gap-1.5 text-md"
+                    className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 gap-1.5 font-medium"
                 >
-                    <Eye size={14} />
+                    <Eye size={16} />
                     {t.view}
                 </Button>
             </Link>
@@ -136,6 +161,28 @@ export default function RaportEntry({timesheet, month, year, index, adminId, onA
             >
                 {t.apply}
             </Button>
+        </td>
+        <td className="px-4 py-4">
+            <div className="flex justify-center">
+                <Button
+                    size="sm"
+                    onClick={handleDownloadExcel}
+                    disabled={isDownloading}
+                    className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white shadow-sm hover:shadow-md transition-all duration-200 gap-1.5 font-medium disabled:opacity-50 disabled:cursor-not-allowed group"
+                    title="Download detailed timesheet as Excel"
+                >
+                    <FileSpreadsheet 
+                        size={16} 
+                        className={isDownloading ? "animate-pulse" : "group-hover:scale-110 transition-transform duration-200"} 
+                    />
+                    <span className="hidden lg:inline">
+                        {isDownloading ? "Generating..." : "Export"}
+                    </span>
+                    <span className="lg:hidden">
+                        {isDownloading ? "..." : "XLS"}
+                    </span>
+                </Button>
+            </div>
         </td>
     </tr>
     );
