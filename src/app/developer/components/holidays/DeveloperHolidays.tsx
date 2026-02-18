@@ -15,6 +15,8 @@ import {
   ArrowUpDown,
   ArrowUp,
   ArrowDown,
+  ChevronUp,
+  ChevronDown,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -27,6 +29,7 @@ export default function DeveloperHolidays() {
   const [year, setYear] = useState(new Date().getFullYear());
   const [sortField, setSortField] = useState<SortField | null>("date");
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
+  const [isExpanded, setIsExpanded] = useState(false);
 
   const handleSort = useCallback((field: SortField) => {
     if (sortField === field) {
@@ -126,8 +129,23 @@ export default function DeveloperHolidays() {
             </div>
           </div>
 
-          {/* Year navigation */}
-          <div className="flex items-center gap-2 bg-slate-100 rounded-xl p-1">
+          <div className="flex items-center gap-3">
+            {/* Expand/Collapse button */}
+            <button
+              onClick={() => setIsExpanded((prev) => !prev)}
+              className={`h-10 w-10 rounded-xl border transition-all duration-200 flex items-center justify-center hover:scale-105 active:scale-95 ${
+                isExpanded
+                  ? "bg-gradient-to-br from-cyan-500 to-blue-600 text-white border-cyan-400 shadow-lg shadow-cyan-500/35 ring-2 ring-cyan-200/60"
+                  : "bg-gradient-to-br from-white to-slate-50 text-slate-700 border-slate-300 shadow-sm hover:shadow-md hover:border-cyan-400 hover:text-cyan-700"
+              }`}
+              aria-label={isExpanded ? "Collapse view" : "Expand view"}
+              title={isExpanded ? "Collapse view" : "Expand view"}
+            >
+              {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+            </button>
+
+            {/* Year navigation */}
+            <div className="flex items-center gap-2 bg-slate-100 rounded-xl p-1">
             <Button
               variant="ghost"
               size="sm"
@@ -148,9 +166,11 @@ export default function DeveloperHolidays() {
               <ChevronRight className="text-slate-600" size={18} />
             </Button>
           </div>
+          </div>
         </div>
 
         {/* Stats */}
+        {!isExpanded && (
         <div className="grid grid-cols-4 gap-4 mb-6">
           <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-4 border border-slate-200">
             <div className="flex items-center gap-3">
@@ -199,6 +219,7 @@ export default function DeveloperHolidays() {
             </div>
           </div>
         </div>
+        )}
       </div>
 
       {/* Table */}

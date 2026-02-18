@@ -13,7 +13,9 @@ import {
   X,
   ArrowUpDown,
   ArrowUp,
-  ArrowDown
+  ArrowDown,
+  ChevronUp,
+  ChevronDown
 } from "lucide-react";
 import { AbsenceType, ExtAbsence } from "@/types/absence";
 import Spinner from "@/components/ui/Spinner";
@@ -77,6 +79,7 @@ export default function DeveloperVacations() {
   const [showFilters, setShowFilters] = useState(false);
   const [sortField, setSortField] = useState<SortField | null>("startDate");
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
+  const [isExpanded, setIsExpanded] = useState(false);
   
   // Translation map for absence types
   const absenceTypeLabels: Record<string, string> = {
@@ -237,17 +240,33 @@ export default function DeveloperVacations() {
     <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
       {/* Header */}
       <div className="p-6 border-b border-slate-200">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#244B77] to-[#1a3a5c] flex items-center justify-center shadow-lg shadow-[#244B77]/20">
-            <CalendarDays className="text-white" size={24} />
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#244B77] to-[#1a3a5c] flex items-center justify-center shadow-lg shadow-[#244B77]/20">
+              <CalendarDays className="text-white" size={24} />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-slate-900">{t.myLeaveBalance}</h1>
+              <p className="text-sm text-slate-600">{t.leaveHistory}</p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-2xl font-bold text-slate-900">{t.myLeaveBalance}</h1>
-            <p className="text-sm text-slate-600">{t.leaveHistory}</p>
-          </div>
+          
+          <button
+            onClick={() => setIsExpanded((prev) => !prev)}
+            className={`h-10 w-10 rounded-xl border transition-all duration-200 flex items-center justify-center hover:scale-105 active:scale-95 ${
+              isExpanded
+                ? "bg-gradient-to-br from-cyan-500 to-blue-600 text-white border-cyan-400 shadow-lg shadow-cyan-500/35 ring-2 ring-cyan-200/60"
+                : "bg-gradient-to-br from-white to-slate-50 text-slate-700 border-slate-300 shadow-sm hover:shadow-md hover:border-cyan-400 hover:text-cyan-700"
+            }`}
+            aria-label={isExpanded ? "Collapse view" : "Expand view"}
+            title={isExpanded ? "Collapse view" : "Expand view"}
+          >
+            {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+          </button>
         </div>
 
         {/* Balance Cards */}
+        {!isExpanded && (
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {/* Total Available */}
           <div className="bg-gradient-to-br from-[#244B77] to-[#1a3a5c] rounded-xl p-4 text-white">
@@ -307,9 +326,10 @@ export default function DeveloperVacations() {
             </p>
           </div>
         </div>
+        )}
 
         {/* Filter Toggle */}
-        {!showFilters && (
+        {!isExpanded && !showFilters && (
           <div className="flex justify-end mt-4">
             <button
               onClick={() => setShowFilters(true)}
@@ -329,7 +349,7 @@ export default function DeveloperVacations() {
         )}
 
         {/* Filters Panel */}
-        {showFilters && (
+        {!isExpanded && showFilters && (
           <div className="mt-4 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
             {/* Header */}
             <div className="flex justify-between items-center px-4 py-3 bg-gradient-to-r from-slate-50 to-slate-100 border-b border-slate-200">
