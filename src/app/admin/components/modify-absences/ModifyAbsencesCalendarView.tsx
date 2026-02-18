@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Calendar, ChevronLeft, ChevronRight } from "lucide-react";
 import { User } from "@/types/user";
 
@@ -34,10 +35,17 @@ export default function ModifyAbsencesCalendarView({
   employeeLabel,
   isCompact = false,
 }: Props) {
+  const [hoveredUserId, setHoveredUserId] = useState<number | null>(null);
+  const [hoveredDay, setHoveredDay] = useState<number | null>(null);
+  
+  const employeeColWidth = 240;
+  const dayColWidth = 40;
+  const tableWidth = employeeColWidth + dayHeaders.length * dayColWidth;
+
   return (
     <section
-      className="rounded-xl flex-1 bg-white border border-slate-200 shadow-sm flex flex-col min-h-0"
-      style={{ height: containerHeight ? `${containerHeight}px` : "66vh" }}
+      className="rounded-xl bg-white border border-slate-200 shadow-sm flex flex-col overflow-hidden"
+      style={{ maxHeight: containerHeight ? `${containerHeight}px` : "66vh" }}
     >
       <div className="shrink-0 bg-gradient-to-r from-slate-50 to-white border-b border-slate-200 px-3 sm:px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-0">
         <div className="flex items-center gap-2 sm:gap-3 min-w-0">
@@ -81,50 +89,93 @@ export default function ModifyAbsencesCalendarView({
       )}
 
       <div className="flex-1 min-h-0 overflow-auto custom-scrollbar">
-        <table className="border-collapse">
+        <table
+          className="border-collapse table-fixed"
+          style={{ width: `${tableWidth}px`, minWidth: `${tableWidth}px` }}
+        >
+          <colgroup>
+            <col style={{ width: `${employeeColWidth}px` }} />
+            {dayHeaders.map(({ day }) => (
+              <col key={`col-${day}`} style={{ width: `${dayColWidth}px` }} />
+            ))}
+          </colgroup>
           <thead className="sticky top-0 z-10 bg-slate-100 border-b border-slate-200">
             <tr className="text-xs uppercase tracking-wider text-slate-600">
-              <th className="px-4 py-3 font-bold text-left w-[240px] sticky left-0 bg-slate-100 z-20 border-r border-slate-200">
+              <th className="px-4 py-3 font-bold text-left sticky left-0 bg-slate-100 z-20 border-r border-slate-200">
                 {employeeLabel}
               </th>
-              {dayHeaders.map(({ day, shortWeekday, isWeekend }) => (
-                <th
-                  key={day}
-                  className={`px-1 py-2 font-bold text-center border-r border-slate-200 ${
-                    isWeekend ? "bg-slate-200/70" : "bg-slate-100"
-                  }`}
-                >
-                  <div className="leading-tight">
-                    <div className="text-[10px] text-slate-500">{shortWeekday.slice(0, 2)}</div>
-                    <div className="text-[11px]">{String(day).padStart(2, "0")}</div>
-                  </div>
-                </th>
-              ))}
+              {dayHeaders.map(({ day, shortWeekday, isWeekend }) => {
+                const isColHovered = hoveredDay === day;
+                return (
+                  <th
+                    key={day}
+                    className={`px-1 py-2 font-bold text-center border-r border-slate-200 transition-all duration-150 cursor-pointer ${
+                      isWeekend ? "bg-slate-200/70" : "bg-slate-100"
+                    } ${isColHovered ? "!bg-blue-100 ring-2 ring-inset ring-blue-200" : ""}`}
+                    onMouseEnter={() => setHoveredDay(day)}
+                    onMouseLeave={() => setHoveredDay(null)}
+                  >
+                    <div className="leading-tight">
+                      <div className={`text-[10px] transition-colors duration-150 ${
+                        isColHovered ? "text-blue-600" : "text-slate-500"
+                      }`}>
+                        {shortWeekday.slice(0, 2)}
+                      </div>
+                      <div className={`text-[11px] transition-colors duration-150 ${
+                        isColHovered ? "text-blue-700" : ""
+                      }`}>
+                        {String(day).padStart(2, "0")}
+                      </div>
+                    </div>
+                  </th>
+                );
+              })}
             </tr>
           </thead>
 
           <tbody className="divide-y divide-slate-100 bg-white">
-            {visibleEmployees.map((user) => (
-              <tr key={user.id} className="hover:bg-slate-50/70 transition-colors">
-                <td className="px-4 py-2 h-10 bg-white z-10 border-r border-slate-200">
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium text-slate-800 truncate">{user.username}</span>
-                  </div>
-                </td>
+            {visibleEmployees.map((user) => {
+              const isRowHovered = hoveredUserId === user.id;
+              return (
+                <tr 
+                  key={user.id} 
+                  className="transition-all duration-150"
+                  onMouseEnter={() => setHoveredUserId(user.id)}
+                  onMouseLeave={() => setHoveredUserId(null)}
+                >
+                  <td 
+                    className={`px-4 py-2 h-10 sticky left-0 z-10 border-r border-slate-200 transition-all duration-150 ${
+                      isRowHovered ? "bg-blue-50" : "bg-white"
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className={`font-medium truncate transition-colors duration-150 ${
+                        isRowHovered ? "text-blue-700" : "text-slate-800"
+                      }`}>
+                        {user.username}
+                      </span>
+                    </div>
+                  </td>
 
-                {dayHeaders.map(({ day, isWeekend }) => {
-                  const absenceType = getDayOffType(user.id, day);
-                  return (
-                    <td
-                      key={`${user.id}-${day}`}
-                      className={`px-1 py-2 h-10 w-10 text-center text-[11px] ${getCellClass(absenceType, isWeekend)}`}
-                    >
-                      {absenceType ? "●" : ""}
-                    </td>
-                  );
-                })}
-              </tr>
-            ))}
+                  {dayHeaders.map(({ day, isWeekend }) => {
+                    const absenceType = getDayOffType(user.id, day);
+                    const isHovered = isRowHovered || hoveredDay === day;
+                    return (
+                      <td
+                        key={`${user.id}-${day}`}
+                        className={`px-1 py-2 h-10 text-center text-[11px] transition-all duration-150 ${getCellClass(absenceType, isWeekend)} ${
+                          isHovered && !absenceType ? "!bg-blue-50 ring-1 ring-inset ring-blue-100" : ""
+                        }`}
+                        onMouseEnter={() => setHoveredDay(day)}
+                        onMouseLeave={() => setHoveredDay(null)}
+                      >
+                        {absenceType ? "●" : ""}
+                      </td>
+                    );
+                  })}
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
