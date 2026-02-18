@@ -66,12 +66,12 @@ export function exportTimesheetToExcel(data: EmployeeTimesheetData) {
 
   // Add project breakdown
   const projectEntries = Object.entries(summary.projectBreakdown).sort((a, b) => b[1] - a[1]);
-  summaryData.push(['Projects Worked On:']);
+  summaryData.push(['Projects Worked On:', '']);
   projectEntries.forEach(([project, hours]) => {
-    summaryData.push(['', `${project}`, `${hours.toFixed(2)} hours`]);
+    summaryData.push([project, `${hours.toFixed(2)} hours`]);
   });
   summaryData.push([]);
-  summaryData.push(['Total Work Hours:', '', `${summary.totalWorkHours.toFixed(2)} hours`]);
+  summaryData.push(['Total Work Hours:', `${summary.totalWorkHours.toFixed(2)} hours`]);
   
   // Add absence summary
   if (absences.length > 0) {
@@ -90,17 +90,17 @@ export function exportTimesheetToExcel(data: EmployeeTimesheetData) {
 
     Object.entries(absencesByType).forEach(([type, typeAbsences]) => {
       const totalDays = typeAbsences.reduce((sum, a) => sum + a.days, 0);
-      summaryData.push([`${type}:`, '', `${totalDays} days`]);
+      summaryData.push([`${type}:`, `${totalDays} days`]);
       typeAbsences.forEach(absence => {
         const startDate = formatDate(absence.startDate);
         const endDate = formatDate(absence.endDate);
         const dateRange = startDate === endDate ? startDate : `${startDate} - ${endDate}`;
-        summaryData.push(['', dateRange, `${absence.days} days`]);
+        summaryData.push([dateRange, `${absence.days} days`]);
       });
       summaryData.push([]);
     });
 
-    summaryData.push(['Total Absence Days:', '', `${summary.totalAbsenceDays} days`]);
+    summaryData.push(['Total Absence Days:', `${summary.totalAbsenceDays} days`]);
   } else {
     summaryData.push([]);
     summaryData.push(['ABSENCE SUMMARY']);
@@ -111,7 +111,7 @@ export function exportTimesheetToExcel(data: EmployeeTimesheetData) {
   const summarySheet = XLSX.utils.aoa_to_sheet(summaryData);
 
   // Style the summary sheet
-  summarySheet['!cols'] = [{ wch: 25 }, { wch: 25 }, { wch: 20 }];
+  summarySheet['!cols'] = [{ wch: 30 }, { wch: 20 }];
 
   // Apply styles
   // Main title - Row 1
@@ -142,6 +142,36 @@ export function exportTimesheetToExcel(data: EmployeeTimesheetData) {
     };
   }
 
+  // Style "Projects Worked On:" header (find its row)
+  const projectsWorkedOnRow = summaryData.findIndex(row => row[0] === 'Projects Worked On:');
+  if (projectsWorkedOnRow >= 0) {
+    const cell = `A${projectsWorkedOnRow + 1}`;
+    if (summarySheet[cell]) {
+      summarySheet[cell].s = {
+        font: { bold: true, sz: 12 },
+        fill: { fgColor: { rgb: "D1FAE5" } },
+        alignment: { horizontal: "left", vertical: "center" }
+      };
+    }
+  }
+
+  // Style individual project rows (make project names bold)
+  summaryData.forEach((row, idx) => {
+    // Check if this row is a project entry (has project name in column A and hours in column B)
+    if (row[0] && row[1]?.toString().includes('hours') && 
+        !row[0].toString().includes(':') && 
+        row[0] !== 'EMPLOYEE TIMESHEET REPORT' &&
+        !row[0].toString().startsWith('Total')) {
+      const cellA = `A${idx + 1}`;
+      if (summarySheet[cellA]) {
+        summarySheet[cellA].s = {
+          font: { bold: true, sz: 11 },
+          alignment: { horizontal: "left" }
+        };
+      }
+    }
+  });
+
   // Find "ABSENCE SUMMARY" row
   const absenceSummaryRow = summaryData.findIndex(row => row[0] === 'ABSENCE SUMMARY');
   if (absenceSummaryRow >= 0) {
@@ -155,19 +185,39 @@ export function exportTimesheetToExcel(data: EmployeeTimesheetData) {
     }
   }
 
-  // Style total rows (bold)
+  // Style absence type rows (VACATION:, SICK:, etc.) and total rows
   summaryData.forEach((row, idx) => {
+    const cellA = `A${idx + 1}`;
+    const cellB = `B${idx + 1}`;
+    
+    // Style absence type headers (VACATION:, SICK:, etc.)
+    if (row[0]?.toString().match(/^(VACATION|SICK|PERSONAL|PARENTAL):/)) {
+      if (summarySheet[cellA]) {
+        summarySheet[cellA].s = {
+          font: { bold: true, sz: 11, color: { rgb: "FFFFFF" } },
+          fill: { fgColor: { rgb: "F59E0B" } },
+          alignment: { horizontal: "left", vertical: "center" }
+        };
+      }
+      if (summarySheet[cellB]) {
+        summarySheet[cellB].s = {
+          font: { bold: true, sz: 11 },
+          fill: { fgColor: { rgb: "FEF3C7" } },
+          alignment: { horizontal: "left", vertical: "center" }
+        };
+      }
+    }
+    
+    // Style total rows (bold with gray background)
     if (row[0]?.toString().includes('Total')) {
-      const cellA = `A${idx + 1}`;
-      const cellC = `C${idx + 1}`;
       if (summarySheet[cellA]) {
         summarySheet[cellA].s = {
           font: { bold: true, sz: 12 },
           fill: { fgColor: { rgb: "F3F4F6" } }
         };
       }
-      if (summarySheet[cellC]) {
-        summarySheet[cellC].s = {
+      if (summarySheet[cellB]) {
+        summarySheet[cellB].s = {
           font: { bold: true, sz: 12 },
           fill: { fgColor: { rgb: "F3F4F6" } }
         };
