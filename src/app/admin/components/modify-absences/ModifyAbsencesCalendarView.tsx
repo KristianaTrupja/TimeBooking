@@ -38,9 +38,8 @@ export default function ModifyAbsencesCalendarView({
   const [hoveredUserId, setHoveredUserId] = useState<number | null>(null);
   const [hoveredDay, setHoveredDay] = useState<number | null>(null);
   
-  const employeeColWidth = 240;
   const dayColWidth = 40;
-  const tableWidth = employeeColWidth + dayHeaders.length * dayColWidth;
+  const minTableWidth = 240 + dayHeaders.length * dayColWidth;
 
   return (
     <section
@@ -90,18 +89,18 @@ export default function ModifyAbsencesCalendarView({
 
       <div className="flex-1 min-h-0 overflow-x-auto overflow-y-auto custom-scrollbar" style={{ width: 0, minWidth: '100%' }}>
         <table
-          className="border-collapse table-fixed"
-          style={{ width: `${tableWidth}px`, minWidth: `${tableWidth}px` }}
+          className="border-collapse w-full"
+          style={{ minWidth: `${minTableWidth}px` }}
         >
           <colgroup>
-            <col style={{ width: `${employeeColWidth}px` }} />
+            <col style={{ minWidth: '200px' }} />
             {dayHeaders.map(({ day }) => (
               <col key={`col-${day}`} style={{ width: `${dayColWidth}px` }} />
             ))}
           </colgroup>
           <thead className="sticky top-0 z-20 border-b border-slate-200">
             <tr className="text-xs uppercase tracking-wider text-slate-600">
-              <th className="px-4 py-3 font-bold text-left sticky left-0 bg-slate-100 z-30 border-r border-slate-200 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.1)]">
+              <th className="px-4 py-3 font-bold text-left sticky left-0 bg-slate-100 z-30 border-r border-slate-200 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.1)] min-w-[200px]">
                 {employeeLabel}
               </th>
               {dayHeaders.map(({ day, shortWeekday, isWeekend }) => {
@@ -144,7 +143,7 @@ export default function ModifyAbsencesCalendarView({
                   onMouseLeave={() => setHoveredUserId(null)}
                 >
                   <td 
-                    className={`px-4 py-2 h-10 sticky left-0 z-10 border-r border-slate-200 transition-all duration-150 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.05)] ${
+                    className={`px-4 py-2 h-10 sticky left-0 z-10 border-r border-slate-200 transition-all duration-150 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.05)] min-w-[200px] ${
                       isRowHovered ? "bg-blue-50" : "bg-white"
                     }`}
                   >
