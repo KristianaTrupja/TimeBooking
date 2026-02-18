@@ -44,7 +44,7 @@ export default function ModifyAbsencesCalendarView({
 
   return (
     <section
-      className="rounded-xl bg-white border border-slate-200 shadow-sm flex flex-col overflow-hidden"
+      className="rounded-xl bg-white border border-slate-200 shadow-sm flex flex-col overflow-hidden w-full"
       style={{ maxHeight: containerHeight ? `${containerHeight}px` : "66vh" }}
     >
       <div className="shrink-0 bg-gradient-to-r from-slate-50 to-white border-b border-slate-200 px-3 sm:px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-0">
@@ -88,7 +88,7 @@ export default function ModifyAbsencesCalendarView({
         </div>
       )}
 
-      <div className="flex-1 min-h-0 overflow-auto custom-scrollbar">
+      <div className="flex-1 min-h-0 overflow-x-auto overflow-y-auto custom-scrollbar" style={{ width: 0, minWidth: '100%' }}>
         <table
           className="border-collapse table-fixed"
           style={{ width: `${tableWidth}px`, minWidth: `${tableWidth}px` }}
@@ -99,9 +99,9 @@ export default function ModifyAbsencesCalendarView({
               <col key={`col-${day}`} style={{ width: `${dayColWidth}px` }} />
             ))}
           </colgroup>
-          <thead className="sticky top-0 z-10 bg-slate-100 border-b border-slate-200">
+          <thead className="sticky top-0 z-20 border-b border-slate-200">
             <tr className="text-xs uppercase tracking-wider text-slate-600">
-              <th className="px-4 py-3 font-bold text-left sticky left-0 bg-slate-100 z-20 border-r border-slate-200">
+              <th className="px-4 py-3 font-bold text-left sticky left-0 bg-slate-100 z-30 border-r border-slate-200 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.1)]">
                 {employeeLabel}
               </th>
               {dayHeaders.map(({ day, shortWeekday, isWeekend }) => {
@@ -109,7 +109,7 @@ export default function ModifyAbsencesCalendarView({
                 return (
                   <th
                     key={day}
-                    className={`px-1 py-2 font-bold text-center border-r border-slate-200 transition-all duration-150 cursor-pointer ${
+                    className={`px-1 py-2 font-bold text-center border-r border-slate-200 transition-all duration-150 cursor-pointer z-20 ${
                       isWeekend ? "bg-slate-200/70" : "bg-slate-100"
                     } ${isColHovered ? "!bg-blue-100 ring-2 ring-inset ring-blue-200" : ""}`}
                     onMouseEnter={() => setHoveredDay(day)}
@@ -144,7 +144,7 @@ export default function ModifyAbsencesCalendarView({
                   onMouseLeave={() => setHoveredUserId(null)}
                 >
                   <td 
-                    className={`px-4 py-2 h-10 sticky left-0 z-10 border-r border-slate-200 transition-all duration-150 ${
+                    className={`px-4 py-2 h-10 sticky left-0 z-10 border-r border-slate-200 transition-all duration-150 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.05)] ${
                       isRowHovered ? "bg-blue-50" : "bg-white"
                     }`}
                   >
