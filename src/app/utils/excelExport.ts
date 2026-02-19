@@ -260,14 +260,20 @@ export function exportTimesheetToExcel(data: EmployeeTimesheetData) {
   workHoursData.push(['TOTAL HOURS:', '', summary.totalWorkHours.toFixed(2), '']);
 
   const workHoursSheet = XLSX.utils.aoa_to_sheet(workHoursData);
-  workHoursSheet['!cols'] = [{ wch: 15 }, { wch: 25 }, { wch: 10 }, { wch: 40 }];
+  workHoursSheet['!cols'] = [{ wch: 25 }, { wch: 25 }, { wch: 50 }, { wch: 40 }];
+
+  // Merge title across two columns
+  workHoursSheet['!merges'] = [
+    { s: { r: 0, c: 0 }, e: { r: 0, c: 1 } } // Merge A1:B1 for title
+  ];
 
   // Style work hours sheet
-  // Main title
+  // Main title (merged, centered)
   if (workHoursSheet['A1']) {
     workHoursSheet['A1'].s = {
       font: { bold: true, sz: 16, color: { rgb: "244B77" } },
-      fill: { fgColor: { rgb: "E8F4F8" } }
+      fill: { fgColor: { rgb: "E8F4F8" } },
+      alignment: { horizontal: "center", vertical: "center" }
     };
   }
 
@@ -359,14 +365,20 @@ export function exportTimesheetToExcel(data: EmployeeTimesheetData) {
   }
 
   const absencesSheet = XLSX.utils.aoa_to_sheet(absencesData);
-  absencesSheet['!cols'] = [{ wch: 20 }, { wch: 15 }, { wch: 15 }, { wch: 15 }];
+  absencesSheet['!cols'] = [{ wch: 25 }, { wch: 20 }, { wch: 50 }, { wch: 20 }];
+
+  // Merge title across two columns
+  absencesSheet['!merges'] = [
+    { s: { r: 0, c: 0 }, e: { r: 0, c: 1 } } // Merge A1:B1 for title
+  ];
 
   // Style absences sheet
-  // Main title
+  // Main title (merged, centered)
   if (absencesSheet['A1']) {
     absencesSheet['A1'].s = {
       font: { bold: true, sz: 16, color: { rgb: "244B77" } },
-      fill: { fgColor: { rgb: "E8F4F8" } }
+      fill: { fgColor: { rgb: "E8F4F8" } },
+      alignment: { horizontal: "center", vertical: "center" }
     };
   }
 
