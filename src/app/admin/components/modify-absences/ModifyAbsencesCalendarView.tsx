@@ -18,7 +18,7 @@ type Props = {
   dayHeaders: DayHeader[];
   visibleEmployees: User[];
   getDayOffType: (userId: number, day: number) => string | null;
-  getCellClass: (absenceType: string | null, isWeekend: boolean) => string;
+  getCellClass: (absenceType: string | null, isWeekend: boolean, isHoliday?: boolean) => string;
   onPrevMonth: () => void;
   onNextMonth: () => void;
   employeeLabel: string;
@@ -177,9 +177,7 @@ export default function ModifyAbsencesCalendarView({
                     return (
                       <td
                         key={`${user.id}-${day}`}
-                        className={`px-1 py-2 h-10 text-center text-[11px] transition-all duration-150 ${getCellClass(absenceType, isWeekend)} ${
-                          hasHoliday && !absenceType ? "bg-sky-50/70 border-r border-sky-200" : ""
-                        } ${
+                        className={`px-1 py-2 h-10 text-center text-[11px] transition-all duration-150 ${getCellClass(absenceType, isWeekend, hasHoliday)} ${
                           isHovered && !absenceType ? "!bg-blue-50 ring-1 ring-inset ring-blue-100" : ""
                         }`}
                         onMouseEnter={() => setHoveredDay(day)}

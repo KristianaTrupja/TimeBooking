@@ -368,8 +368,11 @@ export default function ModifyAbsences() {
     return dayOffTypeMap.get(`${userId}-${date}`) || null;
   }, [calendarYear, calendarMonth, dayOffTypeMap]);
 
-  const getCellClass = useCallback((absenceType: string | null, isWeekend: boolean) => {
+  const getCellClass = useCallback((absenceType: string | null, isWeekend: boolean, isHoliday: boolean = false) => {
     if (!absenceType) {
+      if (isHoliday) {
+        return "bg-sky-50/70 text-slate-300 border-r border-sky-200";
+      }
       return isWeekend
         ? "bg-slate-50/90 text-slate-300 border-r border-slate-100"
         : "bg-white text-slate-300 border-r border-slate-100";
