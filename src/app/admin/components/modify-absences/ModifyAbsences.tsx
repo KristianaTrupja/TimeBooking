@@ -304,16 +304,23 @@ export default function ModifyAbsences() {
   }, [holidays]);
   
   const dayHeaders = useMemo(
-    () =>
-      dayColumns.map((day) => {
+    () => {
+      const today = new Date();
+      const currentYear = today.getFullYear();
+      const currentMonth = today.getMonth();
+      const currentDay = today.getDate();
+      
+      return dayColumns.map((day) => {
         const date = new Date(Date.UTC(calendarYear, calendarMonth, day));
         const shortWeekday = date.toLocaleString("en-US", { weekday: "short", timeZone: "UTC" });
         const dayIndex = date.getUTCDay();
         const isWeekend = dayIndex === 0 || dayIndex === 6;
         const dateStr = `${calendarYear}-${String(calendarMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
         const holidayName = holidayMap.get(dateStr);
-        return { day, shortWeekday, isWeekend, holidayName };
-      }),
+        const isToday = calendarYear === currentYear && calendarMonth === currentMonth && day === currentDay;
+        return { day, shortWeekday, isWeekend, holidayName, isToday };
+      });
+    },
     [dayColumns, calendarYear, calendarMonth, holidayMap]
   );
 
