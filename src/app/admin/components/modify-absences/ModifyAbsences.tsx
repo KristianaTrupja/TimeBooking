@@ -35,6 +35,7 @@ export default function ModifyAbsences() {
 
   const [employees, setEmployees] = useState<User[]>([]);
   const [absences, setAbsences] = useState<ExtAbsence[]>([]);
+  const [holidays, setHolidays] = useState<Array<{ date: string; holiday: string }>>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [editingAbsence, setEditingAbsence] = useState<Absence | null>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -115,17 +116,20 @@ export default function ModifyAbsences() {
       params.append("userId", filters.selectedEmployee?.id ? String(filters.selectedEmployee.id) :  "")
       params.append("absenceType", filters.selectedAbsenceType || "")
 
-      const [absRes, userRes] = await Promise.all([
+      const [absRes, userRes, holidaysRes] = await Promise.all([
         fetch(`/api/absences?${params.toString()}`, { cache: "no-store" }),
         fetch("/api/user?includeInactive=true", { cache: "no-store" }),
+        fetch("/api/holidays", { cache: "no-store" }),
       ]);
 
       const absData = await absRes.json();
       const userData = await userRes.json();
+      const holidaysData = await holidaysRes.json();
      
 
       setAbsences(absData.absences || []);
       setEmployees(userData.users || []);
+      setHolidays(holidaysData.holidays || []);
     } catch (err) {
       console.error("Failed to fetch data:", err);
     } finally {
@@ -290,6 +294,15 @@ export default function ModifyAbsences() {
     [calendarYear, calendarMonth]
   );
   const dayColumns = useMemo(() => Array.from({ length: daysInMonth }, (_, i) => i + 1), [daysInMonth]);
+  
+  const holidayMap = useMemo(() => {
+    const map = new Map<string, string>();
+    holidays.forEach((holiday) => {
+      map.set(holiday.date, holiday.holiday);
+    });
+    return map;
+  }, [holidays]);
+  
   const dayHeaders = useMemo(
     () =>
       dayColumns.map((day) => {
@@ -297,9 +310,11 @@ export default function ModifyAbsences() {
         const shortWeekday = date.toLocaleString("en-US", { weekday: "short", timeZone: "UTC" });
         const dayIndex = date.getUTCDay();
         const isWeekend = dayIndex === 0 || dayIndex === 6;
-        return { day, shortWeekday, isWeekend };
+        const dateStr = `${calendarYear}-${String(calendarMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+        const holidayName = holidayMap.get(dateStr);
+        return { day, shortWeekday, isWeekend, holidayName };
       }),
-    [dayColumns, calendarYear, calendarMonth]
+    [dayColumns, calendarYear, calendarMonth, holidayMap]
   );
 
   const visibleEmployees = useMemo(() => {

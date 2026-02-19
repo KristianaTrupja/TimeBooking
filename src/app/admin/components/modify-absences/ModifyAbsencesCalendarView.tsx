@@ -8,6 +8,7 @@ type DayHeader = {
   day: number;
   shortWeekday: string;
   isWeekend: boolean;
+  holidayName?: string | null;
 };
 
 type Props = {
@@ -84,6 +85,7 @@ export default function ModifyAbsencesCalendarView({
           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-rose-100 text-rose-700">Sick</span>
           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-violet-100 text-violet-700">Personal</span>
           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-100 text-amber-700">Parental</span>
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-red-100 text-red-700">🎉 Official Holiday</span>
         </div>
       )}
 
@@ -103,28 +105,33 @@ export default function ModifyAbsencesCalendarView({
               <th className="px-4 py-3 font-bold text-left sticky left-0 bg-slate-100 z-30 border-r border-slate-200 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.1)] min-w-[200px]">
                 {employeeLabel}
               </th>
-              {dayHeaders.map(({ day, shortWeekday, isWeekend }) => {
+              {dayHeaders.map(({ day, shortWeekday, isWeekend, holidayName }) => {
                 const isColHovered = hoveredDay === day;
+                const hasHoliday = !!holidayName;
                 return (
                   <th
                     key={day}
                     className={`px-1 py-2 font-bold text-center border-r border-slate-200 transition-all duration-150 cursor-pointer z-20 ${
-                      isWeekend ? "bg-slate-200/70" : "bg-slate-100"
+                      hasHoliday ? "bg-gradient-to-b from-red-100 to-red-50" : isWeekend ? "bg-slate-200/70" : "bg-slate-100"
                     } ${isColHovered ? "!bg-blue-100 ring-2 ring-inset ring-blue-200" : ""}`}
                     onMouseEnter={() => setHoveredDay(day)}
                     onMouseLeave={() => setHoveredDay(null)}
+                    title={holidayName || undefined}
                   >
                     <div className="leading-tight">
                       <div className={`text-[10px] transition-colors duration-150 ${
-                        isColHovered ? "text-blue-600" : "text-slate-500"
+                        hasHoliday ? "text-red-600" : isColHovered ? "text-blue-600" : "text-slate-500"
                       }`}>
                         {shortWeekday.slice(0, 2)}
                       </div>
                       <div className={`text-[11px] transition-colors duration-150 ${
-                        isColHovered ? "text-blue-700" : ""
+                        hasHoliday ? "text-red-700" : isColHovered ? "text-blue-700" : ""
                       }`}>
                         {String(day).padStart(2, "0")}
                       </div>
+                      {hasHoliday && (
+                        <div className="text-red-500 text-[10px] leading-none mt-0.5">●</div>
+                      )}
                     </div>
                   </th>
                 );
@@ -156,19 +163,23 @@ export default function ModifyAbsencesCalendarView({
                     </div>
                   </td>
 
-                  {dayHeaders.map(({ day, isWeekend }) => {
+                  {dayHeaders.map(({ day, isWeekend, holidayName }) => {
                     const absenceType = getDayOffType(user.id, day);
                     const isHovered = isRowHovered || hoveredDay === day;
+                    const hasHoliday = !!holidayName;
                     return (
                       <td
                         key={`${user.id}-${day}`}
                         className={`px-1 py-2 h-10 text-center text-[11px] transition-all duration-150 ${getCellClass(absenceType, isWeekend)} ${
+                          hasHoliday && !absenceType ? "bg-red-50/50 border-r border-red-100" : ""
+                        } ${
                           isHovered && !absenceType ? "!bg-blue-50 ring-1 ring-inset ring-blue-100" : ""
                         }`}
                         onMouseEnter={() => setHoveredDay(day)}
                         onMouseLeave={() => setHoveredDay(null)}
+                        title={hasHoliday ? holidayName : undefined}
                       >
-                        {absenceType ? "●" : ""}
+                        {absenceType ? "●" : hasHoliday ? "🎉" : ""}
                       </td>
                     );
                   })}
