@@ -16,6 +16,7 @@ const NotificationContext = createContext<NotificationContextType | undefined>(u
 
 export const NotificationProvider = ({ children }: { children: ReactNode }) => {
     const [notifications, setNotifications] = useState<Notification[]>([])
+    const [isFetching, setIsFetching] = useState(false)
 
     const unreadNotificationsCount = useMemo(() => notifications.filter(notification => !notification.isRead).length, [notifications])
 
@@ -24,8 +25,15 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
     }
 
     async function fetchAllNotifications() {
+        // Prevent concurrent fetches
+        if (isFetching) return;
+        
         try {
-            const response = await fetch('/api/notifications');
+            setIsFetching(true);
+            const response = await fetch('/api/notifications', {
+                cache: 'no-store',
+                signal: AbortSignal.timeout(5000), // 5 second timeout
+            });
             
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
@@ -34,16 +42,37 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
             const data: {notifications: Notification[]} = await response.json();
             setNotifications((data?.notifications || []))
         } catch (err) {
-            console.error("COULDN'T FETCH Notifications", err);
-            setNotifications([]);
+            if (err instanceof Error && err.name !== 'AbortError') {
+                console.error("COULDN'T FETCH Notifications", err);
+            }
+        } finally {
+            setIsFetching(false);
         }
     }
 
     useEffect(() => {
         fetchAllNotifications()
-        const interval = setInterval(fetchAllNotifications, 3 * 60 * 1000) // 3 * 60 * 1000 = 3 minutes
+        
+        // Optimize polling: only fetch when tab is visible
+        const handleVisibilityChange = () => {
+            if (!document.hidden) {
+                fetchAllNotifications();
+            }
+        };
+        
+        // Poll every 5 minutes instead of 3 (reduce server load)
+        const interval = setInterval(() => {
+            if (!document.hidden) {
+                fetchAllNotifications();
+            }
+        }, 5 * 60 * 1000);
+        
+        document.addEventListener('visibilitychange', handleVisibilityChange);
 
-        return () => clearInterval(interval);
+        return () => {
+            clearInterval(interval);
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+        };
     }, [])
 
 

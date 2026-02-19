@@ -10,18 +10,24 @@ import { Toaster } from "sonner";
 const keanianOne = Keania_One({
   variable: "--font-keania-one",
   subsets: ["latin"],
-  weight: "400"
+  weight: "400",
+  display: "swap",
+  preload: true,
 });
 
 const anekBangla = Anek_Bangla({
   variable: "--font-anek-bangla",
   subsets: ["latin"],
-  weight: "400"
+  weight: "400",
+  display: "swap",
+  preload: true,
 });
 
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
+  display: "swap",
+  preload: true,
 });
 
 export const metadata: Metadata = {
@@ -33,6 +39,12 @@ export const metadata: Metadata = {
     ],
     apple: "/icon.svg",
   },
+  viewport: {
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 5,
+  },
+  themeColor: "#244B77",
 }
 
 export default function RootLayout({

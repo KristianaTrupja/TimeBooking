@@ -76,10 +76,11 @@ export const WorkHoursModal = ({
         {/* Hours Input */}
         <div>
           <div className="flex items-center gap-2 mb-2">
-            <Clock size={14} className="text-[#244B77]" />
-            <label className="text-sm font-medium text-slate-700">{t.hoursWorked}</label>
+            <Clock size={14} className="text-[#244B77]" aria-hidden="true" />
+            <label htmlFor="work-hours-input" className="text-sm font-medium text-slate-700">{t.hoursWorked}</label>
           </div>
           <input
+            id="work-hours-input"
             autoFocus
             type="number"
             step={0.25}
@@ -102,10 +103,12 @@ export const WorkHoursModal = ({
                 : "border border-slate-200 bg-slate-50 text-slate-700 focus:ring-[#244B77]/30 focus:border-[#244B77]/50"
             } focus:outline-none focus:ring-2`}
             placeholder="0.00"
+            aria-invalid={!!inputError}
+            aria-describedby={inputError ? "hours-error" : undefined}
           />
           {inputError && (
-            <p className="text-red-500 text-xs mt-2 flex items-center gap-1">
-              <span className="w-1 h-1 rounded-full bg-red-500"></span>
+            <p id="hours-error" className="text-red-500 text-xs mt-2 flex items-center gap-1" role="alert">
+              <span className="w-1 h-1 rounded-full bg-red-500" aria-hidden="true"></span>
               {inputError}
             </p>
           )}
@@ -115,16 +118,18 @@ export const WorkHoursModal = ({
         {/* Note Input */}
         <div>
           <div className="flex items-center gap-2 mb-2">
-            <FileText size={14} className="text-[#244B77]" />
-            <label className="text-sm font-medium text-slate-700">{t.description}</label>
+            <FileText size={14} className="text-[#244B77]" aria-hidden="true" />
+            <label htmlFor="work-notes-input" className="text-sm font-medium text-slate-700">{t.description}</label>
             <span className="text-xs text-slate-400">({t.optional})</span>
           </div>
           <textarea
+            id="work-notes-input"
             value={textareaValue}
             onChange={(e) => setTextAreaValue(e.target.value)}
             className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#244B77]/30 focus:border-[#244B77]/50 transition-all resize-none"
             placeholder={t.whatDidYouWorkOn}
             rows={3}
+            aria-label={t.description}
           />
         </div>
       </div>

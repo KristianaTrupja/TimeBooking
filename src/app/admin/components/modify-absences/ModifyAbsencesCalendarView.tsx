@@ -90,11 +90,14 @@ export default function ModifyAbsencesCalendarView({
         </div>
       )}
 
-      <div className="flex-1 min-h-0 overflow-x-auto overflow-y-auto custom-scrollbar" style={{ width: 0, minWidth: '100%' }}>
+      <div className="flex-1 min-h-0 overflow-x-auto overflow-y-auto custom-scrollbar" style={{ width: 0, minWidth: '100%' }} role="region" aria-labelledby="calendar-caption" tabIndex={0}>
         <table
           className="border-collapse w-full"
           style={{ minWidth: `${minTableWidth}px` }}
+          role="table"
+          aria-label="Employee leave calendar"
         >
+          <caption id="calendar-caption" className="sr-only">Leave calendar showing employee absences for {monthLabel}</caption>
           <colgroup>
             <col style={{ minWidth: '200px' }} />
             {dayHeaders.map(({ day }) => (
@@ -103,7 +106,7 @@ export default function ModifyAbsencesCalendarView({
           </colgroup>
           <thead className="sticky top-0 z-20 border-b border-slate-200">
             <tr className="text-xs uppercase tracking-wider text-slate-600">
-              <th className="px-4 py-3 font-bold text-left sticky left-0 bg-slate-100 z-30 border-r border-slate-200 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.1)] min-w-[200px]">
+              <th scope="col" className="px-4 py-3 font-bold text-left sticky left-0 bg-slate-100 z-30 border-r border-slate-200 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.1)] min-w-[200px]">
                 {employeeLabel}
               </th>
               {dayHeaders.map(({ day, shortWeekday, isWeekend, holidayName, isToday }) => {
@@ -112,6 +115,7 @@ export default function ModifyAbsencesCalendarView({
                 return (
                   <th
                     key={day}
+                    scope="col"
                     className={`px-1 py-2 font-bold text-center transition-all duration-150 cursor-pointer z-20 ${
                       isToday 
                         ? "bg-gradient-to-b from-blue-500 to-blue-400 border-r-2 border-l-2 border-blue-600 shadow-md" 
@@ -156,7 +160,8 @@ export default function ModifyAbsencesCalendarView({
                   onMouseEnter={() => setHoveredUserId(user.id)}
                   onMouseLeave={() => setHoveredUserId(null)}
                 >
-                  <td 
+                  <th 
+                    scope="row"
                     className={`px-4 py-2 h-10 sticky left-0 z-10 border-r border-slate-200 transition-all duration-150 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.05)] min-w-[200px] ${
                       isRowHovered ? "bg-blue-50" : "bg-white"
                     }`}
@@ -168,7 +173,7 @@ export default function ModifyAbsencesCalendarView({
                         {user.username}
                       </span>
                     </div>
-                  </td>
+                  </th>
 
                   {dayHeaders.map(({ day, isWeekend, holidayName, isToday }) => {
                     const absenceType = getDayOffType(user.id, day);

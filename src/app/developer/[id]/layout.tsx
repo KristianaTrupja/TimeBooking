@@ -72,8 +72,16 @@ export default async function DashboardLayout({
                   className="min-h-screen flex flex-col bg-gradient-to-br from-slate-50 via-white to-slate-100" 
                   style={{ fontFamily: "var(--font-anek-bangla)" }}
                 >
+                  {/* Skip Navigation Link */}
+                  <a 
+                    href="#main-content" 
+                    className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-blue-600 focus:text-white focus:rounded-md focus:shadow-lg"
+                  >
+                    Skip to main content
+                  </a>
+                  
                   {/* Fixed Header */}
-                  <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-white/80 border-b border-slate-200 px-6 py-4 shadow-sm">
+                  <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-white/80 border-b border-slate-200 px-6 py-4 shadow-sm" role="banner">
                     <div className="flex justify-between items-center">
                       <Link href={`/developer/${currentUserId}`} className="group flex items-center gap-3 hover:opacity-90 transition-all duration-300">
                         {/* Logo Icon */}
@@ -107,7 +115,7 @@ export default async function DashboardLayout({
                   </header>
                   
                   {/* Main content area with top padding for fixed header */}
-                  <main className="flex-1 pt-[72px]">
+                  <main id="main-content" className="flex-1 pt-[72px]" role="main">
                     {children}
                   </main>
                 </div>

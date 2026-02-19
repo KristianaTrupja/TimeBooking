@@ -5,7 +5,7 @@ import { useState, useEffect, useRef } from "react";
 import { SubmissionStatus, Timesheet } from "@/types/timesheet";
 import { Eye, Clock, User, FileSpreadsheet } from "lucide-react";
 import { useLanguage } from "@/app/context/LanguageContext";
-import { exportTimesheetToExcel, type EmployeeTimesheetData } from "@/app/utils/excelExport";
+import type { EmployeeTimesheetData } from "@/app/utils/excelExport";
 import { toast } from "sonner";
 
 type PropTypes = {
@@ -81,6 +81,9 @@ export default function RaportEntry({timesheet, month, year, index, adminId, onA
             }
 
             const data: EmployeeTimesheetData = await response.json();
+            
+            // Dynamically import the Excel export function to reduce initial bundle size
+            const { exportTimesheetToExcel } = await import("@/app/utils/excelExport");
             exportTimesheetToExcel(data);
             toast.success("Excel file downloaded successfully!");
         } catch (error) {

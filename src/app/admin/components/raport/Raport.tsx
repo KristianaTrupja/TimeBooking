@@ -199,17 +199,17 @@ export default function Raport() {
   }, [timesheets, sortField, sortDirection]);
 
   return (
-    <section ref={sectionRef} className="p-6 h-full flex flex-col">
+    <section ref={sectionRef} className="p-6 h-full flex flex-col" aria-labelledby="timesheets-heading">
       {/* Header Section */}
       <div ref={navRef}>
         {/* Title and Navigation */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/25">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/25" aria-hidden="true">
               <FileText className="text-white" size={20} />
             </div>
             <div>
-              <h1 className="text-xl font-semibold text-slate-800">{t.timesheets}</h1>
+              <h1 id="timesheets-heading" className="text-xl font-semibold text-slate-800">{t.timesheets}</h1>
               <p className="text-sm text-slate-500">{t.reviewSubmissions}</p>
             </div>
           </div>
@@ -234,18 +234,20 @@ export default function Raport() {
               size="sm"
               className="hover:bg-white rounded-lg h-9 w-9 p-0" 
               onClick={goToPreviousMonth}
+              aria-label={`Previous month`}
             >
-              <ChevronLeft className="text-slate-600" size={18} />
+              <ChevronLeft className="text-slate-600" size={18} aria-hidden="true" />
             </Button>
-            <span className="text-sm font-semibold text-slate-700 min-w-[140px] text-center">{formattedDate}</span>
+            <span className="text-sm font-semibold text-slate-700 min-w-[140px] text-center" aria-live="polite">{formattedDate}</span>
             <MonthYearPicker />
             <Button 
               variant="ghost" 
               size="sm"
               className="hover:bg-white rounded-lg h-9 w-9 p-0" 
               onClick={goToNextMonth}
+              aria-label={`Next month`}
             >
-              <ChevronRight className="text-slate-600" size={18} />
+              <ChevronRight className="text-slate-600" size={18} aria-hidden="true" />
             </Button>
             </div>
           </div>
@@ -304,43 +306,50 @@ export default function Raport() {
       <section
         className="overflow-hidden overflow-y-auto rounded-xl flex-1 bg-white border border-slate-200 shadow-sm custom-scrollbar"
         style={{ maxHeight: containerHeight ? `${containerHeight}px` : "66vh" }}
+        role="region"
+        aria-labelledby="timesheets-table-caption"
+        tabIndex={0}
       >
         {timesheets === null || loading || needsNavigation || isNavigating ? (
-          <div className="h-64">
+          <div className="h-64" role="status" aria-live="polite">
             <Spinner text={t.loadingTimesheets} />
           </div>
         ) : (
-          <table className="w-full">
+          <table className="w-full" role="table" aria-labelledby="timesheets-table-caption">
+            <caption id="timesheets-table-caption" className="sr-only">Employee timesheets for {formattedDate}</caption>
             <thead className="bg-slate-100 border-b border-slate-200 sticky top-0 z-20">
               <tr className="text-left text-xs uppercase tracking-wider text-slate-600">
-                <th className="px-4 py-3 font-bold w-16 bg-slate-100">#</th>
-                <th className="px-4 py-3 font-bold bg-slate-100">
+                <th scope="col" className="px-4 py-3 font-bold w-16 bg-slate-100">#</th>
+                <th scope="col" className="px-4 py-3 font-bold bg-slate-100">
                   <button 
                     onClick={() => handleSort("employee")}
                     className="flex items-center gap-1.5 hover:text-slate-900 transition-colors"
+                    aria-label={`Sort by employee`}
                   >
-                    {t.employee} {getSortIcon("employee")}
+                    {t.employee} <span aria-hidden="true">{getSortIcon("employee")}</span>
                   </button>
                 </th>
-                <th className="px-4 py-3 font-bold bg-slate-100">
+                <th scope="col" className="px-4 py-3 font-bold bg-slate-100">
                   <button 
                     onClick={() => handleSort("hours")}
                     className="flex items-center gap-1.5 hover:text-slate-900 transition-colors"
+                    aria-label={`Sort by hours`}
                   >
-                    {t.hours} {getSortIcon("hours")}
+                    {t.hours} <span aria-hidden="true">{getSortIcon("hours")}</span>
                   </button>
                 </th>
-                <th className="px-4 py-3 font-bold bg-slate-100">{t.details}</th>
-                <th className="px-4 py-3 font-bold bg-slate-100">
+                <th scope="col" className="px-4 py-3 font-bold bg-slate-100">{t.details}</th>
+                <th scope="col" className="px-4 py-3 font-bold bg-slate-100">
                   <button 
                     onClick={() => handleSort("status")}
                     className="flex items-center gap-1.5 hover:text-slate-900 transition-colors"
+                    aria-label={`Sort by status`}
                   >
-                    {t.status} {getSortIcon("status")}
+                    {t.status} <span aria-hidden="true">{getSortIcon("status")}</span>
                   </button>
                 </th>
-                <th className="px-4 py-3 font-bold bg-slate-100">{t.action}</th>
-                <th className="px-4 py-3 font-bold bg-slate-100 text-center">{t.download}</th>
+                <th scope="col" className="px-4 py-3 font-bold bg-slate-100">{t.action}</th>
+                <th scope="col" className="px-4 py-3 font-bold bg-slate-100 text-center">{t.download}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
