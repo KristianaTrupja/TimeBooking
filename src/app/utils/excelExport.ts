@@ -111,7 +111,7 @@ export function exportTimesheetToExcel(data: EmployeeTimesheetData) {
   const summarySheet = XLSX.utils.aoa_to_sheet(summaryData);
 
   // Style the summary sheet
-  summarySheet['!cols'] = [{ wch: 30 }, { wch: 20 }];
+  summarySheet['!cols'] = [{ wch: 45 }, { wch: 40 }];
 
   // Apply styles
   // Main title - Row 1
