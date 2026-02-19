@@ -229,7 +229,7 @@ export function exportTimesheetToExcel(data: EmployeeTimesheetData) {
   const workHoursData: any[][] = [
     ['WORK HOURS DETAILS'],
     [],
-    ['Date', 'Project', 'Hours', 'Notes'],
+    ['Date', 'Hours', 'Notes'],
   ];
 
   // Group work hours by project
@@ -245,11 +245,10 @@ export function exportTimesheetToExcel(data: EmployeeTimesheetData) {
   Object.entries(workHoursByProject).forEach(([project, hours]) => {
     const projectTotal = hours.reduce((sum, h) => sum + h.hours, 0);
     workHoursData.push([]);
-    workHoursData.push([`PROJECT: ${project}`, '', `${projectTotal.toFixed(2)} hours`, '']);
+    workHoursData.push([`PROJECT: ${project}`, `${projectTotal.toFixed(2)} hours`, '']);
     hours.forEach(wh => {
       workHoursData.push([
         formatDate(wh.date),
-        '',
         wh.hours.toFixed(2),
         wh.note || ''
       ]);
@@ -257,10 +256,10 @@ export function exportTimesheetToExcel(data: EmployeeTimesheetData) {
   });
 
   workHoursData.push([]);
-  workHoursData.push(['TOTAL HOURS:', '', summary.totalWorkHours.toFixed(2), '']);
+  workHoursData.push(['TOTAL HOURS:', summary.totalWorkHours.toFixed(2), '']);
 
   const workHoursSheet = XLSX.utils.aoa_to_sheet(workHoursData);
-  workHoursSheet['!cols'] = [{ wch: 25 }, { wch: 25 }, { wch: 50 }, { wch: 40 }];
+  workHoursSheet['!cols'] = [{ wch: 25 }, { wch: 15 }, { wch: 25 }];
 
   // Merge title across two columns
   workHoursSheet['!merges'] = [
@@ -278,7 +277,7 @@ export function exportTimesheetToExcel(data: EmployeeTimesheetData) {
   }
 
   // Column headers (Row 3)
-  ['A3', 'B3', 'C3', 'D3'].forEach(cell => {
+  ['A3', 'B3', 'C3'].forEach(cell => {
     if (workHoursSheet[cell]) {
       workHoursSheet[cell].s = {
         font: { bold: true, sz: 11, color: { rgb: "FFFFFF" } },
@@ -292,15 +291,15 @@ export function exportTimesheetToExcel(data: EmployeeTimesheetData) {
   workHoursData.forEach((row, idx) => {
     if (row[0]?.toString().startsWith('PROJECT:')) {
       const cellA = `A${idx + 1}`;
-      const cellC = `C${idx + 1}`;
+      const cellB = `B${idx + 1}`;
       if (workHoursSheet[cellA]) {
         workHoursSheet[cellA].s = {
           font: { bold: true, sz: 11, color: { rgb: "FFFFFF" } },
           fill: { fgColor: { rgb: "8B5CF6" } }
         };
       }
-      if (workHoursSheet[cellC]) {
-        workHoursSheet[cellC].s = {
+      if (workHoursSheet[cellB]) {
+        workHoursSheet[cellB].s = {
           font: { bold: true, sz: 11 },
           fill: { fgColor: { rgb: "DDD6FE" } }
         };
@@ -308,15 +307,15 @@ export function exportTimesheetToExcel(data: EmployeeTimesheetData) {
     }
     if (row[0] === 'TOTAL HOURS:') {
       const cellA = `A${idx + 1}`;
-      const cellC = `C${idx + 1}`;
+      const cellB = `B${idx + 1}`;
       if (workHoursSheet[cellA]) {
         workHoursSheet[cellA].s = {
           font: { bold: true, sz: 12 },
           fill: { fgColor: { rgb: "DBEAFE" } }
         };
       }
-      if (workHoursSheet[cellC]) {
-        workHoursSheet[cellC].s = {
+      if (workHoursSheet[cellB]) {
+        workHoursSheet[cellB].s = {
           font: { bold: true, sz: 12 },
           fill: { fgColor: { rgb: "DBEAFE" } }
         };
@@ -365,7 +364,7 @@ export function exportTimesheetToExcel(data: EmployeeTimesheetData) {
   }
 
   const absencesSheet = XLSX.utils.aoa_to_sheet(absencesData);
-  absencesSheet['!cols'] = [{ wch: 25 }, { wch: 20 }, { wch: 50 }, { wch: 20 }];
+  absencesSheet['!cols'] = [{ wch: 25 }, { wch: 20 }, { wch: 25 }, { wch: 20 }];
 
   // Merge title across two columns
   absencesSheet['!merges'] = [
