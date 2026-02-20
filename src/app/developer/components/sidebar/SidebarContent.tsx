@@ -3,11 +3,25 @@
 import { Button } from "@/components/ui/button";
 import SidebarList from "./SidebarList";
 import { ProjectData } from "@/types/project";
-import { Plus } from "lucide-react";
 import { useLanguage } from "@/app/context/LanguageContext";
 
-export default function SidebarContent({ isLocked, isOwner=false, sidebarProjects, openModal }: {isLocked?:boolean, isOwner:boolean, sidebarProjects: ProjectData[], openModal: () => void }) {
+export default function SidebarContent({ 
+  isLocked, 
+  isOwner=false, 
+  sidebarProjects, 
+  openModal,
+  onCopyPreviousMonth,
+  isCopying = false
+}: {
+  isLocked?:boolean, 
+  isOwner:boolean, 
+  sidebarProjects: ProjectData[], 
+  openModal: () => void,
+  onCopyPreviousMonth: () => void,
+  isCopying?: boolean
+}) {
   const { t } = useLanguage();
+  const hasProjects = sidebarProjects.length > 0;
   
   return (
     <aside className="h-full w-full  min-w-[160px]  bg-gradient-to-b from-slate-50 to-slate-100 rounded-l-xl border-r border-slate-200 flex flex-col justify-between shadow-md">
@@ -16,13 +30,23 @@ export default function SidebarContent({ isLocked, isOwner=false, sidebarProject
       </div>
       {isOwner && !isLocked && (
         <div className="p-3 border-t border-slate-200 flex-shrink-0">
-          <Button 
-            className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-md" 
-            onClick={openModal}
-          >
-            <Plus size={18} className="mr-2" />
-            {t.addProject}
-          </Button>
+          <div className="flex gap-2">
+            <Button 
+              variant="outline"
+              className="flex-1 bg-white hover:bg-slate-50 text-slate-700 border-slate-300 shadow-sm text-xs px-2 disabled:opacity-50 disabled:cursor-not-allowed" 
+              onClick={onCopyPreviousMonth}
+              disabled={isCopying || hasProjects}
+              title={hasProjects ? "Remove all projects to enable copying" : "Copy projects from previous month"}
+            >
+              copy job s-ord
+            </Button>
+            <Button 
+              className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-md text-xs px-2" 
+              onClick={openModal}
+            >
+              new job s-ord
+            </Button>
+          </div>
         </div>
       )}
     </aside>
