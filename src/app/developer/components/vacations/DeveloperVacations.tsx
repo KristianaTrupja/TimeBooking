@@ -15,11 +15,15 @@ import {
   ArrowUp,
   ArrowDown,
   ChevronUp,
-  ChevronDown
+  ChevronDown,
+  List,
+  Grid3X3
 } from "lucide-react";
 import { AbsenceType, ExtAbsence } from "@/types/absence";
 import Spinner from "@/components/ui/Spinner";
 import { useLanguage } from "@/app/context/LanguageContext";
+import { User } from "@/types/user";
+import ModifyAbsencesCalendarView from "@/app/admin/components/modify-absences/ModifyAbsencesCalendarView";
 
 const ABSENCE_TYPES: (keyof typeof AbsenceType)[] = ["VACATION", "SICK", "PERSONAL", "PARENTAL"];
 
@@ -68,11 +72,15 @@ function getInitialFiltersState() {
 
 type SortField = "type" | "startDate" | "endDate" | "days";
 type SortDirection = "asc" | "desc" | null;
+type ViewMode = "list" | "calendar";
 
 export default function DeveloperVacations() {
   const pathname = usePathname();
   const { t } = useLanguage();
   const [absences, setAbsences] = useState<ExtAbsence[]>([]);
+  const [allAbsences, setAllAbsences] = useState<ExtAbsence[]>([]);
+  const [employees, setEmployees] = useState<User[]>([]);
+  const [holidays, setHolidays] = useState<Array<{ date: string; holiday: string }>>([]);
   const [remainingDays, setRemainingDays] = useState<APIRemainingDays | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [filters, setFilters] = useState(getInitialFiltersState());
@@ -80,6 +88,9 @@ export default function DeveloperVacations() {
   const [sortField, setSortField] = useState<SortField | null>("startDate");
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
   const [isExpanded, setIsExpanded] = useState(false);
+  const [viewMode, setViewMode] = useState<ViewMode>("list");
+  const [calendarMonth, setCalendarMonth] = useState(new Date().getMonth());
+  const [calendarYear, setCalendarYear] = useState(new Date().getFullYear());
   
   // Translation map for absence types
   const absenceTypeLabels: Record<string, string> = {
@@ -141,6 +152,33 @@ export default function DeveloperVacations() {
   useEffect(() => {
     fetchRemainingDays();
   }, [fetchRemainingDays]);
+
+  // Fetch all employees and absences for calendar view
+  const fetchTeamData = useCallback(async () => {
+    if (viewMode !== "calendar") return;
+    
+    try {
+      const [usersRes, allAbsencesRes, holidaysRes] = await Promise.all([
+        fetch("/api/user", { cache: "no-store" }),
+        fetch(`/api/absences?startDate=${calendarYear}-01-01&endDate=${calendarYear}-12-31`, { cache: "no-store" }),
+        fetch(`/api/holidays?year=${calendarYear}`, { cache: "no-store" }),
+      ]);
+
+      const usersData = await usersRes.json();
+      const absencesData = await allAbsencesRes.json();
+      const holidaysData = await holidaysRes.json();
+
+      setEmployees(usersData.users || []);
+      setAllAbsences(absencesData.absences || []);
+      setHolidays(holidaysData.holidays || []);
+    } catch (err) {
+      console.error("Failed to fetch team data:", err);
+    }
+  }, [viewMode, calendarYear]);
+
+  useEffect(() => {
+    fetchTeamData();
+  }, [fetchTeamData]);
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
@@ -236,6 +274,130 @@ export default function DeveloperVacations() {
     return { totalDays, byType };
   }, [absences]);
 
+  // Calendar view setup
+  const calendarMonthStart = useMemo(
+    () => new Date(Date.UTC(calendarYear, calendarMonth, 1, 0, 0, 0, 0)),
+    [calendarYear, calendarMonth]
+  );
+  const calendarMonthEnd = useMemo(
+    () => new Date(Date.UTC(calendarYear, calendarMonth + 1, 0, 23, 59, 59, 999)),
+    [calendarYear, calendarMonth]
+  );
+  const daysInMonth = useMemo(
+    () => new Date(calendarYear, calendarMonth + 1, 0).getDate(),
+    [calendarYear, calendarMonth]
+  );
+  const monthLabel = useMemo(
+    () => new Date(calendarYear, calendarMonth).toLocaleString("en-US", { month: "long", year: "numeric" }),
+    [calendarYear, calendarMonth]
+  );
+  const dayColumns = useMemo(() => Array.from({ length: daysInMonth }, (_, i) => i + 1), [daysInMonth]);
+  
+  const holidayMap = useMemo(() => {
+    const map = new Map<string, string>();
+    holidays.forEach((holiday) => {
+      map.set(holiday.date, holiday.holiday);
+    });
+    return map;
+  }, [holidays]);
+  
+  const dayHeaders = useMemo(
+    () => {
+      const today = new Date();
+      const currentYear = today.getFullYear();
+      const currentMonth = today.getMonth();
+      const currentDay = today.getDate();
+      
+      return dayColumns.map((day) => {
+        const date = new Date(Date.UTC(calendarYear, calendarMonth, day));
+        const shortWeekday = date.toLocaleString("en-US", { weekday: "short", timeZone: "UTC" });
+        const dayIndex = date.getUTCDay();
+        const isWeekend = dayIndex === 0 || dayIndex === 6;
+        const dateStr = `${calendarYear}-${String(calendarMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+        const holidayName = holidayMap.get(dateStr);
+        const isToday = calendarYear === currentYear && calendarMonth === currentMonth && day === currentDay;
+        return { day, shortWeekday, isWeekend, holidayName, isToday };
+      });
+    },
+    [dayColumns, calendarYear, calendarMonth, holidayMap]
+  );
+
+  const visibleEmployees = useMemo(() => {
+    return [...employees].sort((a, b) => a.username.localeCompare(b.username));
+  }, [employees]);
+
+  const dayOffTypeMap = useMemo(() => {
+    const map = new Map<string, string>();
+
+    const toIsoDate = (d: Date) => {
+      const y = d.getUTCFullYear();
+      const m = String(d.getUTCMonth() + 1).padStart(2, "0");
+      const day = String(d.getUTCDate()).padStart(2, "0");
+      return `${y}-${m}-${day}`;
+    };
+
+    allAbsences.forEach((absence) => {
+      const start = new Date(absence.startDate);
+      const end = new Date(absence.endDate);
+      const overlapStart = start > calendarMonthStart ? start : calendarMonthStart;
+      const overlapEnd = end < calendarMonthEnd ? end : calendarMonthEnd;
+      if (overlapStart > overlapEnd) return;
+
+      const cursor = new Date(Date.UTC(
+        overlapStart.getUTCFullYear(),
+        overlapStart.getUTCMonth(),
+        overlapStart.getUTCDate(),
+        0, 0, 0, 0
+      ));
+
+      while (cursor <= overlapEnd) {
+        map.set(`${absence.userId}-${toIsoDate(cursor)}`, absence.type);
+        cursor.setUTCDate(cursor.getUTCDate() + 1);
+      }
+    });
+
+    return map;
+  }, [allAbsences, calendarMonthStart, calendarMonthEnd]);
+
+  const getDayOffType = useCallback((userId: number, day: number) => {
+    const date = `${calendarYear}-${String(calendarMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+    return dayOffTypeMap.get(`${userId}-${date}`) || null;
+  }, [calendarYear, calendarMonth, dayOffTypeMap]);
+
+  const getCellClass = useCallback((absenceType: string | null, isWeekend: boolean, isHoliday: boolean = false) => {
+    if (!absenceType) {
+      if (isHoliday) {
+        return "bg-sky-50/70 text-slate-300 border-r border-sky-200";
+      }
+      return isWeekend
+        ? "bg-slate-50/90 text-slate-300 border-r border-slate-100"
+        : "bg-white text-slate-300 border-r border-slate-100";
+    }
+    if (absenceType === "VACATION") return "bg-teal-200/90 text-teal-900 font-semibold border-r border-teal-300/40";
+    if (absenceType === "SICK") return "bg-rose-200/90 text-rose-900 font-semibold border-r border-rose-300/40";
+    if (absenceType === "PERSONAL") return "bg-violet-200/90 text-violet-900 font-semibold border-r border-violet-300/40";
+    if (absenceType === "PARENTAL") return "bg-amber-200/90 text-amber-900 font-semibold border-r border-amber-300/40";
+    return "bg-blue-200/90 text-blue-900 font-semibold border-r border-blue-300/40";
+  }, []);
+
+  const handlePrevMonth = useCallback(() => {
+    if (calendarMonth === 0) {
+      setCalendarMonth(11);
+      setCalendarYear((y) => y - 1);
+      return;
+    }
+    setCalendarMonth((m) => m - 1);
+  }, [calendarMonth]);
+
+  const handleNextMonth = useCallback(() => {
+    if (calendarMonth === 11) {
+      setCalendarMonth(0);
+      setCalendarYear((y) => y + 1);
+      return;
+    }
+    setCalendarMonth((m) => m + 1);
+  }, [calendarMonth]);
+
   return (
     <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
       {/* Header */}
@@ -251,18 +413,48 @@ export default function DeveloperVacations() {
             </div>
           </div>
           
-          <button
-            onClick={() => setIsExpanded((prev) => !prev)}
-            className={`h-10 w-10 rounded-xl border transition-all duration-200 flex items-center justify-center hover:scale-105 active:scale-95 ${
-              isExpanded
-                ? "bg-gradient-to-br from-cyan-500 to-blue-600 text-white border-cyan-400 shadow-lg shadow-cyan-500/35 ring-2 ring-cyan-200/60"
-                : "bg-gradient-to-br from-white to-slate-50 text-slate-700 border-slate-300 shadow-sm hover:shadow-md hover:border-cyan-400 hover:text-cyan-700"
-            }`}
-            aria-label={isExpanded ? "Collapse view" : "Expand view"}
-            title={isExpanded ? "Collapse view" : "Expand view"}
-          >
-            {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-          </button>
+          <div className="flex items-center gap-2">
+            {/* View Mode Toggle */}
+            <div className="flex items-center gap-1 bg-slate-100 rounded-xl p-1">
+              <button
+                onClick={() => setViewMode("list")}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                  viewMode === "list"
+                    ? "bg-white text-[#244B77] shadow-sm"
+                    : "text-slate-600 hover:text-slate-900"
+                }`}
+                aria-label="List view"
+              >
+                <List size={16} />
+                List
+              </button>
+              <button
+                onClick={() => setViewMode("calendar")}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                  viewMode === "calendar"
+                    ? "bg-white text-[#244B77] shadow-sm"
+                    : "text-slate-600 hover:text-slate-900"
+                }`}
+                aria-label="Calendar view"
+              >
+                <Grid3X3 size={16} />
+                Calendar
+              </button>
+            </div>
+            
+            <button
+              onClick={() => setIsExpanded((prev) => !prev)}
+              className={`h-10 w-10 rounded-xl border transition-all duration-200 flex items-center justify-center hover:scale-105 active:scale-95 ${
+                isExpanded
+                  ? "bg-gradient-to-br from-cyan-500 to-blue-600 text-white border-cyan-400 shadow-lg shadow-cyan-500/35 ring-2 ring-cyan-200/60"
+                  : "bg-gradient-to-br from-white to-slate-50 text-slate-700 border-slate-300 shadow-sm hover:shadow-md hover:border-cyan-400 hover:text-cyan-700"
+              }`}
+              aria-label={isExpanded ? "Collapse view" : "Expand view"}
+              title={isExpanded ? "Collapse view" : "Expand view"}
+            >
+              {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+            </button>
+          </div>
         </div>
 
         {/* Balance Cards */}
@@ -435,8 +627,24 @@ export default function DeveloperVacations() {
         )}
       </div>
 
-      {/* Table Section */}
-      <div className="overflow-y-auto custom-scrollbar" style={{ maxHeight: "calc(100vh - 450px)", minHeight: "300px" }}>
+      {/* Content Section */}
+      {viewMode === "calendar" ? (
+        <div className="p-6">
+          <ModifyAbsencesCalendarView
+            containerHeight={null}
+            monthLabel={monthLabel}
+            dayHeaders={dayHeaders}
+            visibleEmployees={visibleEmployees}
+            getDayOffType={getDayOffType}
+            getCellClass={getCellClass}
+            onPrevMonth={handlePrevMonth}
+            onNextMonth={handleNextMonth}
+            employeeLabel={t.employee || "Employee"}
+            isCompact={false}
+          />
+        </div>
+      ) : (
+        <div className="overflow-y-auto custom-scrollbar" style={{ maxHeight: "calc(100vh - 450px)", minHeight: "300px" }}>
         {isLoading ? (
           <div className="h-64">
             <Spinner text={t.loading} />
@@ -523,10 +731,11 @@ export default function DeveloperVacations() {
             </tbody>
           </table>
         )}
-      </div>
+        </div>
+      )}
 
-      {/* Footer Summary */}
-      {!isLoading && sortedAbsences.length > 0 && (
+      {/* Footer Summary (List View Only) */}
+      {viewMode === "list" && !isLoading && sortedAbsences.length > 0 && (
         <div className="px-6 py-4 bg-slate-50 border-t border-slate-200">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
