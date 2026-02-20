@@ -32,7 +32,7 @@ export default function SidebarList({ sidebarProjects }: SidebarListProps) {
       <div className="h-10 2xl:h-11 flex justify-center font-semibold text-white items-center bg-gradient-to-r from-[#244B77] to-[#1a3a5c] rounded-tl-xl">
         {t.projects}
       </div>
-      {sidebarProjects.sort((a, b) => a.company.localeCompare(b.company)).map(({ company, projects }) => (
+      {sidebarProjects.map(({ company, projects }) => (
         <SidebarItem key={company} company={company} projects={projects} />
       ))}
     </div>

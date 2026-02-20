@@ -17,7 +17,7 @@ export default function SidebarItem({ company, projects }: SidebarItemProps) {
         <span className="truncate" title={company}>{company}</span>
       </h3>
       <ul>
-        {projects.sort((a, b) => a.title.localeCompare(b.title)).map((project) => {
+        {projects.map((project) => {
           const isInactive = !project.isActive;
           return (
           <li
