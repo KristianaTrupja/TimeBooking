@@ -43,8 +43,6 @@ interface Translations {
   close: string;
   reset: string;
   apply: string;
-  copying: string;
-  copyFromPreviousMonth: string;
   
   // Buttons & Labels
   grantLeave: string;
@@ -363,8 +361,6 @@ const translations: Record<Language, Translations> = {
     close: "Close",
     reset: "Reset",
     apply: "Apply",
-    copying: "Copying...",
-    copyFromPreviousMonth: "Copy from Previous Month",
     
     // Buttons & Labels
     grantLeave: "Grant Leave",
@@ -681,8 +677,6 @@ const translations: Record<Language, Translations> = {
     close: "Schließen",
     reset: "Zurücksetzen",
     apply: "Anwenden",
-    copying: "Kopiere...",
-    copyFromPreviousMonth: "Vom Vormonat kopieren",
     
     // Buttons & Labels
     grantLeave: "Urlaub gewähren",

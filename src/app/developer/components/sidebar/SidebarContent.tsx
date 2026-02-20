@@ -3,7 +3,6 @@
 import { Button } from "@/components/ui/button";
 import SidebarList from "./SidebarList";
 import { ProjectData } from "@/types/project";
-import { useLanguage } from "@/app/context/LanguageContext";
 
 export default function SidebarContent({ 
   isLocked, 
@@ -20,7 +19,6 @@ export default function SidebarContent({
   onCopyPreviousMonth: () => void,
   isCopying?: boolean
 }) {
-  const { t } = useLanguage();
   const hasProjects = sidebarProjects.length > 0;
   
   return (

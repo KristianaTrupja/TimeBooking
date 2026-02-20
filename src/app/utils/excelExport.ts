@@ -261,13 +261,10 @@ export function exportTimesheetToExcel(data: EmployeeTimesheetData) {
   const workHoursSheet = XLSX.utils.aoa_to_sheet(workHoursData);
   workHoursSheet['!cols'] = [{ wch: 25 }, { wch: 15 }, { wch: 25 }];
 
-  // Merge title across two columns
   workHoursSheet['!merges'] = [
-    { s: { r: 0, c: 0 }, e: { r: 0, c: 1 } } // Merge A1:B1 for title
+    { s: { r: 0, c: 0 }, e: { r: 0, c: 1 } }
   ];
 
-  // Style work hours sheet
-  // Main title (merged, centered)
   if (workHoursSheet['A1']) {
     workHoursSheet['A1'].s = {
       font: { bold: true, sz: 16, color: { rgb: "244B77" } },

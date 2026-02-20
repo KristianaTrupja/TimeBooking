@@ -8,15 +8,13 @@ import { ProjectData, ProjectEntry } from '@/types/project';
 import { useWorkHours } from '@/app/context/WorkHoursContext';
 import { useCalendar } from '@/app/context/CalendarContext';
 import { usePathname } from 'next/navigation';
-import { useLanguage } from '@/app/context/LanguageContext';
 import { toast } from 'sonner';
 
 export default function Sidebar({ isOwner }: { isOwner:boolean }) {
   const { setSidebarProjects, sidebarProjects } = useProjects();
-  const { metadata, reloadWorkHours } = useWorkHours();
+  const { metadata } = useWorkHours();
   const { month, year } = useCalendar();
   const pathname = usePathname();
-  const { t } = useLanguage();
   const userId = pathname.split("/")[2];
   
   const [projectsData, setProjectsData] = useState<ProjectData[]>([]);
@@ -111,7 +109,7 @@ const handleCopyPreviousMonth = useCallback(async () => {
   if (isCopying) return;
   
   setIsCopying(true);
-  toast.info(t.copying || 'Copying projects from previous month...');
+  toast.info('Copying projects from previous month...');
   
   try {
     // Calculate previous month
@@ -177,7 +175,7 @@ const handleCopyPreviousMonth = useCallback(async () => {
   } finally {
     setIsCopying(false);
   }
-}, [month, year, userId, sidebarProjects, setSidebarProjects, isCopying, t]);
+}, [month, year, userId, sidebarProjects, setSidebarProjects, isCopying]);
 
 
 
