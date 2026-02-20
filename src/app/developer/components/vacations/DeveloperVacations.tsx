@@ -367,17 +367,17 @@ export default function DeveloperVacations() {
   const getCellClass = useCallback((absenceType: string | null, isWeekend: boolean, isHoliday: boolean = false) => {
     if (!absenceType) {
       if (isHoliday) {
-        return "bg-sky-50/70 text-slate-300 border-r border-sky-200";
+        return "bg-sky-50 text-slate-300 border-r border-sky-200";
       }
       return isWeekend
-        ? "bg-slate-50/90 text-slate-300 border-r border-slate-100"
+        ? "bg-slate-50 text-slate-300 border-r border-slate-100"
         : "bg-white text-slate-300 border-r border-slate-100";
     }
-    if (absenceType === "VACATION") return "bg-teal-200/90 text-teal-900 font-semibold border-r border-teal-300/40";
-    if (absenceType === "SICK") return "bg-rose-200/90 text-rose-900 font-semibold border-r border-rose-300/40";
-    if (absenceType === "PERSONAL") return "bg-violet-200/90 text-violet-900 font-semibold border-r border-violet-300/40";
-    if (absenceType === "PARENTAL") return "bg-amber-200/90 text-amber-900 font-semibold border-r border-amber-300/40";
-    return "bg-blue-200/90 text-blue-900 font-semibold border-r border-blue-300/40";
+    if (absenceType === "VACATION") return "bg-teal-200 text-teal-900 font-semibold border-r border-teal-300";
+    if (absenceType === "SICK") return "bg-rose-200 text-rose-900 font-semibold border-r border-rose-300";
+    if (absenceType === "PERSONAL") return "bg-violet-200 text-violet-900 font-semibold border-r border-violet-300";
+    if (absenceType === "PARENTAL") return "bg-amber-200 text-amber-900 font-semibold border-r border-amber-300";
+    return "bg-blue-200 text-blue-900 font-semibold border-r border-blue-300";
   }, []);
 
   const handlePrevMonth = useCallback(() => {
