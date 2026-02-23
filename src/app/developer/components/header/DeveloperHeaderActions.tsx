@@ -20,10 +20,10 @@ export default function DeveloperHeaderActions({ displayedUsername, displayedRol
       : t.developer;
   
   return (
-    <div className="flex items-center gap-4">
+    <div className="flex items-center gap-2 sm:gap-4">
       <HeaderLanguageSwitcher />
-      <div className="h-6 w-px bg-slate-200" />
-      <div className="flex items-center gap-3">
+      <div className="hidden sm:block h-6 w-px bg-slate-200" />
+      <div className="hidden md:flex items-center gap-3">
         <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
         <h4 className="text-slate-700 font-medium text-base tracking-wide">
           {displayedUsername}

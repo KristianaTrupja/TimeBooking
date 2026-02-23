@@ -85,9 +85,9 @@ export default function Developer() {
         <NavigationSidebar activeTab={activeTab} onTabChange={setActiveTab} />
         
         {/* Scrollable content area */}
-        <div className={`flex-1 overflow-auto p-6 custom-scrollbar transition-all duration-300 pt-[120px] lg:pt-6 lg:${isCollapsed ? "ml-[72px]" : "ml-52 2xl:ml-64"}`} style={{ height: "calc(100vh - 72px)" }}>
+        <div className={`flex-1 overflow-auto p-3 sm:p-6 custom-scrollbar transition-all duration-300 pt-[120px] lg:pt-6 lg:${isCollapsed ? "ml-[72px]" : "ml-52 2xl:ml-64"}`} style={{ height: "calc(100vh - 72px)" }}>
             {activeTab === "time-reporting" ? (
-                <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm h-full flex flex-col overflow-hidden">
+                <div className="bg-white rounded-xl sm:rounded-2xl border border-slate-200 p-3 sm:p-6 shadow-sm h-full flex flex-col overflow-hidden">
                     <SidebarHeader />
                     <section className="flex flex-1 min-h-0" style={{ fontFamily: "var(--font-anek-bangla)" }}>
                         {/* Projects Sidebar - Sticky Left */}
@@ -123,18 +123,21 @@ export default function Developer() {
                         <div className="flex-1 bg-slate-50/50" />
                     </section>
                     {/* Status Bar - Separated from calendar */}
-                    <div className="mt-4 -mx-6 -mb-6 px-6 py-3 border-t border-slate-200 flex justify-between items-center flex-shrink-0 rounded-b-2xl">
-                        <CalendarLegend />
-                        <div className="flex items-center gap-3">
+                    <div className="mt-4 -mx-3 sm:-mx-6 -mb-3 sm:-mb-6 px-3 sm:px-6 py-3 border-t border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 flex-shrink-0 rounded-b-xl sm:rounded-b-2xl">
+                        <div className="overflow-x-auto w-full sm:w-auto">
+                          <CalendarLegend />
+                        </div>
+                        <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
                             {isOwner && !metadata?.isLocked && (
                                 <>
                                 <Button 
                                     disabled={isSubmitting} 
                                     onClick={handleSubmitClick}
-                                    className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-lg shadow-blue-500/25 border-0 transition-all duration-300"
+                                    className="flex-1 sm:flex-none bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-lg shadow-blue-500/25 border-0 transition-all duration-300 text-sm"
                                 >
-                                    <Send size={16} className="mr-2" />
-                                    {t.submitTimesheet}
+                                    <Send size={14} className="mr-2 sm:w-4 sm:h-4" />
+                                    <span className="hidden sm:inline">{t.submitTimesheet}</span>
+                                    <span className="sm:hidden">{t.submit || "Submit"}</span>
                                 </Button>
                                 <SaveButton />
                                 </>

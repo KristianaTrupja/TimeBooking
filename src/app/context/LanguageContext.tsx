@@ -31,6 +31,7 @@ interface Translations {
   total: string;
   
   // Actions
+  submit: string;
   submitTimesheet: string;
   save: string;
   saveHours: string;
@@ -349,6 +350,7 @@ const translations: Record<Language, Translations> = {
     total: "Total",
     
     // Actions
+    submit: "Submit",
     submitTimesheet: "Submit timesheet",
     save: "Save",
     saveHours: "Save Hours",
@@ -665,6 +667,7 @@ const translations: Record<Language, Translations> = {
     total: "Gesamt",
     
     // Actions
+    submit: "Einreichen",
     submitTimesheet: "Zeiterfassung einreichen",
     save: "Speichern",
     saveHours: "Stunden speichern",
