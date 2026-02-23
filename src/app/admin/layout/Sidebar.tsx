@@ -37,7 +37,7 @@ export default function Sidebar() {
     <>
       {/* Mobile Horizontal Navigation */}
       <nav 
-        className="lg:hidden fixed left-0 right-0 top-[72px] z-40 bg-gradient-to-r from-slate-800 to-slate-900 shadow-xl overflow-x-auto custom-scrollbar"
+        className="lg:hidden fixed left-0 right-0 top-[85px] sm:top-[72px] z-40 bg-gradient-to-r from-slate-800 to-slate-900 shadow-xl overflow-x-auto custom-scrollbar"
         role="navigation" 
         aria-label="Admin navigation"
         style={{ fontFamily: "var(--font-anek-bangla)" }}
