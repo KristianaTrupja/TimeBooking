@@ -85,7 +85,7 @@ export default function Developer() {
         <NavigationSidebar activeTab={activeTab} onTabChange={setActiveTab} />
         
         {/* Scrollable content area */}
-        <div className={`flex-1 overflow-auto p-6 custom-scrollbar transition-all duration-300 ${isCollapsed ? "ml-[72px]" : "ml-52 2xl:ml-64"}`} style={{ height: "calc(100vh - 72px)" }}>
+        <div className={`flex-1 overflow-auto p-6 custom-scrollbar transition-all duration-300 pt-[120px] lg:pt-6 lg:${isCollapsed ? "ml-[72px]" : "ml-52 2xl:ml-64"}`} style={{ height: "calc(100vh - 72px)" }}>
             {activeTab === "time-reporting" ? (
                 <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm h-full flex flex-col overflow-hidden">
                     <SidebarHeader />

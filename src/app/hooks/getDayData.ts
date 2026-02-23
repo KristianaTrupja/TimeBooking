@@ -1,4 +1,4 @@
-import { WorkHoursMap, DayWorkEntry, WorkHours, WorkEntry } from "@/types/workDay";
+import { WorkHours, WorkEntry } from "@/types/workDay";
 
 export function getDayData(
   workHours: WorkHours,
