@@ -210,7 +210,7 @@ export default function Vacations() {
       {/* Header Section */}
       <div ref={navRef}>
         {/* Title and Navigation */}
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex flex-col sm:flex-row gap-4 sm:gap-0 items-left sm:items-center justify-between mb-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-rose-400 to-pink-500 flex items-center justify-center shadow-lg shadow-rose-400/25">
               <CalendarHeart className="text-white" size={20} />
