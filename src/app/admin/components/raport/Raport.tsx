@@ -127,6 +127,13 @@ export default function Raport() {
     });
   }, [year, month, language]);
 
+  const formattedDateShort = useMemo(() => {
+    return new Date(year, month).toLocaleString(language === "de" ? "de-DE" : "en-US", {
+      month: "short",
+      year: "numeric",
+    });
+  }, [year, month, language]);
+
   async function handleSubmissionStatusUpdate(submissionId:number, status: keyof typeof SubmissionStatus){
     try {
       await updateTimesheetStatus(submissionId, status)
@@ -208,7 +215,7 @@ export default function Raport() {
       {/* Header Section */}
       <div ref={navRef}>
         {/* Title and Navigation */}
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex flex-col gap-2 sm:gap-0 sm:flex-row items-center justify-between mb-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/25" aria-hidden="true">
               <FileText className="text-white" size={20} />
@@ -243,7 +250,10 @@ export default function Raport() {
             >
               <ChevronLeft className="text-slate-600" size={18} aria-hidden="true" />
             </Button>
-            <span className="text-sm font-semibold text-slate-700 min-w-[140px] text-center" aria-live="polite">{formattedDate}</span>
+            <span className="text-sm font-semibold text-slate-700 sm:min-w-[100px] sm:min-w-[140px] text-center" aria-live="polite">
+              <span className="md:hidden">{formattedDateShort}</span>
+              <span className="hidden md:inline">{formattedDate}</span>
+            </span>
             <MonthYearPicker />
             <Button 
               variant="ghost" 
@@ -309,7 +319,7 @@ export default function Raport() {
 
       {/* Table Section */}
       <section
-        className="overflow-hidden md:overflow-y-auto rounded-xl flex-1 bg-white border border-slate-200 shadow-sm custom-scrollbar"
+        className="overflow-y-auto rounded-xl flex-1 bg-white border border-slate-200 shadow-sm custom-scrollbar"
         style={{ maxHeight: containerHeight ? `${containerHeight}px` : undefined }}
         role="region"
         aria-labelledby="timesheets-table-caption"
@@ -379,7 +389,7 @@ export default function Raport() {
             </div>
 
             {/* Mobile Card View */}
-            <div className="md:hidden p-3 space-y-3 overflow-y-auto">
+            <div className="md:hidden p-3 space-y-3 h-full">
               {sortedTimesheets.map((ts, index: number) => (
                 <RaportCard
                   timesheet={ts}
