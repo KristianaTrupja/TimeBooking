@@ -88,7 +88,7 @@ export function UserCard({
             )}
           </div>
         ) : (
-          <span className={emp.email ? "text-slate-700 ml-6" : "text-slate-400 italic ml-6"}>
+          <span className={emp.email ? "text-slate-700 ml-0 sm:ml-6" : "text-slate-400 italic ml-0 sm:ml-6"}>
             {emp.email || t.noEmail}
           </span>
         )}
@@ -114,7 +114,7 @@ export function UserCard({
             ))}
           </select>
         ) : (
-          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border ml-6 ${roleBadgeStyles[emp.role] || "bg-slate-100 text-slate-700"}`}>
+          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border ml-0 sm:ml-6 ${roleBadgeStyles[emp.role] || "bg-slate-100 text-slate-700"}`}>
             {emp.role === "Admin" ? <Shield size={12} /> : null}
             {emp.role}
           </span>
@@ -141,11 +141,11 @@ export function UserCard({
               }`}
             />
             {formData.password && !isPasswordStrong(formData.password) && (
-              <p className="text-xs text-rose-500 mt-1 ml-6">{t.weakPassword}</p>
+              <p className="text-xs text-rose-500 mt-1 ml-0 sm:ml-6">{t.weakPassword}</p>
             )}
           </div>
         ) : (
-          <span className="text-slate-500 text-sm ml-6">••••••••</span>
+          <span className="text-slate-500 text-sm ml-0 sm:ml-6">••••••••</span>
         )}
       </div>
 
@@ -164,7 +164,7 @@ export function UserCard({
             className="w-24 px-3 py-1.5 text-sm border border-blue-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 ml-6"
           />
         ) : (
-          <div className="flex items-center gap-2 ml-6">
+          <div className="flex items-center gap-2 ml-0 sm:ml-6">
             <span className="font-bold text-slate-800">{emp.totalVacations}</span>
             <span className="text-slate-500 text-sm">{t.days}</span>
           </div>

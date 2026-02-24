@@ -215,7 +215,7 @@ export default function Raport() {
       {/* Header Section */}
       <div ref={navRef}>
         {/* Title and Navigation */}
-        <div className="flex flex-col gap-2 sm:gap-0 sm:flex-row items-center justify-between mb-4">
+        <div className="flex flex-col gap-4 sm:gap-0 sm:flex-row items-left sm:items-center justify-between mb-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/25" aria-hidden="true">
               <FileText className="text-white" size={20} />

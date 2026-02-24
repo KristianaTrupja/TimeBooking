@@ -43,7 +43,7 @@ export default function AdminClient() {
   return (
     <section
       ref={sectionRef}
-      className="p-6"
+      className="p-0 sm:p-6"
       style={{
         fontFamily: "var(--font-anek-bangla)",
         height: containerHeight ? `${containerHeight}px` : "66vh",

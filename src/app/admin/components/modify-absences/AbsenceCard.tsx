@@ -83,7 +83,7 @@ export default function AbsenceCard({
             className="w-full px-3 py-1.5 border border-blue-300 rounded-lg text-sm text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400 ml-6"
           />
         ) : (
-          <span className="text-slate-800 font-medium ml-6">{formatDate(absence.startDate)}</span>
+          <span className="text-slate-800 font-medium ml-0 sm:ml-6">{formatDate(absence.startDate)}</span>
         )}
       </div>
 
@@ -101,7 +101,7 @@ export default function AbsenceCard({
             className="w-full px-3 py-1.5 border border-blue-300 rounded-lg text-sm text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400 ml-6"
           />
         ) : (
-          <span className="text-slate-800 font-medium ml-6">{formatDate(absence.endDate)}</span>
+          <span className="text-slate-800 font-medium ml-0 sm:ml-6">{formatDate(absence.endDate)}</span>
         )}
       </div>
 
@@ -122,7 +122,7 @@ export default function AbsenceCard({
             ))}
           </select>
         ) : (
-          <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border ml-6 ${getTypeBadge(absence.type)}`}>
+          <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border ml-0 sm:ml-6 ${getTypeBadge(absence.type)}`}>
             {absence.type}
           </span>
         )}
@@ -137,7 +137,7 @@ export default function AbsenceCard({
         {isEditing ? (
           <span className="text-slate-500 text-sm italic ml-6">Days will be recalculated on save</span>
         ) : (
-          <span className="inline-flex items-center justify-center px-3 py-1 rounded-lg bg-slate-100 text-slate-800 text-sm font-bold ml-6">
+          <span className="inline-flex items-center justify-center px-3 py-1 rounded-lg bg-slate-100 text-slate-800 text-sm font-bold ml-0 sm:ml-6">
             {absence.days}
           </span>
         )}

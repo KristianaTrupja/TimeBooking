@@ -58,7 +58,7 @@ export default function AbsenceCard({ absence, index, formatDate }: Props) {
           <Calendar size={14} className="text-slate-500" />
           <span className="text-xs font-semibold uppercase text-slate-500">{t.startDate}</span>
         </div>
-        <span className="text-slate-800 font-medium ml-6">{formatDate(absence.startDate)}</span>
+        <span className="text-slate-800 font-medium ml-0 sm:ml-6">{formatDate(absence.startDate)}</span>
       </div>
 
       {/* End Date */}
@@ -67,7 +67,7 @@ export default function AbsenceCard({ absence, index, formatDate }: Props) {
           <Calendar size={14} className="text-slate-500" />
           <span className="text-xs font-semibold uppercase text-slate-500">{t.endDate}</span>
         </div>
-        <span className="text-slate-800 font-medium ml-6">{formatDate(absence.endDate)}</span>
+        <span className="text-slate-800 font-medium ml-0 sm:ml-6">{formatDate(absence.endDate)}</span>
       </div>
 
       {/* Days */}

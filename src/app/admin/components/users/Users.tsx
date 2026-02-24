@@ -237,7 +237,7 @@ export default function Users() {
       {/* Header Section */}
       <div ref={buttonRef}>
         {/* Title and Add Button */}
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex flex-col gap-4 sm:gap-0 sm:flex-row items-left sm:items-center  justify-between mb-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/25">
               <UsersIcon className="text-white" size={20} />
