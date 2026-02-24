@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useMemo } from "react";
 import { User, UserFormData } from "@/types/user";
 import { UserRow } from "./UserRow";
+import { UserCard } from "./UserCard";
 import { ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import { useLanguage } from "@/app/context/LanguageContext";
 
@@ -94,49 +95,73 @@ export function UserTable({
   }, [employees, sortField, sortDirection]);
 
   return (
-    <table className="w-full">
-      <thead className="sticky top-0 z-10">
-        <tr className="text-left text-xs uppercase tracking-wider text-slate-600 border-b border-slate-200">
-          <th className="px-4 py-3 font-bold w-16 bg-slate-100">#</th>
-          <th className="px-4 py-3 font-bold bg-slate-100">
-            <button 
-              onClick={() => handleSort("username")}
-              className="flex items-center gap-1.5 hover:text-slate-900 transition-colors"
-            >
-              {t.employee} {getSortIcon("username")}
-            </button>
-          </th>
-          <th className="px-4 py-3 font-bold bg-slate-100">
-            <button 
-              onClick={() => handleSort("email")}
-              className="flex items-center gap-1.5 hover:text-slate-900 transition-colors"
-            >
-              {t.email} {getSortIcon("email")}
-            </button>
-          </th>
-          <th className="px-4 py-3 font-bold bg-slate-100">
-            <button 
-              onClick={() => handleSort("role")}
-              className="flex items-center gap-1.5 hover:text-slate-900 transition-colors"
-            >
-              {t.role} {getSortIcon("role")}
-            </button>
-          </th>
-          <th className="px-4 py-3 font-bold bg-slate-100">{t.password}</th>
-          <th className="px-4 py-3 font-bold bg-slate-100">
-            <button 
-              onClick={() => handleSort("totalVacations")}
-              className="flex items-center gap-1.5 hover:text-slate-900 transition-colors"
-            >
-              {t.vacations} {getSortIcon("totalVacations")}
-            </button>
-          </th>
-          <th className="px-4 py-3 font-bold text-center bg-slate-100">{t.actions}</th>
-        </tr>
-      </thead>
-      <tbody className="divide-y divide-slate-100">
+    <>
+      {/* Desktop Table View */}
+      <div className="hidden md:block overflow-x-auto">
+        <table className="w-full">
+          <thead className="sticky top-0 z-10">
+            <tr className="text-left text-xs uppercase tracking-wider text-slate-600 border-b border-slate-200">
+              <th className="px-4 py-3 font-bold w-16 bg-slate-100">#</th>
+              <th className="px-4 py-3 font-bold bg-slate-100">
+                <button 
+                  onClick={() => handleSort("username")}
+                  className="flex items-center gap-1.5 hover:text-slate-900 transition-colors"
+                >
+                  {t.employee} {getSortIcon("username")}
+                </button>
+              </th>
+              <th className="px-4 py-3 font-bold bg-slate-100">
+                <button 
+                  onClick={() => handleSort("email")}
+                  className="flex items-center gap-1.5 hover:text-slate-900 transition-colors"
+                >
+                  {t.email} {getSortIcon("email")}
+                </button>
+              </th>
+              <th className="px-4 py-3 font-bold bg-slate-100">
+                <button 
+                  onClick={() => handleSort("role")}
+                  className="flex items-center gap-1.5 hover:text-slate-900 transition-colors"
+                >
+                  {t.role} {getSortIcon("role")}
+                </button>
+              </th>
+              <th className="px-4 py-3 font-bold bg-slate-100">{t.password}</th>
+              <th className="px-4 py-3 font-bold bg-slate-100">
+                <button 
+                  onClick={() => handleSort("totalVacations")}
+                  className="flex items-center gap-1.5 hover:text-slate-900 transition-colors"
+                >
+                  {t.vacations} {getSortIcon("totalVacations")}
+                </button>
+              </th>
+              <th className="px-4 py-3 font-bold text-center bg-slate-100">{t.actions}</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-100">
+            {sortedEmployees.map((emp, index) => (
+              <UserRow
+                key={emp.id}
+                emp={emp}
+                index={index}
+                isEditing={editingId === emp.id}
+                formData={formData}
+                onChange={onChange}
+                onEdit={onEdit}
+                onDelete={onDelete}
+                onSave={onSave}
+                isSaving={isSaving && editingId === emp.id}
+                isDeleting={deletingId === emp.id}
+              />
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Mobile Card View */}
+      <div className="md:hidden space-y-3">
         {sortedEmployees.map((emp, index) => (
-          <UserRow
+          <UserCard
             key={emp.id}
             emp={emp}
             index={index}
@@ -150,7 +175,7 @@ export function UserTable({
             isDeleting={deletingId === emp.id}
           />
         ))}
-      </tbody>
-    </table>
+      </div>
+    </>
   );
 }

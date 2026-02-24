@@ -19,6 +19,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import HolidayCard from "./HolidayCard";
 
 type SortField = "date" | "title";
 type SortDirection = "asc" | "desc" | null;
@@ -115,25 +116,25 @@ export default function DeveloperHolidays() {
   if (loading) return <Spinner text={t.loadingHolidays} />;
 
   return (
-    <section className="p-6 flex flex-col h-full">
+    <section className="p-3 sm:p-4 md:p-6 flex flex-col h-full">
       {/* Header Section */}
       <div>
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-rose-400 to-pink-500 flex items-center justify-center shadow-lg shadow-rose-400/25">
-              <CalendarHeart className="text-white" size={20} />
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 mb-4">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-rose-400 to-pink-500 flex items-center justify-center shadow-lg shadow-rose-400/25">
+              <CalendarHeart className="text-white" size={18} />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-slate-900">{t.officialHolidays}</h1>
-              <p className="text-sm text-slate-600">{t.managePublicHolidays}</p>
+              <h1 className="text-lg sm:text-xl font-bold text-slate-900">{t.officialHolidays}</h1>
+              <p className="text-xs sm:text-sm text-slate-600">{t.managePublicHolidays}</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
             {/* Expand/Collapse button */}
             <button
               onClick={() => setIsExpanded((prev) => !prev)}
-              className={`h-10 w-10 rounded-xl border transition-all duration-200 flex items-center justify-center hover:scale-105 active:scale-95 ${
+              className={`h-8 w-8 sm:h-9 sm:w-9 md:h-10 md:w-10 rounded-lg sm:rounded-xl border transition-all duration-200 flex items-center justify-center hover:scale-105 active:scale-95 flex-shrink-0 ${
                 isExpanded
                   ? "bg-gradient-to-br from-cyan-500 to-blue-600 text-white border-cyan-400 shadow-lg shadow-cyan-500/35 ring-2 ring-cyan-200/60"
                   : "bg-gradient-to-br from-white to-slate-50 text-slate-700 border-slate-300 shadow-sm hover:shadow-md hover:border-cyan-400 hover:text-cyan-700"
@@ -141,29 +142,29 @@ export default function DeveloperHolidays() {
               aria-label={isExpanded ? "Collapse view" : "Expand view"}
               title={isExpanded ? "Collapse view" : "Expand view"}
             >
-              {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+              {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
             </button>
 
             {/* Year navigation */}
-            <div className="flex items-center gap-2 bg-slate-100 rounded-xl p-1">
+            <div className="flex items-center gap-1 sm:gap-2 bg-slate-100 rounded-lg sm:rounded-xl p-0.5 sm:p-1 flex-1 sm:flex-initial">
             <Button
               variant="ghost"
               size="sm"
-              className="hover:bg-white rounded-lg h-9 w-9 p-0"
+              className="hover:bg-white rounded-lg h-8 w-8 sm:h-9 sm:w-9 p-0 flex-shrink-0"
               onClick={() => setYear((y) => y - 1)}
               aria-label="Previous year"
             >
-              <ChevronLeft className="text-slate-600" size={18} />
+              <ChevronLeft className="text-slate-600" size={16} />
             </Button>
-            <span className="text-sm font-semibold text-slate-700 min-w-[80px] text-center">{year}</span>
+            <span className="text-xs sm:text-sm font-semibold text-slate-700 min-w-[60px] sm:min-w-[80px] text-center flex-1 sm:flex-initial">{year}</span>
             <Button
               variant="ghost"
               size="sm"
-              className="hover:bg-white rounded-lg h-9 w-9 p-0"
+              className="hover:bg-white rounded-lg h-8 w-8 sm:h-9 sm:w-9 p-0 flex-shrink-0"
               onClick={() => setYear((y) => y + 1)}
               aria-label="Next year"
             >
-              <ChevronRight className="text-slate-600" size={18} />
+              <ChevronRight className="text-slate-600" size={16} />
             </Button>
           </div>
           </div>
@@ -171,7 +172,7 @@ export default function DeveloperHolidays() {
 
         {/* Stats */}
         {!isExpanded && (
-        <div className="grid grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 mb-4 sm:mb-6">
           <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-4 border border-slate-200">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-lg bg-slate-200 flex items-center justify-center">
@@ -223,7 +224,7 @@ export default function DeveloperHolidays() {
       </div>
 
       {/* Table */}
-      <section className="overflow-y-auto rounded-xl flex-1 bg-white border border-slate-200 shadow-sm custom-scrollbar">
+      <section className="overflow-y-auto rounded-xl flex-1 bg-white border border-slate-200 shadow-sm custom-scrollbar md:overflow-hidden">
         {sortedHolidays.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16">
             <CalendarDays size={48} className="text-slate-400 mb-3" aria-hidden="true" />
@@ -231,51 +232,68 @@ export default function DeveloperHolidays() {
             <p className="text-sm text-slate-500 font-medium">{t.addHolidayToStart}</p>
           </div>
         ) : (
-          <table className="w-full">
-            <thead className="bg-slate-100 border-b border-slate-200 sticky top-0 z-10">
-              <tr className="text-left text-xs uppercase tracking-wider text-slate-600">
-                <th className="px-4 py-3 font-bold w-16 bg-slate-100">#</th>
-                <th className="px-4 py-3 font-bold bg-slate-100">
-                  <button
-                    type="button"
-                    onClick={() => handleSort("date")}
-                    className="flex items-center gap-1.5 hover:text-slate-900 transition-colors"
-                  >
-                    {t.date} {getSortIcon("date")}
-                  </button>
-                </th>
-                <th className="px-4 py-3 font-bold bg-slate-100">
-                  <button
-                    type="button"
-                    onClick={() => handleSort("title")}
-                    className="flex items-center gap-1.5 hover:text-slate-900 transition-colors"
-                  >
-                    {t.holidayName} {getSortIcon("title")}
-                  </button>
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {sortedHolidays.map((h, index) => (
-                <tr key={h.id} className="hover:bg-slate-50 transition-colors">
-                  <td className="px-4 py-4">
-                    <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-slate-100 text-slate-600 text-xs font-semibold">
-                      {index + 1}
-                    </span>
-                  </td>
-                  <td className="px-4 py-4">
-                    <div className="flex items-center gap-2">
-                      <Calendar size={14} className="text-slate-500" />
-                      <span className="text-slate-800 font-semibold">{formatToDayMonth(h.date)}</span>
-                    </div>
-                  </td>
-                  <td className="px-4 py-4">
-                    <span className="text-slate-800 font-medium">{h.title}</span>
-                  </td>
-                </tr>
+          <>
+            {/* Desktop Table View */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-slate-100 border-b border-slate-200 sticky top-0 z-10">
+                  <tr className="text-left text-xs uppercase tracking-wider text-slate-600">
+                    <th className="px-4 py-3 font-bold w-16 bg-slate-100">#</th>
+                    <th className="px-4 py-3 font-bold bg-slate-100">
+                      <button
+                        type="button"
+                        onClick={() => handleSort("date")}
+                        className="flex items-center gap-1.5 hover:text-slate-900 transition-colors"
+                      >
+                        {t.date} {getSortIcon("date")}
+                      </button>
+                    </th>
+                    <th className="px-4 py-3 font-bold bg-slate-100">
+                      <button
+                        type="button"
+                        onClick={() => handleSort("title")}
+                        className="flex items-center gap-1.5 hover:text-slate-900 transition-colors"
+                      >
+                        {t.holidayName} {getSortIcon("title")}
+                      </button>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {sortedHolidays.map((h, index) => (
+                    <tr key={h.id} className="hover:bg-slate-50 transition-colors">
+                      <td className="px-4 py-4">
+                        <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-slate-100 text-slate-600 text-xs font-semibold">
+                          {index + 1}
+                        </span>
+                      </td>
+                      <td className="px-4 py-4">
+                        <div className="flex items-center gap-2">
+                          <Calendar size={14} className="text-slate-500" />
+                          <span className="text-slate-800 font-semibold">{formatToDayMonth(h.date)}</span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-4">
+                        <span className="text-slate-800 font-medium">{h.title}</span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile Card View */}
+            <div className="md:hidden p-3 space-y-3">
+              {sortedHolidays.map((holiday, index) => (
+                <HolidayCard
+                  key={holiday.id}
+                  holiday={holiday}
+                  index={index}
+                  formatToDayMonth={formatToDayMonth}
+                />
               ))}
-            </tbody>
-          </table>
+            </div>
+          </>
         )}
       </section>
     </section>

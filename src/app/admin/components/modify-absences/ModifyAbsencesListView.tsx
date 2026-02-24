@@ -4,6 +4,7 @@ import { Absence, AbsenceType, ExtAbsence } from "@/types/absence";
 import { User } from "@/types/user";
 import { ArrowDown, ArrowUp, ArrowUpDown, CalendarX, Check, FilePenLine, Trash2, User as UserIcon, X } from "lucide-react";
 import React from "react";
+import AbsenceCard from "./AbsenceCard";
 
 type SortField = "startDate" | "endDate" | "type" | "days";
 type SortDirection = "asc" | "desc" | null;
@@ -88,20 +89,22 @@ export default function ModifyAbsencesListView({
 
         return (
           <div key={userIndex} className={`mb-5 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden ${isInactive ? "opacity-75" : ""}`}>
-            <div className={`bg-gradient-to-r ${isInactive ? "from-slate-400 to-slate-500" : "from-[#244B77] to-[#1a3a5c]"} px-5 py-3 flex items-center gap-3`}>
-              <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
+            <div className={`bg-gradient-to-r ${isInactive ? "from-slate-400 to-slate-500" : "from-[#244B77] to-[#1a3a5c]"} px-4 sm:px-5 py-3 flex items-center gap-2 sm:gap-3`}>
+              <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
                 <UserIcon size={16} className="text-white" aria-hidden="true" />
               </div>
-              <div className="flex items-center gap-2">
-                <span className="text-white font-bold">{user.username}</span>
+              <div className="flex items-center gap-2 flex-1 min-w-0">
+                <span className="text-white font-bold text-sm sm:text-base truncate">{user.username}</span>
                 {isInactive && <span className="text-white/80 text-xs italic">(Inactive)</span>}
               </div>
-              <span className="ml-auto text-white/80 text-sm font-medium">
+              <span className="text-white/80 text-xs sm:text-sm font-medium flex-shrink-0">
                 {userAbsences.length} {userAbsences.length === 1 ? t.absence : t.absences}
               </span>
             </div>
 
-            <table className="w-full table-fixed">
+            {/* Desktop Table View */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full table-fixed">
               <thead className="bg-slate-100 border-b border-slate-200">
                 <tr className="text-left text-xs uppercase tracking-wider text-slate-600">
                   <th className="px-4 py-3 font-bold bg-slate-100" style={{ width: "60px" }}>#</th>
@@ -255,6 +258,38 @@ export default function ModifyAbsencesListView({
                 })}
               </tbody>
             </table>
+            </div>
+
+            {/* Mobile Card View */}
+            <div className="md:hidden p-3 space-y-3">
+              {sortAbsences(userAbsences).map((absence, index) => {
+                const absenceStartDate = new Date(absence.startDate).toISOString();
+                const isHighlighted = scrollToAbsence && scrollToAbsence.userId === user.id && scrollToAbsence.startDate === absenceStartDate;
+                const rowKey = `${user.id}-${absenceStartDate}`;
+
+                return (
+                  <AbsenceCard
+                    key={absence.id}
+                    absence={absence}
+                    index={index}
+                    user={user}
+                    editingAbsence={editingAbsence}
+                    isSaving={isSaving}
+                    isDeleting={deletingId === absence.id}
+                    isHighlighted={isHighlighted}
+                    absenceRowRef={(el) => {
+                      if (el) absenceRowRefs.current.set(rowKey, el as any);
+                    }}
+                    setEditingAbsence={setEditingAbsence}
+                    onEditSubmit={onEditSubmit}
+                    onDelete={onDelete}
+                    formatDate={formatDate}
+                    getTypeBadge={getTypeBadge}
+                    t={t}
+                  />
+                );
+              })}
+            </div>
           </div>
         );
       })}

@@ -1,6 +1,7 @@
 import { useState, useCallback, useMemo } from "react";
 import VacationRow from "./VacationRow";
 import VacationEditRow from "./VacationEditRow";
+import HolidayCard from "./HolidayCard";
 import { Holiday } from "@/types/holiday";
 import { CalendarDays, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import { useLanguage } from "@/app/context/LanguageContext";
@@ -98,53 +99,77 @@ export default function VacationTable({
           <p className="text-sm text-slate-500 font-medium">{t.addHolidayToStart}</p>
         </div>
       ) : (
-        <table className="w-full">
-          <thead className="bg-slate-100 border-b border-slate-200 sticky top-0 z-10">
-            <tr className="text-left text-xs uppercase tracking-wider text-slate-600">
-              <th className="px-4 py-3 font-bold w-16 bg-slate-100">#</th>
-              <th className="px-4 py-3 font-bold bg-slate-100">
-                <button 
-                  onClick={() => handleSort("date")}
-                  className="flex items-center gap-1.5 hover:text-slate-900 transition-colors"
-                >
-                  {t.date} {getSortIcon("date")}
-                </button>
-              </th>
-              <th className="px-4 py-3 font-bold bg-slate-100">
-                <button 
-                  onClick={() => handleSort("title")}
-                  className="flex items-center gap-1.5 hover:text-slate-900 transition-colors"
-                >
-                  {t.holidayName} {getSortIcon("title")}
-                </button>
-              </th>
-              <th className="px-4 py-3 font-bold text-center bg-slate-100">{t.actions}</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100">
-            {sortedVacations.map((emp, index) =>
-              editingId === emp.id ? (
-                <VacationEditRow
-                  key={emp.id}
-                  index={index}
-                  editedData={editedData}
-                  onChange={onChange}
-                  onSave={() => onSave(emp.id)}
-                  isSaving={savingId === emp.id}
-                />
-              ) : (
-                <VacationRow
-                  key={emp.id}
-                  index={index}
-                  emp={emp}
-                  onEdit={() => onEdit(emp.id)}
-                  onDelete={() => onDelete(emp.id)}
-                  isDeleting={deletingId === emp.id}
-                />
-              )
-            )}
-          </tbody>
-        </table>
+        <>
+          {/* Desktop Table View */}
+          <div className="hidden md:block overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-slate-100 border-b border-slate-200 sticky top-0 z-10">
+                <tr className="text-left text-xs uppercase tracking-wider text-slate-600">
+                  <th className="px-4 py-3 font-bold w-16 bg-slate-100">#</th>
+                  <th className="px-4 py-3 font-bold bg-slate-100">
+                    <button 
+                      onClick={() => handleSort("date")}
+                      className="flex items-center gap-1.5 hover:text-slate-900 transition-colors"
+                    >
+                      {t.date} {getSortIcon("date")}
+                    </button>
+                  </th>
+                  <th className="px-4 py-3 font-bold bg-slate-100">
+                    <button 
+                      onClick={() => handleSort("title")}
+                      className="flex items-center gap-1.5 hover:text-slate-900 transition-colors"
+                    >
+                      {t.holidayName} {getSortIcon("title")}
+                    </button>
+                  </th>
+                  <th className="px-4 py-3 font-bold text-center bg-slate-100">{t.actions}</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {sortedVacations.map((emp, index) =>
+                  editingId === emp.id ? (
+                    <VacationEditRow
+                      key={emp.id}
+                      index={index}
+                      editedData={editedData}
+                      onChange={onChange}
+                      onSave={() => onSave(emp.id)}
+                      isSaving={savingId === emp.id}
+                    />
+                  ) : (
+                    <VacationRow
+                      key={emp.id}
+                      index={index}
+                      emp={emp}
+                      onEdit={() => onEdit(emp.id)}
+                      onDelete={() => onDelete(emp.id)}
+                      isDeleting={deletingId === emp.id}
+                    />
+                  )
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Mobile Card View */}
+          <div className="md:hidden space-y-3">
+            {sortedVacations.map((holiday, index) => (
+              <HolidayCard
+                key={holiday.id}
+                holiday={holiday}
+                index={index}
+                isEditing={editingId === holiday.id}
+                editedData={editedData}
+                onChange={onChange}
+                onEdit={() => onEdit(holiday.id)}
+                onDelete={() => onDelete(holiday.id)}
+                onSave={() => onSave(holiday.id)}
+                isSaving={savingId === holiday.id}
+                isDeleting={deletingId === holiday.id}
+              />
+            ))}
+          </div>
+        </>
       )}
     </>
   );
