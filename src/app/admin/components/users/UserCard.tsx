@@ -105,7 +105,7 @@ export function UserCard({
             name="role"
             value={formData.role}
             onChange={onChange}
-            className="w-full px-3 py-1.5 text-sm border border-blue-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 ml-6"
+            className="w-full px-3 py-1.5 text-sm border border-blue-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 ml-0 sm:ml-6"
           >
             {ROLE_OPTIONS.map((role, idx) => (
               <option key={idx} value={role}>
@@ -136,7 +136,7 @@ export function UserCard({
               onChange={onChange}
               placeholder={t.leaveBlankToKeep}
               autoComplete="off"
-              className={`w-full px-3 py-1.5 text-sm border rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 ml-6 ${
+              className={`w-full px-3 py-1.5 text-sm border rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 ml-0 sm:ml-6 ${
                 formData.password && !isPasswordStrong(formData.password) ? "border-rose-400" : "border-blue-300"
               }`}
             />
@@ -161,7 +161,7 @@ export function UserCard({
             type="number"
             value={formData.totalVacations}
             onChange={onChange}
-            className="w-24 px-3 py-1.5 text-sm border border-blue-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 ml-6"
+            className="w-24 px-3 py-1.5 text-sm border border-blue-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 ml-0 sm:ml-6"
           />
         ) : (
           <div className="flex items-center gap-2 ml-0 sm:ml-6">
