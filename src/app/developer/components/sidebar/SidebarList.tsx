@@ -8,9 +8,10 @@ import { useLanguage } from "@/app/context/LanguageContext";
 
 interface SidebarListProps {
   sidebarProjects: ProjectData[];
+  isCollapsed?: boolean;
 }
 
-export default function SidebarList({ sidebarProjects }: SidebarListProps) {
+export default function SidebarList({ sidebarProjects, isCollapsed = false }: SidebarListProps) {
   const { loadingProjects } = useProjects();
   const { t } = useLanguage();
 
@@ -29,11 +30,11 @@ export default function SidebarList({ sidebarProjects }: SidebarListProps) {
 
   return (
     <div className="overflow-auto custom-scrollbar">
-      <div className="h-10 2xl:h-11 flex justify-center font-semibold text-white items-center bg-gradient-to-r from-[#244B77] to-[#1a3a5c] rounded-tl-xl">
-        {t.projects}
+      <div className={`h-10 2xl:h-11 flex ${isCollapsed ? "justify-center" : "justify-center"} font-semibold text-white items-center bg-gradient-to-r from-[#244B77] to-[#1a3a5c] rounded-tl-xl`}>
+        {isCollapsed ? "P" : t.projects}
       </div>
       {sidebarProjects.map(({ company, projects }) => (
-        <SidebarItem key={company} company={company} projects={projects} />
+        <SidebarItem key={company} company={company} projects={projects} isCollapsed={isCollapsed} />
       ))}
     </div>
   );

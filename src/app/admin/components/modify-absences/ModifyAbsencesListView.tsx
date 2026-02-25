@@ -134,7 +134,7 @@ export default function ModifyAbsencesListView({
               <tbody className="divide-y divide-slate-100">
                 {sortAbsences(userAbsences).map((absence, index) => {
                   const absenceStartDate = new Date(absence.startDate).toISOString();
-                  const isHighlighted = scrollToAbsence && scrollToAbsence.userId === user.id && scrollToAbsence.startDate === absenceStartDate;
+                  const isHighlighted = !!(scrollToAbsence && scrollToAbsence.userId === user.id && scrollToAbsence.startDate === absenceStartDate);
                   const rowKey = `${user.id}-${absenceStartDate}`;
                   const isEditing = editingAbsence?.id === absence.id;
 
@@ -264,7 +264,7 @@ export default function ModifyAbsencesListView({
             <div className="md:hidden p-3 space-y-3">
               {sortAbsences(userAbsences).map((absence, index) => {
                 const absenceStartDate = new Date(absence.startDate).toISOString();
-                const isHighlighted = scrollToAbsence && scrollToAbsence.userId === user.id && scrollToAbsence.startDate === absenceStartDate;
+                const isHighlighted = !!(scrollToAbsence && scrollToAbsence.userId === user.id && scrollToAbsence.startDate === absenceStartDate);
                 const rowKey = `${user.id}-${absenceStartDate}`;
 
                 return (
