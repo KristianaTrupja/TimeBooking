@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import BottomBar from "../components/calendar/BottomBar";
 import Calendar from "../components/calendar/Calendar";
 import TotalBar from "../components/calendar/TotalBar";
@@ -40,6 +40,9 @@ export default function Developer() {
     const [activeTab, setActiveTab] = useState<Tab>("time-reporting");
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [contentMarginLeft, setContentMarginLeft] = useState<string>("0");
+    const [contentHeight, setContentHeight] = useState<string>("100vh");
+    const [contentPaddingTop, setContentPaddingTop] = useState<string>("104px");
+    const contentRef = useRef<HTMLDivElement>(null);
 
     const userId = useMemo(() => {
         const segments = pathname?.split("/") || [];
@@ -77,10 +80,15 @@ export default function Developer() {
         reloadWorkHours(userId, month + 1, year);
     }, [userId, month, year, reloadWorkHours]);
 
-    // Set content margin based on sidebar state and screen size
+    // Set content margin, height, and padding based on sidebar state and screen size
     useEffect(() => {
-        const updateMargin = () => {
-            if (window.innerWidth >= 1024) {
+        const updateLayout = () => {
+            const isDesktop = window.innerWidth >= 1024;
+            const isTablet = window.innerWidth >= 640;
+            const headerHeight = isDesktop ? 72 : isTablet ? 64 : 56;
+            
+            // Update margin
+            if (isDesktop) {
                 if (isCollapsed) {
                     setContentMarginLeft("72px");
                 } else {
@@ -89,11 +97,24 @@ export default function Developer() {
             } else {
                 setContentMarginLeft("0");
             }
+            
+            // Update height
+            const calculatedHeight = `calc(100vh - ${headerHeight}px)`;
+            setContentHeight(calculatedHeight);
+            
+            // Update padding top
+            if (isDesktop) {
+                setContentPaddingTop("6px");
+            } else if (isTablet) {
+                setContentPaddingTop("112px");
+            } else {
+                setContentPaddingTop("104px");
+            }
         };
         
-        updateMargin();
-        window.addEventListener("resize", updateMargin);
-        return () => window.removeEventListener("resize", updateMargin);
+        updateLayout();
+        window.addEventListener("resize", updateLayout);
+        return () => window.removeEventListener("resize", updateLayout);
     }, [isCollapsed]);
 
     const isOwner = useMemo(() => {
@@ -106,11 +127,16 @@ export default function Developer() {
         
         {/* Scrollable content area */}
         <div 
-          className="flex-1 overflow-auto p-3 sm:p-6 custom-scrollbar transition-all duration-300 pt-[104px] sm:pt-[112px] lg:pt-6 min-h-screen"
-          style={{ marginLeft: contentMarginLeft }}
+          ref={contentRef}
+          className="flex-1 overflow-y-auto overflow-x-hidden px-3 sm:px-6 py-3 sm:py-6 custom-scrollbar transition-all duration-300"
+          style={{ 
+            marginLeft: contentMarginLeft,
+            height: contentHeight,
+            paddingTop: contentPaddingTop
+          }}
         >
             {activeTab === "time-reporting" ? (
-                <div className="bg-white rounded-xl sm:rounded-2xl border border-slate-200 p-3 sm:p-6 shadow-sm h-full flex flex-col overflow-hidden">
+                <div className="bg-white rounded-xl sm:rounded-2xl border border-slate-200 p-3 sm:p-6 shadow-sm flex flex-col overflow-hidden" style={{ height: '100%', maxHeight: '100%' }}>
                     <SidebarHeader />
                     <section className="flex flex-1 min-h-0" style={{ fontFamily: "var(--font-anek-bangla)" }}>
                         {/* Projects Sidebar - Sticky Left */}
