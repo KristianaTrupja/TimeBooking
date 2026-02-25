@@ -15,7 +15,8 @@ import SaveButton from "../components/calendarActionButtons/SaveButton";
 import SidebarHeader from "../components/sidebar/SidebarHeader";
 import Sidebar from "../components/sidebar/Sidebar";
 import { Button } from '@/components/ui/button';
-import { Send, Lock } from "lucide-react";
+import { Send, Lock, ChevronLeft, ChevronRight } from "lucide-react";
+import { useIsMobile } from "@/app/hooks/useIsMobile";
 import { flushError } from "@/app/utils/flushError";
 import { User } from "next-auth";
 import { getSession } from "next-auth/react";
@@ -42,7 +43,9 @@ export default function Developer() {
     const [contentMarginLeft, setContentMarginLeft] = useState<string>("0");
     const [contentHeight, setContentHeight] = useState<string>("100vh");
     const [contentPaddingTop, setContentPaddingTop] = useState<string>("104px");
+    const [isProjectsSidebarCollapsed, setIsProjectsSidebarCollapsed] = useState(false);
     const contentRef = useRef<HTMLDivElement>(null);
+    const isMobile = useIsMobile();
 
     const userId = useMemo(() => {
         const segments = pathname?.split("/") || [];
@@ -138,10 +141,30 @@ export default function Developer() {
             {activeTab === "time-reporting" ? (
                 <div className="bg-white rounded-xl sm:rounded-2xl border border-slate-200 p-3 sm:p-6 shadow-sm flex flex-col overflow-hidden" style={{ height: '100%', maxHeight: '100%' }}>
                     <SidebarHeader />
-                    <section className="flex flex-1 min-h-0" style={{ fontFamily: "var(--font-anek-bangla)" }}>
+                    <section className="flex flex-1 min-h-0 relative" style={{ fontFamily: "var(--font-anek-bangla)" }}>
                         {/* Projects Sidebar - Sticky Left */}
-                        <div className="sticky left-0 z-20 bg-white flex-shrink-0 h-full">
-                            <Sidebar isOwner={isOwner} />
+                        <div className={`sticky left-0 z-20 bg-white flex-shrink-0 h-full transition-all duration-300 ${
+                            isMobile && isProjectsSidebarCollapsed ? "w-[80px]" : ""
+                        }`}>
+                            <div className="relative h-full">
+                                <Sidebar isOwner={isOwner} isCollapsed={isMobile && isProjectsSidebarCollapsed} />
+                                {/* Mobile Toggle Button */}
+                                {isMobile && (
+                                    <button
+                                        onClick={() => setIsProjectsSidebarCollapsed(!isProjectsSidebarCollapsed)}
+                                        className={`absolute -right-3 top-3 w-6 h-6 bg-black/20 hover:bg-black/30 rounded-full flex items-center justify-center transition-all z-50 backdrop-blur-sm ${
+                                            isProjectsSidebarCollapsed ? "" : ""
+                                        }`}
+                                        aria-label={isProjectsSidebarCollapsed ? "Expand projects sidebar" : "Collapse projects sidebar"}
+                                    >
+                                        {isProjectsSidebarCollapsed ? (
+                                            <ChevronRight size={14} className="text-white" />
+                                        ) : (
+                                            <ChevronLeft size={14} className="text-white" />
+                                        )}
+                                    </button>
+                                )}
+                            </div>
                         </div>
                         
                         {/* Scrollable Calendar Area */}

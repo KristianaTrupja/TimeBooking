@@ -10,7 +10,7 @@ import { useCalendar } from '@/app/context/CalendarContext';
 import { usePathname } from 'next/navigation';
 import { toast } from 'sonner';
 
-export default function Sidebar({ isOwner }: { isOwner:boolean }) {
+export default function Sidebar({ isOwner, isCollapsed = false }: { isOwner:boolean; isCollapsed?: boolean }) {
   const { setSidebarProjects, sidebarProjects } = useProjects();
   const { metadata } = useWorkHours();
   const { month, year } = useCalendar();
@@ -188,6 +188,7 @@ const handleCopyPreviousMonth = useCallback(async () => {
         isLocked={metadata?.isLocked}
         isOwner={isOwner}
         isCopying={isCopying}
+        isCollapsed={isCollapsed}
       />
       <ProjectModalContainer
         isModalOpen={isModalOpen}
