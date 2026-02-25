@@ -122,6 +122,18 @@ export function exportTimesheetToExcel(data: EmployeeTimesheetData) {
       alignment: { horizontal: "left", vertical: "center" }
     };
   }
+  
+  // B1, C1, D1 - same background color as A1 (create cells if they don't exist)
+  ['B1', 'C1', 'D1'].forEach(cell => {
+    if (!summarySheet[cell]) {
+      summarySheet[cell] = { t: 's', v: '' };
+    }
+    summarySheet[cell].s = {
+      font: { bold: true, sz: 16, color: { rgb: "244B77" } },
+      fill: { fgColor: { rgb: "E8F4F8" } },
+      alignment: { horizontal: cell === 'B1' ? "center" : "center", vertical: "center" }
+    };
+  });
 
   // Employee info styling - Rows 3-5
   ['A3', 'A4', 'A5'].forEach(cell => {
@@ -129,6 +141,17 @@ export function exportTimesheetToExcel(data: EmployeeTimesheetData) {
       summarySheet[cell].s = {
         font: { bold: true, sz: 11 },
         alignment: { horizontal: "left" }
+      };
+    }
+  });
+  
+  // Center align B column for employee info rows
+  ['B3', 'B4', 'B5'].forEach(cell => {
+    if (summarySheet[cell]) {
+      const existingStyle = summarySheet[cell].s || {};
+      summarySheet[cell].s = {
+        ...existingStyle,
+        alignment: { horizontal: "center", vertical: "center" }
       };
     }
   });
@@ -141,16 +164,33 @@ export function exportTimesheetToExcel(data: EmployeeTimesheetData) {
       alignment: { horizontal: "left", vertical: "center" }
     };
   }
+  
+  // B7 - same color as A7 and center aligned
+  if (summarySheet['B7']) {
+    summarySheet['B7'].s = {
+      font: { bold: true, sz: 14, color: { rgb: "FFFFFF" } },
+      fill: { fgColor: { rgb: "10B981" } },
+      alignment: { horizontal: "center", vertical: "center" }
+    };
+  }
 
   // Style "Projects Worked On:" header (find its row)
   const projectsWorkedOnRow = summaryData.findIndex(row => row[0] === 'Projects Worked On:');
   if (projectsWorkedOnRow >= 0) {
-    const cell = `A${projectsWorkedOnRow + 1}`;
-    if (summarySheet[cell]) {
-      summarySheet[cell].s = {
+    const cellA = `A${projectsWorkedOnRow + 1}`;
+    const cellB = `B${projectsWorkedOnRow + 1}`;
+    if (summarySheet[cellA]) {
+      summarySheet[cellA].s = {
         font: { bold: true, sz: 12 },
         fill: { fgColor: { rgb: "D1FAE5" } },
         alignment: { horizontal: "left", vertical: "center" }
+      };
+    }
+    if (summarySheet[cellB]) {
+      summarySheet[cellB].s = {
+        font: { bold: true, sz: 12 },
+        fill: { fgColor: { rgb: "D1FAE5" } },
+        alignment: { horizontal: "center", vertical: "center" }
       };
     }
   }
@@ -163,10 +203,17 @@ export function exportTimesheetToExcel(data: EmployeeTimesheetData) {
         row[0] !== 'EMPLOYEE TIMESHEET REPORT' &&
         !row[0].toString().startsWith('Total')) {
       const cellA = `A${idx + 1}`;
+      const cellB = `B${idx + 1}`;
       if (summarySheet[cellA]) {
         summarySheet[cellA].s = {
           font: { bold: true, sz: 11 },
           alignment: { horizontal: "left" }
+        };
+      }
+      if (summarySheet[cellB]) {
+        summarySheet[cellB].s = {
+          font: { bold: true, sz: 11 },
+          alignment: { horizontal: "center", vertical: "center" }
         };
       }
     }
@@ -175,12 +222,20 @@ export function exportTimesheetToExcel(data: EmployeeTimesheetData) {
   // Find "ABSENCE SUMMARY" row
   const absenceSummaryRow = summaryData.findIndex(row => row[0] === 'ABSENCE SUMMARY');
   if (absenceSummaryRow >= 0) {
-    const absenceCell = `A${absenceSummaryRow + 1}`;
-    if (summarySheet[absenceCell]) {
-      summarySheet[absenceCell].s = {
+    const absenceCellA = `A${absenceSummaryRow + 1}`;
+    const absenceCellB = `B${absenceSummaryRow + 1}`;
+    if (summarySheet[absenceCellA]) {
+      summarySheet[absenceCellA].s = {
         font: { bold: true, sz: 14, color: { rgb: "FFFFFF" } },
         fill: { fgColor: { rgb: "F59E0B" } },
         alignment: { horizontal: "left", vertical: "center" }
+      };
+    }
+    if (summarySheet[absenceCellB]) {
+      summarySheet[absenceCellB].s = {
+        font: { bold: true, sz: 14, color: { rgb: "FFFFFF" } },
+        fill: { fgColor: { rgb: "F59E0B" } },
+        alignment: { horizontal: "center", vertical: "center" }
       };
     }
   }
@@ -203,7 +258,7 @@ export function exportTimesheetToExcel(data: EmployeeTimesheetData) {
         summarySheet[cellB].s = {
           font: { bold: true, sz: 11 },
           fill: { fgColor: { rgb: "FEF3C7" } },
-          alignment: { horizontal: "left", vertical: "center" }
+          alignment: { horizontal: "center", vertical: "center" }
         };
       }
     }
@@ -219,9 +274,26 @@ export function exportTimesheetToExcel(data: EmployeeTimesheetData) {
       if (summarySheet[cellB]) {
         summarySheet[cellB].s = {
           font: { bold: true, sz: 12 },
-          fill: { fgColor: { rgb: "F3F4F6" } }
+          fill: { fgColor: { rgb: "F3F4F6" } },
+          alignment: { horizontal: "center", vertical: "center" }
         };
       }
+    }
+  });
+  
+  // Apply center alignment to all B column cells that don't already have it set
+  summaryData.forEach((row, idx) => {
+    const cellB = `B${idx + 1}`;
+    if (summarySheet[cellB]) {
+      const existingStyle = summarySheet[cellB].s || {};
+      // Ensure center alignment is set (preserve other style properties)
+      summarySheet[cellB].s = {
+        ...existingStyle,
+        alignment: { 
+          horizontal: "center", 
+          vertical: existingStyle.alignment?.vertical || "center" 
+        }
+      };
     }
   });
   
@@ -272,6 +344,16 @@ export function exportTimesheetToExcel(data: EmployeeTimesheetData) {
       alignment: { horizontal: "center", vertical: "center" }
     };
   }
+  
+  // C1 - same background color as A1/B1
+  if (!workHoursSheet['C1']) {
+    workHoursSheet['C1'] = { t: 's', v: '' };
+  }
+  workHoursSheet['C1'].s = {
+    font: { bold: true, sz: 16, color: { rgb: "244B77" } },
+    fill: { fgColor: { rgb: "E8F4F8" } },
+    alignment: { horizontal: "center", vertical: "center" }
+  };
 
   // Column headers (Row 3)
   ['A3', 'B3', 'C3'].forEach(cell => {
@@ -289,35 +371,72 @@ export function exportTimesheetToExcel(data: EmployeeTimesheetData) {
     if (row[0]?.toString().startsWith('PROJECT:')) {
       const cellA = `A${idx + 1}`;
       const cellB = `B${idx + 1}`;
+      const cellC = `C${idx + 1}`;
       if (workHoursSheet[cellA]) {
         workHoursSheet[cellA].s = {
           font: { bold: true, sz: 11, color: { rgb: "FFFFFF" } },
-          fill: { fgColor: { rgb: "8B5CF6" } }
+          fill: { fgColor: { rgb: "8B5CF6" } },
+          alignment: { horizontal: "center", vertical: "center" }
         };
       }
       if (workHoursSheet[cellB]) {
         workHoursSheet[cellB].s = {
           font: { bold: true, sz: 11 },
-          fill: { fgColor: { rgb: "DDD6FE" } }
+          fill: { fgColor: { rgb: "DDD6FE" } },
+          alignment: { horizontal: "center", vertical: "center" }
+        };
+      }
+      if (workHoursSheet[cellC]) {
+        workHoursSheet[cellC].s = {
+          font: { bold: true, sz: 11 },
+          fill: { fgColor: { rgb: "DDD6FE" } },
+          alignment: { horizontal: "center", vertical: "center" }
         };
       }
     }
     if (row[0] === 'TOTAL HOURS:') {
       const cellA = `A${idx + 1}`;
       const cellB = `B${idx + 1}`;
+      const cellC = `C${idx + 1}`;
       if (workHoursSheet[cellA]) {
         workHoursSheet[cellA].s = {
           font: { bold: true, sz: 12 },
-          fill: { fgColor: { rgb: "DBEAFE" } }
+          fill: { fgColor: { rgb: "DBEAFE" } },
+          alignment: { horizontal: "center", vertical: "center" }
         };
       }
       if (workHoursSheet[cellB]) {
         workHoursSheet[cellB].s = {
           font: { bold: true, sz: 12 },
-          fill: { fgColor: { rgb: "DBEAFE" } }
+          fill: { fgColor: { rgb: "DBEAFE" } },
+          alignment: { horizontal: "center", vertical: "center" }
+        };
+      }
+      if (workHoursSheet[cellC]) {
+        workHoursSheet[cellC].s = {
+          font: { bold: true, sz: 12 },
+          fill: { fgColor: { rgb: "DBEAFE" } },
+          alignment: { horizontal: "center", vertical: "center" }
         };
       }
     }
+  });
+  
+  // Center-align all content in Work Hours sheet
+  workHoursData.forEach((row, idx) => {
+    ['A', 'B', 'C'].forEach(col => {
+      const cell = `${col}${idx + 1}`;
+      if (workHoursSheet[cell]) {
+        const existingStyle = workHoursSheet[cell].s || {};
+        workHoursSheet[cell].s = {
+          ...existingStyle,
+          alignment: { 
+            horizontal: "center", 
+            vertical: existingStyle.alignment?.vertical || "center" 
+          }
+        };
+      }
+    });
   });
 
   // Sheet 3: Absences (grouped by type)
@@ -393,6 +512,8 @@ export function exportTimesheetToExcel(data: EmployeeTimesheetData) {
     // Style absence type headers
     absencesData.forEach((row, idx) => {
       const cellA = `A${idx + 1}`;
+      const cellB = `B${idx + 1}`;
+      const cellC = `C${idx + 1}`;
       const cellD = `D${idx + 1}`;
       
       // Type headers (VACATION, SICK, etc.)
@@ -400,13 +521,29 @@ export function exportTimesheetToExcel(data: EmployeeTimesheetData) {
         if (absencesSheet[cellA]) {
           absencesSheet[cellA].s = {
             font: { bold: true, sz: 11, color: { rgb: "FFFFFF" } },
-            fill: { fgColor: { rgb: "F59E0B" } }
+            fill: { fgColor: { rgb: "F59E0B" } },
+            alignment: { horizontal: "left", vertical: "center" }
+          };
+        }
+        if (absencesSheet[cellB]) {
+          absencesSheet[cellB].s = {
+            font: { bold: true, sz: 11 },
+            fill: { fgColor: { rgb: "FEF3C7" } },
+            alignment: { horizontal: "center", vertical: "center" }
+          };
+        }
+        if (absencesSheet[cellC]) {
+          absencesSheet[cellC].s = {
+            font: { bold: true, sz: 11 },
+            fill: { fgColor: { rgb: "FEF3C7" } },
+            alignment: { horizontal: "center", vertical: "center" }
           };
         }
         if (absencesSheet[cellD]) {
           absencesSheet[cellD].s = {
             font: { bold: true, sz: 11 },
-            fill: { fgColor: { rgb: "FEF3C7" } }
+            fill: { fgColor: { rgb: "FEF3C7" } },
+            alignment: { horizontal: "center", vertical: "center" }
           };
         }
       }
@@ -416,16 +553,49 @@ export function exportTimesheetToExcel(data: EmployeeTimesheetData) {
         if (absencesSheet[cellA]) {
           absencesSheet[cellA].s = {
             font: { bold: true, sz: 12 },
-            fill: { fgColor: { rgb: "FEE2E2" } }
+            fill: { fgColor: { rgb: "FEE2E2" } },
+            alignment: { horizontal: "left", vertical: "center" }
+          };
+        }
+        if (absencesSheet[cellB]) {
+          absencesSheet[cellB].s = {
+            font: { bold: true, sz: 12 },
+            fill: { fgColor: { rgb: "FEE2E2" } },
+            alignment: { horizontal: "center", vertical: "center" }
+          };
+        }
+        if (absencesSheet[cellC]) {
+          absencesSheet[cellC].s = {
+            font: { bold: true, sz: 12 },
+            fill: { fgColor: { rgb: "FEE2E2" } },
+            alignment: { horizontal: "center", vertical: "center" }
           };
         }
         if (absencesSheet[cellD]) {
           absencesSheet[cellD].s = {
             font: { bold: true, sz: 12 },
-            fill: { fgColor: { rgb: "FEE2E2" } }
+            fill: { fgColor: { rgb: "FEE2E2" } },
+            alignment: { horizontal: "center", vertical: "center" }
           };
         }
       }
+    });
+    
+    // Center-align all B, C, D column cells in absences sheet
+    absencesData.forEach((row, idx) => {
+      ['B', 'C', 'D'].forEach(col => {
+        const cell = `${col}${idx + 1}`;
+        if (absencesSheet[cell]) {
+          const existingStyle = absencesSheet[cell].s || {};
+          absencesSheet[cell].s = {
+            ...existingStyle,
+            alignment: { 
+              horizontal: "center", 
+              vertical: existingStyle.alignment?.vertical || "center" 
+            }
+          };
+        }
+      });
     });
   }
 
