@@ -427,7 +427,7 @@ export default function DeveloperVacations() {
                 aria-label="List view"
               >
                 <List size={14} />
-                <span className="hidden xs:inline">List</span>
+                <span className="hidden sm:inline">List</span>
               </button>
               <button
                 onClick={() => setViewMode("calendar")}
@@ -439,7 +439,7 @@ export default function DeveloperVacations() {
                 aria-label="Calendar view"
               >
                 <Grid3X3 size={14} />
-                <span className="hidden xs:inline">Calendar</span>
+                <span className="hidden sm:inline">Calendar</span>
               </button>
             </div>
             
@@ -533,7 +533,7 @@ export default function DeveloperVacations() {
               }`}
             >
               <Filter size={14} />
-              <span className="hidden xs:inline">{t.filters}</span>
+              <span className="hidden sm:inline">{t.filters}</span>
               {hasFiltersApplied() && (
                 <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-cyan-400" />
               )}
@@ -765,7 +765,7 @@ export default function DeveloperVacations() {
                   <div key={type} className="flex items-center gap-2">
                     <span className={`${style.textColor}`}>{style.icon}</span>
                     <span className="text-xs sm:text-sm text-slate-600">
-                      <span className="font-semibold text-slate-800">{count}</span> <span className="hidden xs:inline">{type.toLowerCase()}</span>
+                      <span className="font-semibold text-slate-800">{count}</span> <span className="hidden sm:inline">{type.toLowerCase()}</span>
                     </span>
                   </div>
                 );
