@@ -39,6 +39,7 @@ export default function Developer() {
     const [loggedInUser, setLoggedInUser] = useState<User | null>(null);
     const [activeTab, setActiveTab] = useState<Tab>("time-reporting");
     const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [contentMarginLeft, setContentMarginLeft] = useState<string>("0");
 
     const userId = useMemo(() => {
         const segments = pathname?.split("/") || [];
@@ -76,17 +77,37 @@ export default function Developer() {
         reloadWorkHours(userId, month + 1, year);
     }, [userId, month, year, reloadWorkHours]);
 
+    // Set content margin based on sidebar state and screen size
+    useEffect(() => {
+        const updateMargin = () => {
+            if (window.innerWidth >= 1024) {
+                if (isCollapsed) {
+                    setContentMarginLeft("72px");
+                } else {
+                    setContentMarginLeft(window.innerWidth >= 1920 ? "256px" : "208px");
+                }
+            } else {
+                setContentMarginLeft("0");
+            }
+        };
+        
+        updateMargin();
+        window.addEventListener("resize", updateMargin);
+        return () => window.removeEventListener("resize", updateMargin);
+    }, [isCollapsed]);
+
     const isOwner = useMemo(() => {
         return loggedInUser?.id === userId;
     }, [loggedInUser?.id, userId]);
 
     return (
-    <div className="flex">
+    <div className="flex w-full">
         <NavigationSidebar activeTab={activeTab} onTabChange={setActiveTab} />
         
         {/* Scrollable content area */}
         <div 
-          className={`flex-1 overflow-auto p-3 sm:p-6 custom-scrollbar transition-all duration-300 pt-[104px] sm:pt-[112px] lg:pt-6 lg:${isCollapsed ? "ml-[72px]" : "ml-52 2xl:ml-64"} min-h-screen`}
+          className="flex-1 overflow-auto p-3 sm:p-6 custom-scrollbar transition-all duration-300 pt-[104px] sm:pt-[112px] lg:pt-6 min-h-screen"
+          style={{ marginLeft: contentMarginLeft }}
         >
             {activeTab === "time-reporting" ? (
                 <div className="bg-white rounded-xl sm:rounded-2xl border border-slate-200 p-3 sm:p-6 shadow-sm h-full flex flex-col overflow-hidden">
