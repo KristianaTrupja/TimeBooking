@@ -9,6 +9,7 @@ import Spinner from "@/components/ui/Spinner";
 import { isPasswordStrong } from "@/lib/utils";
 import { Users as UsersIcon, UserPlus, Shield, Code, ChevronDown, ChevronUp } from "lucide-react";
 import { useLanguage } from "@/app/context/LanguageContext";
+import { useIsMobile } from "@/app/hooks/useIsMobile";
 
 export default function Users() {
   const { t } = useLanguage();
@@ -28,7 +29,17 @@ export default function Users() {
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [user, setUser] = useState<{ users: User[] } | null>(null);
   const [containerHeight, setContainerHeight] = useState<number | null>(null);
+  const isMobile = useIsMobile();
   const [isTableExpanded, setIsTableExpanded] = useState(false);
+  
+  // When mobile, always keep expander collapsed
+  useEffect(() => {
+    if (isMobile) {
+      setIsTableExpanded(true);
+    } else {
+      setIsTableExpanded(false);
+    }
+  }, [isMobile]);
   const sectionRef = useRef<HTMLElement>(null);
   const buttonRef = useRef<HTMLDivElement>(null);
 

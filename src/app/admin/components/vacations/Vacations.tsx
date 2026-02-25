@@ -9,6 +9,7 @@ import { Holiday } from "@/types/holiday";
 import Spinner from "@/components/ui/Spinner";
 import { toast } from "sonner";
 import { useLanguage } from "@/app/context/LanguageContext";
+import { useIsMobile } from "@/app/hooks/useIsMobile";
 
 export default function Vacations() {
   const { t } = useLanguage();
@@ -24,7 +25,17 @@ export default function Vacations() {
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [containerHeight, setContainerHeight] = useState<number | null>(null);
   const [year, setYear] = useState(new Date().getFullYear());
+  const isMobile = useIsMobile();
   const [isTableExpanded, setIsTableExpanded] = useState(false);
+  
+  // When mobile, always keep expander collapsed
+  useEffect(() => {
+    if (isMobile) {
+      setIsTableExpanded(true);
+    } else {
+      setIsTableExpanded(false);
+    }
+  }, [isMobile]);
 
   const sectionRef = useRef<HTMLElement>(null);
   const buttonRef = useRef<HTMLDivElement>(null);

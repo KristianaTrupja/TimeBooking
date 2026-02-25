@@ -17,6 +17,7 @@ import RaportCard from "./RaportCard";
 import { useTimeSheet } from "@/app/context/TimeSheetContext";
 import { SubmissionStatus } from "@/types/timesheet";
 import { useLanguage } from "@/app/context/LanguageContext";
+import { useIsMobile } from "@/app/hooks/useIsMobile";
 
 export default function Raport() {
   const { loading } = useWorkHours();
@@ -30,7 +31,17 @@ export default function Raport() {
   const [containerHeight, setContainerHeight] = useState<number | null>(null);
   const [sortField, setSortField] = useState<SortField | null>("employee");
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
+  const isMobile = useIsMobile();
   const [isTableExpanded, setIsTableExpanded] = useState(false);
+  
+  // When mobile, always keep expander collapsed
+  useEffect(() => {
+    if (isMobile) {
+      setIsTableExpanded(true);
+    } else {
+      setIsTableExpanded(false);
+    }
+  }, [isMobile]);
   const sectionRef = useRef<HTMLElement>(null);
   const navRef = useRef<HTMLDivElement>(null);
 

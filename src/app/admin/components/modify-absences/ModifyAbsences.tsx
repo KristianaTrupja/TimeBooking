@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import { useLanguage } from "@/app/context/LanguageContext";
 import ModifyAbsencesCalendarView from "./ModifyAbsencesCalendarView";
 import ModifyAbsencesListView from "./ModifyAbsencesListView";
+import { useIsMobile } from "@/app/hooks/useIsMobile";
 
 const ABSENCE_TYPES: (keyof typeof AbsenceType)[] = ["VACATION", "SICK", "PERSONAL", "PARENTAL"]
 
@@ -49,7 +50,17 @@ export default function ModifyAbsences() {
   const [viewMode, setViewMode] = useState<ViewMode>("list");
   const [calendarMonth, setCalendarMonth] = useState(new Date().getMonth());
   const [calendarYear, setCalendarYear] = useState(new Date().getFullYear());
+  const isMobile = useIsMobile();
   const [isTableExpanded, setIsTableExpanded] = useState(false);
+  
+  // When mobile, always keep expander collapsed
+  useEffect(() => {
+    if (isMobile) {
+      setIsTableExpanded(true);
+    } else {
+      setIsTableExpanded(false);
+    }
+  }, [isMobile]);
   const sectionRef = useRef<HTMLElement>(null);
   const filtersRef = useRef<HTMLElement>(null);
   const absenceRowRefs = useRef<Map<string, HTMLTableRowElement>>(new Map());

@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import Spinner from "@/components/ui/Spinner";
 import { useHolidayContext } from "@/app/context/HolidayContext";
 import { useLanguage } from "@/app/context/LanguageContext";
+import { useIsMobile } from "@/app/hooks/useIsMobile";
 import {
   Calendar,
   ChevronLeft,
@@ -30,7 +31,17 @@ export default function DeveloperHolidays() {
   const [year, setYear] = useState(new Date().getFullYear());
   const [sortField, setSortField] = useState<SortField | null>("date");
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
+  const isMobile = useIsMobile();
   const [isExpanded, setIsExpanded] = useState(false);
+  
+  // When mobile, always keep expander expanded
+  useEffect(() => {
+    if (isMobile) {
+      setIsExpanded(true);
+    } else {
+      setIsExpanded(false);
+    }
+  }, [isMobile]);
 
   const handleSort = useCallback((field: SortField) => {
     if (sortField === field) {

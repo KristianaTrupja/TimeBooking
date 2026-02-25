@@ -25,6 +25,7 @@ import { useLanguage } from "@/app/context/LanguageContext";
 import { User } from "@/types/user";
 import ModifyAbsencesCalendarView from "@/app/admin/components/modify-absences/ModifyAbsencesCalendarView";
 import AbsenceCard from "./AbsenceCard";
+import { useIsMobile } from "@/app/hooks/useIsMobile";
 
 const ABSENCE_TYPES: (keyof typeof AbsenceType)[] = ["VACATION", "SICK", "PERSONAL", "PARENTAL"];
 
@@ -88,7 +89,17 @@ export default function DeveloperVacations() {
   const [showFilters, setShowFilters] = useState(false);
   const [sortField, setSortField] = useState<SortField | null>("startDate");
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
+  const isMobile = useIsMobile();
   const [isExpanded, setIsExpanded] = useState(false);
+  
+  // When mobile, always keep expander expanded
+  useEffect(() => {
+    if (isMobile) {
+      setIsExpanded(true);
+    } else {
+      setIsExpanded(false);
+    }
+  }, [isMobile]);
   const [viewMode, setViewMode] = useState<ViewMode>("list");
   const [calendarMonth, setCalendarMonth] = useState(new Date().getMonth());
   const [calendarYear, setCalendarYear] = useState(new Date().getFullYear());
