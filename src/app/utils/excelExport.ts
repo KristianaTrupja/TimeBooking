@@ -1,19 +1,22 @@
-import * as XLSX from 'xlsx-js-style';
-import type { CellObject, WorkSheet } from 'xlsx-js-style';
+import * as XLSX from "xlsx-js-style";
+import type { CellObject, WorkSheet } from "xlsx-js-style";
 
 // Style helper functions
-function createStyledCell(value: any, style: Partial<CellObject> = {}): CellObject {
+function createStyledCell(
+  value: any,
+  style: Partial<CellObject> = {},
+): CellObject {
   return {
     v: value,
-    t: typeof value === 'number' ? 'n' : 's',
+    t: typeof value === "number" ? "n" : "s",
     s: style.s || {},
-    ...style
+    ...style,
   };
 }
 
 function applyCellStyle(sheet: WorkSheet, cell: string, style: any) {
   if (!sheet[cell]) {
-    sheet[cell] = { t: 's', v: '' };
+    sheet[cell] = { t: "s", v: "" };
   }
   sheet[cell].s = style;
 }
@@ -54,128 +57,145 @@ export function exportTimesheetToExcel(data: EmployeeTimesheetData) {
 
   // Sheet 1: Summary
   const summaryData: any[][] = [
-    ['EMPLOYEE TIMESHEET REPORT'],
+    ["EMPLOYEE TIMESHEET REPORT"],
     [],
-    ['Employee:', employee.username],
-    ['Email:', employee.email || 'N/A'],
-    ['Period:', `${getMonthName(period.month)} ${period.year}`],
+    ["Employee:", employee.username],
+    ["Email:", employee.email || "N/A"],
+    ["Period:", `${getMonthName(period.month)} ${period.year}`],
     [],
-    ['WORK SUMMARY'],
+    ["WORK SUMMARY"],
     [],
   ];
 
   // Add project breakdown
-  const projectEntries = Object.entries(summary.projectBreakdown).sort((a, b) => b[1] - a[1]);
-  summaryData.push(['Projects Worked On:', '']);
+  const projectEntries = Object.entries(summary.projectBreakdown).sort(
+    (a, b) => b[1] - a[1],
+  );
+  summaryData.push(["Projects Worked On:", ""]);
   projectEntries.forEach(([project, hours]) => {
     summaryData.push([project, `${hours.toFixed(2)} hours`]);
   });
   summaryData.push([]);
-  summaryData.push(['Total Work Hours:', `${summary.totalWorkHours.toFixed(2)} hours`]);
-  
+  summaryData.push([
+    "Total Work Hours:",
+    `${summary.totalWorkHours.toFixed(2)} hours`,
+  ]);
+
   // Add absence summary
   if (absences.length > 0) {
     summaryData.push([]);
-    summaryData.push(['ABSENCE SUMMARY']);
+    summaryData.push(["ABSENCE SUMMARY"]);
     summaryData.push([]);
-    
+
     // Group absences by type
-    const absencesByType = absences.reduce((acc, absence) => {
-      if (!acc[absence.type]) {
-        acc[absence.type] = [];
-      }
-      acc[absence.type].push(absence);
-      return acc;
-    }, {} as Record<string, typeof absences>);
+    const absencesByType = absences.reduce(
+      (acc, absence) => {
+        if (!acc[absence.type]) {
+          acc[absence.type] = [];
+        }
+        acc[absence.type].push(absence);
+        return acc;
+      },
+      {} as Record<string, typeof absences>,
+    );
 
     Object.entries(absencesByType).forEach(([type, typeAbsences]) => {
       const totalDays = typeAbsences.reduce((sum, a) => sum + a.days, 0);
       summaryData.push([`${type}:`, `${totalDays} days`]);
-      typeAbsences.forEach(absence => {
+      typeAbsences.forEach((absence) => {
         const startDate = formatDate(absence.startDate);
         const endDate = formatDate(absence.endDate);
-        const dateRange = startDate === endDate ? startDate : `${startDate} - ${endDate}`;
+        const dateRange =
+          startDate === endDate ? startDate : `${startDate} - ${endDate}`;
         summaryData.push([dateRange, `${absence.days} days`]);
       });
       summaryData.push([]);
     });
 
-    summaryData.push(['Total Absence Days:', `${summary.totalAbsenceDays} days`]);
+    summaryData.push([
+      "Total Absence Days:",
+      `${summary.totalAbsenceDays} days`,
+    ]);
   } else {
     summaryData.push([]);
-    summaryData.push(['ABSENCE SUMMARY']);
+    summaryData.push(["ABSENCE SUMMARY"]);
     summaryData.push([]);
-    summaryData.push(['No absences recorded for this period']);
+    summaryData.push(["No absences recorded for this period"]);
   }
 
   const summarySheet = XLSX.utils.aoa_to_sheet(summaryData);
 
   // Style the summary sheet
-  summarySheet['!cols'] = [{ wch: 45 }, { wch: 40 }];
+  summarySheet["!cols"] = [{ wch: 45 }, { wch: 40 }];
 
   // Apply styles
   // Main title - Row 1
-  if (summarySheet['A1']) {
-    summarySheet['A1'].s = {
+  if (summarySheet["A1"]) {
+    summarySheet["A1"].s = {
       font: { bold: true, sz: 16, color: { rgb: "244B77" } },
       fill: { fgColor: { rgb: "E8F4F8" } },
-      alignment: { horizontal: "left", vertical: "center" }
+      alignment: { horizontal: "left", vertical: "center" },
     };
   }
-  
+
   // B1, C1, D1 - same background color as A1 (create cells if they don't exist)
-  ['B1', 'C1', 'D1'].forEach(cell => {
+  ["B1", "C1", "D1"].forEach((cell) => {
     if (!summarySheet[cell]) {
-      summarySheet[cell] = { t: 's', v: '' };
+      summarySheet[cell] = { t: "s", v: "" };
     }
     summarySheet[cell].s = {
       font: { bold: true, sz: 16, color: { rgb: "244B77" } },
       fill: { fgColor: { rgb: "E8F4F8" } },
-      alignment: { horizontal: cell === 'B1' ? "center" : "center", vertical: "center" }
+      alignment: {
+        horizontal: cell === "B1" ? "center" : "center",
+        vertical: "center",
+      },
     };
   });
 
   // Employee info styling - Rows 3-5
-  ['A3', 'A4', 'A5'].forEach(cell => {
+  ["A3", "A4", "A5"].forEach((cell) => {
     if (summarySheet[cell]) {
       summarySheet[cell].s = {
         font: { bold: true, sz: 11 },
-        alignment: { horizontal: "left" }
+        alignment: { horizontal: "left" },
       };
     }
   });
-  
+
   // Center align B column for employee info rows
-  ['B3', 'B4', 'B5'].forEach(cell => {
+  ["B3", "B4", "B5"].forEach((cell) => {
     if (summarySheet[cell]) {
       const existingStyle = summarySheet[cell].s || {};
       summarySheet[cell].s = {
         ...existingStyle,
-        alignment: { horizontal: "center", vertical: "center" }
+        alignment: { horizontal: "center", vertical: "center" },
       };
     }
   });
 
   // "WORK SUMMARY" header - Row 7
-  if (summarySheet['A7']) {
-    summarySheet['A7'].s = {
+  if (summarySheet["A7"]) {
+    summarySheet["A7"].s = {
       font: { bold: true, sz: 14, color: { rgb: "FFFFFF" } },
       fill: { fgColor: { rgb: "10B981" } },
-      alignment: { horizontal: "left", vertical: "center" }
+      alignment: { horizontal: "left", vertical: "center" },
     };
   }
-  
+
   // B7 - same color as A7 and center aligned
-  if (summarySheet['B7']) {
-    summarySheet['B7'].s = {
+  if (summarySheet["B7"]) {
+    summarySheet["B7"].s = {
       font: { bold: true, sz: 14, color: { rgb: "FFFFFF" } },
       fill: { fgColor: { rgb: "10B981" } },
-      alignment: { horizontal: "center", vertical: "center" }
+      alignment: { horizontal: "center", vertical: "center" },
     };
   }
 
   // Style "Projects Worked On:" header (find its row)
-  const projectsWorkedOnRow = summaryData.findIndex(row => row[0] === 'Projects Worked On:');
+  const projectsWorkedOnRow = summaryData.findIndex(
+    (row) => row[0] === "Projects Worked On:",
+  );
   if (projectsWorkedOnRow >= 0) {
     const cellA = `A${projectsWorkedOnRow + 1}`;
     const cellB = `B${projectsWorkedOnRow + 1}`;
@@ -183,14 +203,14 @@ export function exportTimesheetToExcel(data: EmployeeTimesheetData) {
       summarySheet[cellA].s = {
         font: { bold: true, sz: 12 },
         fill: { fgColor: { rgb: "D1FAE5" } },
-        alignment: { horizontal: "left", vertical: "center" }
+        alignment: { horizontal: "left", vertical: "center" },
       };
     }
     if (summarySheet[cellB]) {
       summarySheet[cellB].s = {
         font: { bold: true, sz: 12 },
         fill: { fgColor: { rgb: "D1FAE5" } },
-        alignment: { horizontal: "center", vertical: "center" }
+        alignment: { horizontal: "center", vertical: "center" },
       };
     }
   }
@@ -198,29 +218,34 @@ export function exportTimesheetToExcel(data: EmployeeTimesheetData) {
   // Style individual project rows (make project names bold)
   summaryData.forEach((row, idx) => {
     // Check if this row is a project entry (has project name in column A and hours in column B)
-    if (row[0] && row[1]?.toString().includes('hours') && 
-        !row[0].toString().includes(':') && 
-        row[0] !== 'EMPLOYEE TIMESHEET REPORT' &&
-        !row[0].toString().startsWith('Total')) {
+    if (
+      row[0] &&
+      row[1]?.toString().includes("hours") &&
+      !row[0].toString().includes(":") &&
+      row[0] !== "EMPLOYEE TIMESHEET REPORT" &&
+      !row[0].toString().startsWith("Total")
+    ) {
       const cellA = `A${idx + 1}`;
       const cellB = `B${idx + 1}`;
       if (summarySheet[cellA]) {
         summarySheet[cellA].s = {
           font: { bold: true, sz: 11 },
-          alignment: { horizontal: "left" }
+          alignment: { horizontal: "left" },
         };
       }
       if (summarySheet[cellB]) {
         summarySheet[cellB].s = {
           font: { bold: true, sz: 11 },
-          alignment: { horizontal: "center", vertical: "center" }
+          alignment: { horizontal: "center", vertical: "center" },
         };
       }
     }
   });
 
   // Find "ABSENCE SUMMARY" row
-  const absenceSummaryRow = summaryData.findIndex(row => row[0] === 'ABSENCE SUMMARY');
+  const absenceSummaryRow = summaryData.findIndex(
+    (row) => row[0] === "ABSENCE SUMMARY",
+  );
   if (absenceSummaryRow >= 0) {
     const absenceCellA = `A${absenceSummaryRow + 1}`;
     const absenceCellB = `B${absenceSummaryRow + 1}`;
@@ -228,14 +253,14 @@ export function exportTimesheetToExcel(data: EmployeeTimesheetData) {
       summarySheet[absenceCellA].s = {
         font: { bold: true, sz: 14, color: { rgb: "FFFFFF" } },
         fill: { fgColor: { rgb: "F59E0B" } },
-        alignment: { horizontal: "left", vertical: "center" }
+        alignment: { horizontal: "left", vertical: "center" },
       };
     }
     if (summarySheet[absenceCellB]) {
       summarySheet[absenceCellB].s = {
         font: { bold: true, sz: 14, color: { rgb: "FFFFFF" } },
         fill: { fgColor: { rgb: "F59E0B" } },
-        alignment: { horizontal: "center", vertical: "center" }
+        alignment: { horizontal: "center", vertical: "center" },
       };
     }
   }
@@ -244,43 +269,43 @@ export function exportTimesheetToExcel(data: EmployeeTimesheetData) {
   summaryData.forEach((row, idx) => {
     const cellA = `A${idx + 1}`;
     const cellB = `B${idx + 1}`;
-    
+
     // Style absence type headers (VACATION:, SICK:, etc.)
     if (row[0]?.toString().match(/^(VACATION|SICK|PERSONAL|PARENTAL):/)) {
       if (summarySheet[cellA]) {
         summarySheet[cellA].s = {
           font: { bold: true, sz: 11, color: { rgb: "FFFFFF" } },
           fill: { fgColor: { rgb: "F59E0B" } },
-          alignment: { horizontal: "left", vertical: "center" }
+          alignment: { horizontal: "left", vertical: "center" },
         };
       }
       if (summarySheet[cellB]) {
         summarySheet[cellB].s = {
           font: { bold: true, sz: 11 },
           fill: { fgColor: { rgb: "FEF3C7" } },
-          alignment: { horizontal: "center", vertical: "center" }
+          alignment: { horizontal: "center", vertical: "center" },
         };
       }
     }
-    
+
     // Style total rows (bold with gray background)
-    if (row[0]?.toString().includes('Total')) {
+    if (row[0]?.toString().includes("Total")) {
       if (summarySheet[cellA]) {
         summarySheet[cellA].s = {
           font: { bold: true, sz: 12 },
-          fill: { fgColor: { rgb: "F3F4F6" } }
+          fill: { fgColor: { rgb: "F3F4F6" } },
         };
       }
       if (summarySheet[cellB]) {
         summarySheet[cellB].s = {
           font: { bold: true, sz: 12 },
           fill: { fgColor: { rgb: "F3F4F6" } },
-          alignment: { horizontal: "center", vertical: "center" }
+          alignment: { horizontal: "center", vertical: "center" },
         };
       }
     }
   });
-  
+
   // Apply center alignment to all B column cells that don't already have it set
   summaryData.forEach((row, idx) => {
     const cellB = `B${idx + 1}`;
@@ -289,86 +314,91 @@ export function exportTimesheetToExcel(data: EmployeeTimesheetData) {
       // Ensure center alignment is set (preserve other style properties)
       summarySheet[cellB].s = {
         ...existingStyle,
-        alignment: { 
-          horizontal: "center", 
-          vertical: existingStyle.alignment?.vertical || "center" 
-        }
+        alignment: {
+          horizontal: "center",
+          vertical: existingStyle.alignment?.vertical || "center",
+        },
       };
     }
   });
-  
+
   // Sheet 2: Work Hours Details (grouped by project)
   const workHoursData: any[][] = [
-    ['WORK HOURS DETAILS'],
+    ["WORK HOURS DETAILS"],
     [],
-    ['Date', 'Hours', 'Notes'],
+    ["Date", "Hours", "Notes"],
   ];
 
   // Group work hours by project
-  const workHoursByProject = workHours.reduce((acc, wh) => {
-    if (!acc[wh.project]) {
-      acc[wh.project] = [];
-    }
-    acc[wh.project].push(wh);
-    return acc;
-  }, {} as Record<string, typeof workHours>);
+  const workHoursByProject = workHours.reduce(
+    (acc, wh) => {
+      if (!acc[wh.project]) {
+        acc[wh.project] = [];
+      }
+      acc[wh.project].push(wh);
+      return acc;
+    },
+    {} as Record<string, typeof workHours>,
+  );
 
   // Add work hours grouped by project
   Object.entries(workHoursByProject).forEach(([project, hours]) => {
     const projectTotal = hours.reduce((sum, h) => sum + h.hours, 0);
     workHoursData.push([]);
-    workHoursData.push([`PROJECT: ${project}`, `${projectTotal.toFixed(2)} hours`, '']);
-    hours.forEach(wh => {
+    workHoursData.push([
+      `PROJECT: ${project}`,
+      `${projectTotal.toFixed(2)} hours`,
+      "",
+    ]);
+    hours.forEach((wh) => {
       workHoursData.push([
         formatDate(wh.date),
         wh.hours.toFixed(2),
-        wh.note || ''
+        wh.note || "",
       ]);
     });
   });
 
   workHoursData.push([]);
-  workHoursData.push(['TOTAL HOURS:', summary.totalWorkHours.toFixed(2), '']);
+  workHoursData.push(["TOTAL HOURS:", summary.totalWorkHours.toFixed(2), ""]);
 
   const workHoursSheet = XLSX.utils.aoa_to_sheet(workHoursData);
-  workHoursSheet['!cols'] = [{ wch: 25 }, { wch: 15 }, { wch: 25 }];
+  workHoursSheet["!cols"] = [{ wch: 25 }, { wch: 15 }, { wch: 25 }];
 
-  workHoursSheet['!merges'] = [
-    { s: { r: 0, c: 0 }, e: { r: 0, c: 1 } }
-  ];
+  workHoursSheet["!merges"] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 1 } }];
 
-  if (workHoursSheet['A1']) {
-    workHoursSheet['A1'].s = {
+  if (workHoursSheet["A1"]) {
+    workHoursSheet["A1"].s = {
       font: { bold: true, sz: 16, color: { rgb: "244B77" } },
       fill: { fgColor: { rgb: "E8F4F8" } },
-      alignment: { horizontal: "center", vertical: "center" }
+      alignment: { horizontal: "center", vertical: "center" },
     };
   }
-  
+
   // C1 - same background color as A1/B1
-  if (!workHoursSheet['C1']) {
-    workHoursSheet['C1'] = { t: 's', v: '' };
+  if (!workHoursSheet["C1"]) {
+    workHoursSheet["C1"] = { t: "s", v: "" };
   }
-  workHoursSheet['C1'].s = {
+  workHoursSheet["C1"].s = {
     font: { bold: true, sz: 16, color: { rgb: "244B77" } },
     fill: { fgColor: { rgb: "E8F4F8" } },
-    alignment: { horizontal: "center", vertical: "center" }
+    alignment: { horizontal: "center", vertical: "center" },
   };
 
   // Column headers (Row 3)
-  ['A3', 'B3', 'C3'].forEach(cell => {
+  ["A3", "B3", "C3"].forEach((cell) => {
     if (workHoursSheet[cell]) {
       workHoursSheet[cell].s = {
         font: { bold: true, sz: 11, color: { rgb: "FFFFFF" } },
         fill: { fgColor: { rgb: "3B82F6" } },
-        alignment: { horizontal: "center", vertical: "center" }
+        alignment: { horizontal: "center", vertical: "center" },
       };
     }
   });
 
   // Style project headers and totals
   workHoursData.forEach((row, idx) => {
-    if (row[0]?.toString().startsWith('PROJECT:')) {
+    if (row[0]?.toString().startsWith("PROJECT:")) {
       const cellA = `A${idx + 1}`;
       const cellB = `B${idx + 1}`;
       const cellC = `C${idx + 1}`;
@@ -376,25 +406,25 @@ export function exportTimesheetToExcel(data: EmployeeTimesheetData) {
         workHoursSheet[cellA].s = {
           font: { bold: true, sz: 11, color: { rgb: "FFFFFF" } },
           fill: { fgColor: { rgb: "8B5CF6" } },
-          alignment: { horizontal: "center", vertical: "center" }
+          alignment: { horizontal: "center", vertical: "center" },
         };
       }
       if (workHoursSheet[cellB]) {
         workHoursSheet[cellB].s = {
           font: { bold: true, sz: 11 },
           fill: { fgColor: { rgb: "DDD6FE" } },
-          alignment: { horizontal: "center", vertical: "center" }
+          alignment: { horizontal: "center", vertical: "center" },
         };
       }
       if (workHoursSheet[cellC]) {
         workHoursSheet[cellC].s = {
           font: { bold: true, sz: 11 },
           fill: { fgColor: { rgb: "DDD6FE" } },
-          alignment: { horizontal: "center", vertical: "center" }
+          alignment: { horizontal: "center", vertical: "center" },
         };
       }
     }
-    if (row[0] === 'TOTAL HOURS:') {
+    if (row[0] === "TOTAL HOURS:") {
       const cellA = `A${idx + 1}`;
       const cellB = `B${idx + 1}`;
       const cellC = `C${idx + 1}`;
@@ -402,109 +432,122 @@ export function exportTimesheetToExcel(data: EmployeeTimesheetData) {
         workHoursSheet[cellA].s = {
           font: { bold: true, sz: 12 },
           fill: { fgColor: { rgb: "DBEAFE" } },
-          alignment: { horizontal: "center", vertical: "center" }
+          alignment: { horizontal: "center", vertical: "center" },
         };
       }
       if (workHoursSheet[cellB]) {
         workHoursSheet[cellB].s = {
           font: { bold: true, sz: 12 },
           fill: { fgColor: { rgb: "DBEAFE" } },
-          alignment: { horizontal: "center", vertical: "center" }
+          alignment: { horizontal: "center", vertical: "center" },
         };
       }
       if (workHoursSheet[cellC]) {
         workHoursSheet[cellC].s = {
           font: { bold: true, sz: 12 },
           fill: { fgColor: { rgb: "DBEAFE" } },
-          alignment: { horizontal: "center", vertical: "center" }
+          alignment: { horizontal: "center", vertical: "center" },
         };
       }
     }
   });
-  
+
   // Center-align all content in Work Hours sheet
   workHoursData.forEach((row, idx) => {
-    ['A', 'B', 'C'].forEach(col => {
+    ["A", "B", "C"].forEach((col) => {
       const cell = `${col}${idx + 1}`;
       if (workHoursSheet[cell]) {
         const existingStyle = workHoursSheet[cell].s || {};
         workHoursSheet[cell].s = {
           ...existingStyle,
-          alignment: { 
-            horizontal: "center", 
-            vertical: existingStyle.alignment?.vertical || "center" 
-          }
+          alignment: {
+            horizontal: "center",
+            vertical: existingStyle.alignment?.vertical || "center",
+          },
         };
       }
     });
   });
 
   // Sheet 3: Absences (grouped by type)
-  const absencesData: any[][] = [
-    ['ABSENCE DETAILS'],
-    [],
-  ];
+  const absencesData: any[][] = [["ABSENCE DETAILS"], []];
 
   if (absences.length > 0) {
     // Group absences by type
-    const absencesByType = absences.reduce((acc, absence) => {
-      if (!acc[absence.type]) {
-        acc[absence.type] = [];
-      }
-      acc[absence.type].push(absence);
-      return acc;
-    }, {} as Record<string, typeof absences>);
+    const absencesByType = absences.reduce(
+      (acc, absence) => {
+        if (!acc[absence.type]) {
+          acc[absence.type] = [];
+        }
+        acc[absence.type].push(absence);
+        return acc;
+      },
+      {} as Record<string, typeof absences>,
+    );
 
     // Add header
-    absencesData.push(['Type', 'Start Date', 'End Date', 'Days']);
+    absencesData.push(["Type", "Start Date", "End Date", "Days"]);
     absencesData.push([]);
 
     // Add absences grouped by type
     Object.entries(absencesByType).forEach(([type, typeAbsences]) => {
       const typeDays = typeAbsences.reduce((sum, a) => sum + a.days, 0);
-      absencesData.push([`${type}`, '', '', `${typeDays} days total`]);
-      typeAbsences.forEach(absence => {
+      absencesData.push([`${type}`, "", "", `${typeDays} days total`]);
+      typeAbsences.forEach((absence) => {
         absencesData.push([
-          '',
+          "",
           formatDate(absence.startDate),
           formatDate(absence.endDate),
-          absence.days
+          absence.days,
         ]);
       });
       absencesData.push([]);
     });
 
-    absencesData.push(['TOTAL ABSENCE DAYS:', '', '', summary.totalAbsenceDays]);
+    absencesData.push([
+      "TOTAL ABSENCE DAYS:",
+      "",
+      "",
+      summary.totalAbsenceDays,
+    ]);
   } else {
-    absencesData.push(['No absences recorded for this period']);
+    absencesData.push(["No absences recorded for this period"]);
   }
 
   const absencesSheet = XLSX.utils.aoa_to_sheet(absencesData);
-  absencesSheet['!cols'] = [{ wch: 25 }, { wch: 20 }, { wch: 25 }, { wch: 20 }];
+  absencesSheet["!cols"] = [{ wch: 25 }, { wch: 20 }, { wch: 25 }, { wch: 20 }];
 
   // Merge title across two columns
-  absencesSheet['!merges'] = [
-    { s: { r: 0, c: 0 }, e: { r: 0, c: 1 } } // Merge A1:B1 for title
+  absencesSheet["!merges"] = [
+    { s: { r: 0, c: 0 }, e: { r: 0, c: 1 } }, // Merge A1:B1 for title
   ];
 
   // Style absences sheet
   // Main title (merged, centered)
-  if (absencesSheet['A1']) {
-    absencesSheet['A1'].s = {
+  if (absencesSheet["A1"]) {
+    absencesSheet["A1"].s = {
       font: { bold: true, sz: 16, color: { rgb: "244B77" } },
       fill: { fgColor: { rgb: "E8F4F8" } },
-      alignment: { horizontal: "center", vertical: "center" }
+      alignment: { horizontal: "center", vertical: "center" },
     };
   }
-
+  // Ensure the title background fill spans A1:D1
+  ["B1", "C1", "D1"].forEach((cell) => {
+    if (!absencesSheet[cell]) absencesSheet[cell] = { t: "s", v: "" };
+    absencesSheet[cell].s = absencesSheet["A1"]?.s || {
+      font: { bold: true, sz: 16, color: { rgb: "244B77" } },
+      fill: { fgColor: { rgb: "E8F4F8" } },
+      alignment: { horizontal: "center", vertical: "center" },
+    };
+  });
   if (absences.length > 0) {
     // Column headers (Row 3)
-    ['A3', 'B3', 'C3', 'D3'].forEach(cell => {
+    ["A3", "B3", "C3", "D3"].forEach((cell) => {
       if (absencesSheet[cell]) {
         absencesSheet[cell].s = {
           font: { bold: true, sz: 11, color: { rgb: "FFFFFF" } },
           fill: { fgColor: { rgb: "EF4444" } },
-          alignment: { horizontal: "center", vertical: "center" }
+          alignment: { horizontal: "center", vertical: "center" },
         };
       }
     });
@@ -515,84 +558,87 @@ export function exportTimesheetToExcel(data: EmployeeTimesheetData) {
       const cellB = `B${idx + 1}`;
       const cellC = `C${idx + 1}`;
       const cellD = `D${idx + 1}`;
-      
+
       // Type headers (VACATION, SICK, etc.)
-      if (row[0] && ['VACATION', 'SICK', 'PERSONAL', 'PARENTAL'].includes(row[0].toString())) {
+      if (
+        row[0] &&
+        ["VACATION", "SICK", "PERSONAL", "PARENTAL"].includes(row[0].toString())
+      ) {
         if (absencesSheet[cellA]) {
           absencesSheet[cellA].s = {
             font: { bold: true, sz: 11, color: { rgb: "FFFFFF" } },
             fill: { fgColor: { rgb: "F59E0B" } },
-            alignment: { horizontal: "left", vertical: "center" }
+            alignment: { horizontal: "left", vertical: "center" },
           };
         }
         if (absencesSheet[cellB]) {
           absencesSheet[cellB].s = {
             font: { bold: true, sz: 11 },
             fill: { fgColor: { rgb: "FEF3C7" } },
-            alignment: { horizontal: "center", vertical: "center" }
+            alignment: { horizontal: "center", vertical: "center" },
           };
         }
         if (absencesSheet[cellC]) {
           absencesSheet[cellC].s = {
             font: { bold: true, sz: 11 },
             fill: { fgColor: { rgb: "FEF3C7" } },
-            alignment: { horizontal: "center", vertical: "center" }
+            alignment: { horizontal: "center", vertical: "center" },
           };
         }
         if (absencesSheet[cellD]) {
           absencesSheet[cellD].s = {
             font: { bold: true, sz: 11 },
             fill: { fgColor: { rgb: "FEF3C7" } },
-            alignment: { horizontal: "center", vertical: "center" }
+            alignment: { horizontal: "center", vertical: "center" },
           };
         }
       }
-      
+
       // Total row
-      if (row[0] === 'TOTAL ABSENCE DAYS:') {
+      if (row[0] === "TOTAL ABSENCE DAYS:") {
         if (absencesSheet[cellA]) {
           absencesSheet[cellA].s = {
             font: { bold: true, sz: 12 },
             fill: { fgColor: { rgb: "FEE2E2" } },
-            alignment: { horizontal: "left", vertical: "center" }
+            alignment: { horizontal: "left", vertical: "center" },
           };
         }
         if (absencesSheet[cellB]) {
           absencesSheet[cellB].s = {
             font: { bold: true, sz: 12 },
             fill: { fgColor: { rgb: "FEE2E2" } },
-            alignment: { horizontal: "center", vertical: "center" }
+            alignment: { horizontal: "center", vertical: "center" },
           };
         }
         if (absencesSheet[cellC]) {
           absencesSheet[cellC].s = {
             font: { bold: true, sz: 12 },
             fill: { fgColor: { rgb: "FEE2E2" } },
-            alignment: { horizontal: "center", vertical: "center" }
+            alignment: { horizontal: "center", vertical: "center" },
           };
         }
         if (absencesSheet[cellD]) {
           absencesSheet[cellD].s = {
             font: { bold: true, sz: 12 },
             fill: { fgColor: { rgb: "FEE2E2" } },
-            alignment: { horizontal: "center", vertical: "center" }
+            alignment: { horizontal: "center", vertical: "center" },
           };
         }
       }
     });
-    
+
     // Center-align all B, C, D column cells in absences sheet
     absencesData.forEach((row, idx) => {
-      ['B', 'C', 'D'].forEach(col => {
+      ["B", "C", "D"].forEach((col) => {
         const cell = `${col}${idx + 1}`;
         if (absencesSheet[cell]) {
           const existingStyle = absencesSheet[cell].s || {};
           absencesSheet[cell].s = {
             ...existingStyle,
-            alignment: { 
-              horizontal: "center", 
-              vertical: existingStyle.alignment?.vertical || "center" 
-            }
+            alignment: {
+              horizontal: "center",
+              vertical: existingStyle.alignment?.vertical || "center",
+            },
           };
         }
       });
@@ -600,12 +646,12 @@ export function exportTimesheetToExcel(data: EmployeeTimesheetData) {
   }
 
   // Add sheets to workbook
-  XLSX.utils.book_append_sheet(wb, summarySheet, 'Summary');
-  XLSX.utils.book_append_sheet(wb, workHoursSheet, 'Work Hours');
-  XLSX.utils.book_append_sheet(wb, absencesSheet, 'Absences');
+  XLSX.utils.book_append_sheet(wb, summarySheet, "Summary");
+  XLSX.utils.book_append_sheet(wb, workHoursSheet, "Work Hours");
+  XLSX.utils.book_append_sheet(wb, absencesSheet, "Absences");
 
   // Generate filename
-  const filename = `timesheet_${employee.username}_${period.year}_${String(period.month + 1).padStart(2, '0')}.xlsx`;
+  const filename = `timesheet_${employee.username}_${period.year}_${String(period.month + 1).padStart(2, "0")}.xlsx`;
 
   // Write file
   XLSX.writeFile(wb, filename);
@@ -613,17 +659,27 @@ export function exportTimesheetToExcel(data: EmployeeTimesheetData) {
 
 function formatDate(dateString: string): string {
   const date = new Date(dateString);
-  return date.toLocaleDateString('en-GB', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric'
+  return date.toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
   });
 }
 
 function getMonthName(month: number): string {
   const months = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
   ];
   return months[month];
 }
