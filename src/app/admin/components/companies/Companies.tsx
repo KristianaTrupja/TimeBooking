@@ -155,7 +155,7 @@ export default function Companies() {
   const inactiveCompanies = companies.filter(c => !c.isActive);
 
   return (
-    <section className="p-6 h-full flex flex-col overflow-y-auto custom-scrollbar">
+    <section className="p-3 py-6 sm:p-6 h-full flex flex-col overflow-y-visible lg:overflow-y-auto custom-scrollbar">
       {/* Header */}
       <div className="mb-6">
         <div className="flex items-center gap-3 mb-4">
@@ -184,7 +184,7 @@ export default function Companies() {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col lg:flex-row gap-6 min-h-0 overflow-y-auto pb-4">
+      <div className="flex-1 flex flex-col lg:flex-row gap-6 min-h-0 overflow-y-visible lg:overflow-y-auto pb-4">
         {/* Companies List */}
         <div className="w-full lg:w-2/3 space-y-6">
           {/* Active Companies */}

@@ -14,18 +14,24 @@ import { CalendarProvider } from "@/app/context/CalendarContext";
 import { ProjectProvider } from "@/app/context/ProjectContext";
 import Notifications from "./components/notifications/Notifications";
 import Settings from "./components/settings/Settings";
+import { useIsMobile } from "@/app/hooks/useIsMobile";
 
 export default function AdminClient() {
   const searchParams = useSearchParams();
   const [tab, setTab] = useState("raport");
   const [containerHeight, setContainerHeight] = useState<number | null>(null);
   const sectionRef = useRef<HTMLElement>(null);
+  const isMobileLayout = useIsMobile(1024);
 
   const calculateHeight = useCallback(() => {
     if (sectionRef.current) {
-      const sectionTop = sectionRef.current.getBoundingClientRect().top;
-      const availableHeight = window.innerHeight - sectionTop;
-      setContainerHeight(Math.max(availableHeight, 200));
+      if (window.innerWidth >= 1024) {
+        const sectionTop = sectionRef.current.getBoundingClientRect().top;
+        const availableHeight = window.innerHeight - sectionTop;
+        setContainerHeight(Math.max(availableHeight, 200));
+      } else {
+        setContainerHeight(null);
+      }
     }
   }, []);
 
@@ -43,13 +49,13 @@ export default function AdminClient() {
   return (
     <section
       ref={sectionRef}
-      className="p-6"
+      className="p-0 sm:p-6"
       style={{
         fontFamily: "var(--font-anek-bangla)",
-        height: containerHeight ? `${containerHeight}px` : "66vh",
+        height: !isMobileLayout && containerHeight ? `${containerHeight}px` : undefined,
       }}
     >
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm h-full flex flex-col overflow-hidden">
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm flex flex-col overflow-visible lg:h-full lg:overflow-hidden">
         {tab === "raport" && (
             <CalendarProvider>
               <ProjectProvider>

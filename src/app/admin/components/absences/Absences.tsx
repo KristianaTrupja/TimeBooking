@@ -169,7 +169,7 @@ export default function Absences() {
   )
 
   return (
-    <section className="p-6 h-full overflow-y-auto custom-scrollbar">
+    <section className="p-3 py-6 sm:p-6 h-full overflow-y-visible lg:overflow-y-auto custom-scrollbar">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div className="flex items-center gap-3">
@@ -193,12 +193,12 @@ export default function Absences() {
       </div>
 
       {/* Main 2-Column Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 pb-4">
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 pb-4 min-w-0">
         
         {/* Left Column - Form Inputs (3/5) */}
-        <div className="lg:col-span-3 space-y-5">
+        <div className="lg:col-span-3 space-y-5 min-w-0">
           {/* Main Form Card */}
-          <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+          <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm min-w-0">
             
             {/* Employee Selection */}
             <div className="mb-6">
@@ -223,23 +223,23 @@ export default function Absences() {
                 <Clock size={16} className="text-[#244B77]" aria-hidden="true" />
                 <span className="text-slate-800 font-semibold">{t.leavePeriod}</span>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 min-w-0">
+                <div className="min-w-0">
                   <label htmlFor="start-date" className="text-xs text-slate-600 font-medium mb-1.5 block">{t.startDate}</label>
                   <input
                     id="start-date"
                     type="date"
-                    className="w-full bg-slate-50 text-slate-800 px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#244B77]/30 focus:border-[#244B77]/50 transition-all"
+                    className="block w-full max-w-full min-w-0 bg-slate-50 text-slate-800 px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#244B77]/30 focus:border-[#244B77]/50 transition-all"
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
                   />
                 </div>
-                <div>
+                <div className="min-w-0">
                   <label htmlFor="end-date" className="text-xs text-slate-600 font-medium mb-1.5 block">{t.endDate}</label>
                   <input
                     id="end-date"
                     type="date"
-                    className="w-full bg-slate-50 text-slate-800 px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#244B77]/30 focus:border-[#244B77]/50 transition-all"
+                    className="block w-full max-w-full min-w-0 bg-slate-50 text-slate-800 px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#244B77]/30 focus:border-[#244B77]/50 transition-all"
                     value={endDate}
                     onChange={(e) => setEndDate(e.target.value)}
                   />

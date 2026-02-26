@@ -9,6 +9,7 @@ import { Holiday } from "@/types/holiday";
 import Spinner from "@/components/ui/Spinner";
 import { toast } from "sonner";
 import { useLanguage } from "@/app/context/LanguageContext";
+import { useIsMobile } from "@/app/hooks/useIsMobile";
 
 export default function Vacations() {
   const { t } = useLanguage();
@@ -24,7 +25,18 @@ export default function Vacations() {
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [containerHeight, setContainerHeight] = useState<number | null>(null);
   const [year, setYear] = useState(new Date().getFullYear());
+  const isMobile = useIsMobile();
+  const isMobileLayout = useIsMobile(1024);
   const [isTableExpanded, setIsTableExpanded] = useState(false);
+  
+  // When mobile, always keep expander collapsed
+  useEffect(() => {
+    if (isMobile) {
+      setIsTableExpanded(true);
+    } else {
+      setIsTableExpanded(false);
+    }
+  }, [isMobile]);
 
   const sectionRef = useRef<HTMLElement>(null);
   const buttonRef = useRef<HTMLDivElement>(null);
@@ -35,19 +47,23 @@ export default function Vacations() {
 
   const calculateHeight = useCallback(() => {
     if (sectionRef.current && buttonRef.current && navRef.current) {
-      const sectionTop = sectionRef.current.getBoundingClientRect().top;
-      
-      const navStyles = window.getComputedStyle(navRef.current);
-      const navHeight = navRef.current.offsetHeight + 
-        parseFloat(navStyles.marginTop) + parseFloat(navStyles.marginBottom);
-      
-      const buttonStyles = window.getComputedStyle(buttonRef.current);
-      const buttonHeight = buttonRef.current.offsetHeight + 
-        parseFloat(buttonStyles.marginTop) + parseFloat(buttonStyles.marginBottom);
-      
-      const bottomPadding = 16;
-      const availableHeight = window.innerHeight - sectionTop - navHeight - buttonHeight - bottomPadding;
-      setContainerHeight(Math.max(availableHeight, 200));
+      if (window.innerWidth >= 1024) {
+        const sectionTop = sectionRef.current.getBoundingClientRect().top;
+        
+        const navStyles = window.getComputedStyle(navRef.current);
+        const navHeight = navRef.current.offsetHeight + 
+          parseFloat(navStyles.marginTop) + parseFloat(navStyles.marginBottom);
+        
+        const buttonStyles = window.getComputedStyle(buttonRef.current);
+        const buttonHeight = buttonRef.current.offsetHeight + 
+          parseFloat(buttonStyles.marginTop) + parseFloat(buttonStyles.marginBottom);
+        
+        const bottomPadding = 16;
+        const availableHeight = window.innerHeight - sectionTop - navHeight - buttonHeight - bottomPadding;
+        setContainerHeight(Math.max(availableHeight, 200));
+      } else {
+        setContainerHeight(null);
+      }
     }
   }, []);
 
@@ -210,7 +226,7 @@ export default function Vacations() {
       {/* Header Section */}
       <div ref={navRef}>
         {/* Title and Navigation */}
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex flex-col sm:flex-row gap-4 sm:gap-0 items-left sm:items-center justify-between mb-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-rose-400 to-pink-500 flex items-center justify-center shadow-lg shadow-rose-400/25">
               <CalendarHeart className="text-white" size={20} />
@@ -314,8 +330,8 @@ export default function Vacations() {
 
       {/* Table Section */}
       <section
-        className="overflow-y-auto rounded-xl flex-1 bg-white border border-slate-200 shadow-sm custom-scrollbar"
-        style={{ maxHeight: containerHeight ? `${containerHeight}px` : "66vh" }}
+        className="overflow-y-auto rounded-xl flex-1 bg-white sm:border sm:border-slate-200 sm:shadow-sm custom-scrollbar p-1 sm:p-0"
+        style={{ maxHeight: !isMobileLayout ? (containerHeight ? `${containerHeight}px` : "66vh") : undefined }}
       >
         {isTableLoading ? (
           <div className="h-64">

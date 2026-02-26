@@ -13,9 +13,11 @@ import { useCalendar } from "@/app/context/CalendarContext";
 import { useWorkHours } from "@/app/context/WorkHoursContext";
 import MonthYearPicker from "@/app/developer/components/monthYear/MonthYearPicker";
 import RaportEntry from "./RaportEntry";
+import RaportCard from "./RaportCard";
 import { useTimeSheet } from "@/app/context/TimeSheetContext";
 import { SubmissionStatus } from "@/types/timesheet";
 import { useLanguage } from "@/app/context/LanguageContext";
+import { useIsMobile } from "@/app/hooks/useIsMobile";
 
 export default function Raport() {
   const { loading } = useWorkHours();
@@ -29,19 +31,33 @@ export default function Raport() {
   const [containerHeight, setContainerHeight] = useState<number | null>(null);
   const [sortField, setSortField] = useState<SortField | null>("employee");
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
+  const isMobile = useIsMobile();
   const [isTableExpanded, setIsTableExpanded] = useState(false);
+  
+  // When mobile, always keep expander collapsed
+  useEffect(() => {
+    if (isMobile) {
+      setIsTableExpanded(true);
+    } else {
+      setIsTableExpanded(false);
+    }
+  }, [isMobile]);
   const sectionRef = useRef<HTMLElement>(null);
   const navRef = useRef<HTMLDivElement>(null);
 
   const calculateHeight = useCallback(() => {
     if (sectionRef.current && navRef.current) {
-      const sectionTop = sectionRef.current.getBoundingClientRect().top;
-      const navStyles = window.getComputedStyle(navRef.current);
-      const navHeight = navRef.current.offsetHeight + 
-        parseFloat(navStyles.marginTop) + parseFloat(navStyles.marginBottom);
-      const bottomPadding = 24;
-      const availableHeight = window.innerHeight - sectionTop - navHeight - bottomPadding;
-      setContainerHeight(Math.max(availableHeight, 200));
+      if (window.innerWidth >= 1024) {
+        const sectionTop = sectionRef.current.getBoundingClientRect().top;
+        const navStyles = window.getComputedStyle(navRef.current);
+        const navHeight = navRef.current.offsetHeight + 
+          parseFloat(navStyles.marginTop) + parseFloat(navStyles.marginBottom);
+        const bottomPadding = 24;
+        const availableHeight = window.innerHeight - sectionTop - navHeight - bottomPadding;
+        setContainerHeight(Math.max(availableHeight, 200));
+      } else {
+        setContainerHeight(null);
+      }
     }
   }, []);
 
@@ -118,6 +134,13 @@ export default function Raport() {
   const formattedDate = useMemo(() => {
     return new Date(year, month).toLocaleString(language === "de" ? "de-DE" : "en-US", {
       month: "long",
+      year: "numeric",
+    });
+  }, [year, month, language]);
+
+  const formattedDateShort = useMemo(() => {
+    return new Date(year, month).toLocaleString(language === "de" ? "de-DE" : "en-US", {
+      month: "short",
       year: "numeric",
     });
   }, [year, month, language]);
@@ -199,11 +222,11 @@ export default function Raport() {
   }, [timesheets, sortField, sortDirection]);
 
   return (
-    <section ref={sectionRef} className="p-6 h-full flex flex-col" aria-labelledby="timesheets-heading">
+    <section ref={sectionRef} className="p-3 py-6 sm:p-6 h-full flex flex-col" aria-labelledby="timesheets-heading">
       {/* Header Section */}
       <div ref={navRef}>
         {/* Title and Navigation */}
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex flex-col gap-4 sm:gap-0 sm:flex-row items-left sm:items-center justify-between mb-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/25" aria-hidden="true">
               <FileText className="text-white" size={20} />
@@ -238,7 +261,10 @@ export default function Raport() {
             >
               <ChevronLeft className="text-slate-600" size={18} aria-hidden="true" />
             </Button>
-            <span className="text-sm font-semibold text-slate-700 min-w-[140px] text-center" aria-live="polite">{formattedDate}</span>
+            <span className="text-sm font-semibold text-slate-700 sm:min-w-[100px] sm:min-w-[140px] text-center" aria-live="polite">
+              <span className="md:hidden">{formattedDateShort}</span>
+              <span className="hidden md:inline">{formattedDate}</span>
+            </span>
             <MonthYearPicker />
             <Button 
               variant="ghost" 
@@ -304,8 +330,8 @@ export default function Raport() {
 
       {/* Table Section */}
       <section
-        className="overflow-hidden overflow-y-auto rounded-xl flex-1 bg-white border border-slate-200 shadow-sm custom-scrollbar"
-        style={{ maxHeight: containerHeight ? `${containerHeight}px` : "66vh" }}
+        className="overflow-y-auto rounded-xl flex-1 bg-white sm:border sm:border-slate-200 sm:shadow-sm custom-scrollbar"
+        style={{ maxHeight: !isMobile && containerHeight ? `${containerHeight}px` : undefined }}
         role="region"
         aria-labelledby="timesheets-table-caption"
         tabIndex={0}
@@ -315,46 +341,68 @@ export default function Raport() {
             <Spinner text={t.loadingTimesheets} />
           </div>
         ) : (
-          <table className="w-full" role="table" aria-labelledby="timesheets-table-caption">
-            <caption id="timesheets-table-caption" className="sr-only">Employee timesheets for {formattedDate}</caption>
-            <thead className="bg-slate-100 border-b border-slate-200 sticky top-0 z-20">
-              <tr className="text-left text-xs uppercase tracking-wider text-slate-600">
-                <th scope="col" className="px-4 py-3 font-bold w-16 bg-slate-100">#</th>
-                <th scope="col" className="px-4 py-3 font-bold bg-slate-100">
-                  <button 
-                    onClick={() => handleSort("employee")}
-                    className="flex items-center gap-1.5 hover:text-slate-900 transition-colors"
-                    aria-label={`Sort by employee`}
-                  >
-                    {t.employee} <span aria-hidden="true">{getSortIcon("employee")}</span>
-                  </button>
-                </th>
-                <th scope="col" className="px-4 py-3 font-bold bg-slate-100">
-                  <button 
-                    onClick={() => handleSort("hours")}
-                    className="flex items-center gap-1.5 hover:text-slate-900 transition-colors"
-                    aria-label={`Sort by hours`}
-                  >
-                    {t.hours} <span aria-hidden="true">{getSortIcon("hours")}</span>
-                  </button>
-                </th>
-                <th scope="col" className="px-4 py-3 font-bold bg-slate-100">{t.details}</th>
-                <th scope="col" className="px-4 py-3 font-bold bg-slate-100">
-                  <button 
-                    onClick={() => handleSort("status")}
-                    className="flex items-center gap-1.5 hover:text-slate-900 transition-colors"
-                    aria-label={`Sort by status`}
-                  >
-                    {t.status} <span aria-hidden="true">{getSortIcon("status")}</span>
-                  </button>
-                </th>
-                <th scope="col" className="px-4 py-3 font-bold bg-slate-100">{t.action}</th>
-                <th scope="col" className="px-4 py-3 font-bold bg-slate-100 text-center">{t.download}</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
+          <>
+            {/* Desktop Table View */}
+            <div className="hidden md:block">
+              <table className="w-full" role="table" aria-labelledby="timesheets-table-caption">
+                <caption id="timesheets-table-caption" className="sr-only">Employee timesheets for {formattedDate}</caption>
+                <thead className="bg-slate-100 border-b border-slate-200 sticky top-0 z-20">
+                  <tr className="text-left text-xs uppercase tracking-wider text-slate-600">
+                    <th scope="col" className="px-4 py-3 font-bold w-16 bg-slate-100">#</th>
+                    <th scope="col" className="px-4 py-3 font-bold bg-slate-100">
+                      <button 
+                        onClick={() => handleSort("employee")}
+                        className="flex items-center gap-1.5 hover:text-slate-900 transition-colors"
+                        aria-label={`Sort by employee`}
+                      >
+                        {t.employee} <span aria-hidden="true">{getSortIcon("employee")}</span>
+                      </button>
+                    </th>
+                    <th scope="col" className="px-4 py-3 font-bold bg-slate-100">
+                      <button 
+                        onClick={() => handleSort("hours")}
+                        className="flex items-center gap-1.5 hover:text-slate-900 transition-colors"
+                        aria-label={`Sort by hours`}
+                      >
+                        {t.hours} <span aria-hidden="true">{getSortIcon("hours")}</span>
+                      </button>
+                    </th>
+                    <th scope="col" className="px-4 py-3 font-bold bg-slate-100">{t.details}</th>
+                    <th scope="col" className="px-4 py-3 font-bold bg-slate-100">
+                      <button 
+                        onClick={() => handleSort("status")}
+                        className="flex items-center gap-1.5 hover:text-slate-900 transition-colors"
+                        aria-label={`Sort by status`}
+                      >
+                        {t.status} <span aria-hidden="true">{getSortIcon("status")}</span>
+                      </button>
+                    </th>
+                    <th scope="col" className="px-4 py-3 font-bold bg-slate-100">{t.action}</th>
+                    <th scope="col" className="px-4 py-3 font-bold bg-slate-100 text-center">{t.download}</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {sortedTimesheets.map((ts, index: number) => (
+                    <RaportEntry
+                      timesheet={ts}
+                      month={month}
+                      year={year}
+                      index={index}
+                      adminId={adminId}
+                      onApply={handleSubmissionStatusUpdate}
+                      shouldScrollTo={scrollToUserId === ts.userId}
+                      onScrollComplete={handleScrollComplete}
+                      key={index}
+                    />
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile Card View */}
+            <div className="md:hidden p-1 sm:p-3 space-y-3 h-full">
               {sortedTimesheets.map((ts, index: number) => (
-                <RaportEntry
+                <RaportCard
                   timesheet={ts}
                   month={month}
                   year={year}
@@ -366,8 +414,8 @@ export default function Raport() {
                   key={index}
                 />
               ))}
-            </tbody>
-          </table>
+            </div>
+          </>
         )}
       </section>
     </section>

@@ -24,6 +24,8 @@ import Spinner from "@/components/ui/Spinner";
 import { useLanguage } from "@/app/context/LanguageContext";
 import { User } from "@/types/user";
 import ModifyAbsencesCalendarView from "@/app/admin/components/modify-absences/ModifyAbsencesCalendarView";
+import AbsenceCard from "./AbsenceCard";
+import { useIsMobile } from "@/app/hooks/useIsMobile";
 
 const ABSENCE_TYPES: (keyof typeof AbsenceType)[] = ["VACATION", "SICK", "PERSONAL", "PARENTAL"];
 
@@ -87,7 +89,18 @@ export default function DeveloperVacations() {
   const [showFilters, setShowFilters] = useState(false);
   const [sortField, setSortField] = useState<SortField | null>("startDate");
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
+  const isMobile = useIsMobile();
+  const isMobileLayout = useIsMobile(1024);
   const [isExpanded, setIsExpanded] = useState(false);
+  
+  // When mobile, always keep expander expanded
+  useEffect(() => {
+    if (isMobile) {
+      setIsExpanded(true);
+    } else {
+      setIsExpanded(false);
+    }
+  }, [isMobile]);
   const [viewMode, setViewMode] = useState<ViewMode>("list");
   const [calendarMonth, setCalendarMonth] = useState(new Date().getMonth());
   const [calendarYear, setCalendarYear] = useState(new Date().getFullYear());
@@ -399,52 +412,52 @@ export default function DeveloperVacations() {
   }, [calendarMonth]);
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+    <div className="bg-white rounded-xl sm:rounded-2xl sm:border sm:border-slate-200 sm:shadow-sm overflow-hidden">
       {/* Header */}
-      <div className="p-6 border-b border-slate-200">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#244B77] to-[#1a3a5c] flex items-center justify-center shadow-lg shadow-[#244B77]/20">
-              <CalendarDays className="text-white" size={24} />
+      <div className="p-3 sm:p-4 md:p-6 border-b border-slate-200">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 mb-4 sm:mb-6">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-[#244B77] to-[#1a3a5c] flex items-center justify-center shadow-lg shadow-[#244B77]/20">
+              <CalendarDays className="text-white" size={20} />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-slate-900">{t.myLeaveBalance}</h1>
-              <p className="text-sm text-slate-600">{t.leaveHistory}</p>
+              <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-slate-900">{t.myLeaveBalance}</h1>
+              <p className="text-xs sm:text-sm text-slate-600">{t.leaveHistory}</p>
             </div>
           </div>
           
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 w-full sm:w-auto">
             {/* View Mode Toggle */}
-            <div className="flex items-center gap-1 bg-slate-100 rounded-xl p-1">
+            <div className="flex items-center gap-1 bg-slate-100 rounded-lg sm:rounded-xl p-0.5 sm:p-1 flex-1 sm:flex-initial">
               <button
                 onClick={() => setViewMode("list")}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                className={`flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-md sm:rounded-lg text-xs sm:text-sm font-medium transition-all ${
                   viewMode === "list"
                     ? "bg-white text-[#244B77] shadow-sm"
                     : "text-slate-600 hover:text-slate-900"
                 }`}
                 aria-label="List view"
               >
-                <List size={16} />
-                List
+                <List size={14} />
+                <span className="hidden sm:inline">List</span>
               </button>
               <button
                 onClick={() => setViewMode("calendar")}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                className={`flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-md sm:rounded-lg text-xs sm:text-sm font-medium transition-all ${
                   viewMode === "calendar"
                     ? "bg-white text-[#244B77] shadow-sm"
                     : "text-slate-600 hover:text-slate-900"
                 }`}
                 aria-label="Calendar view"
               >
-                <Grid3X3 size={16} />
-                Calendar
+                <Grid3X3 size={14} />
+                <span className="hidden sm:inline">Calendar</span>
               </button>
             </div>
             
             <button
               onClick={() => setIsExpanded((prev) => !prev)}
-              className={`h-10 w-10 rounded-xl border transition-all duration-200 flex items-center justify-center hover:scale-105 active:scale-95 ${
+              className={`h-8 w-8 sm:h-9 sm:w-9 md:h-10 md:w-10 rounded-lg sm:rounded-xl border transition-all duration-200 flex items-center justify-center hover:scale-105 active:scale-95 flex-shrink-0 ${
                 isExpanded
                   ? "bg-gradient-to-br from-cyan-500 to-blue-600 text-white border-cyan-400 shadow-lg shadow-cyan-500/35 ring-2 ring-cyan-200/60"
                   : "bg-gradient-to-br from-white to-slate-50 text-slate-700 border-slate-300 shadow-sm hover:shadow-md hover:border-cyan-400 hover:text-cyan-700"
@@ -452,14 +465,14 @@ export default function DeveloperVacations() {
               aria-label={isExpanded ? "Collapse view" : "Expand view"}
               title={isExpanded ? "Collapse view" : "Expand view"}
             >
-              {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+              {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
             </button>
           </div>
         </div>
 
         {/* Balance Cards */}
         {!isExpanded && (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
           {/* Total Available */}
           <div className="bg-gradient-to-br from-[#244B77] to-[#1a3a5c] rounded-xl p-4 text-white">
             <div className="flex items-center gap-2 mb-2">
@@ -522,19 +535,19 @@ export default function DeveloperVacations() {
 
         {/* Filter Toggle */}
         {!isExpanded && !showFilters && (
-          <div className="flex justify-end mt-4">
+          <div className="flex justify-end mt-3 sm:mt-4">
             <button
               onClick={() => setShowFilters(true)}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm transition-all duration-200 ${
+              className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg sm:rounded-xl font-semibold text-xs sm:text-sm transition-all duration-200 ${
                 hasFiltersApplied()
                   ? "bg-[#244B77] text-white shadow-md"
                   : "bg-slate-100 text-slate-700 hover:bg-slate-200"
               }`}
             >
-              <Filter size={16} />
-              {t.filters}
+              <Filter size={14} />
+              <span className="hidden sm:inline">{t.filters}</span>
               {hasFiltersApplied() && (
-                <span className="w-2 h-2 rounded-full bg-cyan-400" />
+                <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-cyan-400" />
               )}
             </button>
           </div>
@@ -542,9 +555,9 @@ export default function DeveloperVacations() {
 
         {/* Filters Panel */}
         {!isExpanded && showFilters && (
-          <div className="mt-4 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+          <div className="mt-3 sm:mt-4 bg-white rounded-lg sm:rounded-xl border border-slate-200 shadow-sm overflow-hidden">
             {/* Header */}
-            <div className="flex justify-between items-center px-4 py-3 bg-gradient-to-r from-slate-50 to-slate-100 border-b border-slate-200">
+            <div className="flex justify-between items-center px-3 sm:px-4 py-2 sm:py-3 bg-gradient-to-r from-slate-50 to-slate-100 border-b border-slate-200">
               <div className="flex items-center gap-2">
                 <Filter size={16} className="text-[#244B77]" />
                 <span className="text-sm font-semibold text-slate-800">{t.filters}</span>
@@ -559,11 +572,11 @@ export default function DeveloperVacations() {
             </div>
             
             {/* Filter Controls */}
-            <div className="p-4">
-              <div className="flex flex-wrap items-end gap-4">
+            <div className="p-3 sm:p-4">
+              <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-end gap-3 sm:gap-4">
                 {/* Date Range */}
-                <div className="flex items-center gap-2">
-                  <div>
+                <div className="flex items-end gap-2 flex-1 sm:flex-initial">
+                  <div className="flex-1 sm:flex-initial">
                     <label htmlFor="filter-start" className="text-xs font-medium text-slate-500 mb-1 block">
                       {t.from}
                     </label>
@@ -572,11 +585,11 @@ export default function DeveloperVacations() {
                       type="date"
                       value={filters.startDate.toISOString().slice(0, 10)}
                       onChange={(e) => setFilters(prev => ({ ...prev, startDate: new Date(e.target.value) }))}
-                      className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#244B77]/20 focus:border-[#244B77]/30 transition-all"
+                      className="w-full sm:w-auto px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#244B77]/20 focus:border-[#244B77]/30 transition-all"
                     />
                   </div>
-                  <span className="text-slate-400 mt-5">→</span>
-                  <div>
+                  <span className="text-slate-400 mb-2 hidden sm:inline">→</span>
+                  <div className="flex-1 sm:flex-initial">
                     <label htmlFor="filter-end" className="text-xs font-medium text-slate-500 mb-1 block">
                       {t.to}
                     </label>
@@ -585,7 +598,7 @@ export default function DeveloperVacations() {
                       type="date"
                       value={filters.endDate.toISOString().slice(0, 10)}
                       onChange={(e) => setFilters(prev => ({ ...prev, endDate: new Date(e.target.value) }))}
-                      className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#244B77]/20 focus:border-[#244B77]/30 transition-all"
+                      className="w-full sm:w-auto px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#244B77]/20 focus:border-[#244B77]/30 transition-all"
                     />
                   </div>
                 </div>
@@ -594,7 +607,7 @@ export default function DeveloperVacations() {
                 <div className="hidden sm:block w-px h-10 bg-slate-200" />
 
                 {/* Type Filter */}
-                <div>
+                <div className="flex-1 sm:flex-initial">
                   <label htmlFor="filter-type" className="text-xs font-medium text-slate-500 mb-1 block">
                     {t.type}
                   </label>
@@ -602,7 +615,7 @@ export default function DeveloperVacations() {
                     id="filter-type"
                     value={filters.selectedAbsenceType || ""}
                     onChange={(e) => setFilters(prev => ({ ...prev, selectedAbsenceType: e.target.value || null }))}
-                    className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#244B77]/20 focus:border-[#244B77]/30 min-w-[150px] transition-all"
+                    className="w-full sm:w-auto px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#244B77]/20 focus:border-[#244B77]/30 min-w-[150px] transition-all"
                   >
                     <option value="">{t.type}</option>
                     {ABSENCE_TYPES.map(type => (
@@ -615,7 +628,7 @@ export default function DeveloperVacations() {
                 {hasFiltersApplied() && (
                   <button
                     onClick={handleResetFilters}
-                    className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all border border-transparent hover:border-rose-200"
+                    className="flex items-center justify-center gap-1.5 px-3 py-2 text-xs sm:text-sm font-medium text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all border border-transparent hover:border-rose-200"
                   >
                     <X size={14} />
                     {t.reset}
@@ -629,7 +642,7 @@ export default function DeveloperVacations() {
 
       {/* Content Section */}
       {viewMode === "calendar" ? (
-        <div className="p-6">
+        <div className="p-3 sm:p-4 md:p-6">
           <ModifyAbsencesCalendarView
             containerHeight={null}
             monthLabel={monthLabel}
@@ -644,7 +657,10 @@ export default function DeveloperVacations() {
           />
         </div>
       ) : (
-        <div className="overflow-y-auto custom-scrollbar" style={{ maxHeight: "calc(100vh - 450px)", minHeight: "300px" }}>
+        <div
+          className="overflow-y-visible lg:overflow-y-auto custom-scrollbar"
+          style={!isMobileLayout ? { maxHeight: "calc(100vh - 450px)", minHeight: "300px" } : undefined}
+        >
         {isLoading ? (
           <div className="h-64">
             <Spinner text={t.loading} />
@@ -660,85 +676,102 @@ export default function DeveloperVacations() {
             </p>
           </div>
         ) : (
-          <table className="w-full">
-            <thead className="bg-slate-100 border-b border-slate-200 sticky top-0 z-10">
-              <tr className="text-left text-xs uppercase tracking-wider text-slate-600">
-                <th className="px-6 py-3 font-bold bg-slate-100 w-12">#</th>
-                <th className="px-6 py-3 font-bold bg-slate-100">
-                  <button 
-                    onClick={() => handleSort("type")}
-                    className="flex items-center gap-1.5 hover:text-slate-900 transition-colors"
-                  >
-                    {t.type} {getSortIcon("type")}
-                  </button>
-                </th>
-                <th className="px-6 py-3 font-bold bg-slate-100">
-                  <button 
-                    onClick={() => handleSort("startDate")}
-                    className="flex items-center gap-1.5 hover:text-slate-900 transition-colors"
-                  >
-                    {t.startDate} {getSortIcon("startDate")}
-                  </button>
-                </th>
-                <th className="px-6 py-3 font-bold bg-slate-100">
-                  <button 
-                    onClick={() => handleSort("endDate")}
-                    className="flex items-center gap-1.5 hover:text-slate-900 transition-colors"
-                  >
-                    {t.endDate} {getSortIcon("endDate")}
-                  </button>
-                </th>
-                <th className="px-6 py-3 font-bold bg-slate-100 text-center">
-                  <button 
-                    onClick={() => handleSort("days")}
-                    className="flex items-center gap-1.5 hover:text-slate-900 transition-colors mx-auto"
-                  >
-                    {t.days} {getSortIcon("days")}
-                  </button>
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {sortedAbsences.map((absence, index) => {
-                const style = leaveTypeStyles[absence.type] || leaveTypeStyles.VACATION;
-                return (
-                  <tr key={absence.id} className="hover:bg-slate-50 transition-colors">
-                    <td className="px-6 py-4">
-                      <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-slate-100 text-slate-700 text-xs font-bold">
-                        {index + 1}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold border ${style.bgColor} ${style.textColor} ${style.borderColor}`}>
-                        {style.icon}
-                        {absence.type}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className="text-slate-800 font-medium">{formatDate(absence.startDate)}</span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className="text-slate-800 font-medium">{formatDate(absence.endDate)}</span>
-                    </td>
-                    <td className="px-6 py-4 text-center">
-                      <span className="inline-flex items-center justify-center min-w-[32px] h-8 px-2 rounded-lg bg-slate-100 text-slate-800 font-bold text-sm">
-                        {absence.days || "—"}
-                      </span>
-                    </td>
+          <>
+            {/* Desktop Table View */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-slate-100 border-b border-slate-200 sticky top-0 z-10">
+                  <tr className="text-left text-xs uppercase tracking-wider text-slate-600">
+                    <th className="px-6 py-3 font-bold bg-slate-100 w-12">#</th>
+                    <th className="px-6 py-3 font-bold bg-slate-100">
+                      <button 
+                        onClick={() => handleSort("type")}
+                        className="flex items-center gap-1.5 hover:text-slate-900 transition-colors"
+                      >
+                        {t.type} {getSortIcon("type")}
+                      </button>
+                    </th>
+                    <th className="px-6 py-3 font-bold bg-slate-100">
+                      <button 
+                        onClick={() => handleSort("startDate")}
+                        className="flex items-center gap-1.5 hover:text-slate-900 transition-colors"
+                      >
+                        {t.startDate} {getSortIcon("startDate")}
+                      </button>
+                    </th>
+                    <th className="px-6 py-3 font-bold bg-slate-100">
+                      <button 
+                        onClick={() => handleSort("endDate")}
+                        className="flex items-center gap-1.5 hover:text-slate-900 transition-colors"
+                      >
+                        {t.endDate} {getSortIcon("endDate")}
+                      </button>
+                    </th>
+                    <th className="px-6 py-3 font-bold bg-slate-100 text-center">
+                      <button 
+                        onClick={() => handleSort("days")}
+                        className="flex items-center gap-1.5 hover:text-slate-900 transition-colors mx-auto"
+                      >
+                        {t.days} {getSortIcon("days")}
+                      </button>
+                    </th>
                   </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {sortedAbsences.map((absence, index) => {
+                    const style = leaveTypeStyles[absence.type] || leaveTypeStyles.VACATION;
+                    return (
+                      <tr key={absence.id} className="hover:bg-slate-50 transition-colors">
+                        <td className="px-6 py-4">
+                          <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-slate-100 text-slate-700 text-xs font-bold">
+                            {index + 1}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold border ${style.bgColor} ${style.textColor} ${style.borderColor}`}>
+                            {style.icon}
+                            {absence.type}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className="text-slate-800 font-medium">{formatDate(absence.startDate)}</span>
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className="text-slate-800 font-medium">{formatDate(absence.endDate)}</span>
+                        </td>
+                        <td className="px-6 py-4 text-center">
+                          <span className="inline-flex items-center justify-center min-w-[32px] h-8 px-2 rounded-lg bg-slate-100 text-slate-800 font-bold text-sm">
+                            {absence.days || "—"}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile Card View */}
+            <div className="md:hidden p-3 space-y-3">
+              {sortedAbsences.map((absence, index) => (
+                <AbsenceCard
+                  key={absence.id}
+                  absence={absence}
+                  index={index}
+                  formatDate={formatDate}
+                />
+              ))}
+            </div>
+          </>
         )}
         </div>
       )}
 
       {/* Footer Summary (List View Only) */}
       {viewMode === "list" && !isLoading && sortedAbsences.length > 0 && (
-        <div className="px-6 py-4 bg-slate-50 border-t border-slate-200">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+        <div className="px-3 sm:px-4 md:px-6 py-3 sm:py-4 bg-slate-50 border-t border-slate-200">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
+            <div className="flex flex-wrap items-center gap-3 sm:gap-4">
               {ABSENCE_TYPES.map(type => {
                 const count = stats.byType[type];
                 if (count === 0) return null;
@@ -746,14 +779,14 @@ export default function DeveloperVacations() {
                 return (
                   <div key={type} className="flex items-center gap-2">
                     <span className={`${style.textColor}`}>{style.icon}</span>
-                    <span className="text-sm text-slate-600">
-                      <span className="font-semibold text-slate-800">{count}</span> {type.toLowerCase()}
+                    <span className="text-xs sm:text-sm text-slate-600">
+                      <span className="font-semibold text-slate-800">{count}</span> <span className="hidden sm:inline">{type.toLowerCase()}</span>
                     </span>
                   </div>
                 );
               })}
             </div>
-            <div className="text-sm text-slate-600">
+            <div className="text-xs sm:text-sm text-slate-600">
               Total: <span className="font-bold text-slate-800">{stats.totalDays} days</span> across{" "}
               <span className="font-bold text-slate-800">{absences.length} records</span>
             </div>

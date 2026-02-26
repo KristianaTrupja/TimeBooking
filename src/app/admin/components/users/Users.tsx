@@ -9,6 +9,7 @@ import Spinner from "@/components/ui/Spinner";
 import { isPasswordStrong } from "@/lib/utils";
 import { Users as UsersIcon, UserPlus, Shield, Code, ChevronDown, ChevronUp } from "lucide-react";
 import { useLanguage } from "@/app/context/LanguageContext";
+import { useIsMobile } from "@/app/hooks/useIsMobile";
 
 export default function Users() {
   const { t } = useLanguage();
@@ -28,19 +29,34 @@ export default function Users() {
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [user, setUser] = useState<{ users: User[] } | null>(null);
   const [containerHeight, setContainerHeight] = useState<number | null>(null);
+  const isMobile = useIsMobile();
+  const isMobileLayout = useIsMobile(1024);
   const [isTableExpanded, setIsTableExpanded] = useState(false);
+  
+  // When mobile, always keep expander collapsed
+  useEffect(() => {
+    if (isMobile) {
+      setIsTableExpanded(true);
+    } else {
+      setIsTableExpanded(false);
+    }
+  }, [isMobile]);
   const sectionRef = useRef<HTMLElement>(null);
   const buttonRef = useRef<HTMLDivElement>(null);
 
   const calculateHeight = useCallback(() => {
     if (sectionRef.current && buttonRef.current) {
-      const sectionTop = sectionRef.current.getBoundingClientRect().top;
-      const buttonStyles = window.getComputedStyle(buttonRef.current);
-      const buttonHeight = buttonRef.current.offsetHeight + 
-        parseFloat(buttonStyles.marginTop) + parseFloat(buttonStyles.marginBottom);
-      const bottomPadding = 16;
-      const availableHeight = window.innerHeight - sectionTop - buttonHeight - bottomPadding;
-      setContainerHeight(Math.max(availableHeight, 200));
+      if (window.innerWidth >= 1024) {
+        const sectionTop = sectionRef.current.getBoundingClientRect().top;
+        const buttonStyles = window.getComputedStyle(buttonRef.current);
+        const buttonHeight = buttonRef.current.offsetHeight + 
+          parseFloat(buttonStyles.marginTop) + parseFloat(buttonStyles.marginBottom);
+        const bottomPadding = 16;
+        const availableHeight = window.innerHeight - sectionTop - buttonHeight - bottomPadding;
+        setContainerHeight(Math.max(availableHeight, 200));
+      } else {
+        setContainerHeight(null);
+      }
     }
   }, []);
 
@@ -233,11 +249,11 @@ export default function Users() {
   );
 
   return (
-    <section ref={sectionRef} className="p-6 flex flex-col h-full">
+    <section ref={sectionRef} className="p-3 py-6 sm:p-6 flex flex-col h-full">
       {/* Header Section */}
       <div ref={buttonRef}>
         {/* Title and Add Button */}
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex flex-col gap-4 sm:gap-0 sm:flex-row items-left sm:items-center  justify-between mb-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/25">
               <UsersIcon className="text-white" size={20} />
@@ -311,8 +327,8 @@ export default function Users() {
 
       {/* Table Section */}
       <section
-        className="overflow-y-auto rounded-xl flex-1 bg-white border border-slate-200 shadow-sm custom-scrollbar"
-        style={{ maxHeight: containerHeight ? `${containerHeight}px` : "66vh" }}
+        className="overflow-y-auto rounded-xl flex-1 bg-white sm:border sm:border-slate-200 sm:shadow-sm custom-scrollbar p-1 sm:p-0"
+        style={{ maxHeight: !isMobileLayout ? (containerHeight ? `${containerHeight}px` : "66vh") : undefined }}
       >
         <UserTable
           employees={user?.users || []}

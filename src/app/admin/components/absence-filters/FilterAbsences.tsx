@@ -40,8 +40,8 @@ export default function FilterAbsences({
   const totalAbsenceDays = useMemo(() => absences.reduce((acc, absence) => acc + absence.days, 0), [absences])
 
   return (
-    <section className="flex justify-between">
-      <div className="AbsenceUserFilter flex items-center w-fit text-[#244B77]">
+    <section className="flex flex-col sm:flex-row justify-between">
+      <div className="AbsenceUserFilter flex flex-wrap  justify-between sm:flex-nowrap items-center w-fit text-[#244B77]">
         {hasFilters ? <button 
           title="Clear all filters" 
           onClick={onReset}

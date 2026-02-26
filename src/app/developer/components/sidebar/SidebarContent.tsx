@@ -10,23 +10,27 @@ export default function SidebarContent({
   sidebarProjects, 
   openModal,
   onCopyPreviousMonth,
-  isCopying = false
+  isCopying = false,
+  isCollapsed = false
 }: {
   isLocked?:boolean, 
   isOwner:boolean, 
   sidebarProjects: ProjectData[], 
   openModal: () => void,
   onCopyPreviousMonth: () => void,
-  isCopying?: boolean
+  isCopying?: boolean,
+  isCollapsed?: boolean
 }) {
   const hasProjects = sidebarProjects.length > 0;
   
   return (
-    <aside className="h-full w-full  min-w-[160px]  bg-gradient-to-b from-slate-50 to-slate-100 rounded-l-xl border-r border-slate-200 flex flex-col justify-between shadow-md">
+    <aside className={`h-full w-full bg-gradient-to-b from-slate-50 to-slate-100 rounded-l-xl border-r border-slate-200 flex flex-col justify-between shadow-md transition-all duration-300 ${
+      isCollapsed ? "min-w-[80px]" : "min-w-[160px]"
+    }`}>
       <div className="flex-1 min-h-0">
-        <SidebarList sidebarProjects={sidebarProjects} />
+        <SidebarList sidebarProjects={sidebarProjects} isCollapsed={isCollapsed} />
       </div>
-      {isOwner && !isLocked && (
+      {isOwner && !isLocked && !isCollapsed && (
         <div className="p-3 border-t border-slate-200 flex-shrink-0">
           <div className="flex gap-2">
             <Button 

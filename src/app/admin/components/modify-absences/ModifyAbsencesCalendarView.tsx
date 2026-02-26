@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { Calendar, ChevronLeft, ChevronRight } from "lucide-react";
 import { User } from "@/types/user";
+import { formatEmployeeName } from "@/app/utils/formatEmployeeName";
+import { useIsMobile } from "@/app/hooks/useIsMobile";
 
 type DayHeader = {
   day: number;
@@ -39,14 +41,18 @@ export default function ModifyAbsencesCalendarView({
 }: Props) {
   const [hoveredUserId, setHoveredUserId] = useState<number | null>(null);
   const [hoveredDay, setHoveredDay] = useState<number | null>(null);
+  const isMobile = useIsMobile();
+  const isMobileLayout = useIsMobile(1024);
+  
+  const employeeColWidth = isMobile ? 80 : 200;
   
   const dayColWidth = 40;
-  const minTableWidth = 240 + dayHeaders.length * dayColWidth;
+  const minTableWidth = employeeColWidth + 40 + dayHeaders.length * dayColWidth;
 
   return (
     <section
       className="rounded-xl bg-white border border-slate-200 shadow-sm flex flex-col overflow-hidden w-full"
-      style={{ maxHeight: containerHeight ? `${containerHeight}px` : "66vh" }}
+      style={{ maxHeight: !isMobileLayout ? (containerHeight ? `${containerHeight}px` : "66vh") : undefined }}
     >
       <div className="shrink-0 bg-gradient-to-r from-slate-50 to-white border-b border-slate-200 px-3 sm:px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-0">
         <div className="flex items-center gap-2 sm:gap-3 min-w-0">
@@ -99,14 +105,14 @@ export default function ModifyAbsencesCalendarView({
         >
           <caption id="calendar-caption" className="sr-only">Leave calendar showing employee absences for {monthLabel}</caption>
           <colgroup>
-            <col style={{ minWidth: '200px' }} />
+            <col style={{ minWidth: `${employeeColWidth}px` }} />
             {dayHeaders.map(({ day }) => (
               <col key={`col-${day}`} style={{ width: `${dayColWidth}px` }} />
             ))}
           </colgroup>
           <thead className="sticky top-0 z-20 border-b border-slate-200">
             <tr className="text-xs uppercase tracking-wider text-slate-600">
-              <th scope="col" className="px-4 py-3 font-bold text-left sticky left-0 bg-slate-100 z-30 border-r border-slate-200 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.1)] min-w-[200px]">
+              <th scope="col" className="px-2 sm:px-4 py-3 font-bold text-left sticky left-0 bg-slate-100 z-30 border-r border-slate-200 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.1)] min-w-[60px] md:min-w-[200px]">
                 {employeeLabel}
               </th>
               {dayHeaders.map(({ day, shortWeekday, isWeekend, holidayName, isToday }) => {
@@ -162,7 +168,7 @@ export default function ModifyAbsencesCalendarView({
                 >
                   <th 
                     scope="row"
-                    className={`px-4 py-2 h-10 sticky left-0 z-10 border-r border-slate-200 transition-all duration-150 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.05)] min-w-[200px] ${
+                    className={`px-2 sm:px-4 py-2 h-10 sticky left-0 z-10 border-r border-slate-200 transition-all duration-150 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.05)] min-w-[60px] md:min-w-[200px] ${
                       isRowHovered ? "bg-blue-50" : "bg-white"
                     }`}
                   >
@@ -170,7 +176,7 @@ export default function ModifyAbsencesCalendarView({
                       <span className={`font-medium truncate transition-colors duration-150 ${
                         isRowHovered ? "text-blue-700" : "text-slate-800"
                       }`}>
-                        {user.username}
+                        {isMobile ? formatEmployeeName(user.username) : user.username}
                       </span>
                     </div>
                   </th>

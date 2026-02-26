@@ -6,6 +6,7 @@ import { useNotifications } from "@/app/context/NotificationContext";
 import { useEffect, useRef, useState, useCallback } from "react";
 import { useLanguage } from "@/app/context/LanguageContext";
 import { toast } from "sonner";
+import { useIsMobile } from "@/app/hooks/useIsMobile";
 
 export default function Notifications() {
   const { notifications, markAsRead, fetchAllNotifications, deleteReadNotifications } = useNotifications()
@@ -13,6 +14,7 @@ export default function Notifications() {
   const [containerHeight, setContainerHeight] = useState<number | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
+  const isMobileLayout = useIsMobile(1024);
 
   const unreadCount = notifications.filter(n => !n.isRead).length;
   const readCount = notifications.filter(n => n.isRead).length;
@@ -31,13 +33,17 @@ export default function Notifications() {
 
   const calculateHeight = useCallback(() => {
     if (containerRef.current && headerRef.current) {
-      const containerTop = containerRef.current.getBoundingClientRect().top;
-      const headerStyles = window.getComputedStyle(headerRef.current);
-      const headerHeight = headerRef.current.offsetHeight + 
-        parseFloat(headerStyles.marginTop) + parseFloat(headerStyles.marginBottom);
-      const padding = 48;
-      const availableHeight = window.innerHeight - containerTop - headerHeight - padding;
-      setContainerHeight(Math.max(availableHeight, 200));
+      if (window.innerWidth >= 1024) {
+        const containerTop = containerRef.current.getBoundingClientRect().top;
+        const headerStyles = window.getComputedStyle(headerRef.current);
+        const headerHeight = headerRef.current.offsetHeight + 
+          parseFloat(headerStyles.marginTop) + parseFloat(headerStyles.marginBottom);
+        const padding = 48;
+        const availableHeight = window.innerHeight - containerTop - headerHeight - padding;
+        setContainerHeight(Math.max(availableHeight, 200));
+      } else {
+        setContainerHeight(null);
+      }
     }
   }, []);
 
@@ -95,7 +101,7 @@ export default function Notifications() {
         <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
           <ul
             className="divide-y divide-slate-100 overflow-y-auto custom-scrollbar"
-            style={{ maxHeight: containerHeight ? `${containerHeight}px` : "450px" }}
+            style={{ maxHeight: !isMobileLayout ? (containerHeight ? `${containerHeight}px` : "450px") : undefined }}
           >
             {notifications.map((notification, i) => (
               <Notification key={i} notification={notification} markAsRead={markAsRead} />
