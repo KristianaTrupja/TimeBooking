@@ -131,7 +131,7 @@ export default function Developer() {
         {/* Scrollable content area */}
         <div 
           ref={contentRef}
-          className="flex-1 overflow-y-auto overflow-x-hidden px-3 sm:px-6 py-3 sm:py-6 custom-scrollbar transition-all duration-300"
+          className="flex-1 overflow-y-auto overflow-x-hidden sm:px-6 sm:py-6 custom-scrollbar transition-all duration-300"
           style={{ 
             marginLeft: contentMarginLeft,
             height: contentHeight,
@@ -139,7 +139,7 @@ export default function Developer() {
           }}
         >
             {activeTab === "time-reporting" ? (
-                <div className="bg-white rounded-xl sm:rounded-2xl border border-slate-200 p-3 sm:p-6 shadow-sm flex flex-col overflow-hidden" style={{ height: '100%', maxHeight: '100%' }}>
+                <div className="bg-white rounded-xl sm:rounded-2xl sm:border sm:border-slate-200 p-3 sm:p-6 shadow-sm flex flex-col overflow-hidden" style={{ height: '100%', maxHeight: '100%' }}>
                     <SidebarHeader />
                     <section className="flex flex-1 min-h-0 relative" style={{ fontFamily: "var(--font-anek-bangla)" }}>
                         {/* Projects Sidebar - Sticky Left */}

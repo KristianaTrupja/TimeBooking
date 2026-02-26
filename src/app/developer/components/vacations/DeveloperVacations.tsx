@@ -412,7 +412,7 @@ export default function DeveloperVacations() {
   }, [calendarMonth]);
 
   return (
-    <div className="bg-white rounded-xl sm:rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+    <div className="bg-white rounded-xl sm:rounded-2xl sm:border sm:border-slate-200 sm:shadow-sm overflow-hidden">
       {/* Header */}
       <div className="p-3 sm:p-4 md:p-6 border-b border-slate-200">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 mb-4 sm:mb-6">

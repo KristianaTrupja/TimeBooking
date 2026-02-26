@@ -418,7 +418,7 @@ export default function ModifyAbsences() {
   }, [calendarMonth]);
 
   return (
-    <section ref={sectionRef} className="p-6 h-full flex flex-col">
+    <section ref={sectionRef} className="p-3 py-6 sm:p-6h-full flex flex-col">
       {/* Header */}
       <div className="flex flex-col sm:flex-row gap-4 sm:gap-0 items-left sm:items-center justify-between mb-6">
         <div className="flex items-center gap-3">

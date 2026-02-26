@@ -249,7 +249,7 @@ export default function Users() {
   );
 
   return (
-    <section ref={sectionRef} className="p-6 flex flex-col h-full">
+    <section ref={sectionRef} className="p-3 py-6 sm:p-6 flex flex-col h-full">
       {/* Header Section */}
       <div ref={buttonRef}>
         {/* Title and Add Button */}
@@ -327,7 +327,7 @@ export default function Users() {
 
       {/* Table Section */}
       <section
-        className="overflow-y-auto rounded-xl flex-1 bg-white border border-slate-200 shadow-sm custom-scrollbar"
+        className="overflow-y-auto rounded-xl flex-1 bg-white sm:border sm:border-slate-200 sm:shadow-sm custom-scrollbar p-1 sm:p-0"
         style={{ maxHeight: !isMobileLayout ? (containerHeight ? `${containerHeight}px` : "66vh") : undefined }}
       >
         <UserTable

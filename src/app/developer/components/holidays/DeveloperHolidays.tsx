@@ -235,7 +235,7 @@ export default function DeveloperHolidays() {
       </div>
 
       {/* Table */}
-      <section className="overflow-y-visible lg:overflow-y-auto rounded-xl lg:flex-1 bg-white border border-slate-200 shadow-sm custom-scrollbar lg:min-h-0">
+      <section className="overflow-y-visible lg:overflow-y-auto rounded-xl lg:flex-1 bg-white sm:border sm:border-slate-200 sm:shadow-sm custom-scrollbar lg:min-h-0">
         {sortedHolidays.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16">
             <CalendarDays size={48} className="text-slate-400 mb-3" aria-hidden="true" />
@@ -294,7 +294,7 @@ export default function DeveloperHolidays() {
             </div>
 
             {/* Mobile Card View */}
-            <div className="md:hidden p-3 space-y-3">
+            <div className="md:hidden sm:p-3 space-y-3">
               {sortedHolidays.map((holiday, index) => (
                 <HolidayCard
                   key={holiday.id}

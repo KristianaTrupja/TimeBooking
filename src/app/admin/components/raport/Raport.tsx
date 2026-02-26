@@ -222,7 +222,7 @@ export default function Raport() {
   }, [timesheets, sortField, sortDirection]);
 
   return (
-    <section ref={sectionRef} className="p-6 h-full flex flex-col" aria-labelledby="timesheets-heading">
+    <section ref={sectionRef} className="p-3 py-6 sm:p-6 h-full flex flex-col" aria-labelledby="timesheets-heading">
       {/* Header Section */}
       <div ref={navRef}>
         {/* Title and Navigation */}
@@ -330,7 +330,7 @@ export default function Raport() {
 
       {/* Table Section */}
       <section
-        className="overflow-y-auto rounded-xl flex-1 bg-white border border-slate-200 shadow-sm custom-scrollbar"
+        className="overflow-y-auto rounded-xl flex-1 bg-white sm:border sm:border-slate-200 sm:shadow-sm custom-scrollbar"
         style={{ maxHeight: !isMobile && containerHeight ? `${containerHeight}px` : undefined }}
         role="region"
         aria-labelledby="timesheets-table-caption"
@@ -400,7 +400,7 @@ export default function Raport() {
             </div>
 
             {/* Mobile Card View */}
-            <div className="md:hidden p-3 space-y-3 h-full">
+            <div className="md:hidden p-1 sm:p-3 space-y-3 h-full">
               {sortedTimesheets.map((ts, index: number) => (
                 <RaportCard
                   timesheet={ts}
