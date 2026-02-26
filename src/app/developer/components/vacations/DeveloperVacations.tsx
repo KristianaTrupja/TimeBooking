@@ -90,6 +90,7 @@ export default function DeveloperVacations() {
   const [sortField, setSortField] = useState<SortField | null>("startDate");
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
   const isMobile = useIsMobile();
+  const isMobileLayout = useIsMobile(1024);
   const [isExpanded, setIsExpanded] = useState(false);
   
   // When mobile, always keep expander expanded
@@ -656,7 +657,10 @@ export default function DeveloperVacations() {
           />
         </div>
       ) : (
-        <div className="overflow-y-auto custom-scrollbar md:overflow-hidden" style={{ maxHeight: "calc(100vh - 450px)", minHeight: "300px" }}>
+        <div
+          className="overflow-y-visible lg:overflow-y-auto custom-scrollbar"
+          style={!isMobileLayout ? { maxHeight: "calc(100vh - 450px)", minHeight: "300px" } : undefined}
+        >
         {isLoading ? (
           <div className="h-64">
             <Spinner text={t.loading} />

@@ -127,7 +127,7 @@ export default function DeveloperHolidays() {
   if (loading) return <Spinner text={t.loadingHolidays} />;
 
   return (
-    <section className="p-3 sm:p-4 md:p-6 flex flex-col h-full min-h-0">
+    <section className="p-3 sm:p-4 md:p-6 flex flex-col h-full min-h-0 overflow-y-visible lg:overflow-y-auto">
       {/* Header Section */}
       <div>
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 mb-4">
@@ -235,7 +235,7 @@ export default function DeveloperHolidays() {
       </div>
 
       {/* Table */}
-      <section className="overflow-y-auto rounded-xl flex-1 bg-white border border-slate-200 shadow-sm custom-scrollbar min-h-0">
+      <section className="overflow-y-visible lg:overflow-y-auto rounded-xl flex-1 bg-white border border-slate-200 shadow-sm custom-scrollbar min-h-0">
         {sortedHolidays.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16">
             <CalendarDays size={48} className="text-slate-400 mb-3" aria-hidden="true" />
