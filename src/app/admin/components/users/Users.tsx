@@ -30,6 +30,7 @@ export default function Users() {
   const [user, setUser] = useState<{ users: User[] } | null>(null);
   const [containerHeight, setContainerHeight] = useState<number | null>(null);
   const isMobile = useIsMobile();
+  const isMobileLayout = useIsMobile(1024);
   const [isTableExpanded, setIsTableExpanded] = useState(false);
   
   // When mobile, always keep expander collapsed
@@ -45,13 +46,17 @@ export default function Users() {
 
   const calculateHeight = useCallback(() => {
     if (sectionRef.current && buttonRef.current) {
-      const sectionTop = sectionRef.current.getBoundingClientRect().top;
-      const buttonStyles = window.getComputedStyle(buttonRef.current);
-      const buttonHeight = buttonRef.current.offsetHeight + 
-        parseFloat(buttonStyles.marginTop) + parseFloat(buttonStyles.marginBottom);
-      const bottomPadding = 16;
-      const availableHeight = window.innerHeight - sectionTop - buttonHeight - bottomPadding;
-      setContainerHeight(Math.max(availableHeight, 200));
+      if (window.innerWidth >= 1024) {
+        const sectionTop = sectionRef.current.getBoundingClientRect().top;
+        const buttonStyles = window.getComputedStyle(buttonRef.current);
+        const buttonHeight = buttonRef.current.offsetHeight + 
+          parseFloat(buttonStyles.marginTop) + parseFloat(buttonStyles.marginBottom);
+        const bottomPadding = 16;
+        const availableHeight = window.innerHeight - sectionTop - buttonHeight - bottomPadding;
+        setContainerHeight(Math.max(availableHeight, 200));
+      } else {
+        setContainerHeight(null);
+      }
     }
   }, []);
 
@@ -323,7 +328,7 @@ export default function Users() {
       {/* Table Section */}
       <section
         className="overflow-y-auto rounded-xl flex-1 bg-white border border-slate-200 shadow-sm custom-scrollbar"
-        style={{ maxHeight: containerHeight ? `${containerHeight}px` : "66vh" }}
+        style={{ maxHeight: !isMobileLayout ? (containerHeight ? `${containerHeight}px` : "66vh") : undefined }}
       >
         <UserTable
           employees={user?.users || []}

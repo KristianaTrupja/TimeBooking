@@ -42,6 +42,7 @@ export default function ModifyAbsencesCalendarView({
   const [hoveredUserId, setHoveredUserId] = useState<number | null>(null);
   const [hoveredDay, setHoveredDay] = useState<number | null>(null);
   const isMobile = useIsMobile();
+  const isMobileLayout = useIsMobile(1024);
   
   const employeeColWidth = isMobile ? 80 : 200;
   
@@ -51,7 +52,7 @@ export default function ModifyAbsencesCalendarView({
   return (
     <section
       className="rounded-xl bg-white border border-slate-200 shadow-sm flex flex-col overflow-hidden w-full"
-      style={{ maxHeight: containerHeight ? `${containerHeight}px` : "66vh" }}
+      style={{ maxHeight: !isMobileLayout ? (containerHeight ? `${containerHeight}px` : "66vh") : undefined }}
     >
       <div className="shrink-0 bg-gradient-to-r from-slate-50 to-white border-b border-slate-200 px-3 sm:px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-0">
         <div className="flex items-center gap-2 sm:gap-3 min-w-0">

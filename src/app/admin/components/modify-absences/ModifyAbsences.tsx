@@ -101,13 +101,17 @@ export default function ModifyAbsences() {
 
   const calculateHeight = useCallback(() => {
     if (sectionRef.current && filtersRef.current) {
-      const sectionTop = sectionRef.current.getBoundingClientRect().top;
-      const filtersStyles = window.getComputedStyle(filtersRef.current);
-      const filtersHeight = filtersRef.current.offsetHeight + 
-        parseFloat(filtersStyles.marginTop) + parseFloat(filtersStyles.marginBottom);
-      const bottomPadding = 24;
-      const availableHeight = window.innerHeight - sectionTop - filtersHeight - bottomPadding;
-      setContainerHeight(Math.max(availableHeight, 200));
+      if (window.innerWidth >= 1024) {
+        const sectionTop = sectionRef.current.getBoundingClientRect().top;
+        const filtersStyles = window.getComputedStyle(filtersRef.current);
+        const filtersHeight = filtersRef.current.offsetHeight + 
+          parseFloat(filtersStyles.marginTop) + parseFloat(filtersStyles.marginBottom);
+        const bottomPadding = 24;
+        const availableHeight = window.innerHeight - sectionTop - filtersHeight - bottomPadding;
+        setContainerHeight(Math.max(availableHeight, 200));
+      } else {
+        setContainerHeight(null);
+      }
     }
   }, []);
 

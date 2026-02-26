@@ -5,6 +5,7 @@ import { User } from "@/types/user";
 import { ArrowDown, ArrowUp, ArrowUpDown, CalendarX, Check, FilePenLine, Trash2, User as UserIcon, X } from "lucide-react";
 import React from "react";
 import AbsenceCard from "./AbsenceCard";
+import { useIsMobile } from "@/app/hooks/useIsMobile";
 
 type SortField = "startDate" | "endDate" | "type" | "days";
 type SortDirection = "asc" | "desc" | null;
@@ -62,6 +63,8 @@ export default function ModifyAbsencesListView({
   getTypeBadge,
   t,
 }: Props) {
+  const isMobileLayout = useIsMobile(1024);
+
   const getSortIcon = (field: SortField) => {
     if (sortField !== field) return <ArrowUpDown size={14} className="text-slate-400" />;
     if (sortDirection === "asc") return <ArrowUp size={14} className="text-[#244B77]" />;
@@ -72,7 +75,7 @@ export default function ModifyAbsencesListView({
   return (
     <section
       className="overflow-y-auto rounded-xl flex-1 custom-scrollbar"
-      style={{ maxHeight: containerHeight ? `${containerHeight}px` : "66vh" }}
+      style={{ maxHeight: !isMobileLayout ? (containerHeight ? `${containerHeight}px` : "66vh") : undefined }}
     >
       {!absences.length && (
         <div className="flex flex-col items-center justify-center py-16 bg-white rounded-xl border border-slate-200">

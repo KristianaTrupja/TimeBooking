@@ -47,7 +47,7 @@ export default function Raport() {
 
   const calculateHeight = useCallback(() => {
     if (sectionRef.current && navRef.current) {
-      if (window.innerWidth >= 768) {
+      if (window.innerWidth >= 1024) {
         const sectionTop = sectionRef.current.getBoundingClientRect().top;
         const navStyles = window.getComputedStyle(navRef.current);
         const navHeight = navRef.current.offsetHeight + 
@@ -331,7 +331,7 @@ export default function Raport() {
       {/* Table Section */}
       <section
         className="overflow-y-auto rounded-xl flex-1 bg-white border border-slate-200 shadow-sm custom-scrollbar"
-        style={{ maxHeight: containerHeight ? `${containerHeight}px` : undefined }}
+        style={{ maxHeight: !isMobile && containerHeight ? `${containerHeight}px` : undefined }}
         role="region"
         aria-labelledby="timesheets-table-caption"
         tabIndex={0}

@@ -168,7 +168,7 @@ const onOptionsModified = useCallback(async (id: number, newValue: string, opera
   );
 
   return (
-    <section className="p-6 h-full flex flex-col overflow-y-auto custom-scrollbar">
+    <section className="p-6 h-full flex flex-col overflow-y-visible lg:overflow-y-auto custom-scrollbar">
       {/* Header */}
       <div className="mb-6">
         <div className="flex items-center gap-3 mb-4">
@@ -183,7 +183,7 @@ const onOptionsModified = useCallback(async (id: number, newValue: string, opera
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col lg:flex-row gap-6 min-h-0 overflow-y-auto pb-4 custom-scrollbar">
+      <div className="flex-1 flex flex-col lg:flex-row gap-6 min-h-0 overflow-y-visible lg:overflow-y-auto pb-4 custom-scrollbar">
         {/* Projects List */}
         <div className="w-full lg:w-1/2 xl:w-3/5 bg-white rounded-xl border border-slate-200 shadow-sm">
           <ProjectList

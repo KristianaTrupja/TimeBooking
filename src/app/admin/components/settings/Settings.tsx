@@ -65,7 +65,7 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="p-6 h-full overflow-y-auto custom-scrollbar">
+    <div className="p-6 h-full overflow-y-visible lg:overflow-y-auto custom-scrollbar">
       <div className="max-w-3xl">
       {/* Header */}
       <div className="flex items-center gap-3 mb-6">
