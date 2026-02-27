@@ -1,5 +1,5 @@
 /* eslint-disable no-restricted-globals */
-const CACHE_NAME = "worktime-pwa-v1";
+const CACHE_NAME = "worktime-pwa-v2";
 const APP_SHELL = ["/", "/login", "/offline", "/manifest.json", "/offline.html", "/favicon.ico"];
 
 self.addEventListener("install", (event) => {
@@ -23,6 +23,10 @@ self.addEventListener("fetch", (event) => {
 
   const url = new URL(request.url);
   const isSameOrigin = url.origin === self.location.origin;
+  const isApiRequest = isSameOrigin && url.pathname.startsWith("/api/");
+
+  // Never cache API responses (especially auth/session endpoints).
+  if (isApiRequest) return;
 
   // Documents: network-first so auth/pages stay fresh; fallback to offline page.
   if (request.mode === "navigate") {

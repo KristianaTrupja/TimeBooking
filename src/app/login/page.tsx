@@ -20,6 +20,15 @@ export default function Login() {
     setMounted(true);
   }, []);
 
+  const getSessionWithRole = useCallback(async () => {
+    for (let attempt = 0; attempt < 5; attempt++) {
+      const session = await getSession();
+      if (session?.user?.role) return session;
+      await new Promise((resolve) => setTimeout(resolve, 250));
+    }
+    return getSession();
+  }, []);
+
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -41,7 +50,7 @@ export default function Login() {
       toast.error(t.somethingWentWrong);
       setLoading(false);
     } else {
-      const session = await getSession();
+      const session = await getSessionWithRole();
       const role = session?.user?.role;
 
       if (role?.toLowerCase() === "admin") {

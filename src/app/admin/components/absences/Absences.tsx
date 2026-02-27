@@ -229,7 +229,7 @@ export default function Absences() {
                   <input
                     id="start-date"
                     type="date"
-                    className="block w-full max-w-full min-w-0 bg-slate-50 text-slate-800 px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#244B77]/30 focus:border-[#244B77]/50 transition-all"
+                    className="box-sizing border-box w-full max-w-full min-w-0 bg-slate-50 text-slate-800 px-2 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#244B77]/30 focus:border-[#244B77]/50 transition-all"
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
                   />
@@ -239,7 +239,7 @@ export default function Absences() {
                   <input
                     id="end-date"
                     type="date"
-                    className="block w-full max-w-full min-w-0 bg-slate-50 text-slate-800 px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#244B77]/30 focus:border-[#244B77]/50 transition-all"
+                    className="box-sizing border-box block w-full max-w-full min-w-0 bg-slate-50 text-slate-800 px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#244B77]/30 focus:border-[#244B77]/50 transition-all"
                     value={endDate}
                     onChange={(e) => setEndDate(e.target.value)}
                   />
