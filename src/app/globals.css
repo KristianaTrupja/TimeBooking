@@ -388,3 +388,17 @@ img {
   }
 }
 
+/* Mobile date input fix (iOS Safari can overflow container for native date controls) */
+.mobile-date-input {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  font-size: 16px;
+  line-height: 1.25;
+}
+
+.mobile-date-input::-webkit-date-and-time-value {
+  text-align: left;
+}
+
