@@ -80,7 +80,7 @@ export default function AbsenceCard({
             type="date"
             value={editingAbsence.startDate.slice(0, 10)}
             onChange={(e) => setEditingAbsence({ ...editingAbsence, startDate: e.target.value })}
-            className="w-full px-3 py-1.5 border border-blue-300 rounded-lg text-sm text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400 ml-6"
+            className="w-full px-3 py-1.5 border border-blue-300 rounded-lg text-sm text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400 sm:ml-6"
           />
         ) : (
           <span className="text-slate-800 font-medium ml-0 sm:ml-6">{formatDate(absence.startDate)}</span>
@@ -98,7 +98,7 @@ export default function AbsenceCard({
             type="date"
             value={editingAbsence.endDate.slice(0, 10)}
             onChange={(e) => setEditingAbsence({ ...editingAbsence, endDate: e.target.value })}
-            className="w-full px-3 py-1.5 border border-blue-300 rounded-lg text-sm text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400 ml-6"
+            className="w-full px-3 py-1.5 border border-blue-300 rounded-lg text-sm text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400 sm:ml-6"
           />
         ) : (
           <span className="text-slate-800 font-medium ml-0 sm:ml-6">{formatDate(absence.endDate)}</span>
@@ -115,7 +115,7 @@ export default function AbsenceCard({
           <select
             value={editingAbsence.type}
             onChange={(e) => setEditingAbsence({ ...editingAbsence, type: e.target.value })}
-            className="w-full px-3 py-1.5 border border-blue-300 rounded-lg text-sm text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400 ml-6"
+            className="w-full px-3 py-1.5 border border-blue-300 rounded-lg text-sm text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400 sm:ml-6"
           >
             {ABSENCE_TYPES.map((type) => (
               <option key={type} value={type}>{type}</option>
