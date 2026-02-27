@@ -14,6 +14,7 @@ interface SidebarListProps {
 export default function SidebarList({ sidebarProjects, isCollapsed = false }: SidebarListProps) {
   const { loadingProjects } = useProjects();
   const { t } = useLanguage();
+  const compactLabel = (value: string, keep = 4) => (value.length > keep ? `${value.slice(0, keep)}...` : value);
 
   if (sidebarProjects.length === 0) {
     return (
@@ -30,8 +31,10 @@ export default function SidebarList({ sidebarProjects, isCollapsed = false }: Si
 
   return (
     <div className="overflow-auto custom-scrollbar">
-      <div className={`h-10 2xl:h-11 flex ${isCollapsed ? "justify-center" : "justify-center"} font-semibold text-white items-center bg-gradient-to-r from-[#244B77] to-[#1a3a5c] rounded-tl-xl`}>
-        {isCollapsed ? "P" : t.projects}
+      <div className={`h-10 2xl:h-11 flex ${isCollapsed ? "justify-start px-1.5" : "justify-center"} font-semibold text-white items-center bg-gradient-to-r from-[#244B77] to-[#1a3a5c] rounded-tl-xl`}>
+        <span className={`${isCollapsed ? "w-full" : ""}`} title={t.projects}>
+          {isCollapsed ? compactLabel(t.projects) : t.projects}
+        </span>
       </div>
       {sidebarProjects.map(({ company, projects }) => (
         <SidebarItem key={company} company={company} projects={projects} isCollapsed={isCollapsed} />

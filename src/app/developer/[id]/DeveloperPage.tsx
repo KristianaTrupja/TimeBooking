@@ -154,7 +154,7 @@ export default function Developer() {
                     <section className="flex flex-1 min-h-0 relative" style={{ fontFamily: "var(--font-anek-bangla)" }}>
                         {/* Projects Sidebar - Sticky Left */}
                         <div className={`sticky left-0 z-20 bg-white flex-shrink-0 h-full transition-all duration-300 ${
-                            isMobile && isProjectsSidebarCollapsed ? "w-[80px]" : ""
+                            isMobile && isProjectsSidebarCollapsed ? "w-[92px]" : ""
                         }`}>
                             <div className="relative h-full">
                                 <Sidebar isOwner={isOwner} isCollapsed={isMobile && isProjectsSidebarCollapsed} />

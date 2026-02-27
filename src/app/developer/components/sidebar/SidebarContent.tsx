@@ -25,7 +25,7 @@ export default function SidebarContent({
   
   return (
     <aside className={`h-full w-full bg-gradient-to-b from-slate-50 to-slate-100 rounded-l-xl border-r border-slate-200 flex flex-col justify-between shadow-md transition-all duration-300 ${
-      isCollapsed ? "min-w-[80px]" : "min-w-[160px]"
+      isCollapsed ? "min-w-[92px]" : "min-w-[160px]"
     }`}>
       <div className="flex-1 min-h-0">
         <SidebarList sidebarProjects={sidebarProjects} isCollapsed={isCollapsed} />
