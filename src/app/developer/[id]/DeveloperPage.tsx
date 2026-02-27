@@ -46,6 +46,7 @@ export default function Developer() {
     const [isProjectsSidebarCollapsed, setIsProjectsSidebarCollapsed] = useState(false);
     const contentRef = useRef<HTMLDivElement>(null);
     const isMobile = useIsMobile();
+    const isMobileLayout = useIsMobile(1024);
 
     const userId = useMemo(() => {
         const segments = pathname?.split("/") || [];
@@ -95,7 +96,8 @@ export default function Developer() {
                 if (isCollapsed) {
                     setContentMarginLeft("72px");
                 } else {
-                    setContentMarginLeft(window.innerWidth >= 1920 ? "256px" : "208px");
+                    // Match Tailwind 2xl breakpoint used by sidebar width (w-64 starts at 1536px)
+                    setContentMarginLeft(window.innerWidth >= 1536 ? "256px" : "208px");
                 }
             } else {
                 setContentMarginLeft("0");
@@ -123,6 +125,14 @@ export default function Developer() {
     const isOwner = useMemo(() => {
         return loggedInUser?.id === userId;
     }, [loggedInUser?.id, userId]);
+
+    useEffect(() => {
+        if (!isMobileLayout) return;
+        requestAnimationFrame(() => {
+            contentRef.current?.scrollTo({ top: 0, left: 0, behavior: "auto" });
+            window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+        });
+    }, [activeTab, isMobileLayout]);
 
     return (
     <div className="flex w-full">

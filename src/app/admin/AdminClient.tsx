@@ -41,6 +41,13 @@ export default function AdminClient() {
   }, [searchParams]);
 
   useEffect(() => {
+    if (!isMobileLayout) return;
+    requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    });
+  }, [tab, isMobileLayout]);
+
+  useEffect(() => {
     calculateHeight();
     window.addEventListener("resize", calculateHeight);
     return () => window.removeEventListener("resize", calculateHeight);

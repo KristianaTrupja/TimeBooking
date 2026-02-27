@@ -6,6 +6,7 @@ import { TimeSheetProvider } from "./context/TimeSheetContext";
 import { LanguageProvider } from "./context/LanguageContext";
 import { Providers } from "./providers";
 import { Toaster } from "sonner";
+import PWARegister from "./components/PWARegister";
 
 const keanianOne = Keania_One({
   variable: "--font-keania-one",
@@ -33,11 +34,20 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "DELAtech Time System",
   description: "Time tracking and timesheet management system",
+  manifest: "/manifest.json",
   icons: {
     icon: [
-      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
     ],
-    apple: "/icon.svg",
+    shortcut: ["/favicon.ico"],
+    apple: [{ url: "/icons/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+  },
+  appleWebApp: {
+    capable: true,
+    title: "WorkTime",
+    statusBarStyle: "default",
   },
   viewport: {
     width: "device-width",
@@ -57,6 +67,7 @@ export default function RootLayout({
       <body
         className={`${keanianOne.variable} ${anekBangla.variable} ${inter.variable} antialiased`}
       >
+        <PWARegister />
         <Providers>
           <LanguageProvider>
             <NotificationProvider>
