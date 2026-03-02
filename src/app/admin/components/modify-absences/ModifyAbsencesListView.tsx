@@ -91,7 +91,7 @@ export default function ModifyAbsencesListView({
         const isInactive = !user.isActive;
 
         return (
-          <div key={userIndex} className={`mb-5 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden ${isInactive ? "opacity-75" : ""}`}>
+          <div key={userIndex} className={`mb-5 bg-white rounded-xl sm:border sm:border-slate-200 sm:shadow-sm overflow-hidden ${isInactive ? "opacity-75" : ""}`}>
             <div className={`bg-gradient-to-r ${isInactive ? "from-slate-400 to-slate-500" : "from-[#244B77] to-[#1a3a5c]"} px-4 sm:px-5 py-3 flex items-center gap-2 sm:gap-3`}>
               <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
                 <UserIcon size={16} className="text-white" aria-hidden="true" />
@@ -264,7 +264,7 @@ export default function ModifyAbsencesListView({
             </div>
 
             {/* Mobile Card View */}
-            <div className="md:hidden p-3 space-y-3">
+            <div className="md:hidden sm:p-3 space-y-3">
               {sortAbsences(userAbsences).map((absence, index) => {
                 const absenceStartDate = new Date(absence.startDate).toISOString();
                 const isHighlighted = !!(scrollToAbsence && scrollToAbsence.userId === user.id && scrollToAbsence.startDate === absenceStartDate);
