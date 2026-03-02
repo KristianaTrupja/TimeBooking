@@ -1,10 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Calendar, ChevronLeft, ChevronRight } from "lucide-react";
 import { User } from "@/types/user";
 import { formatEmployeeName } from "@/app/utils/formatEmployeeName";
-import { useIsMobile } from "@/app/hooks/useIsMobile";
 
 type DayHeader = {
   day: number;
@@ -41,18 +40,54 @@ export default function ModifyAbsencesCalendarView({
 }: Props) {
   const [hoveredUserId, setHoveredUserId] = useState<number | null>(null);
   const [hoveredDay, setHoveredDay] = useState<number | null>(null);
-  const isMobile = useIsMobile();
-  const isMobileLayout = useIsMobile(1024);
-  
-  const employeeColWidth = isMobile ? 80 : 200;
-  
+  const scrollerRef = useRef<HTMLDivElement>(null);
+  const tableRef = useRef<HTMLTableElement>(null);
+
+  const employeeColMobileWidth = 80;
   const dayColWidth = 40;
-  const minTableWidth = employeeColWidth + 40 + dayHeaders.length * dayColWidth;
+  const minTableWidth = employeeColMobileWidth + dayHeaders.length * dayColWidth;
+
+  // Safari iOS first-render fix:
+  // sticky + table + horizontal overflow can paint header columns shifted until a manual scroll happens.
+  useEffect(() => {
+    if (typeof navigator === "undefined") return;
+
+    const ua = navigator.userAgent;
+    const isIOS =
+      /iP(hone|ad|od)/i.test(ua) ||
+      (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+    const isWebKit = /WebKit/i.test(ua);
+    const isNonSafariIOSBrowser = /CriOS|FxiOS|EdgiOS|OPiOS|DuckDuckGo/i.test(ua);
+    const isSafariIOS = isIOS && isWebKit && !isNonSafariIOSBrowser;
+
+    if (!isSafariIOS) return;
+
+    const scroller = scrollerRef.current;
+    const table = tableRef.current;
+    if (!scroller || !table) return;
+
+    let raf1 = 0;
+    let raf2 = 0;
+
+    raf1 = window.requestAnimationFrame(() => {
+      // Force layout recalculation, then nudge scroll to stabilize sticky column paint.
+      void table.offsetWidth;
+      scroller.scrollLeft = 1;
+      raf2 = window.requestAnimationFrame(() => {
+        scroller.scrollLeft = 0;
+      });
+    });
+
+    return () => {
+      window.cancelAnimationFrame(raf1);
+      window.cancelAnimationFrame(raf2);
+    };
+  }, [monthLabel, dayHeaders.length, visibleEmployees.length]);
 
   return (
     <section
-      className="rounded-xl bg-white border border-slate-200 shadow-sm flex flex-col overflow-hidden w-full"
-      style={{ maxHeight: !isMobileLayout ? (containerHeight ? `${containerHeight}px` : "66vh") : undefined }}
+      className="rounded-xl bg-white border border-slate-200 shadow-sm flex flex-col overflow-hidden w-full max-w-full"
+      style={{ maxHeight: containerHeight ? `${containerHeight}px` : undefined }}
     >
       <div className="shrink-0 bg-gradient-to-r from-slate-50 to-white border-b border-slate-200 px-3 sm:px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-0">
         <div className="flex items-center gap-2 sm:gap-3 min-w-0">
@@ -96,8 +131,16 @@ export default function ModifyAbsencesCalendarView({
         </div>
       )}
 
-      <div className="flex-1 min-h-0 overflow-x-auto overflow-y-auto custom-scrollbar" style={{ width: 0, minWidth: '100%' }} role="region" aria-labelledby="calendar-caption" tabIndex={0}>
+      <div
+        ref={scrollerRef}
+        className="flex-1 min-h-0 min-w-0 max-w-full overflow-x-auto overflow-y-auto custom-scrollbar [--employee-col-width:80px] md:[--employee-col-width:200px] [--day-col-width:40px]"
+        style={{ width: 0, minWidth: "100%" }}
+        role="region"
+        aria-labelledby="calendar-caption"
+        tabIndex={0}
+      >
         <table
+          ref={tableRef}
           className="border-collapse w-full"
           style={{ minWidth: `${minTableWidth}px` }}
           role="table"
@@ -105,14 +148,14 @@ export default function ModifyAbsencesCalendarView({
         >
           <caption id="calendar-caption" className="sr-only">Leave calendar showing employee absences for {monthLabel}</caption>
           <colgroup>
-            <col style={{ minWidth: `${employeeColWidth}px` }} />
+            <col style={{ width: "var(--employee-col-width)", minWidth: "var(--employee-col-width)", maxWidth: "var(--employee-col-width)" }} />
             {dayHeaders.map(({ day }) => (
-              <col key={`col-${day}`} style={{ width: `${dayColWidth}px` }} />
+              <col key={`col-${day}`} style={{ width: "var(--day-col-width)", minWidth: "var(--day-col-width)", maxWidth: "var(--day-col-width)" }} />
             ))}
           </colgroup>
           <thead className="sticky top-0 z-20 border-b border-slate-200">
             <tr className="text-xs uppercase tracking-wider text-slate-600">
-              <th scope="col" className="px-2 sm:px-4 py-3 font-bold text-left sticky left-0 bg-slate-100 z-30 border-r border-slate-200 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.1)] min-w-[60px] md:min-w-[200px]">
+              <th scope="col" style={{ width: "var(--employee-col-width)", minWidth: "var(--employee-col-width)", maxWidth: "var(--employee-col-width)" }} className="px-2 sm:px-4 py-3 font-bold text-left sticky left-0 bg-slate-100 z-30 border-r border-slate-200 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.1)]">
                 {employeeLabel}
               </th>
               {dayHeaders.map(({ day, shortWeekday, isWeekend, holidayName, isToday }) => {
@@ -168,7 +211,8 @@ export default function ModifyAbsencesCalendarView({
                 >
                   <th 
                     scope="row"
-                    className={`px-2 sm:px-4 py-2 h-10 sticky left-0 z-10 border-r border-slate-200 transition-all duration-150 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.05)] min-w-[60px] md:min-w-[200px] ${
+                    style={{ width: "var(--employee-col-width)", minWidth: "var(--employee-col-width)", maxWidth: "var(--employee-col-width)" }}
+                    className={`px-2 sm:px-4 py-2 h-10 sticky left-0 z-10 border-r border-slate-200 transition-all duration-150 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.05)] ${
                       isRowHovered ? "bg-blue-50" : "bg-white"
                     }`}
                   >
@@ -176,12 +220,13 @@ export default function ModifyAbsencesCalendarView({
                       <span className={`font-medium truncate transition-colors duration-150 ${
                         isRowHovered ? "text-blue-700" : "text-slate-800"
                       }`}>
-                        {isMobile ? formatEmployeeName(user.username) : user.username}
+                        <span className="md:hidden">{formatEmployeeName(user.username)}</span>
+                        <span className="hidden md:inline">{user.username}</span>
                       </span>
                     </div>
                   </th>
 
-                  {dayHeaders.map(({ day, isWeekend, holidayName, isToday }) => {
+                  {dayHeaders.map(({ day, isWeekend, holidayName }) => {
                     const absenceType = getDayOffType(user.id, day);
                     const isHovered = isRowHovered || hoveredDay === day;
                     const hasHoliday = !!holidayName;
