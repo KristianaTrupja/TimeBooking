@@ -226,23 +226,23 @@ export default function Absences() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 min-w-0">
                 <div className="min-w-0">
                   <label htmlFor="start-date" className="text-xs text-slate-600 font-medium mb-1.5 block">{t.startDate}</label>
-                  <div className="min-w-0 overflow-hidden rounded-xl">
+                  <div className="min-w-0 overflow-hidden rounded-xl border border-slate-200 focus-within:ring-2 focus-within:ring-[#244B77]/30 focus-within:border-[#244B77]/50 transition-all">
                     <input
                       id="start-date"
                       type="date"
-                      className="mobile-date-input block w-full max-w-full min-w-0 bg-slate-50 text-slate-800 px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#244B77]/30 focus:border-[#244B77]/50 transition-all"
+                      className="block w-full max-w-full min-w-0 bg-slate-50 text-slate-800 px-4 py-3"
                       value={startDate}
                       onChange={(e) => setStartDate(e.target.value)}
                     />
                   </div>
                 </div>
-                <div className="min-w-0">
+                <div className="min-w-0 ">
                   <label htmlFor="end-date" className="text-xs text-slate-600 font-medium mb-1.5 block">{t.endDate}</label>
-                  <div className="min-w-0 overflow-hidden rounded-xl">
+                  <div className="min-w-0 overflow-hidden rounded-xl border border-slate-200 focus-within:ring-2 focus-within:ring-[#244B77]/30 focus-within:border-[#244B77]/50 transition-all">
                     <input
                       id="end-date"
                       type="date"
-                      className="mobile-date-input block w-full max-w-full min-w-0 bg-slate-50 text-slate-800 px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#244B77]/30 focus:border-[#244B77]/50 transition-all"
+                      className="block w-full max-w-full min-w-0 bg-slate-50 text-slate-800 px-4 py-3"
                       value={endDate}
                       onChange={(e) => setEndDate(e.target.value)}
                     />

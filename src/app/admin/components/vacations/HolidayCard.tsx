@@ -66,12 +66,14 @@ export default function HolidayCard({
       <div className="mb-4">
         <span className="text-xs font-semibold uppercase text-slate-500 block mb-2">{t.date}</span>
         {isEditing ? (
+          <div className="min-w-0 border border-blue-300 rounded-md focus:ring-2 focus:ring-blue-500 overflow-hidden focus:outline-none">
           <input
             type="date"
             value={editedData.date}
             onChange={(e) => onChange(e, "date")}
-            className="w-[calc(100%-32px)] sm:w-full px-3 py-1.5 text-sm border border-blue-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-1.5 text-sm bg-white"
           />
+          </div>
         ) : (
           <div className="flex items-center gap-2">
             <span className="text-slate-800 font-medium">{formatToDayMonth(holiday.date)}</span>

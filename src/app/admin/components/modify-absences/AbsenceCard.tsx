@@ -115,7 +115,7 @@ export default function AbsenceCard({
           <select
             value={editingAbsence.type}
             onChange={(e) => setEditingAbsence({ ...editingAbsence, type: e.target.value })}
-            className="w-[calc(100%-32px)] sm:w-full px-3 py-1.5 border border-blue-300 rounded-lg text-sm text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400 sm:ml-6"
+            className="w-full px-3 py-1.5 border border-blue-300 rounded-lg text-sm text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400 sm:ml-6"
           >
             {ABSENCE_TYPES.map((type) => (
               <option key={type} value={type}>{type}</option>
