@@ -141,7 +141,7 @@ export default function DeveloperHolidays() {
             </div>
           </div>
 
-          <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
+          <div className="flex items-center gap-2 sm:gap-3 w-auto max-w-full">
             {/* Expand/Collapse button */}
             <button
               onClick={() => setIsExpanded((prev) => !prev)}
@@ -157,21 +157,21 @@ export default function DeveloperHolidays() {
             </button>
 
             {/* Year navigation */}
-            <div className="flex items-center gap-1 sm:gap-2 bg-slate-100 rounded-lg sm:rounded-xl p-0.5 sm:p-1 flex-1 sm:flex-initial">
+            <div className="flex items-center gap-1 sm:gap-2 bg-slate-100 rounded-lg sm:rounded-xl p-0.5 sm:p-1 w-fit max-w-full">
             <Button
               variant="ghost"
               size="sm"
-              className="hover:bg-white rounded-lg h-8 w-8 sm:h-9 sm:w-9 p-0 flex-shrink-0"
+              className="hover:bg-white rounded-lg h-7 w-7 sm:h-9 sm:w-9 p-0 flex-shrink-0"
               onClick={() => setYear((y) => y - 1)}
               aria-label="Previous year"
             >
               <ChevronLeft className="text-slate-600" size={16} />
             </Button>
-            <span className="text-xs sm:text-sm font-semibold text-slate-700 min-w-[60px] sm:min-w-[80px] text-center flex-1 sm:flex-initial">{year}</span>
+            <span className="text-xs sm:text-sm font-semibold text-slate-700 min-w-[52px] sm:min-w-[80px] text-center">{year}</span>
             <Button
               variant="ghost"
               size="sm"
-              className="hover:bg-white rounded-lg h-8 w-8 sm:h-9 sm:w-9 p-0 flex-shrink-0"
+              className="hover:bg-white rounded-lg h-7 w-7 sm:h-9 sm:w-9 p-0 flex-shrink-0"
               onClick={() => setYear((y) => y + 1)}
               aria-label="Next year"
             >
