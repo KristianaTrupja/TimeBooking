@@ -224,7 +224,7 @@ function ProjectManage({
                   {pendingId === option.id ? (
                     <LoaderCircle size={16} className="animate-spin text-slate-600" />
                   ) : (
-                    <div className={`flex gap-1 ${isAnyPending ? 'opacity-50 pointer-events-none' : 'opacity-0 group-hover:opacity-100'} transition-opacity`}>
+                    <div className={`flex gap-1 ${isAnyPending ? 'opacity-50 pointer-events-none' : 'opacity-100 sm:opacity-0 sm:group-hover:opacity-100'} transition-opacity`}>
                       <button
                         onClick={(e) => onEdit(e, option)}
                         className="p-1.5 rounded-md hover:bg-blue-100 text-slate-600 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400"

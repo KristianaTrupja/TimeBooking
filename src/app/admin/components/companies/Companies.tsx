@@ -248,7 +248,7 @@ export default function Companies() {
                           <Building2 size={18} className="text-blue-600" />
                           <span className="font-medium text-slate-800">{company.name}</span>
                         </div>
-                        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div className="flex gap-1 sm:opacity-0 opacity-100 sm:group-hover:opacity-100 transition-opacity">
                           <Button
                             size="sm"
                             variant="ghost"
