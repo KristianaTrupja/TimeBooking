@@ -41,37 +41,25 @@ export default function ModifyAbsencesCalendarView({
   const [hoveredUserId, setHoveredUserId] = useState<number | null>(null);
   const [hoveredDay, setHoveredDay] = useState<number | null>(null);
   const scrollerRef = useRef<HTMLDivElement>(null);
-  const tableRef = useRef<HTMLTableElement>(null);
 
   const employeeColMobileWidth = 80;
   const dayColWidth = 40;
   const minTableWidth = employeeColMobileWidth + dayHeaders.length * dayColWidth;
 
-  // Safari iOS first-render fix:
-  // sticky + table + horizontal overflow can paint header columns shifted until a manual scroll happens.
+  // Mobile Safari-like first-render fix for sticky table headers in horizontal scrollers.
   useEffect(() => {
-    if (typeof navigator === "undefined") return;
-
-    const ua = navigator.userAgent;
-    const isIOS =
-      /iP(hone|ad|od)/i.test(ua) ||
-      (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
-    const isWebKit = /WebKit/i.test(ua);
-    const isNonSafariIOSBrowser = /CriOS|FxiOS|EdgiOS|OPiOS|DuckDuckGo/i.test(ua);
-    const isSafariIOS = isIOS && isWebKit && !isNonSafariIOSBrowser;
-
-    if (!isSafariIOS) return;
+    if (typeof window === "undefined") return;
+    if (!window.matchMedia("(hover: none) and (pointer: coarse)").matches) return;
 
     const scroller = scrollerRef.current;
-    const table = tableRef.current;
-    if (!scroller || !table) return;
+    if (!scroller) return;
 
     let raf1 = 0;
     let raf2 = 0;
 
     raf1 = window.requestAnimationFrame(() => {
-      // Force layout recalculation, then nudge scroll to stabilize sticky column paint.
-      void table.offsetWidth;
+      // Force layout recalculation, then nudge scroll to stabilize sticky paint on first load.
+      void scroller.offsetWidth;
       scroller.scrollLeft = 1;
       raf2 = window.requestAnimationFrame(() => {
         scroller.scrollLeft = 0;
@@ -82,7 +70,7 @@ export default function ModifyAbsencesCalendarView({
       window.cancelAnimationFrame(raf1);
       window.cancelAnimationFrame(raf2);
     };
-  }, [monthLabel, dayHeaders.length, visibleEmployees.length]);
+  }, [monthLabel, dayHeaders.length]);
 
   return (
     <section
@@ -140,7 +128,6 @@ export default function ModifyAbsencesCalendarView({
         tabIndex={0}
       >
         <table
-          ref={tableRef}
           className="border-collapse w-full"
           style={{ minWidth: `${minTableWidth}px` }}
           role="table"
