@@ -251,17 +251,17 @@ export default function Raport() {
             >
               {isTableExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
             </button>
-            <div className="flex items-center gap-2 bg-slate-100 rounded-xl p-1">
+            <div className="flex items-center gap-1 sm:gap-2 bg-slate-100 rounded-xl p-0.5 sm:p-1">
             <Button 
               variant="ghost" 
               size="sm"
-              className="hover:bg-white rounded-lg h-9 w-9 p-0" 
+              className="hover:bg-white rounded-lg !min-w-8 !min-h-8 h-8 w-8 sm:!min-w-9 sm:!min-h-9 sm:h-9 sm:w-9 p-0" 
               onClick={goToPreviousMonth}
               aria-label={`Previous month`}
             >
-              <ChevronLeft className="text-slate-600" size={18} aria-hidden="true" />
+              <ChevronLeft className="text-slate-600" size={16} aria-hidden="true" />
             </Button>
-            <span className="text-sm font-semibold text-slate-700 sm:min-w-[100px] sm:min-w-[140px] text-center" aria-live="polite">
+            <span className="text-sm font-semibold text-slate-700 min-w-[64px] sm:min-w-[100px] md:min-w-[140px] text-center" aria-live="polite">
               <span className="md:hidden">{formattedDateShort}</span>
               <span className="hidden md:inline">{formattedDate}</span>
             </span>
@@ -269,11 +269,11 @@ export default function Raport() {
             <Button 
               variant="ghost" 
               size="sm"
-              className="hover:bg-white rounded-lg h-9 w-9 p-0" 
+              className="hover:bg-white rounded-lg !min-w-8 !min-h-8 h-8 w-8 sm:!min-w-9 sm:!min-h-9 sm:h-9 sm:w-9 p-0" 
               onClick={goToNextMonth}
               aria-label={`Next month`}
             >
-              <ChevronRight className="text-slate-600" size={18} aria-hidden="true" />
+              <ChevronRight className="text-slate-600" size={16} aria-hidden="true" />
             </Button>
             </div>
           </div>

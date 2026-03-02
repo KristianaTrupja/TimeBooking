@@ -34,9 +34,9 @@ export default function MonthYearPicker() {
         onClick={() => setShowPicker((prev) => !prev)}
         aria-label="Open month and year picker"
         aria-expanded={showPicker}
-        className="p-2 rounded-lg hover:bg-slate-100 transition-colors focus:outline-none focus:ring-2 focus:ring-[#244B77]"
+        className="p-1 sm:p-2 rounded-lg hover:bg-slate-100 transition-colors focus:outline-none focus:ring-2 focus:ring-[#244B77] !min-w-7 !min-h-7 sm:!min-w-9 sm:!min-h-9"
       >
-        <CalendarDays className="text-[#244B77]" size={20} aria-hidden="true" />
+        <CalendarDays className="text-[#244B77]" size={16} aria-hidden="true" />
       </button>
 
       {showPicker && (
