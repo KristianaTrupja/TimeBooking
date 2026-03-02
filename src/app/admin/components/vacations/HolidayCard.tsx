@@ -70,7 +70,7 @@ export default function HolidayCard({
             type="date"
             value={editedData.date}
             onChange={(e) => onChange(e, "date")}
-            className="w-full px-3 py-1.5 text-sm border border-blue-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-[calc(100%-32px)] sm:w-full px-3 py-1.5 text-sm border border-blue-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         ) : (
           <div className="flex items-center gap-2">
