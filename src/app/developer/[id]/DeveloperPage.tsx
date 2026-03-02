@@ -141,7 +141,7 @@ export default function Developer() {
         {/* Scrollable content area */}
         <div 
           ref={contentRef}
-          className="flex-1 overflow-y-auto overflow-x-hidden sm:px-6 sm:py-6 custom-scrollbar transition-all duration-300"
+          className="flex-1 overflow-y-auto overflow-x-hidden sm:px-6 sm:py-6 custom-scrollbar transition-all duration-300 mb-5 sm:mb-0"
           style={{ 
             marginLeft: contentMarginLeft,
             height: contentHeight,

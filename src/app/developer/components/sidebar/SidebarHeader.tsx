@@ -32,6 +32,13 @@ export default function SidebarHeader() {
       year: "numeric",
     });
   }, [year, month, language]);
+
+  const formattedDateShort = useMemo(() => {
+    return new Date(year, month).toLocaleString(language === "de" ? "de-DE" : "en-US", {
+      month: "short",
+      year: "numeric",
+    });
+  }, [year, month, language]);
   
   const getStatusLabel = (status: string | undefined) => {
     switch (status) {
@@ -67,28 +74,29 @@ export default function SidebarHeader() {
 
   return (
     <div className="flex justify-between mb-4 relative">
-      <div className="flex items-center gap-2 bg-white rounded-xl px-2 py-1 shadow-sm border border-slate-200 relative min-h-10">
+      <div className="flex items-center gap-1 sm:gap-2 bg-slate-100 rounded-xl p-0.5 sm:p-1 shadow-sm border border-slate-200 relative">
         {isInitialized && (
           <>
             <Button 
               variant="ghost" 
               size="sm"
               onClick={goToPreviousMonth}
-              className="hover:bg-slate-100 rounded-lg"
+              className="hover:bg-white rounded-lg !min-w-8 !min-h-8 h-8 w-8 sm:!min-w-9 sm:!min-h-9 sm:h-9 sm:w-9 p-0"
             >
-              <ChevronLeft className="text-slate-600" size={20} />
+              <ChevronLeft className="text-slate-600" size={16} />
             </Button>
-            <p className="text-slate-700 font-semibold text-center text-base min-w-[140px]">
-              {formattedDate}
-            </p>
+            <span className="text-sm font-semibold text-slate-700 min-w-[64px] sm:min-w-[100px] md:min-w-[140px] text-center">
+              <span className="md:hidden">{formattedDateShort}</span>
+              <span className="hidden md:inline">{formattedDate}</span>
+            </span>
             <MonthYearPicker />
             <Button 
               variant="ghost" 
               size="sm"
               onClick={goToNextMonth}
-              className="hover:bg-slate-100 rounded-lg"
+              className="hover:bg-white rounded-lg !min-w-8 !min-h-8 h-8 w-8 sm:!min-w-9 sm:!min-h-9 sm:h-9 sm:w-9 p-0"
             >
-              <ChevronRight className="text-slate-600" size={20} />
+              <ChevronRight className="text-slate-600" size={16} />
             </Button>
           </>
         )}
