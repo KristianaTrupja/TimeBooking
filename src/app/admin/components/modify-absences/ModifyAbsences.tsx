@@ -16,6 +16,8 @@ import { useLanguage } from "@/app/context/LanguageContext";
 import ModifyAbsencesCalendarView from "./ModifyAbsencesCalendarView";
 import ModifyAbsencesListView from "./ModifyAbsencesListView";
 import { useIsMobile } from "@/app/hooks/useIsMobile";
+import { Modal } from "@/app/components/ui/Modal";
+import { Button } from "@/components/ui/button";
 
 const ABSENCE_TYPES: (keyof typeof AbsenceType)[] = ["VACATION", "SICK", "PERSONAL", "PARENTAL"]
 
@@ -41,6 +43,7 @@ export default function ModifyAbsences() {
   const [editingAbsence, setEditingAbsence] = useState<Absence | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [absenceToDeleteId, setAbsenceToDeleteId] = useState<number | null>(null);
   const [filters, setFilters] = useState<Filters>(getInitialFiltersState());
   const [containerHeight, setContainerHeight] = useState<number | null>(null);
   const [scrollToAbsence, setScrollToAbsence] = useState<{ userId: number; startDate: string } | null>(null);
@@ -186,9 +189,13 @@ export default function ModifyAbsences() {
   // const getUsername = (userId: string | number) =>
   //   employees.find((user) => user.id === Number(userId))?.username || "—";
 
-  const handleDelete = async (id: number) => {
-    if (!confirm("Are you sure you want to delete this absence?")) return;
+  const handleDelete = (id: number) => {
+    setAbsenceToDeleteId(id);
+  };
 
+  const confirmDelete = async () => {
+    if (absenceToDeleteId === null) return;
+    const id = absenceToDeleteId;
     setDeletingId(id);
     try {
       const res = await fetch(`/api/absences?id=${id}`, { method: "DELETE" });
@@ -203,6 +210,7 @@ export default function ModifyAbsences() {
       console.error("Error deleting absence:", err);
     } finally {
       setDeletingId(null);
+      setAbsenceToDeleteId(null);
     }
   };
 
@@ -538,6 +546,37 @@ export default function ModifyAbsences() {
           }}
         />
       )}
+      <Modal
+        isOpen={absenceToDeleteId !== null}
+        onClose={() => {
+          if (deletingId !== null) return;
+          setAbsenceToDeleteId(null);
+        }}
+        title="Delete Absence"
+        className="max-w-md"
+        footer={
+          <div className="flex justify-end gap-3">
+            <Button
+              variant="ghost"
+              onClick={() => setAbsenceToDeleteId(null)}
+              disabled={deletingId !== null}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={confirmDelete}
+              loading={deletingId !== null}
+              className="bg-rose-600 hover:bg-rose-500 text-white"
+            >
+              Delete
+            </Button>
+          </div>
+        }
+      >
+        <p className="text-sm text-slate-700">
+          Are you sure you want to delete this absence?
+        </p>
+      </Modal>
     </section>
   );
 }

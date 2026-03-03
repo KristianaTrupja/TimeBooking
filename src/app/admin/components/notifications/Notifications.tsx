@@ -7,11 +7,15 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import { useLanguage } from "@/app/context/LanguageContext";
 import { toast } from "sonner";
 import { useIsMobile } from "@/app/hooks/useIsMobile";
+import { Modal } from "@/app/components/ui/Modal";
+import { Button } from "@/components/ui/button";
 
 export default function Notifications() {
   const { notifications, markAsRead, fetchAllNotifications, deleteReadNotifications } = useNotifications()
   const { t } = useLanguage();
   const [containerHeight, setContainerHeight] = useState<number | null>(null);
+  const [showDeleteReadModal, setShowDeleteReadModal] = useState(false);
+  const [isDeletingRead, setIsDeletingRead] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
   const isMobileLayout = useIsMobile(1024);
@@ -19,15 +23,22 @@ export default function Notifications() {
   const unreadCount = notifications.filter(n => !n.isRead).length;
   const readCount = notifications.filter(n => n.isRead).length;
 
-  const handleDeleteRead = async () => {
+  const handleDeleteRead = () => {
     if (readCount === 0) {
       toast.info("No read notifications to delete");
       return;
     }
+    setShowDeleteReadModal(true);
+  };
 
-    if (window.confirm(`Are you sure you want to delete ${readCount} read notification(s)?`)) {
+  const confirmDeleteRead = async () => {
+    setIsDeletingRead(true);
+    try {
       await deleteReadNotifications();
       toast.success(`Deleted ${readCount} read notification(s)`);
+      setShowDeleteReadModal(false);
+    } finally {
+      setIsDeletingRead(false);
     }
   };
 
@@ -109,6 +120,38 @@ export default function Notifications() {
           </ul>
         </div>
       )}
+
+      <Modal
+        isOpen={showDeleteReadModal}
+        onClose={() => {
+          if (isDeletingRead) return;
+          setShowDeleteReadModal(false);
+        }}
+        title="Delete Read Notifications"
+        className="max-w-md"
+        footer={
+          <div className="flex justify-end gap-3">
+            <Button
+              variant="ghost"
+              onClick={() => setShowDeleteReadModal(false)}
+              disabled={isDeletingRead}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={confirmDeleteRead}
+              loading={isDeletingRead}
+              className="bg-rose-600 hover:bg-rose-500 text-white"
+            >
+              Delete
+            </Button>
+          </div>
+        }
+      >
+        <p className="text-sm text-slate-700">
+          {`Are you sure you want to delete ${readCount} read notification(s)?`}
+        </p>
+      </Modal>
     </div>
   );
 }

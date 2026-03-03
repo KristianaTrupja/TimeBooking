@@ -10,6 +10,7 @@ import Spinner from "@/components/ui/Spinner";
 import { toast } from "sonner";
 import { useLanguage } from "@/app/context/LanguageContext";
 import { useIsMobile } from "@/app/hooks/useIsMobile";
+import { Modal } from "@/app/components/ui/Modal";
 
 export default function Vacations() {
   const { t } = useLanguage();
@@ -23,6 +24,7 @@ export default function Vacations() {
   const [isAdding, setIsAdding] = useState(false);
   const [savingId, setSavingId] = useState<number | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [holidayToDelete, setHolidayToDelete] = useState<Holiday | null>(null);
   const [containerHeight, setContainerHeight] = useState<number | null>(null);
   const [year, setYear] = useState(new Date().getFullYear());
   const isMobile = useIsMobile();
@@ -138,13 +140,15 @@ export default function Vacations() {
     }
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = (id: number) => {
     const emp = vacations.find((v) => v.id === id);
-    const confirmed = window.confirm(
-      `Are you sure you want to delete holiday, date: ${emp?.date}?`
-    );
-    if (!confirmed) return;
+    if (!emp) return;
+    setHolidayToDelete(emp);
+  };
 
+  const confirmDelete = async () => {
+    if (!holidayToDelete) return;
+    const id = holidayToDelete.id;
     setDeletingId(id);
     try {
       const res = await fetch("/api/vacations", {
@@ -160,6 +164,7 @@ export default function Vacations() {
       toast.error("Failed to delete holiday");
     } finally {
       setDeletingId(null);
+      setHolidayToDelete(null);
     }
   };
 
@@ -361,6 +366,37 @@ export default function Vacations() {
           {t.addHoliday}
         </Button>
       </div>
+      <Modal
+        isOpen={holidayToDelete !== null}
+        onClose={() => {
+          if (deletingId !== null) return;
+          setHolidayToDelete(null);
+        }}
+        title="Delete Holiday"
+        className="max-w-md"
+        footer={
+          <div className="flex justify-end gap-3">
+            <Button
+              variant="ghost"
+              onClick={() => setHolidayToDelete(null)}
+              disabled={deletingId !== null}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={confirmDelete}
+              loading={deletingId !== null}
+              className="bg-rose-600 hover:bg-rose-500 text-white"
+            >
+              Delete
+            </Button>
+          </div>
+        }
+      >
+        <p className="text-sm text-slate-700">
+          {`Are you sure you want to delete holiday on ${holidayToDelete?.date || ""}?`}
+        </p>
+      </Modal>
 
       <AddVacationModal
         isOpen={modalOpen}

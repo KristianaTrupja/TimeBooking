@@ -5,6 +5,7 @@ import { Building2, FilePenLine, Delete, LoaderCircle, Save, X, Plus } from "luc
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/app/context/LanguageContext";
+import { Modal } from "@/app/components/ui/Modal";
 
 export default function Companies() {
   const { t } = useLanguage();
@@ -15,6 +16,7 @@ export default function Companies() {
   const [pendingId, setPendingId] = useState<number | null>(null);
   const [newCompanyName, setNewCompanyName] = useState("");
   const [isAdding, setIsAdding] = useState(false);
+  const [companyToDelete, setCompanyToDelete] = useState<Company | null>(null);
 
   const fetchCompanies = useCallback(async () => {
     try {
@@ -114,11 +116,13 @@ export default function Companies() {
     }
   };
 
-  const handleDelete = async (company: Company) => {
-    if (!window.confirm(`Are you sure you want to delete "${company.name}"?\n\nIf this company has projects, it will be deactivated. Otherwise, it will be permanently deleted.`)) {
-      return;
-    }
+  const handleDelete = (company: Company) => {
+    setCompanyToDelete(company);
+  };
 
+  const confirmDelete = async () => {
+    if (!companyToDelete) return;
+    const company = companyToDelete;
     setPendingId(company.id);
     try {
       const response = await fetch(`/api/companies?companyId=${company.id}`, {
@@ -137,6 +141,7 @@ export default function Companies() {
       toast.error(error.message || "Failed to delete company");
     } finally {
       setPendingId(null);
+      setCompanyToDelete(null);
     }
   };
 
@@ -347,7 +352,40 @@ export default function Companies() {
           </div>
         </div>
       </div>
-
+      <Modal
+        isOpen={companyToDelete !== null}
+        onClose={() => {
+          if (pendingId !== null) return;
+          setCompanyToDelete(null);
+        }}
+        title="Delete Company"
+        className="max-w-md"
+        footer={
+          <div className="flex justify-end gap-3">
+            <Button
+              variant="ghost"
+              onClick={() => setCompanyToDelete(null)}
+              disabled={pendingId !== null}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={confirmDelete}
+              loading={pendingId !== null}
+              className="bg-rose-600 hover:bg-rose-500 text-white"
+            >
+              Delete
+            </Button>
+          </div>
+        }
+      >
+        <p className="text-sm text-slate-700 leading-relaxed">
+          {`Are you sure you want to delete "${companyToDelete?.name || ""}"?`}
+        </p>
+        <p className="text-sm text-slate-500">
+          If this company has projects, it will be deactivated. Otherwise, it will be permanently deleted.
+        </p>
+      </Modal>
     </section>
   );
 }

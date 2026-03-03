@@ -5,6 +5,7 @@ import { Delete, FilePenLine, LoaderCircle, Save, ChevronDown, Building2, FileTe
 import { useMemo, useRef, useEffect, memo, useState, MouseEvent } from "react";
 import { toast } from "sonner";
 import { useLanguage } from "@/app/context/LanguageContext";
+import { Modal } from "@/app/components/ui/Modal";
 
 interface ProjectManageProps {
   id: string;
@@ -32,6 +33,7 @@ function ProjectManage({
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editValue, setEditValue] = useState("");
   const [pendingId, setPendingId] = useState<number | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<ProjectEntry | null>(null);
   const { t } = useLanguage();
 
   const sortedOptions = useMemo(
@@ -97,22 +99,23 @@ function ProjectManage({
     }
   }
 
-  async function onDelete(e: MouseEvent<HTMLButtonElement>, entry: ProjectEntry) {
+  function onDelete(e: MouseEvent<HTMLButtonElement>, entry: ProjectEntry) {
     e.stopPropagation()
-    if(!window) return //implement some other confirmation deleting logic if not in browser
+    setDeleteTarget(entry);
+  }
 
-    const confirmed = confirm(t.confirmDelete)
+  async function confirmDeleteProject() {
+    if (!onOptionsModified || !deleteTarget) return;
 
-    if (onOptionsModified && confirmed) {
-      setPendingId(entry.id);
-      try {
-        await onOptionsModified(entry.id, entry.project, 'delete');
-        toast.success(t.projectDeleted);
-      } catch (error: any) {
-        toast.error(error.message || t.somethingWentWrong);
-      } finally {
-        setPendingId(null);
-      }
+    setPendingId(deleteTarget.id);
+    try {
+      await onOptionsModified(deleteTarget.id, deleteTarget.project, 'delete');
+      toast.success(t.projectDeleted);
+      setDeleteTarget(null);
+    } catch (error: any) {
+      toast.error(error.message || t.somethingWentWrong);
+    } finally {
+      setPendingId(null);
     }
   }
 
@@ -125,7 +128,8 @@ function ProjectManage({
   const isAnyPending = pendingId !== null;
 
   return (
-    <div ref={dropdownRef} className="relative">
+    <>
+      <div ref={dropdownRef} className="relative">
       {/* Company Header Button */}
       <button
         onClick={toggleDropdown}
@@ -250,7 +254,39 @@ function ProjectManage({
 
         </ul>
       )}
-    </div>
+      </div>
+      <Modal
+        isOpen={deleteTarget !== null}
+        onClose={() => {
+          if (pendingId !== null) return;
+          setDeleteTarget(null);
+        }}
+        title="Delete Project"
+        className="max-w-md"
+        footer={
+          <div className="flex justify-end gap-3">
+            <Button
+              variant="ghost"
+              onClick={() => setDeleteTarget(null)}
+              disabled={pendingId !== null}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={confirmDeleteProject}
+              loading={pendingId !== null}
+              className="bg-rose-600 hover:bg-rose-500 text-white"
+            >
+              Delete
+            </Button>
+          </div>
+        }
+      >
+        <p className="text-sm text-slate-700 leading-relaxed">
+          {`Are you sure you want to delete "${deleteTarget?.project || ""}"?`}
+        </p>
+      </Modal>
+    </>
   );
 }
 

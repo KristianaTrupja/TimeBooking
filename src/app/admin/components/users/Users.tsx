@@ -10,6 +10,7 @@ import { isPasswordStrong } from "@/lib/utils";
 import { Users as UsersIcon, UserPlus, Shield, Code, ChevronDown, ChevronUp } from "lucide-react";
 import { useLanguage } from "@/app/context/LanguageContext";
 import { useIsMobile } from "@/app/hooks/useIsMobile";
+import { Modal } from "@/app/components/ui/Modal";
 
 export default function Users() {
   const { t } = useLanguage();
@@ -27,6 +28,7 @@ export default function Users() {
   const [isAdding, setIsAdding] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [userToDelete, setUserToDelete] = useState<User | null>(null);
   const [user, setUser] = useState<{ users: User[] } | null>(null);
   const [containerHeight, setContainerHeight] = useState<number | null>(null);
   const isMobile = useIsMobile();
@@ -89,34 +91,37 @@ export default function Users() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const deleteItem = async (emp: User) => {
+  const deleteItem = (emp: User) => {
     if (!emp.id) return;
+    setUserToDelete(emp);
+  };
 
-    if (window.confirm(`Are you sure you want to delete ${emp.username}? If they have existing data (work hours, absences, etc.), they will be deactivated instead of deleted.`)) {
-      setDeletingId(emp.id);
-      try {
-        const res = await fetch("/api/user", {
-          method: "DELETE",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ id: emp.id }),
-          cache: "no-store",
-        });
+  const confirmDeleteItem = async () => {
+    if (!userToDelete?.id) return;
+    setDeletingId(userToDelete.id);
+    try {
+      const res = await fetch("/api/user", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: userToDelete.id }),
+        cache: "no-store",
+      });
 
-        if (res.ok) {
-          const data = await res.json();
-          setUser((prev) => ({
-            users: prev?.users.filter((u) => u.id !== emp.id) || [],
-          }));
-          toast.success(data.message);
-        } else {
-          const err = await res.json();
-          toast.error(err.message || "Operation failed!");
-        }
-      } catch {
-        toast.error("Connection to server failed!");
-      } finally {
-        setDeletingId(null);
+      if (res.ok) {
+        const data = await res.json();
+        setUser((prev) => ({
+          users: prev?.users.filter((u) => u.id !== userToDelete.id) || [],
+        }));
+        toast.success(data.message);
+      } else {
+        const err = await res.json();
+        toast.error(err.message || "Operation failed!");
       }
+    } catch {
+      toast.error("Connection to server failed!");
+    } finally {
+      setDeletingId(null);
+      setUserToDelete(null);
     }
   };
 
@@ -361,6 +366,40 @@ export default function Users() {
         onSubmit={addNewEmployee}
         isLoading={isAdding}
       />
+      <Modal
+        isOpen={userToDelete !== null}
+        onClose={() => {
+          if (deletingId !== null) return;
+          setUserToDelete(null);
+        }}
+        title="Delete Employee"
+        className="max-w-md"
+        footer={
+          <div className="flex justify-end gap-3">
+            <Button
+              variant="ghost"
+              onClick={() => setUserToDelete(null)}
+              disabled={deletingId !== null}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={confirmDeleteItem}
+              loading={deletingId !== null}
+              className="bg-rose-600 hover:bg-rose-500 text-white"
+            >
+              Delete
+            </Button>
+          </div>
+        }
+      >
+        <p className="text-sm text-slate-700 leading-relaxed">
+          {`Are you sure you want to delete ${userToDelete?.username || "this employee"}?`}
+        </p>
+        <p className="text-sm text-slate-500">
+          If this user has existing data (work hours, absences, etc.), they will be deactivated instead of deleted.
+        </p>
+      </Modal>
     </section>
   );
 }
