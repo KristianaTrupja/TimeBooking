@@ -141,7 +141,7 @@ export default function Developer() {
         {/* Scrollable content area */}
         <div 
           ref={contentRef}
-          className="flex-1 overflow-y-auto overflow-x-hidden sm:px-6 sm:py-6 custom-scrollbar transition-all duration-300 mb-5 sm:mb-0"
+          className="flex-1 overflow-y-auto overflow-x-hidden sm:px-6 sm:py-6 custom-scrollbar transition-all duration-300 mb-5 sm:mb-0 z-[999]"
           style={{ 
             marginLeft: contentMarginLeft,
             height: contentHeight,
@@ -197,7 +197,7 @@ export default function Developer() {
                         </div>
                         
                         {/* TotalBar - Sticky Right */}
-                        <div className="sticky right-0 z-20 bg-white flex-shrink-0 h-full">
+                        <div className="sticky right-0 z-9 bg-white flex-shrink-0 h-full">
                             {!loadingProjects && <TotalBar isOwner={isOwner} />}
                         </div>
                         
