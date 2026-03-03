@@ -1,5 +1,5 @@
 import { Modal } from "@/app/components/ui/Modal";
-import { CalendarPlus, Calendar, Tag, Plus } from "lucide-react";
+import { CalendarPlus, Tag, Plus } from "lucide-react";
 import { useLanguage } from "@/app/context/LanguageContext";
 
 type Props = {
@@ -29,18 +29,15 @@ export default function AddVacationModal({ isOpen, onClose, data, onChange, onSu
 
       <div className="space-y-4">
         {/* Date Input */}
-        <div>
+        <div className="min-w-0">
           <label className="block text-sm font-medium text-slate-600 mb-1.5">{t.date}</label>
-          <div className="relative">
-            <Calendar size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-            <div>
+          <div className="min-w-0 overflow-hidden rounded-lg border border-slate-200 bg-slate-50 focus-within:ring-2 focus-within:ring-blue-400 focus-within:border-blue-400 transition-colors">
             <input
               type="date"
-              className="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-700 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-colors"
+              className="block w-full max-w-full min-w-0 px-3 sm:px-4 py-2.5 bg-transparent text-base sm:text-sm text-slate-700 focus:outline-none"
               value={data.date}
               onChange={(e) => onChange(e, "date")}
             />
-            </div>
           </div>
         </div>
 
