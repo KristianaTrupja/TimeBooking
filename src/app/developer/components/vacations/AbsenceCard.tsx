@@ -47,7 +47,7 @@ export default function AbsenceCard({ absence, index, formatDate }: Props) {
           {style.icon}
           {absence.type}
         </span>
-        <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-slate-100 text-slate-700 text-xs font-bold">
+        <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-teal-100 text-teal-700 text-xs font-bold">
           {index + 1}
         </span>
       </div>
