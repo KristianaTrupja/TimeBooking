@@ -275,7 +275,7 @@ export default function Absences() {
                       <div className={`mb-2 ${isSelected ? "text-white" : ""}`}>
                         {style.icon}
                       </div>
-                      <span className="text-xs font-semibold">{absenceTypeLabels[type]}</span>
+                      <span className="text-sm font-semibold">{absenceTypeLabels[type]}</span>
                       {isSelected && (
                         <div className="absolute top-2 right-2 w-2 h-2 rounded-full bg-white/80" />
                       )}
