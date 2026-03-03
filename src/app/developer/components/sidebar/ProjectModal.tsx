@@ -42,6 +42,7 @@ export default function ProjectModal({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
+      overlayClassName="z-[80]"
       title={
         <div className="flex items-center justify-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#244B77] to-[#1a3a5c] flex items-center justify-center shadow-md">

@@ -3,6 +3,7 @@
 import { ReactNode, useEffect, useState } from 'react'
 import { X } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { createPortal } from 'react-dom'
 
 type ModalProps = {
   isOpen: boolean
@@ -12,6 +13,7 @@ type ModalProps = {
   footer?: ReactNode
   hideCloseButton?: boolean
   className?: string
+  overlayClassName?: string
 }
 
 export function Modal({
@@ -21,7 +23,8 @@ export function Modal({
   children,
   footer,
   hideCloseButton = false,
-  className
+  className,
+  overlayClassName
 }: ModalProps) {
   const [isVisible, setIsVisible] = useState(false);
   const [shouldRender, setShouldRender] = useState(false);
@@ -52,12 +55,13 @@ export function Modal({
     }
   }, [isOpen, onClose])
 
-  if (!shouldRender) return null;
+  if (!shouldRender || typeof document === 'undefined') return null;
 
-  return (
+  return createPortal(
     <div
       className={cn(
         "fixed inset-0 z-50 flex items-center justify-center bg-black/50 transition-opacity duration-200",
+        overlayClassName,
         isVisible ? "opacity-100" : "opacity-0"
       )}
       onClick={onClose}
@@ -88,6 +92,7 @@ export function Modal({
 
         {footer && <div className="mt-6">{footer}</div>}
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }
