@@ -320,6 +320,107 @@ interface Translations {
   failedToCreateAbsence: string;
   absenceCreatedSuccessfully: string;
   errorCreatingAbsence: string;
+
+  // Additional UI translations
+  active: string;
+  inactive: string;
+  loadingCompaniesText: string;
+  failedToLoadCompanies: string;
+  companyNameRequired: string;
+  companyAlreadyExists: string;
+  failedToCreateCompany: string;
+  companyCreatedSuccessfully: string;
+  failedToUpdateCompany: string;
+  companyUpdatedSuccessfully: string;
+  failedToDeleteCompany: string;
+  noActiveCompanies: string;
+  inactiveCompanies: string;
+  deleteCompanyConfirm: string;
+  deleteCompanyWarning: string;
+  companyExampleName: string;
+  noReadNotificationsToDelete: string;
+  deleteReadNotificationsTitle: string;
+  deleteReadNotificationsConfirm: string;
+  deletedReadNotifications: string;
+  deleteAllReadNotifications: string;
+  selectCompanyAndProjectRequired: string;
+  projectAlreadyExistsForCompany: string;
+  failedToSaveProjectBackend: string;
+  projectAddedSuccessfully: string;
+  failedToAddProject: string;
+  failedToUpdateProject: string;
+  failedToDeleteProject: string;
+  operationFailed: string;
+  connectionToServerFailed: string;
+  employeeUpdatedSuccessfully: string;
+  updatingFailed: string;
+  updateAttemptFailed: string;
+  pleaseFillRequiredFields: string;
+  weakPasswordMeetRequirements: string;
+  employeeAddedSuccessfully: string;
+  registrationFailedTryAgain: string;
+  deleteEmployeeTitle: string;
+  deleteEmployeeConfirm: string;
+  deleteEmployeeWarning: string;
+  failedToUpdateHoliday: string;
+  failedToDeleteHoliday: string;
+  failedToAddHoliday: string;
+  deleteHolidayTitle: string;
+  deleteHolidayConfirm: string;
+  failedToDeleteAbsence: string;
+  updateFailed: string;
+  deleteAbsenceTitle: string;
+  deleteAbsenceConfirm: string;
+  profileUpdatedSuccessfully: string;
+  selectCompany: string;
+  noCompaniesAvailable: string;
+  goToCompaniesTabToCreate: string;
+  projectExampleName: string;
+  manageActiveProjects: string;
+  companyWithActiveProjects: string;
+  activeProjects: string;
+  viewProjects: string;
+  fullNameExample: string;
+  emailExample: string;
+  clearAllFilters: string;
+  allAbsences: string;
+  daysOff: string;
+  leaveCalendarView: string;
+  employeesDayOffTimeline: string;
+  previousMonth: string;
+  nextMonth: string;
+  employeeLeaveCalendar: string;
+  leaveCalendarCaption: string;
+  today: string;
+  failedToFetchTimesheetData: string;
+  excelDownloadedSuccessfully: string;
+  failedToDownloadExcelFile: string;
+  downloadDetailedTimesheetExcel: string;
+  export: string;
+  generating: string;
+  noWorkHoursToSave: string;
+  failedToSaveWorkingHours: string;
+  savedWorkHoursEntries: string;
+  entry: string;
+  entries: string;
+  copyingProjectsFromPreviousMonth: string;
+  noProjectsFoundInPreviousMonth: string;
+  copiedProjectsFromPreviousMonth: string;
+  failedToCopyProjects: string;
+  failedToFetchPreviousMonthProjects: string;
+  userIdNotFoundInUrl: string;
+  deleted: string;
+  timesheetStatusChangedSuccessfully: string;
+  somethingWentWrongUpdatingTimesheetStatus: string;
+  listView: string;
+  calendarView: string;
+  expandView: string;
+  collapseView: string;
+  expandTableView: string;
+  collapseTableView: string;
+  switchToListView: string;
+  switchToCalendarView: string;
+  dateWithColon: string;
 }
 
 const translations: Record<Language, Translations> = {
@@ -639,6 +740,107 @@ const translations: Record<Language, Translations> = {
     failedToCreateAbsence: "Failed to create absence",
     absenceCreatedSuccessfully: "Absence created successfully!",
     errorCreatingAbsence: "Error creating absence",
+
+    // Additional UI translations
+    active: "Active",
+    inactive: "Inactive",
+    loadingCompaniesText: "Loading companies...",
+    failedToLoadCompanies: "Failed to load companies",
+    companyNameRequired: "Company name is required",
+    companyAlreadyExists: "A company with this name already exists",
+    failedToCreateCompany: "Failed to create company",
+    companyCreatedSuccessfully: "Company created successfully",
+    failedToUpdateCompany: "Failed to update company",
+    companyUpdatedSuccessfully: "Company updated successfully",
+    failedToDeleteCompany: "Failed to delete company",
+    noActiveCompanies: "No active companies",
+    inactiveCompanies: "Inactive Companies",
+    deleteCompanyConfirm: "Are you sure you want to delete \"{name}\"?",
+    deleteCompanyWarning: "If this company has projects, it will be deactivated. Otherwise, it will be permanently deleted.",
+    companyExampleName: "e.g., Omegaventus",
+    noReadNotificationsToDelete: "No read notifications to delete",
+    deleteReadNotificationsTitle: "Delete Read Notifications",
+    deleteReadNotificationsConfirm: "Are you sure you want to delete {count} read notification(s)?",
+    deletedReadNotifications: "Deleted {count} read notification(s)",
+    deleteAllReadNotifications: "Delete all read notifications",
+    selectCompanyAndProjectRequired: "Please select a company and enter a project name!",
+    projectAlreadyExistsForCompany: "This project already exists for this company!",
+    failedToSaveProjectBackend: "Failed to save project to backend",
+    projectAddedSuccessfully: "Project was added successfully",
+    failedToAddProject: "An error occurred while attempting to add the project.",
+    failedToUpdateProject: "Failed to update project",
+    failedToDeleteProject: "Failed to delete project",
+    operationFailed: "Operation failed!",
+    connectionToServerFailed: "Connection to server failed!",
+    employeeUpdatedSuccessfully: "Employee was successfully updated.",
+    updatingFailed: "Updating failed!",
+    updateAttemptFailed: "An error occurred while attempting to update!",
+    pleaseFillRequiredFields: "Please fill-in the required fields!",
+    weakPasswordMeetRequirements: "Weak password. Meet the requirements.",
+    employeeAddedSuccessfully: "Employee was added successfully.",
+    registrationFailedTryAgain: "Registration failed! Please try again.",
+    deleteEmployeeTitle: "Delete Employee",
+    deleteEmployeeConfirm: "Are you sure you want to delete {name}?",
+    deleteEmployeeWarning: "If this user has existing data (work hours, absences, etc.), they will be deactivated instead of deleted.",
+    failedToUpdateHoliday: "Failed to update holiday",
+    failedToDeleteHoliday: "Failed to delete holiday",
+    failedToAddHoliday: "Failed to add holiday",
+    deleteHolidayTitle: "Delete Holiday",
+    deleteHolidayConfirm: "Are you sure you want to delete holiday on {date}?",
+    failedToDeleteAbsence: "Failed to delete absence",
+    updateFailed: "Update failed",
+    deleteAbsenceTitle: "Delete Absence",
+    deleteAbsenceConfirm: "Are you sure you want to delete this absence?",
+    profileUpdatedSuccessfully: "Profile updated successfully!",
+    selectCompany: "Select a company",
+    noCompaniesAvailable: "No companies available.",
+    goToCompaniesTabToCreate: "Please go to the Companies tab to create one first.",
+    projectExampleName: "e.g., Website Redesign",
+    manageActiveProjects: "Manage active projects",
+    companyWithActiveProjects: "{count} {label} with active projects",
+    activeProjects: "{count} active {label}",
+    viewProjects: "View Projects",
+    fullNameExample: "e.g., John Doe",
+    emailExample: "e.g., jdoe@example.com",
+    clearAllFilters: "Clear all filters",
+    allAbsences: "All Absences",
+    daysOff: "Days Off",
+    leaveCalendarView: "Leave Calendar View",
+    employeesDayOffTimeline: "Employees and day-off timeline",
+    previousMonth: "Previous month",
+    nextMonth: "Next month",
+    employeeLeaveCalendar: "Employee leave calendar",
+    leaveCalendarCaption: "Leave calendar showing employee absences for {month}",
+    today: "Today",
+    failedToFetchTimesheetData: "Failed to fetch timesheet data",
+    excelDownloadedSuccessfully: "Excel file downloaded successfully!",
+    failedToDownloadExcelFile: "Failed to download Excel file",
+    downloadDetailedTimesheetExcel: "Download detailed timesheet as Excel",
+    export: "Export",
+    generating: "Generating...",
+    noWorkHoursToSave: "No work hours to save",
+    failedToSaveWorkingHours: "Failed to save working hours",
+    savedWorkHoursEntries: "Successfully saved {count} work hour {label}!",
+    entry: "entry",
+    entries: "entries",
+    copyingProjectsFromPreviousMonth: "Copying projects from previous month...",
+    noProjectsFoundInPreviousMonth: "No projects found in previous month",
+    copiedProjectsFromPreviousMonth: "Successfully copied {count} project(s) from previous month",
+    failedToCopyProjects: "Failed to copy projects",
+    failedToFetchPreviousMonthProjects: "Failed to fetch previous month projects",
+    userIdNotFoundInUrl: "User ID not found in URL.",
+    deleted: "Deleted",
+    timesheetStatusChangedSuccessfully: "Timesheet status changed successfully",
+    somethingWentWrongUpdatingTimesheetStatus: "Something went wrong while trying to update timesheet status!",
+    listView: "List",
+    calendarView: "Calendar",
+    expandView: "Expand view",
+    collapseView: "Collapse view",
+    expandTableView: "Expand table view",
+    collapseTableView: "Collapse table view",
+    switchToListView: "Switch to list view",
+    switchToCalendarView: "Switch to calendar view",
+    dateWithColon: "Date:",
   },
   de: {
     // Navigation & Headers
@@ -956,6 +1158,107 @@ const translations: Record<Language, Translations> = {
     failedToCreateAbsence: "Abwesenheit konnte nicht erstellt werden",
     absenceCreatedSuccessfully: "Abwesenheit erfolgreich erstellt!",
     errorCreatingAbsence: "Fehler beim Erstellen der Abwesenheit",
+
+    // Additional UI translations
+    active: "Aktiv",
+    inactive: "Inaktiv",
+    loadingCompaniesText: "Unternehmen werden geladen...",
+    failedToLoadCompanies: "Unternehmen konnten nicht geladen werden",
+    companyNameRequired: "Firmenname ist erforderlich",
+    companyAlreadyExists: "Ein Unternehmen mit diesem Namen existiert bereits",
+    failedToCreateCompany: "Unternehmen konnte nicht erstellt werden",
+    companyCreatedSuccessfully: "Unternehmen erfolgreich erstellt",
+    failedToUpdateCompany: "Unternehmen konnte nicht aktualisiert werden",
+    companyUpdatedSuccessfully: "Unternehmen erfolgreich aktualisiert",
+    failedToDeleteCompany: "Unternehmen konnte nicht geloescht werden",
+    noActiveCompanies: "Keine aktiven Unternehmen",
+    inactiveCompanies: "Inaktive Unternehmen",
+    deleteCompanyConfirm: "Moechten Sie \"{name}\" wirklich loeschen?",
+    deleteCompanyWarning: "Wenn dieses Unternehmen Projekte hat, wird es deaktiviert. Andernfalls wird es dauerhaft geloescht.",
+    companyExampleName: "z.B. Omegaventus",
+    noReadNotificationsToDelete: "Keine gelesenen Benachrichtigungen zum Loeschen",
+    deleteReadNotificationsTitle: "Gelesene Benachrichtigungen loeschen",
+    deleteReadNotificationsConfirm: "Moechten Sie {count} gelesene Benachrichtigung(en) wirklich loeschen?",
+    deletedReadNotifications: "{count} gelesene Benachrichtigung(en) geloescht",
+    deleteAllReadNotifications: "Alle gelesenen Benachrichtigungen loeschen",
+    selectCompanyAndProjectRequired: "Bitte waehlen Sie ein Unternehmen und geben Sie einen Projektnamen ein!",
+    projectAlreadyExistsForCompany: "Dieses Projekt existiert bereits fuer dieses Unternehmen!",
+    failedToSaveProjectBackend: "Projekt konnte nicht im Backend gespeichert werden",
+    projectAddedSuccessfully: "Projekt wurde erfolgreich hinzugefuegt",
+    failedToAddProject: "Beim Hinzufuegen des Projekts ist ein Fehler aufgetreten.",
+    failedToUpdateProject: "Projekt konnte nicht aktualisiert werden",
+    failedToDeleteProject: "Projekt konnte nicht geloescht werden",
+    operationFailed: "Vorgang fehlgeschlagen!",
+    connectionToServerFailed: "Verbindung zum Server fehlgeschlagen!",
+    employeeUpdatedSuccessfully: "Mitarbeiter wurde erfolgreich aktualisiert.",
+    updatingFailed: "Aktualisierung fehlgeschlagen!",
+    updateAttemptFailed: "Beim Aktualisieren ist ein Fehler aufgetreten!",
+    pleaseFillRequiredFields: "Bitte fuellen Sie die erforderlichen Felder aus!",
+    weakPasswordMeetRequirements: "Schwaches Passwort. Erfuellen Sie die Anforderungen.",
+    employeeAddedSuccessfully: "Mitarbeiter wurde erfolgreich hinzugefuegt.",
+    registrationFailedTryAgain: "Registrierung fehlgeschlagen! Bitte versuchen Sie es erneut.",
+    deleteEmployeeTitle: "Mitarbeiter loeschen",
+    deleteEmployeeConfirm: "Moechten Sie {name} wirklich loeschen?",
+    deleteEmployeeWarning: "Wenn dieser Benutzer bestehende Daten hat (Arbeitsstunden, Abwesenheiten usw.), wird er deaktiviert statt geloescht.",
+    failedToUpdateHoliday: "Feiertag konnte nicht aktualisiert werden",
+    failedToDeleteHoliday: "Feiertag konnte nicht geloescht werden",
+    failedToAddHoliday: "Feiertag konnte nicht hinzugefuegt werden",
+    deleteHolidayTitle: "Feiertag loeschen",
+    deleteHolidayConfirm: "Moechten Sie den Feiertag am {date} wirklich loeschen?",
+    failedToDeleteAbsence: "Abwesenheit konnte nicht geloescht werden",
+    updateFailed: "Aktualisierung fehlgeschlagen",
+    deleteAbsenceTitle: "Abwesenheit loeschen",
+    deleteAbsenceConfirm: "Moechten Sie diese Abwesenheit wirklich loeschen?",
+    profileUpdatedSuccessfully: "Profil erfolgreich aktualisiert!",
+    selectCompany: "Unternehmen auswaehlen",
+    noCompaniesAvailable: "Keine Unternehmen verfuegbar.",
+    goToCompaniesTabToCreate: "Bitte wechseln Sie zur Registerkarte Unternehmen und erstellen Sie zuerst eines.",
+    projectExampleName: "z.B. Website Redesign",
+    manageActiveProjects: "Aktive Projekte verwalten",
+    companyWithActiveProjects: "{count} {label} mit aktiven Projekten",
+    activeProjects: "{count} aktive {label}",
+    viewProjects: "Projekte anzeigen",
+    fullNameExample: "z.B. John Doe",
+    emailExample: "z.B. jdoe@example.com",
+    clearAllFilters: "Alle Filter loeschen",
+    allAbsences: "Alle Abwesenheiten",
+    daysOff: "Freie Tage",
+    leaveCalendarView: "Abwesenheitskalender",
+    employeesDayOffTimeline: "Mitarbeiter und Abwesenheitsverlauf",
+    previousMonth: "Vorheriger Monat",
+    nextMonth: "Naechster Monat",
+    employeeLeaveCalendar: "Mitarbeiter-Abwesenheitskalender",
+    leaveCalendarCaption: "Abwesenheitskalender mit Mitarbeiterabwesenheiten fuer {month}",
+    today: "Heute",
+    failedToFetchTimesheetData: "Zeitnachweisdaten konnten nicht geladen werden",
+    excelDownloadedSuccessfully: "Excel-Datei erfolgreich heruntergeladen!",
+    failedToDownloadExcelFile: "Excel-Datei konnte nicht heruntergeladen werden",
+    downloadDetailedTimesheetExcel: "Detaillierten Zeitnachweis als Excel herunterladen",
+    export: "Export",
+    generating: "Wird erstellt...",
+    noWorkHoursToSave: "Keine Arbeitsstunden zum Speichern",
+    failedToSaveWorkingHours: "Arbeitsstunden konnten nicht gespeichert werden",
+    savedWorkHoursEntries: "{count} Arbeitsstunden-{label} erfolgreich gespeichert!",
+    entry: "Eintrag",
+    entries: "Eintraege",
+    copyingProjectsFromPreviousMonth: "Projekte vom vorherigen Monat werden kopiert...",
+    noProjectsFoundInPreviousMonth: "Keine Projekte im vorherigen Monat gefunden",
+    copiedProjectsFromPreviousMonth: "{count} Projekt(e) erfolgreich aus dem vorherigen Monat kopiert",
+    failedToCopyProjects: "Projekte konnten nicht kopiert werden",
+    failedToFetchPreviousMonthProjects: "Projekte vom vorherigen Monat konnten nicht geladen werden",
+    userIdNotFoundInUrl: "Benutzer-ID in URL nicht gefunden.",
+    deleted: "Geloescht",
+    timesheetStatusChangedSuccessfully: "Zeitnachweisstatus erfolgreich geaendert",
+    somethingWentWrongUpdatingTimesheetStatus: "Beim Aktualisieren des Zeitnachweisstatus ist ein Fehler aufgetreten!",
+    listView: "Liste",
+    calendarView: "Kalender",
+    expandView: "Ansicht erweitern",
+    collapseView: "Ansicht einklappen",
+    expandTableView: "Tabellenansicht erweitern",
+    collapseTableView: "Tabellenansicht einklappen",
+    switchToListView: "Zur Listenansicht wechseln",
+    switchToCalendarView: "Zur Kalenderansicht wechseln",
+    dateWithColon: "Datum:",
   },
 };
 

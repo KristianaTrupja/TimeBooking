@@ -2,6 +2,7 @@ import React from "react";
 import { ProjectEntry } from "@/types/project";
 import ProjectManage from "./ProjectManage";
 import { Building2, FolderOpen } from "lucide-react";
+import { useLanguage } from "@/app/context/LanguageContext";
 
 interface ProjectListProps {
   selectors: { [key: string]: ProjectEntry[] };
@@ -12,6 +13,7 @@ export default function ProjectList({
   selectors,
   onOptionsModified
 }: ProjectListProps) {
+  const { t } = useLanguage();
   // Filter to only show active projects
   const activeSelectors = Object.entries(selectors).reduce((acc, [company, projects]) => {
     const activeProjects = projects.filter(p => p.isActive);
@@ -34,8 +36,8 @@ export default function ProjectList({
               <FolderOpen className="text-white" size={18} />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-slate-900">Projects</h2>
-              <p className="text-xs text-slate-600">Manage active projects</p>
+              <h2 className="text-lg font-bold text-slate-900">{t.projects}</h2>
+              <p className="text-xs text-slate-600">{t.manageActiveProjects}</p>
             </div>
           </div>
           
@@ -43,19 +45,23 @@ export default function ProjectList({
           <div className="flex gap-2">
             <div 
               className="flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 rounded-lg cursor-help"
-              title={`${companies.length} ${companies.length === 1 ? 'company' : 'companies'} with active projects`}
+              title={t.companyWithActiveProjects
+                .replace("{count}", String(companies.length))
+                .replace("{label}", companies.length === 1 ? t.company.toLowerCase() : t.companies.toLowerCase())}
             >
               <Building2 size={12} className="text-slate-600" aria-hidden="true" />
               <span className="text-xs font-bold text-slate-800">{companies.length}</span>
-              <span className="sr-only">{companies.length === 1 ? 'company' : 'companies'}</span>
+              <span className="sr-only">{companies.length === 1 ? t.company : t.companies}</span>
             </div>
             <div 
               className="flex items-center gap-1.5 px-2.5 py-1 bg-indigo-50 rounded-lg cursor-help"
-              title={`${totalProjects} active ${totalProjects === 1 ? 'project' : 'projects'}`}
+              title={t.activeProjects
+                .replace("{count}", String(totalProjects))
+                .replace("{label}", totalProjects === 1 ? t.project.toLowerCase() : t.projects.toLowerCase())}
             >
               <FolderOpen size={12} className="text-indigo-600" aria-hidden="true" />
               <span className="text-xs font-bold text-indigo-800">{totalProjects}</span>
-              <span className="sr-only">{totalProjects === 1 ? 'project' : 'projects'}</span>
+              <span className="sr-only">{totalProjects === 1 ? t.project : t.projects}</span>
             </div>
           </div>
         </div>
@@ -66,7 +72,7 @@ export default function ProjectList({
         {companies.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 text-slate-500">
             <FolderOpen size={48} strokeWidth={1} />
-            <p className="mt-3 text-sm font-medium">No active projects</p>
+            <p className="mt-3 text-sm font-medium">{t.noProjectsFound}</p>
           </div>
         ) : (
           companies.map((company) => (
@@ -76,7 +82,7 @@ export default function ProjectList({
               id={company}
               editable={true}
               options={activeSelectors[company]}
-              placeholder="View Projects"
+              placeholder={t.viewProjects}
               onOptionsModified={onOptionsModified}
             />
           ))

@@ -20,8 +20,8 @@ export default function ProjectsForm({
   isSubmitting = false,
 }: ProjectsFormProps) {
   const { t } = useLanguage();
-  const activeCompanies = companies.filter(c => c.isActive);
-  
+  const activeCompanies = companies.filter((c) => c.isActive);
+
   return (
     <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5 w-full">
       <div className="flex items-center gap-3 mb-6">
@@ -48,7 +48,7 @@ export default function ProjectsForm({
             required
             className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all cursor-pointer"
           >
-            <option value="">Select a company</option>
+            <option value="">{t.selectCompany}</option>
             {activeCompanies.map((company) => (
               <option key={company.id} value={company.id}>
                 {company.name}
@@ -57,7 +57,7 @@ export default function ProjectsForm({
           </select>
           {activeCompanies.length === 0 && (
             <p className="mt-2 text-xs text-amber-600 flex items-center gap-1">
-              ⚠️ No companies available. Please go to the <strong className="mx-1">Companies</strong> tab to create one first.
+              ! {t.noCompaniesAvailable} {t.goToCompaniesTabToCreate}
             </p>
           )}
         </div>
@@ -74,11 +74,11 @@ export default function ProjectsForm({
             onChange={handleChange}
             type="text"
             className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-            placeholder="e.g., Website Redesign"
+            placeholder={t.projectExampleName}
           />
         </div>
 
-        <Button 
+        <Button
           type="submit"
           loading={isSubmitting}
           className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-lg shadow-blue-500/25 py-2.5"
@@ -90,3 +90,4 @@ export default function ProjectsForm({
     </div>
   );
 }
+

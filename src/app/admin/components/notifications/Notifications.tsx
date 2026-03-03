@@ -25,7 +25,7 @@ export default function Notifications() {
 
   const handleDeleteRead = () => {
     if (readCount === 0) {
-      toast.info("No read notifications to delete");
+      toast.info(t.noReadNotificationsToDelete);
       return;
     }
     setShowDeleteReadModal(true);
@@ -35,7 +35,7 @@ export default function Notifications() {
     setIsDeletingRead(true);
     try {
       await deleteReadNotifications();
-      toast.success(`Deleted ${readCount} read notification(s)`);
+      toast.success(t.deletedReadNotifications.replace("{count}", String(readCount)));
       setShowDeleteReadModal(false);
     } finally {
       setIsDeletingRead(false);
@@ -91,7 +91,7 @@ export default function Notifications() {
             <button
               onClick={handleDeleteRead}
               className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-rose-600 bg-rose-50 rounded-lg hover:bg-rose-100 transition-colors"
-              title="Delete all read notifications"
+              title={t.deleteAllReadNotifications}
             >
               <Trash2 size={14} />
               {t.deleteRead}
@@ -127,7 +127,7 @@ export default function Notifications() {
           if (isDeletingRead) return;
           setShowDeleteReadModal(false);
         }}
-        title="Delete Read Notifications"
+        title={t.deleteReadNotificationsTitle}
         className="max-w-md"
         footer={
           <div className="flex justify-end gap-3">
@@ -136,20 +136,20 @@ export default function Notifications() {
               onClick={() => setShowDeleteReadModal(false)}
               disabled={isDeletingRead}
             >
-              Cancel
+              {t.cancel}
             </Button>
             <Button
               onClick={confirmDeleteRead}
               loading={isDeletingRead}
               className="bg-rose-600 hover:bg-rose-500 text-white"
             >
-              Delete
+              {t.delete}
             </Button>
           </div>
         }
       >
         <p className="text-sm text-slate-700">
-          {`Are you sure you want to delete ${readCount} read notification(s)?`}
+          {t.deleteReadNotificationsConfirm.replace("{count}", String(readCount))}
         </p>
       </Modal>
     </div>

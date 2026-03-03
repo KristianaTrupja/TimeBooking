@@ -25,11 +25,11 @@ export default function Companies() {
       setCompanies(data);
     } catch (err) {
       console.error("Failed to fetch companies", err);
-      toast.error("Failed to load companies");
+      toast.error(t.failedToLoadCompanies);
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [t.failedToLoadCompanies]);
 
   useEffect(() => {
     fetchCompanies();
@@ -37,7 +37,7 @@ export default function Companies() {
 
   const handleAdd = async () => {
     if (!newCompanyName.trim()) {
-      toast.error("Company name is required");
+      toast.error(t.companyNameRequired);
       return;
     }
 
@@ -46,7 +46,7 @@ export default function Companies() {
       c => c.name.toLowerCase() === newCompanyName.trim().toLowerCase()
     );
     if (duplicate) {
-      toast.error("A company with this name already exists");
+      toast.error(t.companyAlreadyExists);
       return;
     }
 
@@ -60,14 +60,14 @@ export default function Companies() {
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.message || "Failed to create company");
+        throw new Error(data.message || t.failedToCreateCompany);
       }
 
-      toast.success("Company created successfully");
+      toast.success(t.companyCreatedSuccessfully);
       setNewCompanyName("");
       fetchCompanies();
     } catch (error: any) {
-      toast.error(error.message || "Failed to create company");
+      toast.error(error.message || t.failedToCreateCompany);
     } finally {
       setIsAdding(false);
     }
@@ -89,7 +89,7 @@ export default function Companies() {
       c => c.id !== id && c.name.toLowerCase() === editValue.trim().toLowerCase()
     );
     if (duplicate) {
-      toast.error("A company with this name already exists");
+      toast.error(t.companyAlreadyExists);
       return;
     }
 
@@ -103,14 +103,14 @@ export default function Companies() {
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.message || "Failed to update company");
+        throw new Error(data.message || t.failedToUpdateCompany);
       }
 
-      toast.success("Company updated successfully");
+      toast.success(t.companyUpdatedSuccessfully);
       setEditingId(null);
       fetchCompanies();
     } catch (error: any) {
-      toast.error(error.message || "Failed to update company");
+      toast.error(error.message || t.failedToUpdateCompany);
     } finally {
       setPendingId(null);
     }
@@ -131,14 +131,14 @@ export default function Companies() {
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.message || "Failed to delete company");
+        throw new Error(data.message || t.failedToDeleteCompany);
       }
 
       const data = await response.json();
       toast.success(data.message);
       fetchCompanies();
     } catch (error: any) {
-      toast.error(error.message || "Failed to delete company");
+      toast.error(error.message || t.failedToDeleteCompany);
     } finally {
       setPendingId(null);
       setCompanyToDelete(null);
@@ -150,7 +150,7 @@ export default function Companies() {
       <section className="p-6 h-full flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
           <LoaderCircle className="animate-spin text-blue-600" size={32} />
-          <p className="text-slate-600">Loading companies...</p>
+          <p className="text-slate-600">{t.loadingCompaniesText}</p>
         </div>
       </section>
     );
@@ -177,12 +177,12 @@ export default function Companies() {
         <div className="flex gap-4">
           <div className="bg-white rounded-lg border border-slate-200 px-4 py-2 shadow-sm">
             <span className="text-2xl font-bold text-slate-800">{activeCompanies.length}</span>
-            <span className="text-sm text-slate-600 ml-2">Active</span>
+            <span className="text-sm text-slate-600 ml-2">{t.active}</span>
           </div>
           {inactiveCompanies.length > 0 && (
             <div className="bg-white rounded-lg border border-slate-200 px-4 py-2 shadow-sm">
               <span className="text-2xl font-bold text-slate-500">{inactiveCompanies.length}</span>
-              <span className="text-sm text-slate-600 ml-2">Inactive</span>
+              <span className="text-sm text-slate-600 ml-2">{t.inactive}</span>
             </div>
           )}
         </div>
@@ -202,7 +202,7 @@ export default function Companies() {
             <div className="divide-y divide-slate-100">
               {activeCompanies.length === 0 ? (
                 <div className="p-8 text-center text-slate-500">
-                  No active companies
+                  {t.noActiveCompanies}
                 </div>
               ) : (
                 activeCompanies.map((company) => (
@@ -290,7 +290,7 @@ export default function Companies() {
             <div className="bg-white rounded-xl border border-slate-200 shadow-sm opacity-60">
               <div className="p-4 border-b border-slate-200 bg-slate-100">
                 <h3 className="text-sm font-semibold text-slate-600">
-                  Inactive Companies ({inactiveCompanies.length})
+                  {t.inactiveCompanies} ({inactiveCompanies.length})
                 </h3>
               </div>
               <div className="divide-y divide-slate-100">
@@ -299,7 +299,7 @@ export default function Companies() {
                     <div className="flex items-center gap-3">
                       <Building2 size={18} className="text-slate-400" />
                       <span className="font-medium text-slate-600">{company.name}</span>
-                      <span className="text-xs italic text-slate-500">(Inactive)</span>
+                      <span className="text-xs italic text-slate-500">({t.inactive})</span>
                     </div>
                   </div>
                 ))}
@@ -335,7 +335,7 @@ export default function Companies() {
                   type="text"
                   autoComplete="off"
                   className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                  placeholder="e.g., Omegaventus"
+                  placeholder={t.companyExampleName}
                   required
                 />
               </div>
@@ -346,7 +346,7 @@ export default function Companies() {
                 className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-lg shadow-blue-500/25 py-2.5"
               >
                 <Plus size={18} className="mr-2" />
-                {isAdding ? "Adding..." : t.addCompany}
+                {isAdding ? t.adding : t.addCompany}
               </Button>
             </form>
           </div>
@@ -358,7 +358,7 @@ export default function Companies() {
           if (pendingId !== null) return;
           setCompanyToDelete(null);
         }}
-        title="Delete Company"
+        title={`${t.delete} ${t.company}`}
         className="max-w-md"
         footer={
           <div className="flex justify-end gap-3">
@@ -367,23 +367,23 @@ export default function Companies() {
               onClick={() => setCompanyToDelete(null)}
               disabled={pendingId !== null}
             >
-              Cancel
+              {t.cancel}
             </Button>
             <Button
               onClick={confirmDelete}
               loading={pendingId !== null}
               className="bg-rose-600 hover:bg-rose-500 text-white"
             >
-              Delete
+              {t.delete}
             </Button>
           </div>
         }
       >
         <p className="text-sm text-slate-700 leading-relaxed">
-          {`Are you sure you want to delete "${companyToDelete?.name || ""}"?`}
+          {t.deleteCompanyConfirm.replace("{name}", companyToDelete?.name || "")}
         </p>
         <p className="text-sm text-slate-500">
-          If this company has projects, it will be deactivated. Otherwise, it will be permanently deleted.
+          {t.deleteCompanyWarning}
         </p>
       </Modal>
     </section>

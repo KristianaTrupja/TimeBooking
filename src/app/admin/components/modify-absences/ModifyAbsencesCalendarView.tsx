@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Calendar, ChevronLeft, ChevronRight } from "lucide-react";
 import { User } from "@/types/user";
 import { formatEmployeeName } from "@/app/utils/formatEmployeeName";
+import { useLanguage } from "@/app/context/LanguageContext";
 
 type DayHeader = {
   day: number;
@@ -38,6 +39,7 @@ export default function ModifyAbsencesCalendarView({
   employeeLabel,
   isCompact = false,
 }: Props) {
+  const { t } = useLanguage();
   const [hoveredUserId, setHoveredUserId] = useState<number | null>(null);
   const [hoveredDay, setHoveredDay] = useState<number | null>(null);
   const scrollerRef = useRef<HTMLDivElement>(null);
@@ -46,7 +48,7 @@ export default function ModifyAbsencesCalendarView({
   const dayColWidth = 40;
   const minTableWidth = employeeColMobileWidth + dayHeaders.length * dayColWidth;
 
-  // Mobile Safari-like first-render fix for sticky table headers in horizontal scrollers.
+  // Mobile Safari first-render fix for sticky table headers in horizontal scrollers.
   useEffect(() => {
     if (typeof window === "undefined") return;
     if (!window.matchMedia("(hover: none) and (pointer: coarse)").matches) return;
@@ -58,7 +60,6 @@ export default function ModifyAbsencesCalendarView({
     let raf2 = 0;
 
     raf1 = window.requestAnimationFrame(() => {
-      // Force layout recalculation, then nudge scroll to stabilize sticky paint on first load.
       void scroller.offsetWidth;
       scroller.scrollLeft = 1;
       raf2 = window.requestAnimationFrame(() => {
@@ -83,8 +84,8 @@ export default function ModifyAbsencesCalendarView({
             <Calendar className="text-white" size={14} />
           </div>
           <div className="min-w-0">
-            <p className="text-sm font-semibold text-slate-800">Leave Calendar View</p>
-            {!isCompact && <p className="text-xs text-slate-500">Employees and day-off timeline</p>}
+            <p className="text-sm font-semibold text-slate-800">{t.leaveCalendarView}</p>
+            {!isCompact && <p className="text-xs text-slate-500">{t.employeesDayOffTimeline}</p>}
           </div>
         </div>
 
@@ -92,7 +93,7 @@ export default function ModifyAbsencesCalendarView({
           <button
             onClick={onPrevMonth}
             className="h-8 w-8 rounded-lg hover:bg-white text-slate-600 hover:text-slate-800 transition-colors flex items-center justify-center"
-            aria-label="Previous month"
+            aria-label={t.previousMonth}
           >
             <ChevronLeft size={16} />
           </button>
@@ -102,7 +103,7 @@ export default function ModifyAbsencesCalendarView({
           <button
             onClick={onNextMonth}
             className="h-8 w-8 rounded-lg hover:bg-white text-slate-600 hover:text-slate-800 transition-colors flex items-center justify-center"
-            aria-label="Next month"
+            aria-label={t.nextMonth}
           >
             <ChevronRight size={16} />
           </button>
@@ -111,11 +112,11 @@ export default function ModifyAbsencesCalendarView({
 
       {!isCompact && (
         <div className="shrink-0 px-3 sm:px-4 py-2 border-b border-slate-200 bg-white flex flex-wrap items-center gap-2 text-xs text-slate-600">
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-teal-100 text-teal-700">Vacation</span>
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-rose-100 text-rose-700">Sick</span>
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-violet-100 text-violet-700">Personal</span>
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-100 text-amber-700">Parental</span>
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-sky-200 text-sky-800 font-medium">🎉 Official Holiday</span>
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-teal-100 text-teal-700">{t.vacation}</span>
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-rose-100 text-rose-700">{t.sick}</span>
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-violet-100 text-violet-700">{t.personal}</span>
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-100 text-amber-700">{t.parental}</span>
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-sky-200 text-sky-800 font-medium">{t.officialHoliday}</span>
         </div>
       )}
 
@@ -131,9 +132,11 @@ export default function ModifyAbsencesCalendarView({
           className="border-collapse w-full"
           style={{ minWidth: `${minTableWidth}px` }}
           role="table"
-          aria-label="Employee leave calendar"
+          aria-label={t.employeeLeaveCalendar}
         >
-          <caption id="calendar-caption" className="sr-only">Leave calendar showing employee absences for {monthLabel}</caption>
+          <caption id="calendar-caption" className="sr-only">
+            {t.leaveCalendarCaption.replace("{month}", monthLabel)}
+          </caption>
           <colgroup>
             <col style={{ width: "var(--employee-col-width)", minWidth: "var(--employee-col-width)", maxWidth: "var(--employee-col-width)" }} />
             {dayHeaders.map(({ day }) => (
@@ -153,17 +156,17 @@ export default function ModifyAbsencesCalendarView({
                     key={day}
                     scope="col"
                     className={`px-1 py-2 font-bold text-center transition-all duration-150 cursor-pointer z-20 ${
-                      isToday 
-                        ? "bg-gradient-to-b from-blue-500 to-blue-400 border-r-2 border-l-2 border-blue-600 shadow-md" 
-                        : hasHoliday 
-                        ? "bg-gradient-to-b from-sky-200 to-sky-100 border-r border-sky-300" 
-                        : isWeekend 
-                        ? "bg-slate-200/70 border-r border-slate-200" 
-                        : "bg-slate-100 border-r border-slate-200"
+                      isToday
+                        ? "bg-gradient-to-b from-blue-500 to-blue-400 border-r-2 border-l-2 border-blue-600 shadow-md"
+                        : hasHoliday
+                          ? "bg-gradient-to-b from-sky-200 to-sky-100 border-r border-sky-300"
+                          : isWeekend
+                            ? "bg-slate-200/70 border-r border-slate-200"
+                            : "bg-slate-100 border-r border-slate-200"
                     } ${isColHovered && !isToday ? "!bg-blue-100 ring-2 ring-inset ring-blue-200" : ""}`}
                     onMouseEnter={() => setHoveredDay(day)}
                     onMouseLeave={() => setHoveredDay(null)}
-                    title={isToday ? "Today" : holidayName || undefined}
+                    title={isToday ? t.today : holidayName || undefined}
                   >
                     <div className="leading-tight">
                       <div className={`text-[10px] transition-colors duration-150 ${
@@ -177,7 +180,7 @@ export default function ModifyAbsencesCalendarView({
                         {String(day).padStart(2, "0")}
                       </div>
                       {hasHoliday && !isToday && (
-                        <div className="text-sky-600 text-[10px] leading-none mt-0.5">●</div>
+                        <div className="text-sky-600 text-[10px] leading-none mt-0.5">•</div>
                       )}
                     </div>
                   </th>
@@ -190,13 +193,13 @@ export default function ModifyAbsencesCalendarView({
             {visibleEmployees.map((user) => {
               const isRowHovered = hoveredUserId === user.id;
               return (
-                <tr 
-                  key={user.id} 
+                <tr
+                  key={user.id}
                   className="transition-all duration-150"
                   onMouseEnter={() => setHoveredUserId(user.id)}
                   onMouseLeave={() => setHoveredUserId(null)}
                 >
-                  <th 
+                  <th
                     scope="row"
                     style={{ width: "var(--employee-col-width)", minWidth: "var(--employee-col-width)", maxWidth: "var(--employee-col-width)" }}
                     className={`px-2 sm:px-4 py-2 h-10 sticky left-0 z-10 border-r border-slate-200 transition-all duration-150 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.05)] ${
@@ -227,7 +230,7 @@ export default function ModifyAbsencesCalendarView({
                         onMouseLeave={() => setHoveredDay(null)}
                         title={hasHoliday ? holidayName : undefined}
                       >
-                        {absenceType ? "●" : hasHoliday ? "🎉" : ""}
+                        {absenceType ? "•" : hasHoliday ? "•" : ""}
                       </td>
                     );
                   })}

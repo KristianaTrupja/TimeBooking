@@ -70,7 +70,7 @@ export default function Projects() {
       const projectInput = formData.project.trim();
 
       if (!formData.companyId || !projectInput) {
-        toast.error("Please select a company and enter a project name!");
+        toast.error(t.selectCompanyAndProjectRequired);
         return;
       }
 
@@ -84,7 +84,7 @@ export default function Projects() {
         .some(p => p.project.toLowerCase() === projectInput.toLowerCase());
 
       if (projectExists) {
-        toast.error("This project already exists for this company!");
+        toast.error(t.projectAlreadyExistsForCompany);
         return;
       }
 
@@ -103,20 +103,20 @@ export default function Projects() {
 
         if (!response.ok) {
           const data = await response.json();
-          throw new Error(data.message || "Failed to save project to backend");
+          throw new Error(data.message || t.failedToSaveProjectBackend);
         }
 
         fetchData();
-        toast.success("Project was added successfully");
+        toast.success(t.projectAddedSuccessfully);
         setFormData({ companyId: undefined, project: "" });
       } catch (error: any) {
         console.error("Error saving project:", error);
-        toast.error(error.message || "An error occurred while attempting to add the project.");
+        toast.error(error.message || t.failedToAddProject);
       } finally {
         setIsSubmitting(false);
       }
     },
-    [formData, selectors, companies, fetchData]
+    [formData, selectors, companies, fetchData, t]
   );
 
 
@@ -132,9 +132,9 @@ const onOptionsModified = useCallback(async (id: number, newValue: string, opera
 
     if (!response.ok) {
       const data = await response.json();
-      throw new Error(data.message || "Failed to update project");
+      throw new Error(data.message || t.failedToUpdateProject);
     }
-    toast.success("Project updated successfully");
+    toast.success(t.projectUpdated);
   } else if (operation === "delete") {
     const response = await fetch(`/api/projectList?projectId=${id}`, {
       method: "DELETE",
@@ -142,7 +142,7 @@ const onOptionsModified = useCallback(async (id: number, newValue: string, opera
 
     if (!response.ok) {
       const data = await response.json();
-      throw new Error(data.message || "Failed to delete project");
+      throw new Error(data.message || t.failedToDeleteProject);
     }
     
     const data = await response.json();
@@ -150,7 +150,7 @@ const onOptionsModified = useCallback(async (id: number, newValue: string, opera
   }
 
   fetchData();
-}, [fetchData]);
+}, [fetchData, t]);
 
 
 
