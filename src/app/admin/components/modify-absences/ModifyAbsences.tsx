@@ -459,20 +459,20 @@ export default function ModifyAbsences() {
               className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                 viewMode === "list" ? "bg-white text-slate-800 shadow-sm" : "text-slate-600 hover:text-slate-800"
               }`}
-              aria-label="Switch to list view"
+              aria-label={t.switchToListView}
             >
               <List size={14} />
-              List
+              {t.listView}
             </button>
             <button
               onClick={() => setViewMode("calendar")}
               className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                 viewMode === "calendar" ? "bg-white text-slate-800 shadow-sm" : "text-slate-600 hover:text-slate-800"
               }`}
-              aria-label="Switch to calendar view"
+              aria-label={t.switchToCalendarView}
             >
               <Grid3X3 size={14} />
-              Calendar
+              {t.calendarView}
             </button>
           </div>
           <div className="px-4 py-2 bg-slate-100 rounded-xl flex items-center gap-2 border border-slate-200" title={t.records}>
@@ -552,7 +552,7 @@ export default function ModifyAbsences() {
           if (deletingId !== null) return;
           setAbsenceToDeleteId(null);
         }}
-        title="Delete Absence"
+        title={t.deleteAbsenceTitle}
         className="max-w-md"
         footer={
           <div className="flex justify-end gap-3">
@@ -561,20 +561,20 @@ export default function ModifyAbsences() {
               onClick={() => setAbsenceToDeleteId(null)}
               disabled={deletingId !== null}
             >
-              Cancel
+              {t.cancel}
             </Button>
             <Button
               onClick={confirmDelete}
               loading={deletingId !== null}
               className="bg-rose-600 hover:bg-rose-500 text-white"
             >
-              Delete
+              {t.delete}
             </Button>
           </div>
         }
       >
         <p className="text-sm text-slate-700">
-          Are you sure you want to delete this absence?
+          {t.deleteAbsenceConfirm}
         </p>
       </Modal>
     </section>

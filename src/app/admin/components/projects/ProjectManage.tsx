@@ -261,7 +261,7 @@ function ProjectManage({
           if (pendingId !== null) return;
           setDeleteTarget(null);
         }}
-        title="Delete Project"
+        title={t.deleteProjectTitle}
         className="max-w-md"
         footer={
           <div className="flex justify-end gap-3">
@@ -270,20 +270,20 @@ function ProjectManage({
               onClick={() => setDeleteTarget(null)}
               disabled={pendingId !== null}
             >
-              Cancel
+              {t.cancel}
             </Button>
             <Button
               onClick={confirmDeleteProject}
               loading={pendingId !== null}
               className="bg-rose-600 hover:bg-rose-500 text-white"
             >
-              Delete
+              {t.delete}
             </Button>
           </div>
         }
       >
         <p className="text-sm text-slate-700 leading-relaxed">
-          {`Are you sure you want to delete "${deleteTarget?.project || ""}"?`}
+          {t.deleteProjectConfirmWithName.replace("{name}", deleteTarget?.project || "")}
         </p>
       </Modal>
     </>

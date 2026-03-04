@@ -439,7 +439,7 @@ export default function DeveloperVacations() {
                 aria-label="List view"
               >
                 <List size={14} />
-                <span className="hidden sm:inline">List</span>
+                <span className="hidden sm:inline">{t.listView}</span>
               </button>
               <button
                 onClick={() => setViewMode("calendar")}
@@ -451,7 +451,7 @@ export default function DeveloperVacations() {
                 aria-label="Calendar view"
               >
                 <Grid3X3 size={14} />
-                <span className="hidden sm:inline">Calendar</span>
+                <span className="hidden sm:inline">{t.calendarView}</span>
               </button>
             </div>
             

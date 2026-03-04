@@ -301,6 +301,7 @@ interface Translations {
   
   // Delete Project Modal
   deleteProjectTitle: string;
+  deleteProjectConfirmWithName: string;
   deleteProjectSubtitle: string;
   deleteProjectHoursLogged: string;
   deleteProjectWarning: string;
@@ -720,7 +721,8 @@ const translations: Record<Language, Translations> = {
     leavePeriod: "Leave Period",
     
     // Delete Project Modal
-    deleteProjectTitle: "Delete project?",
+    deleteProjectTitle: "Delete Project",
+    deleteProjectConfirmWithName: "Are you sure you want to delete \"{name}\"?",
     deleteProjectSubtitle: "This will remove the project and its hours",
     deleteProjectHoursLogged: "This project has {hours} hours logged for this month.",
     deleteProjectWarning: "If you continue, we will permanently delete those work hours and remove the project from your sidebar.",
@@ -1138,7 +1140,8 @@ const translations: Record<Language, Translations> = {
     leavePeriod: "Abwesenheitszeitraum",
     
     // Delete Project Modal
-    deleteProjectTitle: "Projekt löschen?",
+    deleteProjectTitle: "Projekt loeschen",
+    deleteProjectConfirmWithName: "Moechten Sie \"{name}\" wirklich loeschen?",
     deleteProjectSubtitle: "Dadurch werden das Projekt und seine Stunden entfernt",
     deleteProjectHoursLogged: "Für dieses Projekt wurden {hours} Stunden in diesem Monat erfasst.",
     deleteProjectWarning: "Wenn Sie fortfahren, werden diese Arbeitsstunden dauerhaft gelöscht und das Projekt aus Ihrer Seitenleiste entfernt.",
@@ -1316,4 +1319,5 @@ export function useLanguage() {
   }
   return context;
 }
+
 
