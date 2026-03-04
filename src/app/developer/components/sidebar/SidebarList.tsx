@@ -30,15 +30,17 @@ export default function SidebarList({ sidebarProjects, isCollapsed = false }: Si
   }
 
   return (
-    <div className="overflow-auto custom-scrollbar">
-      <div className={`h-10 2xl:h-11 flex ${isCollapsed ? "justify-start px-1.5" : "justify-center"} font-semibold text-white items-center bg-gradient-to-r from-[#244B77] to-[#1a3a5c] rounded-tl-xl`}>
+    <div className="h-full min-h-0 flex flex-col">
+      <div className={`h-10 2xl:h-11 flex-shrink-0 flex ${isCollapsed ? "justify-start px-1.5" : "justify-center"} font-semibold text-white items-center bg-gradient-to-r from-[#244B77] to-[#1a3a5c] rounded-tl-xl`}>
         <span className={`${isCollapsed ? "w-full" : ""}`} title={t.projects}>
           {isCollapsed ? compactLabel(t.projects) : t.projects}
         </span>
       </div>
-      {sidebarProjects.map(({ company, projects }) => (
-        <SidebarItem key={company} company={company} projects={projects} isCollapsed={isCollapsed} />
-      ))}
+      <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden custom-scrollbar">
+        {sidebarProjects.map(({ company, projects }) => (
+          <SidebarItem key={company} company={company} projects={projects} isCollapsed={isCollapsed} />
+        ))}
+      </div>
     </div>
   );
 }
