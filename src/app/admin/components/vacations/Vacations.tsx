@@ -372,7 +372,7 @@ export default function Vacations() {
           if (deletingId !== null) return;
           setHolidayToDelete(null);
         }}
-        title="Delete Holiday"
+        title={t.deleteHolidayTitle}
         className="max-w-md"
         footer={
           <div className="flex justify-end gap-3">
@@ -381,20 +381,20 @@ export default function Vacations() {
               onClick={() => setHolidayToDelete(null)}
               disabled={deletingId !== null}
             >
-              Cancel
+              {t.cancel}
             </Button>
             <Button
               onClick={confirmDelete}
               loading={deletingId !== null}
               className="bg-rose-600 hover:bg-rose-500 text-white"
             >
-              Delete
+              {t.delete}
             </Button>
           </div>
         }
       >
         <p className="text-sm text-slate-700">
-          {`Are you sure you want to delete holiday on ${holidayToDelete?.date || ""}?`}
+          {t.deleteHolidayConfirm.replace("{date}", holidayToDelete?.date || "")}
         </p>
       </Modal>
 

@@ -372,7 +372,7 @@ export default function Users() {
           if (deletingId !== null) return;
           setUserToDelete(null);
         }}
-        title="Delete Employee"
+        title={t.deleteEmployeeTitle}
         className="max-w-md"
         footer={
           <div className="flex justify-end gap-3">
@@ -381,23 +381,23 @@ export default function Users() {
               onClick={() => setUserToDelete(null)}
               disabled={deletingId !== null}
             >
-              Cancel
+              {t.cancel}
             </Button>
             <Button
               onClick={confirmDeleteItem}
               loading={deletingId !== null}
               className="bg-rose-600 hover:bg-rose-500 text-white"
             >
-              Delete
+              {t.delete}
             </Button>
           </div>
         }
       >
         <p className="text-sm text-slate-700 leading-relaxed">
-          {`Are you sure you want to delete ${userToDelete?.username || "this employee"}?`}
+          {t.deleteEmployeeConfirm.replace("{name}", userToDelete?.username || t.employee)}
         </p>
         <p className="text-sm text-slate-500">
-          If this user has existing data (work hours, absences, etc.), they will be deactivated instead of deleted.
+          {t.deleteEmployeeWarning}
         </p>
       </Modal>
     </section>
