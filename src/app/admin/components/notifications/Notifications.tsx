@@ -69,7 +69,7 @@ export default function Notifications() {
   return (
     <div ref={containerRef} className="p-6 h-full">
       {/* Header */}
-      <div ref={headerRef} className="flex items-center justify-between mb-6">
+      <div ref={headerRef} className="flex flex-col sm:flex-row sm:items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <div className="p-2.5 rounded-xl bg-slate-700 text-white">
             <Bell size={20} />

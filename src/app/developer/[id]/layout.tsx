@@ -26,18 +26,14 @@ export default async function DashboardLayout({
   if (!session) {
     redirect("/login");
   }
-
   const currentUserId = String(session.user.id);
 
-  // IMPORTANT: Don't trust role from JWT for display/authorization (can be stale).
-  // Always read the current user's role from DB.
   const currentDbUser = await db.user.findUnique({
     where: { id: Number(currentUserId) },
     select: { username: true, role: true, isActive: true },
   });
 
   if (!currentDbUser || !currentDbUser.isActive) {
-    // User deleted/deactivated while session cookie still exists
     redirect("/login");
   }
 

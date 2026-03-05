@@ -440,7 +440,8 @@ export default function ModifyAbsences() {
         </div>
         
         {/* Stats */}
-        <div className="flex gap-3">
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="flex gap-3 items-center">
           <button
             onClick={() => setIsTableExpanded((prev) => !prev)}
             className={`h-10 w-10 rounded-xl border transition-all duration-200 flex items-center justify-center hover:scale-105 active:scale-95 ${
@@ -464,6 +465,7 @@ export default function ModifyAbsences() {
               <List size={14} />
               {t.listView}
             </button>
+            
             <button
               onClick={() => setViewMode("calendar")}
               className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
@@ -474,6 +476,7 @@ export default function ModifyAbsences() {
               <Grid3X3 size={14} />
               {t.calendarView}
             </button>
+          </div>
           </div>
           <div className="px-4 py-2 bg-slate-100 rounded-xl flex items-center gap-2 border border-slate-200" title={t.records}>
             <Calendar size={16} className="text-slate-600" aria-hidden="true" />
