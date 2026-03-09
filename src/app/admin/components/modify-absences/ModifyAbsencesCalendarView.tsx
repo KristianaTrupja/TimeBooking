@@ -29,13 +29,13 @@ type RequestPayload = {
 
 type SelectionAnchor = {
   userId: number;
-  day: number;
+  dateIso: string;
 };
 
 type SelectionRange = {
   userId: number;
-  startDay: number;
-  endDay: number;
+  startDateIso: string;
+  endDateIso: string;
 };
 
 type Props = {
@@ -89,17 +89,11 @@ export default function ModifyAbsencesCalendarView({
     [requestableUserIds]
   );
 
-  const dateByDay = useMemo(() => {
-    const map = new Map<number, string>();
-    dayHeaders.forEach((header) => map.set(header.day, header.dateIso));
-    return map;
-  }, [dayHeaders]);
-
   useEffect(() => {
-    if (!isInteractive) return;
+    if (isInteractive) return;
     setSelectionAnchor(null);
     setSelectionRange(null);
-  }, [monthLabel, dayHeaders.length, isInteractive]);
+  }, [isInteractive]);
 
   useEffect(() => {
     if (requestTypeOptions.length === 0) {
@@ -142,50 +136,45 @@ export default function ModifyAbsencesCalendarView({
     return selectableUsers.has(userId);
   };
 
-  const isRangeDaySelected = (userId: number, day: number) => {
+  const isRangeDaySelected = (userId: number, dateIso: string) => {
     if (!selectionRange || selectionRange.userId !== userId) return false;
-    return day >= selectionRange.startDay && day <= selectionRange.endDay;
+    return dateIso >= selectionRange.startDateIso && dateIso <= selectionRange.endDateIso;
   };
 
-  const handleCellClick = (userId: number, day: number, absenceType: string | null) => {
+  const handleCellClick = (userId: number, dateIso: string, absenceType: string | null) => {
     if (!isSelectableUser(userId) || absenceType) return;
 
     if (!selectionAnchor || selectionAnchor.userId !== userId) {
-      setSelectionAnchor({ userId, day });
+      setSelectionAnchor({ userId, dateIso });
       // Single click should be a valid 1-day request (start = end).
-      setSelectionRange({ userId, startDay: day, endDay: day });
+      setSelectionRange({ userId, startDateIso: dateIso, endDateIso: dateIso });
       return;
     }
 
-    const startDay = Math.min(selectionAnchor.day, day);
-    const endDay = Math.max(selectionAnchor.day, day);
-    setSelectionRange({ userId, startDay, endDay });
+    const [startDateIso, endDateIso] =
+      selectionAnchor.dateIso <= dateIso
+        ? [selectionAnchor.dateIso, dateIso]
+        : [dateIso, selectionAnchor.dateIso];
+
+    setSelectionRange({ userId, startDateIso, endDateIso });
     setSelectionAnchor(null);
   };
 
   const selectedRangeLabel = useMemo(() => {
     if (!selectionRange) return null;
-    const start = dateByDay.get(selectionRange.startDay);
-    const end = dateByDay.get(selectionRange.endDay);
-    if (!start || !end) return null;
-
-    const startDate = new Date(`${start}T00:00:00.000Z`);
-    const endDate = new Date(`${end}T00:00:00.000Z`);
+    const startDate = new Date(`${selectionRange.startDateIso}T00:00:00.000Z`);
+    const endDate = new Date(`${selectionRange.endDateIso}T00:00:00.000Z`);
     return `${startDate.toLocaleDateString("en-GB")} - ${endDate.toLocaleDateString("en-GB")}`;
-  }, [dateByDay, selectionRange]);
+  }, [selectionRange]);
 
   const submitRange = async () => {
     if (!onRequestRange || !selectionRange) return;
     if (!requestType) return;
 
-    const startDate = dateByDay.get(selectionRange.startDay);
-    const endDate = dateByDay.get(selectionRange.endDay);
-    if (!startDate || !endDate) return;
-
     await onRequestRange({
       userId: selectionRange.userId,
-      startDate,
-      endDate,
+      startDate: selectionRange.startDateIso,
+      endDate: selectionRange.endDateIso,
       type: requestType,
     });
 
@@ -247,9 +236,9 @@ export default function ModifyAbsencesCalendarView({
         <div className="shrink-0 px-3 sm:px-4 py-3 border-b border-slate-200 bg-slate-50 flex flex-col lg:flex-row lg:items-center gap-3">
           <p className="text-xs text-slate-600">
             {selectionRange
-              ? `Selected: ${selectedRangeLabel || `${selectionRange.startDay}-${selectionRange.endDay}`}`
+              ? `Selected: ${selectedRangeLabel || `${selectionRange.startDateIso} - ${selectionRange.endDateIso}`}`
               : selectionAnchor
-                ? `Start selected: ${selectionAnchor.day}. Click another date for the end.`
+                ? `Start selected: ${new Date(`${selectionAnchor.dateIso}T00:00:00.000Z`).toLocaleDateString("en-GB")}. Click another date for the end.`
                 : "Click two cells on the same row to create a leave interval."}
           </p>
           <div className="flex flex-col sm:flex-row sm:items-center gap-2 lg:ml-auto">
@@ -395,12 +384,12 @@ export default function ModifyAbsencesCalendarView({
                     </div>
                   </th>
 
-                  {dayHeaders.map(({ day, isWeekend, holidayName }) => {
+                  {dayHeaders.map(({ day, dateIso, isWeekend, holidayName }) => {
                     const absenceType = getDayOffType(user.id, day);
                     const isHovered = isRowHovered || hoveredDay === day;
                     const hasHoliday = !!holidayName;
-                    const isCellSelected = isRangeDaySelected(user.id, day);
-                    const isAnchorCell = selectionAnchor?.userId === user.id && selectionAnchor.day === day;
+                    const isCellSelected = isRangeDaySelected(user.id, dateIso);
+                    const isAnchorCell = selectionAnchor?.userId === user.id && selectionAnchor.dateIso === dateIso;
                     const canSelectCell = rowInteractive && !absenceType;
 
                     return (
@@ -411,7 +400,7 @@ export default function ModifyAbsencesCalendarView({
                         } ${canSelectCell ? "cursor-pointer" : "cursor-default"} ${
                           isCellSelected ? "!bg-cyan-100 ring-2 ring-inset ring-cyan-400" : ""
                         } ${isAnchorCell ? "!bg-cyan-200 ring-2 ring-inset ring-cyan-500" : ""}`}
-                        onClick={() => handleCellClick(user.id, day, absenceType)}
+                        onClick={() => handleCellClick(user.id, dateIso, absenceType)}
                         onMouseEnter={() => setHoveredDay(day)}
                         onMouseLeave={() => setHoveredDay(null)}
                         title={hasHoliday ? holidayName : undefined}
