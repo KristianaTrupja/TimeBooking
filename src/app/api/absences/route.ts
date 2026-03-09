@@ -47,6 +47,15 @@ function niceDate(date: Date): string {
   });
 }
 
+function getTodayUtcStart(): Date {
+  const now = new Date();
+  return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 0, 0, 0, 0));
+}
+
+function isBackdatedRange(endDate: Date): boolean {
+  return endDate < getTodayUtcStart();
+}
+
 async function getRequesterOrThrow() {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
@@ -153,7 +162,7 @@ export async function POST(req: Request) {
       throw new RecordNotFoundError("Employee", targetUserId);
     }
 
-    if (existingWorkHours) {
+    if (existingWorkHours && !isBackdatedRange(end)) {
       const selectedRange = `${niceDate(start)} to ${niceDate(end)}`;
       throw new WorkHoursConflictError(selectedRange);
     }
@@ -410,7 +419,7 @@ export async function PUT(req: Request) {
           );
         }
 
-        if (workHoursConflict) {
+        if (workHoursConflict && !isBackdatedRange(existing.endDate)) {
           throw new WorkHoursConflictError(`${niceDate(existing.startDate)} to ${niceDate(existing.endDate)}`);
         }
       }
@@ -512,7 +521,7 @@ export async function PUT(req: Request) {
         `${niceDate(start)} to ${niceDate(end)}`
       );
     }
-    if (existingWorkHours) {
+    if (existingWorkHours && !isBackdatedRange(end)) {
       throw new WorkHoursConflictError(`${niceDate(start)} to ${niceDate(end)}`);
     }
 
