@@ -74,6 +74,18 @@ const leaveTypeStyles: Record<string, { icon: React.ReactNode; bgColor: string; 
     textColor: "text-amber-700", 
     borderColor: "border-amber-300" 
   },
+  MARRIAGE: {
+    icon: <Calendar size={14} />,
+    bgColor: "bg-fuchsia-100",
+    textColor: "text-fuchsia-700",
+    borderColor: "border-fuchsia-300"
+  },
+  BEREAVEMENT: {
+    icon: <CalendarDays size={14} />,
+    bgColor: "bg-slate-200",
+    textColor: "text-slate-700",
+    borderColor: "border-slate-300"
+  },
 };
 
 function getInitialFiltersState() {
@@ -125,6 +137,8 @@ export default function DeveloperVacations() {
     SICK: t.sick,
     PERSONAL: t.personal,
     PARENTAL: t.parental,
+    MARRIAGE: t.marriageLeave,
+    BEREAVEMENT: t.bereavementLeave,
   };
 
   // Get user ID from URL
@@ -415,6 +429,8 @@ export default function DeveloperVacations() {
     if (absenceType === "SICK") return "bg-rose-200 text-rose-900 font-semibold border-r border-rose-300";
     if (absenceType === "PERSONAL") return "bg-violet-200 text-violet-900 font-semibold border-r border-violet-300";
     if (absenceType === "PARENTAL") return "bg-amber-200 text-amber-900 font-semibold border-r border-amber-300";
+    if (absenceType === "MARRIAGE") return "bg-fuchsia-200 text-fuchsia-900 font-semibold border-r border-fuchsia-300";
+    if (absenceType === "BEREAVEMENT") return "bg-slate-300 text-slate-900 font-semibold border-r border-slate-400";
     return "bg-blue-200 text-blue-900 font-semibold border-r border-blue-300";
   }, []);
 

@@ -18,10 +18,23 @@ import { NotificationType } from "@prisma/client";
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 
-type AbsenceTypeValue = "VACATION" | "SICK" | "PERSONAL" | "PARENTAL";
+type AbsenceTypeValue =
+  | "VACATION"
+  | "SICK"
+  | "PERSONAL"
+  | "PARENTAL"
+  | "MARRIAGE"
+  | "BEREAVEMENT";
 type AbsenceStatusValue = "PENDING" | "APPROVED" | "REJECTED";
 
-const ABSENCE_TYPES: AbsenceTypeValue[] = ["VACATION", "SICK", "PERSONAL", "PARENTAL"];
+const ABSENCE_TYPES: AbsenceTypeValue[] = [
+  "VACATION",
+  "SICK",
+  "PERSONAL",
+  "PARENTAL",
+  "MARRIAGE",
+  "BEREAVEMENT",
+];
 const ABSENCE_STATUSES: AbsenceStatusValue[] = ["PENDING", "APPROVED", "REJECTED"];
 
 function isAbsenceType(value: string): value is AbsenceTypeValue {
@@ -187,7 +200,7 @@ export async function POST(req: Request) {
         startDate: start,
         endDate: end,
         days: businessDays,
-        type,
+        type: type as any,
         status: requestedStatus,
         userId: targetUserId,
         reviewedById: requestedStatus === "APPROVED" ? requester.id : null,
@@ -583,7 +596,7 @@ export async function PUT(req: Request) {
         startDate: start,
         endDate: end,
         days: businessDays,
-        type,
+        type: type as any,
       },
     });
 

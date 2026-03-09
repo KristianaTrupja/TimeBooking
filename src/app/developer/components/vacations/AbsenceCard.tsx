@@ -33,6 +33,18 @@ const leaveTypeStyles: Record<string, { icon: React.ReactNode; bgColor: string; 
     textColor: "text-amber-700", 
     borderColor: "border-amber-300" 
   },
+  MARRIAGE: {
+    icon: <Calendar size={16} />,
+    bgColor: "bg-fuchsia-100",
+    textColor: "text-fuchsia-700",
+    borderColor: "border-fuchsia-300"
+  },
+  BEREAVEMENT: {
+    icon: <Clock size={16} />,
+    bgColor: "bg-slate-200",
+    textColor: "text-slate-700",
+    borderColor: "border-slate-300"
+  },
 };
 
 export default function AbsenceCard({ absence, index, formatDate }: Props) {

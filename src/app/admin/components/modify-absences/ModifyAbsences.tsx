@@ -19,7 +19,14 @@ import { useIsMobile } from "@/app/hooks/useIsMobile";
 import { Modal } from "@/app/components/ui/Modal";
 import { Button } from "@/components/ui/button";
 
-const ABSENCE_TYPES: (keyof typeof AbsenceType)[] = ["VACATION", "SICK", "PERSONAL", "PARENTAL"]
+const ABSENCE_TYPES: (keyof typeof AbsenceType)[] = [
+  "VACATION",
+  "SICK",
+  "PERSONAL",
+  "PARENTAL",
+  "MARRIAGE",
+  "BEREAVEMENT",
+]
 
 function getInitialFiltersState(): Filters {
   const now = new Date();
@@ -254,6 +261,8 @@ export default function ModifyAbsences() {
       SICK: "bg-rose-100 text-rose-700 border-rose-300",
       PERSONAL: "bg-violet-100 text-violet-700 border-violet-300",
       PARENTAL: "bg-amber-100 text-amber-700 border-amber-300",
+      MARRIAGE: "bg-fuchsia-100 text-fuchsia-700 border-fuchsia-300",
+      BEREAVEMENT: "bg-slate-200 text-slate-700 border-slate-300",
     };
     return styles[type] || "bg-slate-100 text-slate-700 border-slate-300";
   };
@@ -413,6 +422,8 @@ export default function ModifyAbsences() {
     if (absenceType === "SICK") return "bg-rose-200/90 text-rose-900 font-semibold border-r border-rose-300/40";
     if (absenceType === "PERSONAL") return "bg-violet-200/90 text-violet-900 font-semibold border-r border-violet-300/40";
     if (absenceType === "PARENTAL") return "bg-amber-200/90 text-amber-900 font-semibold border-r border-amber-300/40";
+    if (absenceType === "MARRIAGE") return "bg-fuchsia-200/90 text-fuchsia-900 font-semibold border-r border-fuchsia-300/40";
+    if (absenceType === "BEREAVEMENT") return "bg-slate-300/90 text-slate-900 font-semibold border-r border-slate-400/40";
     return "bg-blue-200/90 text-blue-900 font-semibold border-r border-blue-300/40";
   }, []);
 
@@ -601,6 +612,8 @@ export default function ModifyAbsences() {
             { value: "SICK", label: t.sick },
             { value: "PERSONAL", label: t.personal },
             { value: "PARENTAL", label: t.parental },
+            { value: "MARRIAGE", label: t.marriageLeave },
+            { value: "BEREAVEMENT", label: t.bereavementLeave },
           ]}
           onRequestRange={handleCalendarRequest}
           isRequestSubmitting={isSubmittingRequest}

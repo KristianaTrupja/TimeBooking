@@ -119,6 +119,8 @@ interface Translations {
   sick: string;
   personal: string;
   parental: string;
+  marriageLeave: string;
+  bereavementLeave: string;
   myLeaveBalance: string;
   leaveHistory: string;
   noLeavesFound: string;
@@ -540,6 +542,8 @@ const translations: Record<Language, Translations> = {
     sick: "Sick",
     personal: "Personal",
     parental: "Parental",
+    marriageLeave: "Marriage Leave",
+    bereavementLeave: "Bereavement Leave",
     myLeaveBalance: "My Leave Balance",
     leaveHistory: "Leave History",
     noLeavesFound: "No leaves found",
@@ -959,6 +963,8 @@ const translations: Record<Language, Translations> = {
     sick: "Krank",
     personal: "Persönlich",
     parental: "Elternzeit",
+    marriageLeave: "Heiratsurlaub",
+    bereavementLeave: "Trauerurlaub",
     myLeaveBalance: "Mein Urlaubskonto",
     leaveHistory: "Urlaubshistorie",
     noLeavesFound: "Keine Abwesenheiten gefunden",

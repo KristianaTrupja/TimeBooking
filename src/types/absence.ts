@@ -22,7 +22,9 @@ export enum AbsenceType {
   VACATION = "VACATION", 
   SICK = "SICK", 
   PERSONAL = "PERSONAL", 
-  PARENTAL = "PARENTAL"
+  PARENTAL = "PARENTAL",
+  MARRIAGE = "MARRIAGE",
+  BEREAVEMENT = "BEREAVEMENT",
 }
 
 export enum AbsenceStatus {

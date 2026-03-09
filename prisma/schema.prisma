@@ -82,6 +82,8 @@ enum AbsenceType {
   SICK
   PERSONAL
   PARENTAL
+  MARRIAGE
+  BEREAVEMENT
 }
 
 enum AbsenceStatus {
