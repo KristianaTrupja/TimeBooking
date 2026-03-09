@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Calendar, ChevronLeft, ChevronRight } from "lucide-react";
 import { User } from "@/types/user";
 import { formatEmployeeName } from "@/app/utils/formatEmployeeName";
@@ -8,10 +8,34 @@ import { useLanguage } from "@/app/context/LanguageContext";
 
 type DayHeader = {
   day: number;
+  dateIso: string;
   shortWeekday: string;
   isWeekend: boolean;
   holidayName?: string | null;
   isToday?: boolean;
+};
+
+type RequestTypeOption = {
+  value: string;
+  label: string;
+};
+
+type RequestPayload = {
+  userId: number;
+  startDate: string;
+  endDate: string;
+  type: string;
+};
+
+type SelectionAnchor = {
+  userId: number;
+  day: number;
+};
+
+type SelectionRange = {
+  userId: number;
+  startDay: number;
+  endDay: number;
 };
 
 type Props = {
@@ -25,6 +49,10 @@ type Props = {
   onNextMonth: () => void;
   employeeLabel: string;
   isCompact?: boolean;
+  requestTypeOptions?: RequestTypeOption[];
+  requestableUserIds?: number[];
+  onRequestRange?: (payload: RequestPayload) => Promise<void>;
+  isRequestSubmitting?: boolean;
 };
 
 export default function ModifyAbsencesCalendarView({
@@ -38,15 +66,50 @@ export default function ModifyAbsencesCalendarView({
   onNextMonth,
   employeeLabel,
   isCompact = false,
+  requestTypeOptions = [],
+  requestableUserIds,
+  onRequestRange,
+  isRequestSubmitting = false,
 }: Props) {
   const { t } = useLanguage();
   const [hoveredUserId, setHoveredUserId] = useState<number | null>(null);
   const [hoveredDay, setHoveredDay] = useState<number | null>(null);
+  const [selectionAnchor, setSelectionAnchor] = useState<SelectionAnchor | null>(null);
+  const [selectionRange, setSelectionRange] = useState<SelectionRange | null>(null);
+  const [requestType, setRequestType] = useState<string>("");
   const scrollerRef = useRef<HTMLDivElement>(null);
 
   const employeeColMobileWidth = 80;
   const dayColWidth = 40;
   const minTableWidth = employeeColMobileWidth + dayHeaders.length * dayColWidth;
+  const isInteractive = !!onRequestRange;
+
+  const selectableUsers = useMemo(
+    () => (requestableUserIds?.length ? new Set(requestableUserIds) : null),
+    [requestableUserIds]
+  );
+
+  const dateByDay = useMemo(() => {
+    const map = new Map<number, string>();
+    dayHeaders.forEach((header) => map.set(header.day, header.dateIso));
+    return map;
+  }, [dayHeaders]);
+
+  useEffect(() => {
+    if (!isInteractive) return;
+    setSelectionAnchor(null);
+    setSelectionRange(null);
+  }, [monthLabel, dayHeaders.length, isInteractive]);
+
+  useEffect(() => {
+    if (requestTypeOptions.length === 0) {
+      setRequestType("");
+      return;
+    }
+    if (requestType && !requestTypeOptions.some((option) => option.value === requestType)) {
+      setRequestType("");
+    }
+  }, [requestTypeOptions, requestType]);
 
   // Mobile Safari first-render fix for sticky table headers in horizontal scrollers.
   useEffect(() => {
@@ -72,6 +135,63 @@ export default function ModifyAbsencesCalendarView({
       window.cancelAnimationFrame(raf2);
     };
   }, [monthLabel, dayHeaders.length]);
+
+  const isSelectableUser = (userId: number) => {
+    if (!isInteractive) return false;
+    if (!selectableUsers) return true;
+    return selectableUsers.has(userId);
+  };
+
+  const isRangeDaySelected = (userId: number, day: number) => {
+    if (!selectionRange || selectionRange.userId !== userId) return false;
+    return day >= selectionRange.startDay && day <= selectionRange.endDay;
+  };
+
+  const handleCellClick = (userId: number, day: number, absenceType: string | null) => {
+    if (!isSelectableUser(userId) || absenceType) return;
+
+    if (!selectionAnchor || selectionAnchor.userId !== userId) {
+      setSelectionAnchor({ userId, day });
+      // Single click should be a valid 1-day request (start = end).
+      setSelectionRange({ userId, startDay: day, endDay: day });
+      return;
+    }
+
+    const startDay = Math.min(selectionAnchor.day, day);
+    const endDay = Math.max(selectionAnchor.day, day);
+    setSelectionRange({ userId, startDay, endDay });
+    setSelectionAnchor(null);
+  };
+
+  const selectedRangeLabel = useMemo(() => {
+    if (!selectionRange) return null;
+    const start = dateByDay.get(selectionRange.startDay);
+    const end = dateByDay.get(selectionRange.endDay);
+    if (!start || !end) return null;
+
+    const startDate = new Date(`${start}T00:00:00.000Z`);
+    const endDate = new Date(`${end}T00:00:00.000Z`);
+    return `${startDate.toLocaleDateString("en-GB")} - ${endDate.toLocaleDateString("en-GB")}`;
+  }, [dateByDay, selectionRange]);
+
+  const submitRange = async () => {
+    if (!onRequestRange || !selectionRange) return;
+    if (!requestType) return;
+
+    const startDate = dateByDay.get(selectionRange.startDay);
+    const endDate = dateByDay.get(selectionRange.endDay);
+    if (!startDate || !endDate) return;
+
+    await onRequestRange({
+      userId: selectionRange.userId,
+      startDate,
+      endDate,
+      type: requestType,
+    });
+
+    setSelectionRange(null);
+    setSelectionAnchor(null);
+  };
 
   return (
     <section
@@ -116,7 +236,52 @@ export default function ModifyAbsencesCalendarView({
           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-rose-100 text-rose-700">{t.sick}</span>
           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-violet-100 text-violet-700">{t.personal}</span>
           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-100 text-amber-700">{t.parental}</span>
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-yellow-100 text-yellow-700 border border-yellow-300">{t.pending}</span>
           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-sky-200 text-sky-800 font-medium">{t.officialHoliday}</span>
+        </div>
+      )}
+
+      {isInteractive && (
+        <div className="shrink-0 px-3 sm:px-4 py-3 border-b border-slate-200 bg-slate-50 flex flex-col lg:flex-row lg:items-center gap-3">
+          <p className="text-xs text-slate-600">
+            {selectionRange
+              ? `Selected: ${selectedRangeLabel || `${selectionRange.startDay}-${selectionRange.endDay}`}`
+              : selectionAnchor
+                ? `Start selected: ${selectionAnchor.day}. Click another date for the end.`
+                : "Click two cells on the same row to create a leave interval."}
+          </p>
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2 lg:ml-auto">
+            <select
+              value={requestType}
+              onChange={(e) => setRequestType(e.target.value)}
+              className="px-3 py-2 border border-slate-300 rounded-lg bg-white text-sm text-slate-800"
+            >
+              <option value="" disabled>
+                {t.selectLeaveType}
+              </option>
+              {requestTypeOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+            <button
+              onClick={submitRange}
+              disabled={!selectionRange || !requestType || isRequestSubmitting}
+              className="px-3 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-blue-500 transition-colors"
+            >
+              {isRequestSubmitting ? `${t.saving}` : t.submit}
+            </button>
+            <button
+              onClick={() => {
+                setSelectionAnchor(null);
+                setSelectionRange(null);
+              }}
+              className="px-3 py-2 rounded-lg border border-slate-300 text-slate-700 text-sm font-medium hover:bg-white transition-colors"
+            >
+              {t.reset}
+            </button>
+          </div>
         </div>
       )}
 
@@ -145,7 +310,11 @@ export default function ModifyAbsencesCalendarView({
           </colgroup>
           <thead className="sticky top-0 z-20 border-b border-slate-200">
             <tr className="text-xs uppercase tracking-wider text-slate-600">
-              <th scope="col" style={{ width: "var(--employee-col-width)", minWidth: "var(--employee-col-width)", maxWidth: "var(--employee-col-width)" }} className="px-2 sm:px-4 py-3 font-bold text-left sticky left-0 bg-slate-100 z-30 border-r border-slate-200 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.1)]">
+              <th
+                scope="col"
+                style={{ width: "var(--employee-col-width)", minWidth: "var(--employee-col-width)", maxWidth: "var(--employee-col-width)" }}
+                className="px-2 sm:px-4 py-3 font-bold text-left sticky left-0 bg-slate-100 z-30 border-r border-slate-200 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.1)]"
+              >
                 {employeeLabel}
               </th>
               {dayHeaders.map(({ day, shortWeekday, isWeekend, holidayName, isToday }) => {
@@ -169,19 +338,21 @@ export default function ModifyAbsencesCalendarView({
                     title={isToday ? t.today : holidayName || undefined}
                   >
                     <div className="leading-tight">
-                      <div className={`text-[10px] transition-colors duration-150 ${
-                        isToday ? "text-white font-bold" : hasHoliday ? "text-sky-800" : isColHovered ? "text-blue-600" : "text-slate-500"
-                      }`}>
+                      <div
+                        className={`text-[10px] transition-colors duration-150 ${
+                          isToday ? "text-white font-bold" : hasHoliday ? "text-sky-800" : isColHovered ? "text-blue-600" : "text-slate-500"
+                        }`}
+                      >
                         {shortWeekday.slice(0, 2)}
                       </div>
-                      <div className={`text-[11px] transition-colors duration-150 ${
-                        isToday ? "text-white font-extrabold" : hasHoliday ? "text-sky-900" : isColHovered ? "text-blue-700" : ""
-                      }`}>
+                      <div
+                        className={`text-[11px] transition-colors duration-150 ${
+                          isToday ? "text-white font-extrabold" : hasHoliday ? "text-sky-900" : isColHovered ? "text-blue-700" : ""
+                        }`}
+                      >
                         {String(day).padStart(2, "0")}
                       </div>
-                      {hasHoliday && !isToday && (
-                        <div className="text-sky-600 text-[10px] leading-none mt-0.5">•</div>
-                      )}
+                      {hasHoliday && !isToday && <div className="text-sky-600 text-[10px] leading-none mt-0.5">*</div>}
                     </div>
                   </th>
                 );
@@ -192,6 +363,7 @@ export default function ModifyAbsencesCalendarView({
           <tbody className="divide-y divide-slate-100 bg-white">
             {visibleEmployees.map((user) => {
               const isRowHovered = hoveredUserId === user.id;
+              const rowInteractive = isSelectableUser(user.id);
               return (
                 <tr
                   key={user.id}
@@ -207,12 +379,17 @@ export default function ModifyAbsencesCalendarView({
                     }`}
                   >
                     <div className="flex items-center gap-2">
-                      <span className={`font-medium truncate transition-colors duration-150 ${
-                        isRowHovered ? "text-blue-700" : "text-slate-800"
-                      }`}>
+                      <span
+                        className={`font-medium truncate transition-colors duration-150 ${
+                          isRowHovered ? "text-blue-700" : "text-slate-800"
+                        }`}
+                      >
                         <span className="md:hidden">{formatEmployeeName(user.username)}</span>
                         <span className="hidden md:inline">{user.username}</span>
                       </span>
+                      {isInteractive && !rowInteractive && (
+                        <span className="text-[10px] font-semibold uppercase text-slate-400">{t.locked}</span>
+                      )}
                     </div>
                   </th>
 
@@ -220,17 +397,24 @@ export default function ModifyAbsencesCalendarView({
                     const absenceType = getDayOffType(user.id, day);
                     const isHovered = isRowHovered || hoveredDay === day;
                     const hasHoliday = !!holidayName;
+                    const isCellSelected = isRangeDaySelected(user.id, day);
+                    const isAnchorCell = selectionAnchor?.userId === user.id && selectionAnchor.day === day;
+                    const canSelectCell = rowInteractive && !absenceType;
+
                     return (
                       <td
                         key={`${user.id}-${day}`}
                         className={`px-1 py-2 h-10 text-center text-[11px] transition-all duration-150 ${getCellClass(absenceType, isWeekend, hasHoliday)} ${
                           isHovered && !absenceType ? "!bg-blue-50 ring-1 ring-inset ring-blue-100" : ""
-                        }`}
+                        } ${canSelectCell ? "cursor-pointer" : "cursor-default"} ${
+                          isCellSelected ? "!bg-cyan-100 ring-2 ring-inset ring-cyan-400" : ""
+                        } ${isAnchorCell ? "!bg-cyan-200 ring-2 ring-inset ring-cyan-500" : ""}`}
+                        onClick={() => handleCellClick(user.id, day, absenceType)}
                         onMouseEnter={() => setHoveredDay(day)}
                         onMouseLeave={() => setHoveredDay(null)}
                         title={hasHoliday ? holidayName : undefined}
                       >
-                        {absenceType ? "•" : hasHoliday ? "•" : ""}
+                        {absenceType ? "*" : hasHoliday ? "*" : ""}
                       </td>
                     );
                   })}
@@ -243,4 +427,3 @@ export default function ModifyAbsencesCalendarView({
     </section>
   );
 }
-

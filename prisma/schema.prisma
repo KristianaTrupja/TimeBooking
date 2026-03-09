@@ -84,18 +84,27 @@ enum AbsenceType {
   PARENTAL
 }
 
+enum AbsenceStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 model Absence {
   id        String      @id @default(uuid())
   startDate DateTime    @db.Date
   endDate   DateTime    @db.Date
   type      AbsenceType
+  status    AbsenceStatus @default(APPROVED)
   days      Int         // Business days calculated at creation
+  reviewedById Int?
+  reviewedAt DateTime?
 
   userId Int
   user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
   @@unique([userId, startDate, endDate])
-  @@index([userId, type])
-  @@index([startDate, endDate, type])
+  @@index([userId, type, status])
+  @@index([startDate, endDate, type, status])
 }
 
 model TotalVacationDays {

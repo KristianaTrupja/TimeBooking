@@ -8,7 +8,7 @@ type SortField = "startDate" | "endDate" | "type" | "days";
 type SortDirection = "asc" | "desc" | null;
 type ViewMode = "list" | "calendar";
 import { User } from "@/types/user";
-import { Absence, AbsenceType, ExtAbsence, Filters } from "@/types/absence";
+import { Absence, AbsenceStatus, AbsenceType, ExtAbsence, Filters } from "@/types/absence";
 import Spinner from "@/components/ui/Spinner";
 import FilterAbsences from "../absence-filters/FilterAbsences";
 import { toast } from "sonner";
@@ -43,6 +43,8 @@ export default function ModifyAbsences() {
   const [editingAbsence, setEditingAbsence] = useState<Absence | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [reviewingId, setReviewingId] = useState<number | null>(null);
+  const [isSubmittingRequest, setIsSubmittingRequest] = useState(false);
   const [absenceToDeleteId, setAbsenceToDeleteId] = useState<number | null>(null);
   const [filters, setFilters] = useState<Filters>(getInitialFiltersState());
   const [containerHeight, setContainerHeight] = useState<number | null>(null);
@@ -133,6 +135,7 @@ export default function ModifyAbsences() {
       params.append("endDate", end)
       params.append("userId", filters.selectedEmployee?.id ? String(filters.selectedEmployee.id) :  "")
       params.append("absenceType", filters.selectedAbsenceType || "")
+      params.append("status", "ALL")
 
       const [absRes, userRes, holidaysRes] = await Promise.all([
         fetch(`/api/absences?${params.toString()}`, { cache: "no-store" }),
@@ -341,7 +344,7 @@ export default function ModifyAbsences() {
         const dateStr = `${calendarYear}-${String(calendarMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
         const holidayName = holidayMap.get(dateStr);
         const isToday = calendarYear === currentYear && calendarMonth === currentMonth && day === currentDay;
-        return { day, shortWeekday, isWeekend, holidayName, isToday };
+        return { day, dateIso: dateStr, shortWeekday, isWeekend, holidayName, isToday };
       });
     },
     [dayColumns, calendarYear, calendarMonth, holidayMap]
@@ -377,8 +380,11 @@ export default function ModifyAbsences() {
         0, 0, 0, 0
       ));
 
+      if (absence.status === "REJECTED") return;
+
       while (cursor <= overlapEnd) {
-        map.set(`${absence.userId}-${toIsoDate(cursor)}`, absence.type);
+        const value = absence.status === "PENDING" ? `PENDING_${absence.type}` : absence.type;
+        map.set(`${absence.userId}-${toIsoDate(cursor)}`, value);
         cursor.setUTCDate(cursor.getUTCDate() + 1);
       }
     });
@@ -400,12 +406,86 @@ export default function ModifyAbsences() {
         ? "bg-slate-50/90 text-slate-300 border-r border-slate-100"
         : "bg-white text-slate-300 border-r border-slate-100";
     }
+    if (absenceType.startsWith("PENDING_")) {
+      return "bg-yellow-100/90 text-yellow-900 font-semibold border-r border-yellow-300/60";
+    }
     if (absenceType === "VACATION") return "bg-teal-200/90 text-teal-900 font-semibold border-r border-teal-300/40";
     if (absenceType === "SICK") return "bg-rose-200/90 text-rose-900 font-semibold border-r border-rose-300/40";
     if (absenceType === "PERSONAL") return "bg-violet-200/90 text-violet-900 font-semibold border-r border-violet-300/40";
     if (absenceType === "PARENTAL") return "bg-amber-200/90 text-amber-900 font-semibold border-r border-amber-300/40";
     return "bg-blue-200/90 text-blue-900 font-semibold border-r border-blue-300/40";
   }, []);
+
+  const handleCalendarRequest = useCallback(
+    async ({
+      userId,
+      startDate,
+      endDate,
+      type,
+    }: {
+      userId: number;
+      startDate: string;
+      endDate: string;
+      type: string;
+    }) => {
+      try {
+        setIsSubmittingRequest(true);
+        const res = await fetch("/api/absences", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userId,
+            startDate,
+            endDate,
+            type,
+            status: AbsenceStatus.PENDING,
+          }),
+        });
+
+        const data = await res.json();
+        if (!res.ok) {
+          toast.error(data.message || "Failed to submit leave request");
+          return;
+        }
+
+        toast.success(data.message || "Leave request submitted");
+        fetchData();
+      } catch (error) {
+        console.error("Failed to submit leave request:", error);
+        toast.error("Failed to submit leave request");
+      } finally {
+        setIsSubmittingRequest(false);
+      }
+    },
+    [fetchData]
+  );
+
+  const handleReviewAbsence = useCallback(
+    async (id: number, status: "APPROVED" | "REJECTED") => {
+      try {
+        setReviewingId(id);
+        const res = await fetch("/api/absences", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id, status }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          toast.error(data.message || "Failed to review leave request");
+          return;
+        }
+
+        setAbsences((prev) => prev.map((absence) => (absence.id === id ? data.absence : absence)));
+        toast.success(data.message || "Leave request updated");
+      } catch (error) {
+        console.error("Failed to review leave request:", error);
+        toast.error("Failed to review leave request");
+      } finally {
+        setReviewingId(null);
+      }
+    },
+    []
+  );
 
   const handlePrevMonth = useCallback(() => {
     if (calendarMonth === 0) {
@@ -516,6 +596,14 @@ export default function ModifyAbsences() {
           onNextMonth={handleNextMonth}
           employeeLabel={t.employee}
           isCompact={isTableExpanded}
+          requestTypeOptions={[
+            { value: "VACATION", label: t.vacation },
+            { value: "SICK", label: t.sick },
+            { value: "PERSONAL", label: t.personal },
+            { value: "PARENTAL", label: t.parental },
+          ]}
+          onRequestRange={handleCalendarRequest}
+          isRequestSubmitting={isSubmittingRequest}
         />
       ) : (
         <ModifyAbsencesListView
@@ -525,6 +613,7 @@ export default function ModifyAbsences() {
           editingAbsence={editingAbsence}
           isSaving={isSaving}
           deletingId={deletingId}
+          reviewingId={reviewingId}
           scrollToAbsence={scrollToAbsence}
           absenceRowRefs={absenceRowRefs}
           sortField={sortField}
@@ -534,6 +623,7 @@ export default function ModifyAbsences() {
           setEditingAbsence={setEditingAbsence}
           onEditSubmit={handleEditSubmit}
           onDelete={handleDelete}
+          onReview={handleReviewAbsence}
           formatDate={formatDate}
           getTypeBadge={getTypeBadge}
           t={{
@@ -544,6 +634,7 @@ export default function ModifyAbsences() {
             type: t.type,
             days: t.days,
             actions: t.actions,
+            status: t.status,
             absence: t.absence,
             absences: t.absences,
           }}

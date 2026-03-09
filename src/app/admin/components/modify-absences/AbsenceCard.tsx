@@ -9,11 +9,13 @@ type Props = {
   editingAbsence: Absence | null;
   isSaving: boolean;
   isDeleting: boolean;
+  isReviewing: boolean;
   isHighlighted: boolean;
   absenceRowRef: (el: HTMLDivElement | null) => void;
   setEditingAbsence: React.Dispatch<React.SetStateAction<Absence | null>>;
   onEditSubmit: () => void;
   onDelete: (id: number) => void;
+  onReview: (id: number, status: "APPROVED" | "REJECTED") => void;
   formatDate: (dateStr: string) => string;
   getTypeBadge: (type: string) => string;
   t: {
@@ -21,6 +23,7 @@ type Props = {
     endDate: string;
     type: string;
     days: string;
+    status: string;
     actions: string;
   };
 };
@@ -34,17 +37,29 @@ export default function AbsenceCard({
   editingAbsence,
   isSaving,
   isDeleting,
+  isReviewing,
   isHighlighted,
   absenceRowRef,
   setEditingAbsence,
   onEditSubmit,
   onDelete,
+  onReview,
   formatDate,
   getTypeBadge,
   t,
 }: Props) {
   const isInactive = !user.isActive;
   const isEditing = editingAbsence?.id === absence.id;
+  const isPending = absence.status === "PENDING";
+
+  const getStatusBadge = (status: string) => {
+    const styles: Record<string, string> = {
+      PENDING: "bg-yellow-100 text-yellow-800 border-yellow-300",
+      APPROVED: "bg-emerald-100 text-emerald-700 border-emerald-300",
+      REJECTED: "bg-rose-100 text-rose-700 border-rose-300",
+    };
+    return styles[status] || "bg-slate-100 text-slate-700 border-slate-300";
+  };
 
   return (
     <div
@@ -143,6 +158,17 @@ export default function AbsenceCard({
         )}
       </div>
 
+      {/* Status */}
+      <div className="mb-4">
+        <div className="flex items-center gap-2 mb-1">
+          <Tag size={14} className="text-slate-500" />
+          <span className="text-xs font-semibold uppercase text-slate-500">{t.status}</span>
+        </div>
+        <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border ml-0 sm:ml-6 ${getStatusBadge(absence.status)}`}>
+          {absence.status}
+        </span>
+      </div>
+
       {/* Actions */}
       {isEditing ? (
         <div className="flex gap-2">
@@ -168,6 +194,40 @@ export default function AbsenceCard({
           >
             <X size={16} />
             Cancel
+          </button>
+        </div>
+      ) : isPending ? (
+        <div className="grid grid-cols-3 gap-2">
+          <button
+            onClick={() => onReview(absence.id, "APPROVED")}
+            disabled={isReviewing}
+            className="flex items-center justify-center gap-2 px-3 py-2 rounded-lg border border-emerald-200 text-emerald-700 hover:bg-emerald-50 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-400 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <Check size={16} />
+            Approve
+          </button>
+          <button
+            onClick={() => onReview(absence.id, "REJECTED")}
+            disabled={isReviewing}
+            className="flex items-center justify-center gap-2 px-3 py-2 rounded-lg border border-amber-200 text-amber-700 hover:bg-amber-50 transition-colors focus:outline-none focus:ring-2 focus:ring-amber-400 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <X size={16} />
+            Reject
+          </button>
+          <button
+            onClick={() => onDelete(absence.id)}
+            disabled={isDeleting}
+            className="flex items-center justify-center gap-2 px-3 py-2 rounded-lg border border-rose-200 text-rose-600 hover:bg-rose-50 transition-colors focus:outline-none focus:ring-2 focus:ring-rose-400 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isDeleting ? (
+              <svg className="animate-spin size-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+              </svg>
+            ) : (
+              <Trash2 size={16} />
+            )}
+            Delete
           </button>
         </div>
       ) : (

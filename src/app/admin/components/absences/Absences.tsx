@@ -29,6 +29,18 @@ type APIRemainingDays = {
     totalDaysLeft: number
 }
 
+function isRemainingDaysPayload(value: unknown): value is APIRemainingDays {
+  if (!value || typeof value !== "object") return false;
+  const data = value as Record<string, any>;
+  return (
+    !!data.currentYear &&
+    typeof data.currentYear.year === "number" &&
+    !!data.lastYear &&
+    typeof data.lastYear.year === "number" &&
+    typeof data.totalDaysLeft === "number"
+  );
+}
+
 const absenceTypes: (keyof typeof AbsenceType)[] = ["VACATION", "SICK", "PERSONAL", "PARENTAL"]
 
 const leaveTypeStyles: Record<string, { icon: React.ReactNode; gradient: string; glow: string; softBg: string; softText: string }> = {
@@ -66,11 +78,14 @@ export default function Absences() {
     if(!employee) return
 
     fetch(`/api/absences/${employee.id}`)
-    .then(response => {
-      if(!response) {}
+    .then(async (response) => {
+      if (!response.ok) {
+        return null;
+      }
       return response.json()
     })
-    .then(data => setRemainingDays(data))
+    .then(data => setRemainingDays(isRemainingDaysPayload(data) ? data : null))
+    .catch(() => setRemainingDays(null))
 
   }, [selectedEmployee])
   

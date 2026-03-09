@@ -19,6 +19,9 @@ export function useIsAbsentDay(absences: Absence[], date: string): {
   }
 
   const absence = absences.find((absence) => {
+    if (absence.status && absence.status !== "APPROVED") {
+      return false;
+    }
     const start = new Date(absence.startDate);
     const end = new Date(absence.endDate);
     return current >= start && current <= end;

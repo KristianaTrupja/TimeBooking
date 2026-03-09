@@ -19,13 +19,14 @@ import {
   List,
   Grid3X3
 } from "lucide-react";
-import { AbsenceType, ExtAbsence } from "@/types/absence";
+import { AbsenceStatus, AbsenceType, ExtAbsence } from "@/types/absence";
 import Spinner from "@/components/ui/Spinner";
 import { useLanguage } from "@/app/context/LanguageContext";
 import { User } from "@/types/user";
 import ModifyAbsencesCalendarView from "@/app/admin/components/modify-absences/ModifyAbsencesCalendarView";
 import AbsenceCard from "./AbsenceCard";
 import { useIsMobile } from "@/app/hooks/useIsMobile";
+import { toast } from "sonner";
 
 const ABSENCE_TYPES: (keyof typeof AbsenceType)[] = ["VACATION", "SICK", "PERSONAL", "PARENTAL"];
 
@@ -34,6 +35,18 @@ type APIRemainingDays = {
   lastYear: { year: number; daysLeft: number; daysSpent: number };
   totalDaysLeft: number;
 };
+
+function isRemainingDaysPayload(value: unknown): value is APIRemainingDays {
+  if (!value || typeof value !== "object") return false;
+  const data = value as Record<string, any>;
+  return (
+    !!data.currentYear &&
+    typeof data.currentYear.year === "number" &&
+    !!data.lastYear &&
+    typeof data.lastYear.year === "number" &&
+    typeof data.totalDaysLeft === "number"
+  );
+}
 
 // Leave type styles
 const leaveTypeStyles: Record<string, { icon: React.ReactNode; bgColor: string; textColor: string; borderColor: string }> = {
@@ -85,6 +98,7 @@ export default function DeveloperVacations() {
   const [holidays, setHolidays] = useState<Array<{ date: string; holiday: string }>>([]);
   const [remainingDays, setRemainingDays] = useState<APIRemainingDays | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSubmittingRequest, setIsSubmittingRequest] = useState(false);
   const [filters, setFilters] = useState(getInitialFiltersState());
   const [showFilters, setShowFilters] = useState(false);
   const [sortField, setSortField] = useState<SortField | null>("startDate");
@@ -134,6 +148,7 @@ export default function DeveloperVacations() {
       if (filters.selectedAbsenceType) {
         params.append("absenceType", filters.selectedAbsenceType);
       }
+      params.append("status", "ALL");
 
       const res = await fetch(`/api/absences?${params.toString()}`, { cache: "no-store" });
       const data = await res.json();
@@ -151,10 +166,15 @@ export default function DeveloperVacations() {
     
     try {
       const res = await fetch(`/api/absences/${userId}`, { cache: "no-store" });
+      if (!res.ok) {
+        setRemainingDays(null);
+        return;
+      }
       const data = await res.json();
-      setRemainingDays(data);
+      setRemainingDays(isRemainingDaysPayload(data) ? data : null);
     } catch (err) {
       console.error("Failed to fetch remaining days:", err);
+      setRemainingDays(null);
     }
   }, [userId]);
 
@@ -173,7 +193,7 @@ export default function DeveloperVacations() {
     try {
       const [usersRes, allAbsencesRes, holidaysRes] = await Promise.all([
         fetch("/api/user", { cache: "no-store" }),
-        fetch(`/api/absences?startDate=${calendarYear}-01-01&endDate=${calendarYear}-12-31`, { cache: "no-store" }),
+        fetch(`/api/absences?startDate=${calendarYear}-01-01&endDate=${calendarYear}-12-31&status=ALL`, { cache: "no-store" }),
         fetch(`/api/holidays?year=${calendarYear}`, { cache: "no-store" }),
       ]);
 
@@ -279,9 +299,10 @@ export default function DeveloperVacations() {
 
   // Calculate stats
   const stats = useMemo(() => {
-    const totalDays = absences.reduce((acc, a) => acc + (a.days || 0), 0);
+    const effectiveAbsences = absences.filter((a) => a.status !== "REJECTED");
+    const totalDays = effectiveAbsences.reduce((acc, a) => acc + (a.days || 0), 0);
     const byType = ABSENCE_TYPES.reduce((acc, type) => {
-      acc[type] = absences.filter(a => a.type === type).reduce((sum, a) => sum + (a.days || 0), 0);
+      acc[type] = effectiveAbsences.filter((a) => a.type === type).reduce((sum, a) => sum + (a.days || 0), 0);
       return acc;
     }, {} as Record<string, number>);
     return { totalDays, byType };
@@ -329,7 +350,7 @@ export default function DeveloperVacations() {
         const dateStr = `${calendarYear}-${String(calendarMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
         const holidayName = holidayMap.get(dateStr);
         const isToday = calendarYear === currentYear && calendarMonth === currentMonth && day === currentDay;
-        return { day, shortWeekday, isWeekend, holidayName, isToday };
+        return { day, dateIso: dateStr, shortWeekday, isWeekend, holidayName, isToday };
       });
     },
     [dayColumns, calendarYear, calendarMonth, holidayMap]
@@ -363,8 +384,11 @@ export default function DeveloperVacations() {
         0, 0, 0, 0
       ));
 
+      if (absence.status === "REJECTED") return;
+
       while (cursor <= overlapEnd) {
-        map.set(`${absence.userId}-${toIsoDate(cursor)}`, absence.type);
+        const value = absence.status === "PENDING" ? `PENDING_${absence.type}` : absence.type;
+        map.set(`${absence.userId}-${toIsoDate(cursor)}`, value);
         cursor.setUTCDate(cursor.getUTCDate() + 1);
       }
     });
@@ -386,12 +410,62 @@ export default function DeveloperVacations() {
         ? "bg-slate-50 text-slate-300 border-r border-slate-100"
         : "bg-white text-slate-300 border-r border-slate-100";
     }
+    if (absenceType.startsWith("PENDING_")) return "bg-yellow-100 text-yellow-900 font-semibold border-r border-yellow-300";
     if (absenceType === "VACATION") return "bg-teal-200 text-teal-900 font-semibold border-r border-teal-300";
     if (absenceType === "SICK") return "bg-rose-200 text-rose-900 font-semibold border-r border-rose-300";
     if (absenceType === "PERSONAL") return "bg-violet-200 text-violet-900 font-semibold border-r border-violet-300";
     if (absenceType === "PARENTAL") return "bg-amber-200 text-amber-900 font-semibold border-r border-amber-300";
     return "bg-blue-200 text-blue-900 font-semibold border-r border-blue-300";
   }, []);
+
+  const handleCalendarRequest = useCallback(
+    async ({
+      userId: targetUserId,
+      startDate,
+      endDate,
+      type,
+    }: {
+      userId: number;
+      startDate: string;
+      endDate: string;
+      type: string;
+    }) => {
+      if (!userId || Number(userId) !== targetUserId) {
+        return;
+      }
+
+      try {
+        setIsSubmittingRequest(true);
+        const response = await fetch("/api/absences", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userId: targetUserId,
+            startDate,
+            endDate,
+            type,
+            status: AbsenceStatus.PENDING,
+          }),
+        });
+
+        const data = await response.json();
+        if (!response.ok) {
+          console.error("Failed to submit leave request:", data.message);
+          toast.error(data.message || "Failed to submit leave request");
+          return;
+        }
+
+        toast.success(data.message || "Leave request submitted");
+        await Promise.all([fetchAbsences(), fetchTeamData(), fetchRemainingDays()]);
+      } catch (error) {
+        console.error("Failed to submit leave request:", error);
+        toast.error("Failed to submit leave request");
+      } finally {
+        setIsSubmittingRequest(false);
+      }
+    },
+    [fetchAbsences, fetchRemainingDays, fetchTeamData, userId]
+  );
 
   const handlePrevMonth = useCallback(() => {
     if (calendarMonth === 0) {
@@ -490,15 +564,15 @@ export default function DeveloperVacations() {
             <div className="flex items-center gap-2 mb-2">
               <Calendar size={14} className="text-slate-500" />
               <span className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                {remainingDays?.currentYear.year || new Date().getFullYear()}
+                {remainingDays?.currentYear?.year || new Date().getFullYear()}
               </span>
             </div>
             <p className="text-2xl font-bold text-slate-800">
-              {remainingDays?.currentYear.daysLeft ?? "—"}
+              {remainingDays?.currentYear?.daysLeft ?? "—"}
               <span className="text-sm font-normal text-slate-500 ml-1">{t.remainingDays.toLowerCase()}</span>
             </p>
             <p className="text-xs text-slate-500 mt-1">
-              {remainingDays?.currentYear.daysSpent ?? 0} {t.usedDays.toLowerCase()}
+              {remainingDays?.currentYear?.daysSpent ?? 0} {t.usedDays.toLowerCase()}
             </p>
           </div>
 
@@ -507,11 +581,11 @@ export default function DeveloperVacations() {
             <div className="flex items-center gap-2 mb-2">
               <Calendar size={14} className="text-amber-600" />
               <span className="text-xs font-semibold text-amber-700 uppercase tracking-wider">
-                {remainingDays?.lastYear.year || new Date().getFullYear() - 1} {t.lastYear}
+                {remainingDays?.lastYear?.year || new Date().getFullYear() - 1} {t.lastYear}
               </span>
             </div>
             <p className="text-2xl font-bold text-amber-700">
-              {remainingDays?.lastYear.daysLeft ?? "—"}
+              {remainingDays?.lastYear?.daysLeft ?? "—"}
               <span className="text-sm font-normal text-amber-600 ml-1">{t.days}</span>
             </p>
           </div>
@@ -654,6 +728,15 @@ export default function DeveloperVacations() {
             onNextMonth={handleNextMonth}
             employeeLabel={t.employee || "Employee"}
             isCompact={false}
+            requestTypeOptions={[
+              { value: "VACATION", label: t.vacation },
+              { value: "SICK", label: t.sick },
+              { value: "PERSONAL", label: t.personal },
+              { value: "PARENTAL", label: t.parental },
+            ]}
+            requestableUserIds={userId ? [Number(userId)] : undefined}
+            onRequestRange={handleCalendarRequest}
+            isRequestSubmitting={isSubmittingRequest}
           />
         </div>
       ) : (
@@ -715,6 +798,7 @@ export default function DeveloperVacations() {
                         {t.days} {getSortIcon("days")}
                       </button>
                     </th>
+                    <th className="px-6 py-3 font-bold bg-slate-100 text-center">{t.status}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -742,6 +826,19 @@ export default function DeveloperVacations() {
                         <td className="px-6 py-4 text-center">
                           <span className="inline-flex items-center justify-center min-w-[32px] h-8 px-2 rounded-lg bg-slate-100 text-slate-800 font-bold text-sm">
                             {absence.days || "—"}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-center">
+                          <span
+                            className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border ${
+                              absence.status === "PENDING"
+                                ? "bg-yellow-100 text-yellow-800 border-yellow-300"
+                                : absence.status === "REJECTED"
+                                  ? "bg-rose-100 text-rose-700 border-rose-300"
+                                  : "bg-emerald-100 text-emerald-700 border-emerald-300"
+                            }`}
+                          >
+                            {absence.status}
                           </span>
                         </td>
                       </tr>
@@ -796,3 +893,4 @@ export default function DeveloperVacations() {
     </div>
   );
 }
+

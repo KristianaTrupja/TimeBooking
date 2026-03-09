@@ -41,4 +41,16 @@ export const NotificationMessage = {
      */
     AbsenceApproved: (employeeName: string, periodStart: string, periodEnd: string) => 
         `Time-off approved: **${employeeName}** will be away from ${periodStart} to ${periodEnd}.`,
+
+    /**
+     * EXAMPLE: New leave request: **John Doe** requested Vacation from 03/03/2026 to 05/03/2026.
+     */
+    AbsenceRequested: (employeeName: string, leaveType: string, periodStart: string, periodEnd: string) =>
+        `New leave request: **${employeeName}** requested ${leaveType} from ${periodStart} to ${periodEnd}.`,
+
+    /**
+     * EXAMPLE: Your leave request (Vacation, 03/03/2026 to 05/03/2026) was rejected by **John Doe**.
+     */
+    AbsenceRejected: (reviewerName: string, leaveType: string, periodStart: string, periodEnd: string) =>
+        `Your leave request (${leaveType}, ${periodStart} to ${periodEnd}) was rejected by **${reviewerName}**.`,
 }

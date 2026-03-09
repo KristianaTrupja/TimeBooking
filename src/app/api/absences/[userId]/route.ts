@@ -39,6 +39,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ userId: 
       where: {
         userId: userIdInt,
         type: "VACATION",
+        status: "APPROVED",
       },
     });
 

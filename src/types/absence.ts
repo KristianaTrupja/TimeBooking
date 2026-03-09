@@ -6,6 +6,9 @@ export type Absence = {
   startDate: string;
   endDate: string;
   type: string;
+  status: "PENDING" | "APPROVED" | "REJECTED";
+  reviewedById?: number | null;
+  reviewedAt?: string | null;
   userId: number;
   user: User
 }
@@ -20,6 +23,12 @@ export enum AbsenceType {
   SICK = "SICK", 
   PERSONAL = "PERSONAL", 
   PARENTAL = "PARENTAL"
+}
+
+export enum AbsenceStatus {
+  PENDING = "PENDING",
+  APPROVED = "APPROVED",
+  REJECTED = "REJECTED",
 }
 
 export type Filters = { 

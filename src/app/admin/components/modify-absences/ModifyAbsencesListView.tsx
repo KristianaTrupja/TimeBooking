@@ -17,6 +17,7 @@ type Props = {
   editingAbsence: Absence | null;
   isSaving: boolean;
   deletingId: number | null;
+  reviewingId: number | null;
   scrollToAbsence: { userId: number; startDate: string } | null;
   absenceRowRefs: React.MutableRefObject<Map<string, HTMLTableRowElement>>;
   sortField: SortField | null;
@@ -26,6 +27,7 @@ type Props = {
   setEditingAbsence: React.Dispatch<React.SetStateAction<Absence | null>>;
   onEditSubmit: () => void;
   onDelete: (id: number) => void;
+  onReview: (id: number, status: "APPROVED" | "REJECTED") => void;
   formatDate: (dateStr: string) => string;
   getTypeBadge: (type: string) => string;
   t: {
@@ -36,6 +38,7 @@ type Props = {
     type: string;
     days: string;
     actions: string;
+    status: string;
     absence: string;
     absences: string;
   };
@@ -50,6 +53,7 @@ export default function ModifyAbsencesListView({
   editingAbsence,
   isSaving,
   deletingId,
+  reviewingId,
   scrollToAbsence,
   absenceRowRefs,
   sortField,
@@ -59,11 +63,21 @@ export default function ModifyAbsencesListView({
   setEditingAbsence,
   onEditSubmit,
   onDelete,
+  onReview,
   formatDate,
   getTypeBadge,
   t,
 }: Props) {
   const isMobileLayout = useIsMobile(1024);
+
+  const getStatusBadge = (status: string) => {
+    const styles: Record<string, string> = {
+      PENDING: "bg-yellow-100 text-yellow-800 border-yellow-300",
+      APPROVED: "bg-emerald-100 text-emerald-700 border-emerald-300",
+      REJECTED: "bg-rose-100 text-rose-700 border-rose-300",
+    };
+    return styles[status] || "bg-slate-100 text-slate-700 border-slate-300";
+  };
 
   const getSortIcon = (field: SortField) => {
     if (sortField !== field) return <ArrowUpDown size={14} className="text-slate-400" />;
@@ -131,7 +145,8 @@ export default function ModifyAbsencesListView({
                       {t.days} {getSortIcon("days")}
                     </button>
                   </th>
-                  <th className="px-4 py-3 font-bold text-center bg-slate-100" style={{ width: "120px" }}>{t.actions}</th>
+                  <th className="px-4 py-3 font-bold text-center bg-slate-100" style={{ width: "120px" }}>{t.status}</th>
+                  <th className="px-4 py-3 font-bold text-center bg-slate-100" style={{ width: "160px" }}>{t.actions}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -140,6 +155,8 @@ export default function ModifyAbsencesListView({
                   const isHighlighted = !!(scrollToAbsence && scrollToAbsence.userId === user.id && scrollToAbsence.startDate === absenceStartDate);
                   const rowKey = `${user.id}-${absenceStartDate}`;
                   const isEditing = editingAbsence?.id === absence.id;
+                  const isPending = absence.status === "PENDING";
+                  const isReviewing = reviewingId === absence.id;
 
                   return (
                     <tr
@@ -229,14 +246,41 @@ export default function ModifyAbsencesListView({
                             </span>
                           </td>
                           <td className="px-4 py-3">
+                            <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border ${getStatusBadge(absence.status)}`}>
+                              {absence.status}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3">
                             <div className="flex items-center justify-center gap-1">
-                              <button
-                                onClick={() => setEditingAbsence(absence)}
-                                className="p-2 rounded-lg hover:bg-blue-100 text-slate-600 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1"
-                                aria-label={`Edit absence for ${user.username}`}
-                              >
-                                <FilePenLine size={16} aria-hidden="true" />
-                              </button>
+                              {!isPending && (
+                                <button
+                                  onClick={() => setEditingAbsence(absence)}
+                                  className="p-2 rounded-lg hover:bg-blue-100 text-slate-600 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1"
+                                  aria-label={`Edit absence for ${user.username}`}
+                                >
+                                  <FilePenLine size={16} aria-hidden="true" />
+                                </button>
+                              )}
+                              {isPending && (
+                                <>
+                                  <button
+                                    onClick={() => onReview(absence.id, "APPROVED")}
+                                    disabled={isReviewing}
+                                    className="p-2 rounded-lg hover:bg-emerald-100 text-slate-600 hover:text-emerald-700 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    aria-label={`Approve absence for ${user.username}`}
+                                  >
+                                    <Check size={16} aria-hidden="true" />
+                                  </button>
+                                  <button
+                                    onClick={() => onReview(absence.id, "REJECTED")}
+                                    disabled={isReviewing}
+                                    className="p-2 rounded-lg hover:bg-amber-100 text-slate-600 hover:text-amber-700 transition-colors focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    aria-label={`Reject absence for ${user.username}`}
+                                  >
+                                    <X size={16} aria-hidden="true" />
+                                  </button>
+                                </>
+                              )}
                               <button
                                 onClick={() => onDelete(absence.id)}
                                 disabled={deletingId === absence.id}
@@ -279,6 +323,7 @@ export default function ModifyAbsencesListView({
                     editingAbsence={editingAbsence}
                     isSaving={isSaving}
                     isDeleting={deletingId === absence.id}
+                    isReviewing={reviewingId === absence.id}
                     isHighlighted={isHighlighted}
                     absenceRowRef={(el) => {
                       if (el) absenceRowRefs.current.set(rowKey, el as any);
@@ -286,6 +331,7 @@ export default function ModifyAbsencesListView({
                     setEditingAbsence={setEditingAbsence}
                     onEditSubmit={onEditSubmit}
                     onDelete={onDelete}
+                    onReview={onReview}
                     formatDate={formatDate}
                     getTypeBadge={getTypeBadge}
                     t={t}

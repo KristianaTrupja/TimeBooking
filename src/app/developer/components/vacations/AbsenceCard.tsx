@@ -38,6 +38,12 @@ const leaveTypeStyles: Record<string, { icon: React.ReactNode; bgColor: string; 
 export default function AbsenceCard({ absence, index, formatDate }: Props) {
   const { t } = useLanguage();
   const style = leaveTypeStyles[absence.type] || leaveTypeStyles.VACATION;
+  const statusClass =
+    absence.status === "PENDING"
+      ? "bg-yellow-100 text-yellow-800 border-yellow-300"
+      : absence.status === "REJECTED"
+        ? "bg-rose-100 text-rose-700 border-rose-300"
+        : "bg-emerald-100 text-emerald-700 border-emerald-300";
 
   return (
     <div className="p-4 border border-slate-200 rounded-lg bg-white hover:bg-slate-50 transition-colors">
@@ -46,6 +52,9 @@ export default function AbsenceCard({ absence, index, formatDate }: Props) {
         <span className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold border ${style.bgColor} ${style.textColor} ${style.borderColor}`}>
           {style.icon}
           {absence.type}
+        </span>
+        <span className={`inline-flex items-center px-2 py-1 rounded-full text-[11px] font-semibold border ${statusClass}`}>
+          {absence.status}
         </span>
         <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-teal-100 text-teal-700 text-xs font-bold">
           {index + 1}
