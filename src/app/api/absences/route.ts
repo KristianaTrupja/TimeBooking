@@ -12,6 +12,7 @@ import {
   WorkHoursConflictError,
 } from "@/lib/errors/errors";
 import { handleApiError } from "@/lib/errors/handlers";
+import { sendLeaveDecisionEmailToEmployee, sendLeaveRequestEmailToAdmins } from "@/lib/email";
 import { notifyUser, notifyUsersByRole } from "@/lib/notificationsLib";
 import { NotificationType } from "@prisma/client";
 import { getServerSession } from "next-auth";
@@ -213,6 +214,31 @@ export async function POST(req: Request) {
         actionData: { startDate: start.toISOString() },
       });
 
+      try {
+        const adminUsers = await db.user.findMany({
+          where: { role: "Admin" },
+          select: { email: true },
+        });
+        const adminEmails = adminUsers
+          .map((user) => user.email)
+          .filter((email): email is string => !!email && email.trim() !== "");
+
+        const emailResult = await sendLeaveRequestEmailToAdmins(adminEmails, {
+          employeeName: newAbsence.user.username,
+          leaveType: type,
+          startDate: startLabel,
+          endDate: endLabel,
+          businessDays,
+        });
+
+        if (!emailResult.success) {
+          console.error(`Failed to send leave request emails to admins. Failed: ${emailResult.failed}`);
+        }
+      } catch (emailError) {
+        // Keep request creation successful even if email fails.
+        console.error("Error sending leave request email notifications:", emailError);
+      }
+
       await notifyUser(targetUserId, {
         title: "Leave Request Submitted",
         message:
@@ -383,7 +409,7 @@ export async function PUT(req: Request) {
 
       const existing = await db.absence.findUnique({
         where: { id },
-        include: { user: { select: { username: true } } },
+        include: { user: { select: { username: true, email: true } } },
       });
 
       if (!existing) {
@@ -460,6 +486,29 @@ export async function PUT(req: Request) {
           senderUserId: requester.id,
           actionData: { startDate: existing.startDate.toISOString() },
         });
+      }
+
+      try {
+        if (existing.user.email) {
+          const emailResult = await sendLeaveDecisionEmailToEmployee(existing.user.email, {
+            employeeName: existing.user.username,
+            leaveType: existing.type,
+            startDate: formatDate(existing.startDate),
+            endDate: formatDate(existing.endDate),
+            businessDays: existing.days,
+            status,
+            reviewerName: requester.username,
+          });
+
+          if (!emailResult.success) {
+            console.error(`Failed to send leave decision email to employee ${existing.userId}`);
+          }
+        } else {
+          console.warn(`Skipping leave decision email. User ${existing.userId} has no email.`);
+        }
+      } catch (emailError) {
+        // Keep review action successful even if email fails.
+        console.error("Error sending leave decision email:", emailError);
       }
 
       return NextResponse.json(

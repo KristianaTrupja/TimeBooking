@@ -94,6 +94,99 @@ export async function sendTimesheetConfirmationEmail(
   }
 }
 
+type LeaveDecisionStatus = "APPROVED" | "REJECTED";
+
+/**
+ * Send leave request notification email to all admin users.
+ */
+export async function sendLeaveRequestEmailToAdmins(
+  adminEmails: string[],
+  payload: {
+    employeeName: string;
+    leaveType: string;
+    startDate: string;
+    endDate: string;
+    businessDays: number;
+  }
+): Promise<{ success: boolean; sent: number; failed: number }> {
+  if (adminEmails.length === 0) {
+    console.warn("No admin emails provided for leave request notification");
+    return { success: true, sent: 0, failed: 0 };
+  }
+
+  const { employeeName, leaveType, startDate, endDate, businessDays } = payload;
+  const dayLabel = businessDays === 1 ? "day" : "days";
+  const leaveTypeLabel = leaveType.toLowerCase();
+
+  const subject = `Leave Request - ${employeeName}`;
+  const text = `${employeeName} requested ${businessDays} ${dayLabel} of ${leaveTypeLabel} (${startDate} - ${endDate}).`;
+  const html = `
+    <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+      <p style="font-size: 16px;">
+        <strong>${employeeName}</strong> requested
+        <strong>${businessDays} ${dayLabel}</strong> of
+        <strong>${leaveTypeLabel}</strong>.
+      </p>
+      <p style="font-size: 14px; margin-top: 8px;">
+        Requested period: <strong>${startDate}</strong> to <strong>${endDate}</strong>
+      </p>
+    </div>
+  `;
+
+  const result = await sendEmail(adminEmails, subject, text, html);
+  if (result.success) {
+    return { success: true, sent: adminEmails.length, failed: 0 };
+  }
+  return { success: false, sent: 0, failed: adminEmails.length };
+}
+
+/**
+ * Send leave decision (approved/rejected) email to employee.
+ */
+export async function sendLeaveDecisionEmailToEmployee(
+  employeeEmail: string,
+  payload: {
+    employeeName: string;
+    leaveType: string;
+    startDate: string;
+    endDate: string;
+    businessDays: number;
+    status: LeaveDecisionStatus;
+    reviewerName: string;
+  }
+): Promise<{ success: boolean; sent: number; failed: number }> {
+  if (!employeeEmail || employeeEmail.trim() === "") {
+    console.warn("No employee email provided for leave decision notification");
+    return { success: true, sent: 0, failed: 0 };
+  }
+
+  const { employeeName, leaveType, startDate, endDate, businessDays, status, reviewerName } = payload;
+  const dayLabel = businessDays === 1 ? "day" : "days";
+  const leaveTypeLabel = leaveType.toLowerCase();
+  const statusLabel = status === "APPROVED" ? "approved" : "rejected";
+
+  const subject = `Leave Request ${status === "APPROVED" ? "Approved" : "Rejected"}`;
+  const text =
+    `Hi ${employeeName}, your request for ${businessDays} ${dayLabel} of ${leaveTypeLabel} ` +
+    `(${startDate} - ${endDate}) was ${statusLabel} by ${reviewerName}.`;
+  const html = `
+    <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+      <p style="font-size: 16px;">Hi <strong>${employeeName}</strong>,</p>
+      <p style="font-size: 15px;">
+        Your request for <strong>${businessDays} ${dayLabel}</strong> of
+        <strong>${leaveTypeLabel}</strong> (${startDate} - ${endDate}) was
+        <strong>${statusLabel}</strong> by <strong>${reviewerName}</strong>.
+      </p>
+    </div>
+  `;
+
+  const result = await sendEmail(employeeEmail, subject, text, html);
+  if (result.success) {
+    return { success: true, sent: 1, failed: 0 };
+  }
+  return { success: false, sent: 0, failed: 1 };
+}
+
 
 
 
