@@ -253,9 +253,11 @@ export default function ModifyAbsencesListView({
                             </span>
                           </td>
                           <td className="px-4 py-3">
-                            <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border ${getStatusBadge(absence.status)}`}>
-                              {absence.status}
-                            </span>
+                            <div className="flex items-center justify-center">
+                              <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border ${getStatusBadge(absence.status)}`}>
+                                {absence.status}
+                              </span>
+                            </div>
                           </td>
                           <td className="px-4 py-3">
                             <div className="flex items-center justify-center gap-1">
