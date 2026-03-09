@@ -28,7 +28,14 @@ import AbsenceCard from "./AbsenceCard";
 import { useIsMobile } from "@/app/hooks/useIsMobile";
 import { toast } from "sonner";
 
-const ABSENCE_TYPES: (keyof typeof AbsenceType)[] = ["VACATION", "SICK", "PERSONAL", "PARENTAL"];
+const ABSENCE_TYPES: (keyof typeof AbsenceType)[] = [
+  "VACATION",
+  "SICK",
+  "PERSONAL",
+  "PARENTAL",
+  "MARRIAGE",
+  "BEREAVEMENT",
+];
 
 type APIRemainingDays = {
   currentYear: { year: number; daysLeft: number; daysSpent: number };
@@ -749,6 +756,8 @@ export default function DeveloperVacations() {
               { value: "SICK", label: t.sick },
               { value: "PERSONAL", label: t.personal },
               { value: "PARENTAL", label: t.parental },
+              { value: "MARRIAGE", label: t.marriageLeave },
+              { value: "BEREAVEMENT", label: t.bereavementLeave },
             ]}
             requestableUserIds={userId ? [Number(userId)] : undefined}
             onRequestRange={handleCalendarRequest}
