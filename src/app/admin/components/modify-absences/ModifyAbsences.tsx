@@ -407,14 +407,10 @@ export default function ModifyAbsences() {
   }, [calendarYear, calendarMonth, dayOffTypeMap]);
 
   const getCellClass = useCallback((absenceType: string | null, isWeekend: boolean, isHoliday: boolean = false) => {
-    if (!absenceType) {
-      if (isHoliday) {
-        return "bg-sky-50/70 text-slate-300 border-r border-sky-200";
-      }
-      return isWeekend
-        ? "bg-slate-50/90 text-slate-300 border-r border-slate-100"
-        : "bg-white text-slate-300 border-r border-slate-100";
-    }
+    if (isHoliday) return "bg-sky-50/70 text-slate-300 border-r border-sky-200";
+    if (isWeekend) return "bg-slate-50/90 text-slate-300 border-r border-slate-100";
+    if (!absenceType) return "bg-white text-slate-300 border-r border-slate-100";
+
     if (absenceType.startsWith("PENDING_")) {
       return "bg-yellow-100/90 text-yellow-900 font-semibold border-r border-yellow-300/60";
     }

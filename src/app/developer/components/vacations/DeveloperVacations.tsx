@@ -423,14 +423,10 @@ export default function DeveloperVacations() {
   }, [calendarYear, calendarMonth, dayOffTypeMap]);
 
   const getCellClass = useCallback((absenceType: string | null, isWeekend: boolean, isHoliday: boolean = false) => {
-    if (!absenceType) {
-      if (isHoliday) {
-        return "bg-sky-50 text-slate-300 border-r border-sky-200";
-      }
-      return isWeekend
-        ? "bg-slate-50 text-slate-300 border-r border-slate-100"
-        : "bg-white text-slate-300 border-r border-slate-100";
-    }
+    if (isHoliday) return "bg-sky-50 text-slate-300 border-r border-sky-200";
+    if (isWeekend) return "bg-slate-50 text-slate-300 border-r border-slate-100";
+    if (!absenceType) return "bg-white text-slate-300 border-r border-slate-100";
+
     if (absenceType.startsWith("PENDING_")) return "bg-yellow-100 text-yellow-900 font-semibold border-r border-yellow-300";
     if (absenceType === "VACATION") return "bg-teal-200 text-teal-900 font-semibold border-r border-teal-300";
     if (absenceType === "SICK") return "bg-rose-200 text-rose-900 font-semibold border-r border-rose-300";
