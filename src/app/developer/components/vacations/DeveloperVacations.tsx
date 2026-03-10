@@ -134,7 +134,7 @@ export default function DeveloperVacations() {
       setIsExpanded(false);
     }
   }, [isMobile]);
-  const [viewMode, setViewMode] = useState<ViewMode>("list");
+  const [viewMode, setViewMode] = useState<ViewMode>("calendar");
   const [calendarMonth, setCalendarMonth] = useState(new Date().getMonth());
   const [calendarYear, setCalendarYear] = useState(new Date().getFullYear());
   
@@ -527,18 +527,6 @@ export default function DeveloperVacations() {
             {/* View Mode Toggle */}
             <div className="flex items-center gap-1 bg-slate-100 rounded-lg sm:rounded-xl p-0.5 sm:p-1 flex-1 sm:flex-initial">
               <button
-                onClick={() => setViewMode("list")}
-                className={`flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-md sm:rounded-lg text-xs sm:text-sm font-medium transition-all ${
-                  viewMode === "list"
-                    ? "bg-white text-[#244B77] shadow-sm"
-                    : "text-slate-600 hover:text-slate-900"
-                }`}
-                aria-label="List view"
-              >
-                <List size={14} />
-                <span className="hidden sm:inline">{t.listView}</span>
-              </button>
-              <button
                 onClick={() => setViewMode("calendar")}
                 className={`flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-md sm:rounded-lg text-xs sm:text-sm font-medium transition-all ${
                   viewMode === "calendar"
@@ -549,6 +537,18 @@ export default function DeveloperVacations() {
               >
                 <Grid3X3 size={14} />
                 <span className="hidden sm:inline">{t.calendarView}</span>
+              </button>
+              <button
+                onClick={() => setViewMode("list")}
+                className={`flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-md sm:rounded-lg text-xs sm:text-sm font-medium transition-all ${
+                  viewMode === "list"
+                    ? "bg-white text-[#244B77] shadow-sm"
+                    : "text-slate-600 hover:text-slate-900"
+                }`}
+                aria-label="List view"
+              >
+                <List size={14} />
+                <span className="hidden sm:inline">{t.listView}</span>
               </button>
             </div>
             

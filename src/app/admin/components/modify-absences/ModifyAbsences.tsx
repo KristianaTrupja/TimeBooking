@@ -59,7 +59,7 @@ export default function ModifyAbsences() {
   const [hasProcessedParams, setHasProcessedParams] = useState(false);
   const [sortField, setSortField] = useState<SortField | null>("startDate");
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
-  const [viewMode, setViewMode] = useState<ViewMode>("list");
+  const [viewMode, setViewMode] = useState<ViewMode>("calendar");
   const [calendarMonth, setCalendarMonth] = useState(new Date().getMonth());
   const [calendarYear, setCalendarYear] = useState(new Date().getFullYear());
   const isMobile = useIsMobile();
@@ -547,17 +547,6 @@ export default function ModifyAbsences() {
           </button>
           <div className="flex items-center gap-1 p-1 bg-slate-100 border border-slate-200 rounded-xl">
             <button
-              onClick={() => setViewMode("list")}
-              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                viewMode === "list" ? "bg-white text-slate-800 shadow-sm" : "text-slate-600 hover:text-slate-800"
-              }`}
-              aria-label={t.switchToListView}
-            >
-              <List size={14} />
-              {t.listView}
-            </button>
-            
-            <button
               onClick={() => setViewMode("calendar")}
               className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                 viewMode === "calendar" ? "bg-white text-slate-800 shadow-sm" : "text-slate-600 hover:text-slate-800"
@@ -566,6 +555,17 @@ export default function ModifyAbsences() {
             >
               <Grid3X3 size={14} />
               {t.calendarView}
+            </button>
+            
+            <button
+              onClick={() => setViewMode("list")}
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                viewMode === "list" ? "bg-white text-slate-800 shadow-sm" : "text-slate-600 hover:text-slate-800"
+              }`}
+              aria-label={t.switchToListView}
+            >
+              <List size={14} />
+              {t.listView}
             </button>
           </div>
           </div>
