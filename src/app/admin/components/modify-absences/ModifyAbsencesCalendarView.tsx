@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Calendar, ChevronLeft, ChevronRight } from "lucide-react";
+import { useSession } from "next-auth/react";
 import { User } from "@/types/user";
 import { formatEmployeeName } from "@/app/utils/formatEmployeeName";
 import { useLanguage } from "@/app/context/LanguageContext";
@@ -72,6 +73,7 @@ export default function ModifyAbsencesCalendarView({
   isRequestSubmitting = false,
 }: Props) {
   const { t } = useLanguage();
+  const { data: session } = useSession();
   const [hoveredUserId, setHoveredUserId] = useState<number | null>(null);
   const [hoveredDay, setHoveredDay] = useState<number | null>(null);
   const [selectionAnchor, setSelectionAnchor] = useState<SelectionAnchor | null>(null);
@@ -88,6 +90,25 @@ export default function ModifyAbsencesCalendarView({
     () => (requestableUserIds?.length ? new Set(requestableUserIds) : null),
     [requestableUserIds]
   );
+
+  const loggedInUserId = useMemo(() => {
+    const rawId = session?.user?.id;
+    if (!rawId) return null;
+    const numericId = Number(rawId);
+    return Number.isFinite(numericId) ? numericId : null;
+  }, [session?.user?.id]);
+
+  const orderedEmployees = useMemo(() => {
+    if (!loggedInUserId) return visibleEmployees;
+    const index = visibleEmployees.findIndex((user) => user.id === loggedInUserId);
+    if (index <= 0) return visibleEmployees;
+
+    const reordered = [...visibleEmployees];
+    const [loggedInUser] = reordered.splice(index, 1);
+    if (!loggedInUser) return visibleEmployees;
+    reordered.unshift(loggedInUser);
+    return reordered;
+  }, [visibleEmployees, loggedInUserId]);
 
   useEffect(() => {
     if (isInteractive) return;
@@ -352,8 +373,9 @@ export default function ModifyAbsencesCalendarView({
           </thead>
 
           <tbody className="divide-y divide-slate-100 bg-white">
-            {visibleEmployees.map((user) => {
+            {orderedEmployees.map((user) => {
               const isRowHovered = hoveredUserId === user.id;
+              const isLoggedInUser = loggedInUserId === user.id;
               const rowInteractive = isSelectableUser(user.id);
               return (
                 <tr
@@ -366,13 +388,19 @@ export default function ModifyAbsencesCalendarView({
                     scope="row"
                     style={{ width: "var(--employee-col-width)", minWidth: "var(--employee-col-width)", maxWidth: "var(--employee-col-width)" }}
                     className={`px-2 sm:px-4 py-2 h-10 sticky left-0 z-10 border-r border-slate-200 transition-all duration-150 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.05)] ${
-                      isRowHovered ? "bg-blue-50" : "bg-white"
+                      isRowHovered ? "bg-blue-50" : isLoggedInUser ? "bg-blue-50/60" : "bg-white"
                     }`}
                   >
                     <div className="flex items-center gap-2">
                       <span
                         className={`font-medium truncate transition-colors duration-150 ${
-                          isRowHovered ? "text-blue-700" : "text-slate-800"
+                          isLoggedInUser
+                            ? isRowHovered
+                              ? "text-blue-900 font-semibold"
+                              : "text-blue-800 font-semibold"
+                            : isRowHovered
+                              ? "text-blue-700"
+                              : "text-slate-800"
                         }`}
                       >
                         <span className="md:hidden">{formatEmployeeName(user.username)}</span>
