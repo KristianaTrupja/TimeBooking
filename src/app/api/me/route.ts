@@ -16,7 +16,18 @@ export async function GET() {
 
   const user = await db.user.findUnique({
     where: { id: userId },
-    select: { id: true, role: true, isActive: true, username: true },
+    select: {
+      id: true,
+      role: true,
+      isActive: true,
+      username: true,
+      locationId: true,
+      location: {
+        select: {
+          name: true,
+        },
+      },
+    },
   });
 
   if (!user || !user.isActive) {
@@ -24,7 +35,13 @@ export async function GET() {
   }
 
   return NextResponse.json(
-    { id: user.id, role: user.role, username: user.username },
+    {
+      id: user.id,
+      role: user.role,
+      username: user.username,
+      locationId: user.locationId,
+      locationName: user.location?.name ?? null,
+    },
     { status: 200 }
   );
 }

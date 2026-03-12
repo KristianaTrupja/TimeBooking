@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo } from "react";
-import { User, UserFormData } from "@/types/user";
+import { LocationOption, User, UserFormData } from "@/types/user";
 import { UserRow } from "./UserRow";
 import { UserCard } from "./UserCard";
 import { ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
@@ -10,6 +10,7 @@ type SortDirection = "asc" | "desc" | null;
 
 type Props = {
   employees: User[];
+  locations: LocationOption[];
   editingId: number | null;
   formData: UserFormData;
   onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
@@ -22,6 +23,7 @@ type Props = {
 
 export function UserTable({
   employees,
+  locations,
   editingId,
   formData,
   onChange,
@@ -127,6 +129,7 @@ export function UserTable({
                 </button>
               </th>
               <th className="px-4 py-3 font-bold bg-slate-100">{t.password}</th>
+              <th className="px-4 py-3 font-bold bg-slate-100">Location</th>
               <th className="px-4 py-3 font-bold bg-slate-100">
                 <button 
                   onClick={() => handleSort("totalVacations")}
@@ -146,6 +149,7 @@ export function UserTable({
                 index={index}
                 isEditing={editingId === emp.id}
                 formData={formData}
+                locations={locations}
                 onChange={onChange}
                 onEdit={onEdit}
                 onDelete={onDelete}
@@ -167,6 +171,7 @@ export function UserTable({
             index={index}
             isEditing={editingId === emp.id}
             formData={formData}
+            locations={locations}
             onChange={onChange}
             onEdit={onEdit}
             onDelete={onDelete}

@@ -139,9 +139,33 @@ export async function POST(req: Request) {
     }
 
     const { start, end } = parseDateRange(startDate, endDate);
+    const startIso = start.toISOString().split("T")[0];
+    const endIso = end.toISOString().split("T")[0];
 
-    const [holidays, previousAbsences, employee, existingWorkHours] = await Promise.all([
+    const employee = await db.user.findFirst({
+      where: {
+        id: targetUserId,
+      },
+      select: {
+        id: true,
+        username: true,
+        locationId: true,
+      },
+    });
+
+    if (!employee) {
+      throw new RecordNotFoundError("Employee", targetUserId);
+    }
+
+    const [holidays, previousAbsences, existingWorkHours] = await Promise.all([
       db.holidays.findMany({
+        where: {
+          locationId: employee.locationId,
+          date: {
+            gte: startIso,
+            lte: endIso,
+          },
+        },
         select: { date: true },
       }),
       db.absence.findMany({
@@ -171,10 +195,6 @@ export async function POST(req: Request) {
         },
       }),
     ]);
-
-    if (!employee) {
-      throw new RecordNotFoundError("Employee", targetUserId);
-    }
 
     if (existingWorkHours && !isBackdatedRange(end)) {
       const selectedRange = `${niceDate(start)} to ${niceDate(end)}`;
@@ -544,10 +564,20 @@ export async function PUT(req: Request) {
     }
 
     const { start, end } = parseDateRange(startDate, endDate);
+    const startIso = start.toISOString().split("T")[0];
+    const endIso = end.toISOString().split("T")[0];
 
     const currentAbsence = await db.absence.findUnique({
       where: { id },
-      select: { id: true, userId: true },
+      select: {
+        id: true,
+        userId: true,
+        user: {
+          select: {
+            locationId: true,
+          },
+        },
+      },
     });
     if (!currentAbsence) {
       throw new RecordNotFoundError("Absence", id);
@@ -555,6 +585,13 @@ export async function PUT(req: Request) {
 
     const [holidays, overlappingAbsence, existingWorkHours] = await Promise.all([
       db.holidays.findMany({
+        where: {
+          locationId: currentAbsence.user.locationId,
+          date: {
+            gte: startIso,
+            lte: endIso,
+          },
+        },
         select: { date: true },
       }),
       db.absence.findFirst({

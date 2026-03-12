@@ -114,7 +114,7 @@ export default function DeveloperVacations() {
   const [absences, setAbsences] = useState<ExtAbsence[]>([]);
   const [allAbsences, setAllAbsences] = useState<ExtAbsence[]>([]);
   const [employees, setEmployees] = useState<User[]>([]);
-  const [holidays, setHolidays] = useState<Array<{ date: string; holiday: string }>>([]);
+  const [holidays, setHolidays] = useState<Array<{ date: string; holiday: string; locationId: number }>>([]);
   const [remainingDays, setRemainingDays] = useState<APIRemainingDays | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmittingRequest, setIsSubmittingRequest] = useState(false);
@@ -215,7 +215,7 @@ export default function DeveloperVacations() {
       const [usersRes, allAbsencesRes, holidaysRes] = await Promise.all([
         fetch("/api/user", { cache: "no-store" }),
         fetch(`/api/absences?startDate=${calendarYear}-01-01&endDate=${calendarYear}-12-31&status=ALL`, { cache: "no-store" }),
-        fetch(`/api/holidays?year=${calendarYear}`, { cache: "no-store" }),
+        fetch(`/api/holidays?year=${calendarYear}&allLocations=true`, { cache: "no-store" }),
       ]);
 
       const usersData = await usersRes.json();
@@ -351,10 +351,22 @@ export default function DeveloperVacations() {
   const holidayMap = useMemo(() => {
     const map = new Map<string, string>();
     holidays.forEach((holiday) => {
-      map.set(holiday.date, holiday.holiday);
+      map.set(`${holiday.locationId}-${holiday.date}`, holiday.holiday);
     });
     return map;
   }, [holidays]);
+
+  const currentUserLocationId = useMemo(() => {
+    const numericUserId = Number(userId);
+    if (!Number.isFinite(numericUserId)) return undefined;
+    return employees.find((employee) => employee.id === numericUserId)?.locationId;
+  }, [employees, userId]);
+
+  const getHolidayName = useCallback((targetUserId: number, dateIso: string) => {
+    const locationId = employees.find((employee) => employee.id === targetUserId)?.locationId;
+    if (!locationId) return undefined;
+    return holidayMap.get(`${locationId}-${dateIso}`);
+  }, [employees, holidayMap]);
   
   const dayHeaders = useMemo(
     () => {
@@ -369,12 +381,12 @@ export default function DeveloperVacations() {
         const dayIndex = date.getUTCDay();
         const isWeekend = dayIndex === 0 || dayIndex === 6;
         const dateStr = `${calendarYear}-${String(calendarMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-        const holidayName = holidayMap.get(dateStr);
+        const holidayName = currentUserLocationId ? holidayMap.get(`${currentUserLocationId}-${dateStr}`) : undefined;
         const isToday = calendarYear === currentYear && calendarMonth === currentMonth && day === currentDay;
         return { day, dateIso: dateStr, shortWeekday, isWeekend, holidayName, isToday };
       });
     },
-    [dayColumns, calendarYear, calendarMonth, holidayMap]
+    [dayColumns, calendarYear, calendarMonth, currentUserLocationId, holidayMap]
   );
 
   const visibleEmployees = useMemo(() => {
@@ -742,6 +754,7 @@ export default function DeveloperVacations() {
             dayHeaders={dayHeaders}
             visibleEmployees={visibleEmployees}
             getDayOffType={getDayOffType}
+            getHolidayName={getHolidayName}
             getCellClass={getCellClass}
             onPrevMonth={handlePrevMonth}
             onNextMonth={handleNextMonth}

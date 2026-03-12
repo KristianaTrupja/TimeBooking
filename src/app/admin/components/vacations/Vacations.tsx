@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, CalendarHeart, Calendar, CalendarCheck, CalendarClock, Plus, ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronLeft, ChevronRight, CalendarHeart, Calendar, CalendarCheck, CalendarClock, Plus, ChevronDown, ChevronUp, MapPin } from "lucide-react";
 import VacationTable from "./VacationTable";
 import AddVacationModal from "./AddVacationModal";
 import { Holiday } from "@/types/holiday";
@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { useLanguage } from "@/app/context/LanguageContext";
 import { useIsMobile } from "@/app/hooks/useIsMobile";
 import { Modal } from "@/app/components/ui/Modal";
+import { LocationOption } from "@/types/user";
 
 export default function Vacations() {
   const { t } = useLanguage();
@@ -27,6 +28,11 @@ export default function Vacations() {
   const [holidayToDelete, setHolidayToDelete] = useState<Holiday | null>(null);
   const [containerHeight, setContainerHeight] = useState<number | null>(null);
   const [year, setYear] = useState(new Date().getFullYear());
+  const [locations, setLocations] = useState<LocationOption[]>([]);
+  const [selectedLocationId, setSelectedLocationId] = useState<number | null>(null);
+  const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
+  const [newLocationName, setNewLocationName] = useState("");
+  const [isCreatingLocation, setIsCreatingLocation] = useState(false);
   const isMobile = useIsMobile();
   const isMobileLayout = useIsMobile(1024);
   const [isTableExpanded, setIsTableExpanded] = useState(false);
@@ -75,10 +81,46 @@ export default function Vacations() {
     return () => window.removeEventListener("resize", calculateHeight);
   }, [calculateHeight, isInitialLoading, isTableExpanded]);
 
+  const fetchLocations = useCallback(async () => {
+    try {
+      const res = await fetch("/api/locations", { cache: "no-store" });
+      if (!res.ok) {
+        throw new Error("Failed to fetch locations");
+      }
+      const data = await res.json();
+      const locationList: LocationOption[] = data.locations || [];
+      setLocations(locationList);
+      setSelectedLocationId((prev) => {
+        if (prev && locationList.some((location) => location.id === prev)) {
+          return prev;
+        }
+        return locationList[0]?.id ?? null;
+      });
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to load locations");
+      setLocations([]);
+      setSelectedLocationId(null);
+    }
+  }, []);
+
   useEffect(() => {
+    fetchLocations();
+  }, [fetchLocations]);
+
+  useEffect(() => {
+    if (!selectedLocationId) {
+      setVacations([]);
+      setIsTableLoading(false);
+      setIsInitialLoading(false);
+      return;
+    }
+
+    const url = `/api/vacations?year=${year}&locationId=${selectedLocationId}`;
+
     if (isInitialLoading) {
       // Initial load
-      fetch(`/api/vacations?year=${year}`)
+      fetch(url)
         .then((res) => res.json())
         .then((data) => setVacations(data))
         .catch((err) => console.error("Failed to fetch holidays", err))
@@ -88,7 +130,7 @@ export default function Vacations() {
     } else {
       // Subsequent year navigation
       setIsTableLoading(true);
-      fetch(`/api/vacations?year=${year}`)
+      fetch(url)
         .then((res) => res.json())
         .then((data) => setVacations(data))
         .catch((err) => console.error("Failed to fetch holidays", err))
@@ -96,7 +138,7 @@ export default function Vacations() {
           setTimeout(() => setIsTableLoading(false), 300);
         });
     }
-  }, [year]);
+  }, [year, selectedLocationId]);
 
   const handleEdit = (id: number) => {
     const emp = vacations.find((v) => v.id === id);
@@ -114,12 +156,17 @@ export default function Vacations() {
   };
 
   const handleSave = async (id: number) => {
+    if (!selectedLocationId) {
+      toast.error("Select a location first.");
+      return;
+    }
+
     setSavingId(id);
     try {
       const res = await fetch("/api/vacations", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id, ...editedData }),
+        body: JSON.stringify({ id, locationId: selectedLocationId, ...editedData }),
       });
       if (!res.ok) throw new Error("Failed to update");
 
@@ -176,6 +223,11 @@ export default function Vacations() {
   };
 
   const handleAdd = async () => {
+    if (!selectedLocationId) {
+      toast.error("Select a location first.");
+      return;
+    }
+
     if (!newHoliday.date || !newHoliday.holiday) {
       toast.error("Please fill-in the required fields!");
       return;
@@ -186,7 +238,7 @@ export default function Vacations() {
       const res = await fetch("/api/vacations", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newHoliday),
+        body: JSON.stringify({ ...newHoliday, locationId: selectedLocationId }),
       });
 
       if (!res.ok) throw new Error("Failed to add holiday");
@@ -205,6 +257,47 @@ export default function Vacations() {
       toast.error("Failed to add holiday");
     } finally {
       setIsAdding(false);
+    }
+  };
+
+  const selectedLocationName = useMemo(
+    () => locations.find((location) => location.id === selectedLocationId)?.name ?? null,
+    [locations, selectedLocationId]
+  );
+
+  const createLocation = async () => {
+    const trimmedName = newLocationName.trim();
+    if (!trimmedName) {
+      toast.error("Location name is required.");
+      return;
+    }
+
+    setIsCreatingLocation(true);
+    try {
+      const res = await fetch("/api/locations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: trimmedName }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.message || "Failed to create location");
+      }
+
+      const createdLocation: LocationOption = data.location;
+      setLocations((prev) =>
+        [...prev, createdLocation].sort((a, b) => a.name.localeCompare(b.name))
+      );
+      setSelectedLocationId(createdLocation.id);
+      setNewLocationName("");
+      setIsLocationModalOpen(false);
+      toast.success(data.message || "Location created successfully.");
+    } catch (error: any) {
+      console.error(error);
+      toast.error(error?.message || "Failed to create location");
+    } finally {
+      setIsCreatingLocation(false);
     }
   };
 
@@ -243,7 +336,35 @@ export default function Vacations() {
           </div>
           
           {/* Year Navigation */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap justify-end">
+            <div className="flex items-center gap-2 bg-slate-100 rounded-xl px-2 py-1">
+              <MapPin size={14} className="text-slate-500" />
+              <span className="text-xs font-semibold uppercase tracking-wide text-slate-500 hidden sm:inline">Location</span>
+              <select
+                value={selectedLocationId ?? ""}
+                onChange={(e) => setSelectedLocationId(Number(e.target.value) || null)}
+                className="bg-transparent text-sm font-medium text-slate-700 focus:outline-none"
+              >
+                <option value="" disabled>
+                  Select location
+                </option>
+                {locations.map((location) => (
+                  <option key={location.id} value={location.id}>
+                    {location.name}
+                  </option>
+                ))}
+              </select>
+              <button
+                type="button"
+                onClick={() => setIsLocationModalOpen(true)}
+                className="h-7 px-2 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-blue-600 hover:border-blue-300 transition-colors flex items-center justify-center gap-1"
+                title="Add location"
+                aria-label="Add location"
+              >
+                <Plus size={14} />
+                <span className="text-xs font-medium hidden sm:inline">Add</span>
+              </button>
+            </div>
             <button
               onClick={() => setIsTableExpanded((prev) => !prev)}
               className={`h-9 w-9 rounded-xl border transition-all duration-200 flex items-center justify-center hover:scale-105 active:scale-95 ${
@@ -331,6 +452,9 @@ export default function Vacations() {
             </div>
           </div>
         </div>
+        <div className="mb-4 p-3 rounded-xl bg-blue-50 border border-blue-200 text-sm text-blue-700">
+          Holidays are managed per location. Select a location above, then add or edit holidays for that location.
+        </div>
       </div>
 
       {/* Table Section */}
@@ -338,7 +462,16 @@ export default function Vacations() {
         className="overflow-y-auto rounded-xl flex-1 bg-white sm:border sm:border-slate-200 sm:shadow-sm custom-scrollbar p-1 sm:p-0"
         style={{ maxHeight: !isMobileLayout ? (containerHeight ? `${containerHeight}px` : "66vh") : undefined }}
       >
-        {isTableLoading ? (
+        {!selectedLocationId ? (
+          <div className="h-full min-h-[260px] flex flex-col items-center justify-center text-center px-4">
+            <p className="text-slate-700 font-semibold mb-1">No location selected.</p>
+            <p className="text-sm text-slate-500 mb-4">Create or choose a location to manage its holidays.</p>
+            <Button onClick={() => setIsLocationModalOpen(true)} className="gap-2">
+              <Plus size={16} />
+              Add location
+            </Button>
+          </div>
+        ) : isTableLoading ? (
           <div className="h-64">
             <Spinner size="sm" text={t.loadingHolidays} />
           </div>
@@ -360,6 +493,7 @@ export default function Vacations() {
       <div ref={buttonRef} className="flex justify-end pt-4">
         <Button 
           onClick={() => setModalOpen(true)}
+          disabled={!selectedLocationId}
           className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-lg shadow-blue-500/25 gap-2"
         >
           <Plus size={18} />
@@ -397,6 +531,39 @@ export default function Vacations() {
           {t.deleteHolidayConfirm.replace("{date}", holidayToDelete?.date || "")}
         </p>
       </Modal>
+      <Modal
+        isOpen={isLocationModalOpen}
+        onClose={() => {
+          if (isCreatingLocation) return;
+          setIsLocationModalOpen(false);
+        }}
+        title="Create Location"
+        className="max-w-md"
+        footer={
+          <div className="flex justify-end gap-3">
+            <Button
+              variant="ghost"
+              onClick={() => setIsLocationModalOpen(false)}
+              disabled={isCreatingLocation}
+            >
+              {t.cancel}
+            </Button>
+            <Button onClick={createLocation} loading={isCreatingLocation}>
+              Create
+            </Button>
+          </div>
+        }
+      >
+        <label className="block text-sm font-medium text-slate-700 mb-2">
+          Location name
+        </label>
+        <input
+          value={newLocationName}
+          onChange={(e) => setNewLocationName(e.target.value)}
+          placeholder="e.g., Germany, New York, External Vendor"
+          className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm text-slate-700 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400"
+        />
+      </Modal>
 
       <AddVacationModal
         isOpen={modalOpen}
@@ -404,6 +571,7 @@ export default function Vacations() {
         onChange={handleNewChange}
         onSubmit={handleAdd}
         data={newHoliday}
+        locationName={selectedLocationName}
         isLoading={isAdding}
       />
     </section>

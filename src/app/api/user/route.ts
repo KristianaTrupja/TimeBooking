@@ -11,6 +11,24 @@ import { handleApiError } from "@/lib/errors/handlers";
 
 const ALLOWED_ROLES = new Set(["Admin", "Dev", "Employee"]);
 
+async function validateLocation(locationIdRaw: unknown) {
+  const locationId = Number(locationIdRaw);
+  if (!Number.isInteger(locationId) || locationId <= 0) {
+    throw new ValidationError("A valid location is required", "locationId");
+  }
+
+  const location = await db.location.findUnique({
+    where: { id: locationId },
+    select: { id: true, name: true },
+  });
+
+  if (!location) {
+    throw new ValidationError("Selected location does not exist", "locationId");
+  }
+
+  return locationId;
+}
+
 export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions);
@@ -29,19 +47,21 @@ export async function POST(req: Request) {
     }
     
     const body = await req.json();
-    const { username, email, password, role } = body;
+    const { username, email, password, role, locationId: locationIdRaw } = body;
     
     // Basic required fields (email is only required for Admin role)
-    if (!username || !password || !role) {
+    if (!username || !password || !role || locationIdRaw === undefined || locationIdRaw === null) {
       throw new ValidationError(
-        "Missing required fields: username, password, and role are required",
-        "username/password/role"
+        "Missing required fields: username, password, role, and location are required",
+        "username/password/role/locationId"
       );
     }
 
     if (!ALLOWED_ROLES.has(role)) {
       throw new ValidationError("Invalid role value", "role");
     }
+
+    const locationId = await validateLocation(locationIdRaw);
 
     // Email is required only for Admin role
     if (role === "Admin" && !email) {
@@ -73,10 +93,22 @@ export async function POST(req: Request) {
     const hashedPassword = await hash(password, 10);
 
     const newUser = await db.user.create({
-      data: { username, email: email || null, password: hashedPassword, role },
+      data: { username, email: email || null, password: hashedPassword, role, locationId },
+      include: {
+        location: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
     });
 
-    const { password: _, ...userWithoutPassword } = newUser;
+    const { password: _, ...userWithoutPasswordBase } = newUser;
+    const userWithoutPassword = {
+      ...userWithoutPasswordBase,
+      locationName: newUser.location?.name ?? null,
+    };
 
     await notifyUsersByRole({
       role: "Admin",
@@ -114,6 +146,13 @@ export async function GET(req: Request) {
         updatedAt: true,
         isActive: true,
         deletedAt: true,
+        locationId: true,
+        location: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
         vacations: {
           where: {
             year: currentYear,
@@ -129,6 +168,7 @@ export async function GET(req: Request) {
     const usersWithVacationDays = users.map(user => ({
       ...user,
       totalVacations: user.vacations[0]?.grantedDays ?? 0,
+      locationName: user.location?.name ?? null,
       vacations: undefined,
     }))
 
@@ -211,23 +251,59 @@ export async function PUT(req: Request) {
       throw new AuthorizationError("Forbidden")
     }
 
-    const { id, username, email, password, role, totalVacations } = await req.json();
+    const { id, username, email, password, role, totalVacations, locationId: locationIdRaw } = await req.json();
     if (!id) {
       throw new ValidationError("User ID is required", 'id')
     }
+    const numericId = Number(id);
+    if (!Number.isInteger(numericId) || numericId <= 0) {
+      throw new ValidationError("Invalid user id", "id");
+    }
 
-    const isSelfUpdate = Number(id) === Number(requester.id);
+    const isSelfUpdate = numericId === Number(requester.id);
     const isAdmin = requester.role === "Admin";
     if (!isAdmin && !isSelfUpdate) {
       throw new AuthorizationError("Forbidden")
     }
 
-    if (!ALLOWED_ROLES.has(role)) {
+    const targetUser = await db.user.findUnique({
+      where: { id: numericId },
+      select: {
+        id: true,
+        role: true,
+        locationId: true,
+        email: true,
+      },
+    });
+
+    if (!targetUser) {
+      throw new ValidationError("User not found", "id");
+    }
+
+    const effectiveRole = typeof role === "string" ? role : targetUser.role;
+    if (!ALLOWED_ROLES.has(effectiveRole)) {
       throw new ValidationError("Invalid role value", "role");
     }
 
+    if (!isAdmin && typeof role === "string" && role !== targetUser.role) {
+      throw new AuthorizationError("Only administrators can change roles");
+    }
+
+    const effectiveLocationIdRaw =
+      locationIdRaw === undefined || locationIdRaw === null
+        ? targetUser.locationId
+        : locationIdRaw;
+    const locationId = await validateLocation(effectiveLocationIdRaw);
+
+    if (!isAdmin && locationId !== targetUser.locationId) {
+      throw new AuthorizationError("Only administrators can change location");
+    }
+
+    const normalizedEmail =
+      typeof email === "string" ? email.trim() : (targetUser.email ?? null);
+
     // If changing role to Admin, email is required
-    if (role === "Admin" && !email) {
+    if (effectiveRole === "Admin" && !normalizedEmail) {
       throw new ValidationError(
         "Email is required for Admin users",
         "email"
@@ -235,34 +311,46 @@ export async function PUT(req: Request) {
     }
 
     // Validate email format if provided
-    if (email) {
+    if (normalizedEmail) {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email)) {
+      if (!emailRegex.test(normalizedEmail)) {
         throw new ValidationError("Invalid email format", "email");
       }
 
       // Check if email is already used by another user
       const existingUserByEmail = await db.user.findFirst({
-        where: { email, NOT: { id: Number(id) } }
+        where: { email: normalizedEmail, NOT: { id: numericId } }
       });
       if (existingUserByEmail) {
         throw new ConflictError("User with this email already exists", undefined, { field: "email" });
       }
     }
 
-    const updateData: any = { username, email: email || null, role };
+    if (!username || typeof username !== "string") {
+      throw new ValidationError("Username is required", "username");
+    }
+
+    const updateData: any = { username, email: normalizedEmail, role: effectiveRole, locationId };
     if (password) {
       updateData.password = await hash(password, 10);
     }
 
-    const isValidVacation = typeof totalVacations === 'number' && !isNaN(totalVacations);
+    const isValidVacation = isAdmin && typeof totalVacations === 'number' && !isNaN(totalVacations);
 
     const currentYear = new Date().getFullYear();
 
     const txOperation: any[] = [
       db.user.update({
-        where: { id },
+        where: { id: numericId },
         data: updateData,
+        include: {
+          location: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+        },
       })
     ];
 
@@ -271,7 +359,7 @@ export async function PUT(req: Request) {
         db.totalVacationDays.upsert({
           where: {
             userId_year: {
-              userId: id,
+              userId: numericId,
               year: currentYear,
             },
           },
@@ -279,7 +367,7 @@ export async function PUT(req: Request) {
             grantedDays: totalVacations,
           },
           create: {
-            userId: id,
+            userId: numericId,
             year: currentYear,
             grantedDays: totalVacations,
           },
@@ -293,6 +381,7 @@ export async function PUT(req: Request) {
 
     const userWithVacation = {
       ...updatedUser,
+      locationName: updatedUser.location?.name ?? null,
       ...(updatedVacation && { totalVacations: updatedVacation.grantedDays }),
     };
 

@@ -1,7 +1,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { Trash2, Pencil, User, Mail, Shield, Key, Calendar, Check } from "lucide-react";
-import { User as UserType, UserFormData } from "@/types/user";
+import { Trash2, Pencil, User, Mail, Shield, Key, Calendar, Check, MapPin } from "lucide-react";
+import { LocationOption, User as UserType, UserFormData } from "@/types/user";
 import { isPasswordStrong } from "@/lib/utils";
 import { useLanguage } from "@/app/context/LanguageContext";
 
@@ -10,6 +10,7 @@ type Props = {
   index: number;
   isEditing: boolean;
   formData: UserFormData;
+  locations: LocationOption[];
   onChange: (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => void;
@@ -34,6 +35,7 @@ export function UserRow({
   index,
   isEditing,
   formData,
+  locations,
   onChange,
   onEdit,
   onDelete,
@@ -116,6 +118,26 @@ export function UserRow({
               )}
             </div>
           </td>
+          {/* Location */}
+          <td className="px-4 py-3">
+            <select
+              name="locationId"
+              value={formData.locationId || ""}
+              onChange={onChange}
+              className={`w-full px-3 py-1.5 text-sm border rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                !formData.locationId ? "border-rose-400" : "border-blue-300"
+              }`}
+            >
+              <option value="" disabled>
+                Select location
+              </option>
+              {locations.map((location) => (
+                <option key={location.id} value={location.id}>
+                  {location.name}
+                </option>
+              ))}
+            </select>
+          </td>
           {/* Vacations */}
           <td className="px-4 py-3">
             <input
@@ -173,6 +195,13 @@ export function UserRow({
               <span className="text-slate-500 text-sm truncate" title={emp.password}>
                 ••••••••
               </span>
+            </div>
+          </td>
+          {/* Location */}
+          <td className="px-4 py-4">
+            <div className="flex items-center gap-2">
+              <MapPin size={14} className="text-slate-500" />
+              <span className="text-slate-700">{emp.locationName || "Unassigned"}</span>
             </div>
           </td>
           {/* Vacations */}

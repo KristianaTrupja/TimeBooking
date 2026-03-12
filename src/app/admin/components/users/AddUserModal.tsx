@@ -2,19 +2,21 @@ import React from "react";
 import { Modal } from "@/app/components/ui/Modal";
 import { Button } from "@/components/ui/button";
 import { isPasswordStrong } from "@/lib/utils";
-import { UserPlus, User, Mail, Key, Shield } from "lucide-react";
+import { UserPlus, User, Mail, Key, Shield, MapPin } from "lucide-react";
 import { useLanguage } from "@/app/context/LanguageContext";
+import { LocationOption, UserFormData } from "@/types/user";
 
 type Props = {
   open: boolean;
-  formData: { id: number, username: string; email: string; password: string; role: string };
+  formData: UserFormData;
+  locations: LocationOption[];
   onClose: () => void;
   onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
   onSubmit: () => void;
   isLoading?: boolean;
 };
 
-export function AddUserModal({ open, onClose, formData, onChange, onSubmit, isLoading }: Props) {
+export function AddUserModal({ open, onClose, formData, locations, onChange, onSubmit, isLoading }: Props) {
   const { t } = useLanguage();
   
   return (
@@ -120,6 +122,33 @@ export function AddUserModal({ open, onClose, formData, onChange, onSubmit, isLo
             <option value="Employee">{t.employee}</option>
             <option value="Admin">{t.admin}</option>
           </select>
+        </div>
+        <div className="col-span-2">
+          <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-2">
+            <MapPin size={14} className="text-slate-400" />
+            Location
+            <span className="text-rose-500 text-xs">*</span>
+          </label>
+          <select
+            name="locationId"
+            value={formData.locationId || ""}
+            onChange={onChange}
+            className={`w-full px-4 py-2.5 bg-slate-50 border rounded-lg text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+              !formData.locationId ? "border-rose-400" : "border-slate-200"
+            }`}
+          >
+            <option value="" disabled>
+              Select location
+            </option>
+            {locations.map((location) => (
+              <option key={location.id} value={location.id}>
+                {location.name}
+              </option>
+            ))}
+          </select>
+          {!formData.locationId && (
+            <p className="text-xs text-rose-500 mt-1">Location is required.</p>
+          )}
         </div>
       </div>
     </Modal>

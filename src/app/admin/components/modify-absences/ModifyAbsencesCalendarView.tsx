@@ -45,6 +45,7 @@ type Props = {
   dayHeaders: DayHeader[];
   visibleEmployees: User[];
   getDayOffType: (userId: number, day: number) => string | null;
+  getHolidayName?: (userId: number, dateIso: string) => string | undefined;
   getCellClass: (absenceType: string | null, isWeekend: boolean, isHoliday?: boolean) => string;
   onPrevMonth: () => void;
   onNextMonth: () => void;
@@ -62,6 +63,7 @@ export default function ModifyAbsencesCalendarView({
   dayHeaders,
   visibleEmployees,
   getDayOffType,
+  getHolidayName,
   getCellClass,
   onPrevMonth,
   onNextMonth,
@@ -415,7 +417,8 @@ export default function ModifyAbsencesCalendarView({
                   {dayHeaders.map(({ day, dateIso, isWeekend, holidayName }) => {
                     const absenceType = getDayOffType(user.id, day);
                     const isHovered = isRowHovered || hoveredDay === day;
-                    const hasHoliday = !!holidayName;
+                    const holidayNameForUser = getHolidayName?.(user.id, dateIso) ?? holidayName;
+                    const hasHoliday = !!holidayNameForUser;
                     const isCellSelected = isRangeDaySelected(user.id, dateIso);
                     const isAnchorCell = selectionAnchor?.userId === user.id && selectionAnchor.dateIso === dateIso;
                     const canSelectCell = rowInteractive && !absenceType;
@@ -431,7 +434,7 @@ export default function ModifyAbsencesCalendarView({
                         onClick={() => handleCellClick(user.id, dateIso, absenceType)}
                         onMouseEnter={() => setHoveredDay(day)}
                         onMouseLeave={() => setHoveredDay(null)}
-                        title={hasHoliday ? holidayName : undefined}
+                        title={hasHoliday ? holidayNameForUser : undefined}
                       >
                         {absenceType ? "*" : hasHoliday ? "*" : ""}
                       </td>

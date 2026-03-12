@@ -59,7 +59,7 @@ export default async function DashboardLayout({
 
   return (
     <SidebarProvider>
-      <HolidayProvider>
+      <HolidayProvider userId={Number(id)}>
         <AbsenceProvider>
           <WorkHoursProvider>
             <CalendarProvider>

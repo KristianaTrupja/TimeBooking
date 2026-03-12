@@ -4,10 +4,10 @@ import { Button } from "@/components/ui/button";
 import { AddUserModal } from "./AddUserModal";
 import { UserTable } from "./UserTable";
 import { toast } from "sonner";
-import { User, UserFormData } from "@/types/user";
+import { LocationOption, User, UserFormData } from "@/types/user";
 import Spinner from "@/components/ui/Spinner";
 import { isPasswordStrong } from "@/lib/utils";
-import { Users as UsersIcon, UserPlus, Shield, Code, ChevronDown, ChevronUp } from "lucide-react";
+import { Users as UsersIcon, UserPlus, Shield, Code, ChevronDown, ChevronUp, MapPin, Plus } from "lucide-react";
 import { useLanguage } from "@/app/context/LanguageContext";
 import { useIsMobile } from "@/app/hooks/useIsMobile";
 import { Modal } from "@/app/components/ui/Modal";
@@ -22,6 +22,7 @@ export default function Users() {
     email: "",
     password: "",
     role: "",
+    locationId: 0,
     totalVacations: 0
   });
   const [isLoading, setIsLoading] = useState(true);
@@ -30,6 +31,11 @@ export default function Users() {
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
   const [user, setUser] = useState<{ users: User[] } | null>(null);
+  const [locations, setLocations] = useState<LocationOption[]>([]);
+  const [selectedLocationFilter, setSelectedLocationFilter] = useState<string>("all");
+  const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
+  const [newLocationName, setNewLocationName] = useState("");
+  const [isCreatingLocation, setIsCreatingLocation] = useState(false);
   const [containerHeight, setContainerHeight] = useState<number | null>(null);
   const isMobile = useIsMobile();
   const isMobileLayout = useIsMobile(1024);
@@ -70,15 +76,38 @@ export default function Users() {
 
   useEffect(() => {
     const fetchUser = async () => {
-      const res = await fetch("/api/user", { cache: "no-store" });
-      const data = await res.json();
-      const sortedUsers = data.users.sort((a: User, b: User) =>
-        a.username.localeCompare(b.username)
-      );
-      setUser({ users: sortedUsers });
-      setTimeout(() => {
-        setIsLoading(false);
-      }, 500);
+      try {
+        const [usersRes, locationsRes] = await Promise.all([
+          fetch("/api/user", { cache: "no-store" }),
+          fetch("/api/locations", { cache: "no-store" }),
+        ]);
+
+        if (!usersRes.ok) {
+          throw new Error("Failed to load users");
+        }
+
+        const data = await usersRes.json();
+        const sortedUsers = (data.users || []).sort((a: User, b: User) =>
+          a.username.localeCompare(b.username)
+        );
+        setUser({ users: sortedUsers });
+
+        if (locationsRes.ok) {
+          const locationsData = await locationsRes.json();
+          setLocations(locationsData.locations || []);
+        } else {
+          setLocations([]);
+        }
+      } catch (error) {
+        console.error(error);
+        toast.error("Failed to fetch users.");
+        setUser({ users: [] });
+        setLocations([]);
+      } finally {
+        setTimeout(() => {
+          setIsLoading(false);
+        }, 500);
+      }
     };
 
     fetchUser();
@@ -88,7 +117,13 @@ export default function Users() {
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({
+      ...prev,
+      [name]:
+        name === "totalVacations" || name === "locationId"
+          ? Number(value)
+          : value,
+    }));
   };
 
   const deleteItem = (emp: User) => {
@@ -135,13 +170,14 @@ export default function Users() {
       email: emp.email ?? "",
       password: "",
       role: emp.role,
+      locationId: emp.locationId,
       totalVacations: emp.totalVacations
     });
   };
 
   const saveChanges = async () => {
-    const { id, username, email, role, password, totalVacations } = formData;
-    if (!id || !username || !role || (!isPasswordStrong(password) && password.trim())) {
+    const { id, username, email, role, password, totalVacations, locationId } = formData;
+    if (!id || !username || !role || !locationId || (!isPasswordStrong(password) && password.trim())) {
       toast.error("Please fill-in the required fields!");
       return;
     }
@@ -151,7 +187,7 @@ export default function Users() {
       toast.error("Email is required for Admin users.");
       return;
     }
-    const payload: any = { id, username, email, role, totalVacations: Number(totalVacations) };
+    const payload: any = { id, username, email, role, locationId, totalVacations: Number(totalVacations) };
     if (password.trim()) {
       payload.password = password;
     }
@@ -174,7 +210,7 @@ export default function Users() {
         }));
         toast.success("Employee was successfully updated.");
         setEditingId(null);
-        setFormData({ id: 0, username: "", email: "", password: "", role: "", totalVacations: 0 });
+        setFormData({ id: 0, username: "", email: "", password: "", role: "", locationId: 0, totalVacations: 0 });
       } else {
         const err = await res.json();
         toast.error(err.message || "Updating failed!");
@@ -187,9 +223,9 @@ export default function Users() {
   };
 
   const addNewEmployee = async () => {
-    const { username, email, password, role } = formData;
+    const { username, email, password, role, locationId } = formData;
 
-    if (!username || !password || !role) {
+    if (!username || !password || !role || !locationId) {
       toast.error("Please fill-in all required fields.");
       return;
     }
@@ -215,7 +251,12 @@ export default function Users() {
 
       if (response.ok) {
         const data = await response.json();
-        const createdUser: User | undefined = data?.user;
+        const createdUser: User | undefined = data?.user
+          ? {
+              ...data.user,
+              locationName: data.user.locationName ?? data.user.location?.name ?? null,
+            }
+          : undefined;
         toast.success(data?.message || "Employee was added successfully.");
         setOpen(false);
         if (createdUser?.id) {
@@ -237,6 +278,41 @@ export default function Users() {
     }
   };
 
+  const createLocation = async () => {
+    const trimmedName = newLocationName.trim();
+    if (!trimmedName) {
+      toast.error("Location name is required.");
+      return;
+    }
+
+    setIsCreatingLocation(true);
+    try {
+      const res = await fetch("/api/locations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: trimmedName }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.message || "Failed to create location");
+      }
+
+      const createdLocation: LocationOption = data.location;
+      setLocations((prev) =>
+        [...prev, createdLocation].sort((a, b) => a.name.localeCompare(b.name))
+      );
+      setNewLocationName("");
+      setIsLocationModalOpen(false);
+      toast.success(data.message || "Location created successfully.");
+    } catch (error: any) {
+      console.error(error);
+      toast.error(error?.message || "Failed to create location");
+    } finally {
+      setIsCreatingLocation(false);
+    }
+  };
+
   // Calculate stats
   const stats = useMemo(() => {
     const employees = user?.users || [];
@@ -246,6 +322,14 @@ export default function Users() {
       devs: employees.filter(u => u.role === "Dev").length,
     };
   }, [user]);
+
+  const filteredUsers = useMemo(() => {
+    const allUsers = user?.users || [];
+    if (selectedLocationFilter === "all") return allUsers;
+    const locationId = Number(selectedLocationFilter);
+    if (!Number.isFinite(locationId)) return allUsers;
+    return allUsers.filter((employee) => employee.locationId === locationId);
+  }, [user, selectedLocationFilter]);
 
   if (isLoading) return (
     <div className="h-full">
@@ -270,6 +354,30 @@ export default function Users() {
           </div>
 
           <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 bg-slate-100 rounded-xl px-2 py-1">
+              <MapPin size={14} className="text-slate-500" />
+              <select
+                value={selectedLocationFilter}
+                onChange={(e) => setSelectedLocationFilter(e.target.value)}
+                className="bg-transparent text-sm font-medium text-slate-700 focus:outline-none"
+              >
+                <option value="all">All locations</option>
+                {locations.map((location) => (
+                  <option key={location.id} value={String(location.id)}>
+                    {location.name}
+                  </option>
+                ))}
+              </select>
+              <button
+                type="button"
+                onClick={() => setIsLocationModalOpen(true)}
+                className="h-7 w-7 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-blue-600 hover:border-blue-300 transition-colors flex items-center justify-center"
+                title="Add location"
+                aria-label="Add location"
+              >
+                <Plus size={14} />
+              </button>
+            </div>
             <button
               onClick={() => setIsTableExpanded((prev) => !prev)}
               className={`h-10 w-10 rounded-xl border transition-all duration-200 flex items-center justify-center hover:scale-105 active:scale-95 ${
@@ -336,7 +444,8 @@ export default function Users() {
         style={{ maxHeight: !isMobileLayout ? (containerHeight ? `${containerHeight}px` : "66vh") : undefined }}
       >
         <UserTable
-          employees={user?.users || []}
+          employees={filteredUsers}
+          locations={locations}
           editingId={editingId}
           formData={formData}
           onChange={handleInputChange}
@@ -358,14 +467,49 @@ export default function Users() {
             email: "",
             password: "",
             role: "",
+            locationId: 0,
             totalVacations: 0
           });
         }}
         formData={formData}
+        locations={locations}
         onChange={handleInputChange}
         onSubmit={addNewEmployee}
         isLoading={isAdding}
       />
+      <Modal
+        isOpen={isLocationModalOpen}
+        onClose={() => {
+          if (isCreatingLocation) return;
+          setIsLocationModalOpen(false);
+        }}
+        title="Create Location"
+        className="max-w-md"
+        footer={
+          <div className="flex justify-end gap-3">
+            <Button
+              variant="ghost"
+              onClick={() => setIsLocationModalOpen(false)}
+              disabled={isCreatingLocation}
+            >
+              {t.cancel}
+            </Button>
+            <Button onClick={createLocation} loading={isCreatingLocation}>
+              Create
+            </Button>
+          </div>
+        }
+      >
+        <label className="block text-sm font-medium text-slate-700 mb-2">
+          Location name
+        </label>
+        <input
+          value={newLocationName}
+          onChange={(e) => setNewLocationName(e.target.value)}
+          placeholder="e.g., Albania, Germany, External Vendor"
+          className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm text-slate-700 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400"
+        />
+      </Modal>
       <Modal
         isOpen={userToDelete !== null}
         onClose={() => {

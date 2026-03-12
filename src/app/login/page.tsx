@@ -4,7 +4,6 @@ import { useState, useEffect, useCallback } from "react";
 import { signIn, getSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { isPasswordStrong } from "@/lib/utils";
 import { Loader2, Clock, Calendar, Eye, EyeOff } from "lucide-react";
 import { useLanguage } from "@/app/context/LanguageContext";
 
@@ -32,16 +31,11 @@ export default function Login() {
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (!isPasswordStrong(data.password)) {
-      toast.error(t.passwordNotSecure);
-      return;
-    }
-
     setLoading(true);
 
     const res = await signIn("credentials", {
       redirect: false,
-      username: data.username,
+      username: data.username.trim(),
       password: data.password,
     });
 
@@ -151,11 +145,7 @@ export default function Login() {
                   onChange={handleChange}
                   placeholder="••••••••"
                   autoComplete="current-password"
-                  className={`w-full px-4 pr-12 py-3.5 bg-white/5 border rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 transition-all duration-200 ${
-                    !isPasswordStrong(data.password) && data.password 
-                      ? 'border-red-500/50 focus:ring-red-500/50 focus:border-red-500/50' 
-                      : 'border-white/10 focus:ring-cyan-500/50 focus:border-cyan-500/50'
-                  }`}
+                  className="w-full px-4 pr-12 py-3.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50 transition-all duration-200"
                 />
                 <button
                   type="button"
@@ -166,11 +156,6 @@ export default function Login() {
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
-              {!isPasswordStrong(data.password) && data.password && (
-                <p className="text-xs text-red-400 mt-2 leading-relaxed">
-                  {t.passwordRequirements}
-                </p>
-              )}
             </div>
 
             <button

@@ -45,7 +45,7 @@ export default function ModifyAbsences() {
 
   const [employees, setEmployees] = useState<User[]>([]);
   const [absences, setAbsences] = useState<ExtAbsence[]>([]);
-  const [holidays, setHolidays] = useState<Array<{ date: string; holiday: string }>>([]);
+  const [holidays, setHolidays] = useState<Array<{ date: string; holiday: string; locationId: number }>>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [editingAbsence, setEditingAbsence] = useState<Absence | null>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -147,7 +147,7 @@ export default function ModifyAbsences() {
       const [absRes, userRes, holidaysRes] = await Promise.all([
         fetch(`/api/absences?${params.toString()}`, { cache: "no-store" }),
         fetch("/api/user?includeInactive=true", { cache: "no-store" }),
-        fetch("/api/holidays", { cache: "no-store" }),
+        fetch(`/api/holidays?year=${calendarYear}&allLocations=true`, { cache: "no-store" }),
       ]);
 
       const absData = await absRes.json();
@@ -163,12 +163,12 @@ export default function ModifyAbsences() {
     } finally {
       setTimeout(() => setIsLoading(false), 300);
     }
-  }, [filters])
+  }, [filters, calendarYear])
 
 
   useEffect(() => {
     fetchData()
-  }, [filters])
+  }, [fetchData])
 
   function handleOnFiltersChange(filters:Filters) {
     setFilters(filters)
@@ -333,11 +333,17 @@ export default function ModifyAbsences() {
   const holidayMap = useMemo(() => {
     const map = new Map<string, string>();
     holidays.forEach((holiday) => {
-      map.set(holiday.date, holiday.holiday);
+      map.set(`${holiday.locationId}-${holiday.date}`, holiday.holiday);
     });
     return map;
   }, [holidays]);
   
+  const getHolidayName = useCallback((userId: number, dateIso: string) => {
+    const locationId = employees.find((employee) => employee.id === userId)?.locationId;
+    if (!locationId) return undefined;
+    return holidayMap.get(`${locationId}-${dateIso}`);
+  }, [employees, holidayMap]);
+
   const dayHeaders = useMemo(
     () => {
       const today = new Date();
@@ -351,12 +357,13 @@ export default function ModifyAbsences() {
         const dayIndex = date.getUTCDay();
         const isWeekend = dayIndex === 0 || dayIndex === 6;
         const dateStr = `${calendarYear}-${String(calendarMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-        const holidayName = holidayMap.get(dateStr);
+        const selectedLocationId = filters.selectedEmployee?.locationId;
+        const holidayName = selectedLocationId ? holidayMap.get(`${selectedLocationId}-${dateStr}`) : undefined;
         const isToday = calendarYear === currentYear && calendarMonth === currentMonth && day === currentDay;
         return { day, dateIso: dateStr, shortWeekday, isWeekend, holidayName, isToday };
       });
     },
-    [dayColumns, calendarYear, calendarMonth, holidayMap]
+    [dayColumns, calendarYear, calendarMonth, filters.selectedEmployee?.locationId, holidayMap]
   );
 
   const visibleEmployees = useMemo(() => {
@@ -598,6 +605,7 @@ export default function ModifyAbsences() {
           dayHeaders={dayHeaders}
           visibleEmployees={visibleEmployees}
           getDayOffType={getDayOffType}
+          getHolidayName={getHolidayName}
           getCellClass={getCellClass}
           onPrevMonth={handlePrevMonth}
           onNextMonth={handleNextMonth}

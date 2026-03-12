@@ -6,12 +6,13 @@ type Props = {
   isOpen: boolean;
   onClose: () => void;
   data: { date: string; holiday: string };
+  locationName?: string | null;
   onChange: (e: React.ChangeEvent<HTMLInputElement>, field: "date" | "holiday") => void;
   onSubmit: () => void;
   isLoading?: boolean;
 };
 
-export default function AddVacationModal({ isOpen, onClose, data, onChange, onSubmit, isLoading }: Props) {
+export default function AddVacationModal({ isOpen, onClose, data, locationName, onChange, onSubmit, isLoading }: Props) {
   const { t } = useLanguage();
   
   return (
@@ -23,7 +24,10 @@ export default function AddVacationModal({ isOpen, onClose, data, onChange, onSu
         </div>
         <div>
           <h2 className="text-lg font-semibold text-slate-800">{t.addNewHoliday}</h2>
-          <p className="text-sm text-slate-500">{t.createHolidayEntry}</p>
+          <p className="text-sm text-slate-500">
+            {t.createHolidayEntry}
+            {locationName ? ` (${locationName})` : ""}
+          </p>
         </div>
       </div>
 

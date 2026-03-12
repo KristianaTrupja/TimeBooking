@@ -21,12 +21,14 @@ model User {
   email     String?  @unique  // Optional for Developers, required for Admins
   role      String
   password  String
+  locationId Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   isActive  Boolean   @default(true)
   deletedAt DateTime?
 
   // Relations
+  location       Location @relation(fields: [locationId], references: [id], onDelete: Restrict)
   absences       Absence[]
   vacations      TotalVacationDays[]
   workHours      WorkHours[]
@@ -34,6 +36,8 @@ model User {
   notifications       Notifications[]
   submissions         TimeSheetSubmission[]
   approvedSubmissions TimeSheetSubmission[] @relation("Approver")
+
+  @@index([locationId])
 }
 
 
@@ -42,9 +46,20 @@ model Holidays {
   date String
 
   holiday String
+  locationId Int
+  location   Location @relation(fields: [locationId], references: [id], onDelete: Cascade)
 
-  @@unique([date])
-  @@index([date])
+  @@unique([date, locationId])
+  @@index([locationId, date])
+}
+model Location {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users    User[]
+  holidays Holidays[]
 }
 model Company {
   id        Int       @id @default(autoincrement())

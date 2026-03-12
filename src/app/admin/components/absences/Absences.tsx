@@ -84,31 +84,52 @@ export default function Absences() {
   }), [t]);
 
   useEffect(() => {
-    if(!selectedEmployee) return
+    if(!selectedEmployee) {
+      setRemainingDays(null)
+      setHolidays([])
+      return
+    }
     setRemainingDays(null)
 
     const employee = employees?.find(v => v.username === selectedEmployee)
-    if(!employee) return
+    if(!employee) {
+      setHolidays([])
+      return
+    }
 
-    fetch(`/api/absences/${employee.id}`)
-    .then(async (response) => {
-      if (!response.ok) {
-        return null;
-      }
-      return response.json()
-    })
-    .then(data => setRemainingDays(isRemainingDaysPayload(data) ? data : null))
-    .catch(() => setRemainingDays(null))
+    Promise.all([
+      fetch(`/api/absences/${employee.id}`, { cache: "no-store" }),
+      fetch(`/api/holidays?userId=${employee.id}`, { cache: "no-store" }),
+    ])
+      .then(async ([remainingRes, holidayRes]) => {
+        if (remainingRes.ok) {
+          const remainingData = await remainingRes.json()
+          setRemainingDays(isRemainingDaysPayload(remainingData) ? remainingData : null)
+        } else {
+          setRemainingDays(null)
+        }
 
-  }, [selectedEmployee])
+        if (holidayRes.ok) {
+          const holidayData = await holidayRes.json()
+          const holidayDates = holidayData.holidays?.map((h: { date: string }) =>
+            new Date(h.date).toISOString().split('T')[0]
+          ) || []
+          setHolidays(holidayDates)
+        } else {
+          setHolidays([])
+        }
+      })
+      .catch(() => {
+        setRemainingDays(null)
+        setHolidays([])
+      })
+
+  }, [selectedEmployee, employees])
   
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [userRes, holidayRes] = await Promise.all([
-          fetch("/api/user", { cache: "no-store" }),
-          fetch("/api/holidays", { cache: "no-store" })
-        ]);
+        const userRes = await fetch("/api/user", { cache: "no-store" });
 
         if(!userRes.ok) {
           const error = await userRes.json()
@@ -117,15 +138,6 @@ export default function Absences() {
 
         const userData = await userRes.json();
         setEmployees(userData.users);
-
-        if(holidayRes.ok) {
-          const holidayData = await holidayRes.json();
-          // Extract holiday dates as strings (YYYY-MM-DD format)
-          const holidayDates = holidayData.holidays?.map((h: { date: string }) => 
-            new Date(h.date).toISOString().split('T')[0]
-          ) || [];
-          setHolidays(holidayDates);
-        }
       } catch (err) {
         console.error("Failed to fetch data:", err)
         flushError(err, t.somethingWentWrong)

@@ -2,7 +2,7 @@ import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { db } from "./db";
-import { compare } from "bcrypt";
+import { compare, hash } from "bcrypt";
 
 export const authOptions: NextAuthOptions = {
     adapter: PrismaAdapter(db),
@@ -20,26 +20,45 @@ export const authOptions: NextAuthOptions = {
         CredentialsProvider({
           name: "Credentials",
           credentials: {
-            username: { label: "Username", type: "text", placeholder: "Username" },
+            username: { label: "Username or Email", type: "text", placeholder: "Username or Email" },
             password: { label: "Password", type: "password" }
           },
           async authorize(credentials) {
-            if(!credentials?.username || !credentials?.password) {
+            const usernameOrEmail = credentials?.username?.trim();
+            const password = credentials?.password;
+
+            if(!usernameOrEmail || !password) {
                 return null;
             }
 
-            const existingUser = await db.user.findUnique({
-               where: {username: credentials?.username} 
+            const existingUser = await db.user.findFirst({
+               where: {
+                OR: [
+                  { username: usernameOrEmail },
+                  { email: usernameOrEmail },
+                ],
+               }
             })
             
             if(!existingUser || !existingUser.isActive){
                 return null;
             }
 
-            const passwordMatch = await compare(credentials.password, existingUser.password);
+            const hasHashedPassword = existingUser.password.startsWith("$2");
+            const passwordMatch = hasHashedPassword
+              ? await compare(password, existingUser.password)
+              : password === existingUser.password;
             
             if(!passwordMatch) {
                 return null;
+            }
+
+            if (!hasHashedPassword) {
+              const hashedPassword = await hash(password, 10);
+              await db.user.update({
+                where: { id: existingUser.id },
+                data: { password: hashedPassword },
+              });
             }
 
             return{

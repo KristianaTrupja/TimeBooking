@@ -5,24 +5,27 @@ import { createContext, useContext, useEffect, useState } from "react";
 const HolidayContext = createContext<Holiday[] | null | undefined>(undefined);
 
 export const HolidayProvider = ({
+  userId,
   children,
 }: {
+  userId?: number;
   children: React.ReactNode;
 }) => {
   const [holidays, setHolidays] = useState<Holiday[] | null>(null);
 
-  async function fetchHolidays(): Promise<Holiday[]> {
-    const res = await fetch("/api/vacations");
+  async function fetchHolidays(targetUserId?: number): Promise<Holiday[]> {
+    const query = targetUserId ? `?userId=${targetUserId}` : "";
+    const res = await fetch(`/api/vacations${query}`);
     if (!res.ok) {
         throw new Error(`Failed to fetch holidays: ${res.statusText}`);
     }
     return res.json();
 }
   useEffect(() => {
-    fetchHolidays()
+    fetchHolidays(userId)
       .then(setHolidays)
       .catch((err) => console.error("Failed to fetch holidays:", err));
-  }, []);
+  }, [userId]);
   return (
     <HolidayContext.Provider value={holidays}>
       {children}

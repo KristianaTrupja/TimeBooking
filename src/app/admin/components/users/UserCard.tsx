@@ -1,7 +1,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { Trash2, Pencil, User as UserIcon, Mail, Shield, Key, Calendar, Check } from "lucide-react";
-import { User, UserFormData } from "@/types/user";
+import { Trash2, Pencil, User as UserIcon, Mail, Shield, Key, Calendar, Check, MapPin } from "lucide-react";
+import { LocationOption, User, UserFormData } from "@/types/user";
 import { isPasswordStrong } from "@/lib/utils";
 import { useLanguage } from "@/app/context/LanguageContext";
 
@@ -10,6 +10,7 @@ type Props = {
   index: number;
   isEditing: boolean;
   formData: UserFormData;
+  locations: LocationOption[];
   onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
   onEdit: (user: User) => void;
   onDelete: (user: User) => void;
@@ -31,6 +32,7 @@ export function UserCard({
   index,
   isEditing,
   formData,
+  locations,
   onChange,
   onEdit,
   onDelete,
@@ -146,6 +148,37 @@ export function UserCard({
           </div>
         ) : (
           <span className="text-slate-500 text-sm ml-0 sm:ml-6">••••••••</span>
+        )}
+      </div>
+
+      {/* Vacations */}
+      <div className="mb-4">
+        <div className="flex items-center gap-2 mb-1">
+          <MapPin size={14} className="text-slate-500" />
+          <span className="text-xs font-semibold uppercase text-slate-500">Location</span>
+        </div>
+        {isEditing ? (
+          <select
+            name="locationId"
+            value={formData.locationId || ""}
+            onChange={onChange}
+            className={`w-full px-3 py-1.5 text-sm border rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 ml-0 sm:ml-6 ${
+              !formData.locationId ? "border-rose-400" : "border-blue-300"
+            }`}
+          >
+            <option value="" disabled>
+              Select location
+            </option>
+            {locations.map((location) => (
+              <option key={location.id} value={location.id}>
+                {location.name}
+              </option>
+            ))}
+          </select>
+        ) : (
+          <div className="flex items-center gap-2 ml-0 sm:ml-6">
+            <span className="text-slate-700">{emp.locationName || "Unassigned"}</span>
+          </div>
         )}
       </div>
 
