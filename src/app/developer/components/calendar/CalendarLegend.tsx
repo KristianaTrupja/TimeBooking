@@ -6,10 +6,10 @@ export default function CalendarLegend() {
   const { t } = useLanguage();
   
   const legendItems = [
-    { label: t.weekend, color: "bg-slate-100" },
+    { label: t.weekend, color: "bg-slate-100/70" },
     { label: t.officialHoliday, color: "bg-emerald-100" },
     { label: t.vacationAbsence, color: "bg-amber-100" },
-    { label: t.pendingUnsaved, color: "bg-blue-100" },
+    { label: t.pendingUnsaved, color: "bg-blue-100 ring-1 ring-inset ring-blue-200" },
   ];
 
   return (

@@ -244,14 +244,14 @@ export default function ModifyAbsencesCalendarView({
 
       {!isCompact && (
         <div className="shrink-0 px-3 sm:px-4 py-2 border-b border-slate-200 bg-white flex flex-wrap items-center gap-2 text-xs text-slate-600">
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-teal-100 text-teal-700">{t.vacation}</span>
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-rose-100 text-rose-700">{t.sick}</span>
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-violet-100 text-violet-700">{t.personal}</span>
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-100 text-amber-700">{t.parental}</span>
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-fuchsia-100 text-fuchsia-700">{t.marriageLeave}</span>
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-200 text-slate-700">{t.bereavementLeave}</span>
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-yellow-100 text-yellow-700 border border-yellow-300">{t.pending}</span>
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-sky-200 text-sky-800 font-medium">{t.officialHoliday}</span>
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-teal-200/90 text-teal-900 border border-teal-300/40">{t.vacation}</span>
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-rose-200/90 text-rose-900 border border-rose-300/40">{t.sick}</span>
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-violet-200/90 text-violet-900 border border-violet-300/40">{t.personal}</span>
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-200/90 text-amber-900 border border-amber-300/40">{t.parental}</span>
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-fuchsia-200/90 text-fuchsia-900 border border-fuchsia-300/40">{t.marriageLeave}</span>
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-300/90 text-slate-900 border border-slate-400/40">{t.bereavementLeave}</span>
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-yellow-100/90 text-yellow-900 border border-yellow-300/60">{t.pending}</span>
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-sky-50/70 text-slate-600 border border-sky-200">{t.officialHoliday}</span>
         </div>
       )}
 
