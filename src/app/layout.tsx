@@ -70,6 +70,7 @@ export default function RootLayout({
         className={`${keanianOne.variable} ${anekBangla.variable} ${inter.variable} antialiased`}
       >
         <PWARegister />
+        
         <Providers>
           <LanguageProvider>
             <NotificationProvider>
