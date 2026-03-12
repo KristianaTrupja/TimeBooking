@@ -141,7 +141,6 @@ export async function GET(req: Request) {
         username: true,
         email: true,
         role: true,
-        password: true,
         createdAt: true,
         updatedAt: true,
         isActive: true,
@@ -378,10 +377,11 @@ export async function PUT(req: Request) {
     const results = await db.$transaction(txOperation);
     const updatedUser = results[0]
     const updatedVacation = results[1]
+    const { password: _password, ...updatedUserWithoutPassword } = updatedUser;
 
     const userWithVacation = {
-      ...updatedUser,
-      locationName: updatedUser.location?.name ?? null,
+      ...updatedUserWithoutPassword,
+      locationName: updatedUserWithoutPassword.location?.name ?? null,
       ...(updatedVacation && { totalVacations: updatedVacation.grantedDays }),
     };
 

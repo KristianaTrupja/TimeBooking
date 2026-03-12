@@ -110,7 +110,9 @@ export function UserRow({
                 value={formData.password}
                 onChange={onChange}
                 placeholder={t.leaveBlankToKeep}
-                autoComplete="off"
+                autoComplete="new-password"
+                data-lpignore="true"
+                data-1p-ignore="true"
                 className={`w-full px-3 py-1.5 text-sm border rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                   formData.password && !isPasswordStrong(formData.password) ? "border-rose-400" : "border-blue-300"
                 }`}
@@ -194,7 +196,7 @@ export function UserRow({
           <td className="px-4 py-4">
             <div className="flex items-center gap-2 max-w-[120px]">
               <Key size={14} className="text-slate-500 flex-shrink-0" />
-              <span className="text-slate-500 text-sm truncate" title={emp.password}>
+              <span className="text-slate-500 text-sm truncate">
                 ••••••••
               </span>
             </div>

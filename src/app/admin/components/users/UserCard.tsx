@@ -139,7 +139,9 @@ export function UserCard({
               value={formData.password}
               onChange={onChange}
               placeholder={t.leaveBlankToKeep}
-              autoComplete="off"
+              autoComplete="new-password"
+              data-lpignore="true"
+              data-1p-ignore="true"
               className={`w-full px-3 py-1.5 text-sm border rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 ml-0 sm:ml-6 ${
                 formData.password && !isPasswordStrong(formData.password) ? "border-rose-400" : "border-blue-300"
               }`}

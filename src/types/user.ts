@@ -3,7 +3,6 @@ export type User = {
     username: string;
     email: string | null;  // Optional for Developers, required for Admins
     role: string;
-    password: string;
     locationId: number;
     locationName?: string | null;
     createdAt?: string;
