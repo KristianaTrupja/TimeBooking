@@ -106,7 +106,18 @@ export default function WorkDay({
 
          
       >
-        {displayData.hours ? Number(displayData.hours).toFixed(2) : ""}
+        <span className="relative z-10">{displayData.hours ? Number(displayData.hours).toFixed(2) : ""}</span>
+        {(isAbsentDay || isHoliday || isWeekendDay) && !isProjectInactive && (
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 z-0"
+            style={{
+              backgroundImage:
+                "repeating-linear-gradient(135deg, currentColor 0 1px, transparent 1px 7px)",
+              opacity: 0.12,
+            }}
+          />
+        )}
         {displayData.note && (
           <div className="absolute bottom-0 right-0 w-0 h-0 border-b-[8px] border-l-[8px] border-b-emerald-500 border-l-transparent" />
         )}

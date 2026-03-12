@@ -441,6 +441,7 @@ export default function ModifyAbsencesCalendarView({
                     const isHovered = isRowHovered || hoveredDay === day;
                     const holidayNameForUser = getHolidayName?.(user.id, dateIso) ?? holidayName;
                     const hasHoliday = !!holidayNameForUser;
+                    const hasLineMarker = Boolean(absenceType || hasHoliday || isWeekend);
                     const isCellSelected = isRangeDaySelected(user.id, dateIso);
                     const isAnchorCell = selectionAnchor?.userId === user.id && selectionAnchor.dateIso === dateIso;
                     const canSelectCell = rowInteractive && !absenceType;
@@ -448,7 +449,7 @@ export default function ModifyAbsencesCalendarView({
                     return (
                       <td
                         key={`${user.id}-${day}`}
-                        className={`px-1 py-2 h-10 text-center text-[11px] transition-all duration-150 ${getCellClass(absenceType, isWeekend, hasHoliday)} ${
+                        className={`relative overflow-hidden px-1 py-2 h-10 text-center text-[11px] transition-all duration-150 ${getCellClass(absenceType, isWeekend, hasHoliday)} ${
                           isHovered && !absenceType ? "!bg-blue-50 ring-1 ring-inset ring-blue-100" : ""
                         } ${canSelectCell ? "cursor-pointer" : "cursor-default"} ${
                           isCellSelected ? "!bg-cyan-100 ring-2 ring-inset ring-cyan-400" : ""
@@ -458,7 +459,18 @@ export default function ModifyAbsencesCalendarView({
                         onMouseLeave={() => setHoveredDay(null)}
                         title={hasHoliday ? holidayNameForUser : undefined}
                       >
-                        {absenceType ? "*" : hasHoliday ? "*" : ""}
+                        <span className="relative z-10">{absenceType ? "*" : hasHoliday ? "*" : ""}</span>
+                        {hasLineMarker && (
+                          <div
+                            aria-hidden="true"
+                            className="pointer-events-none absolute inset-0 z-0"
+                            style={{
+                              backgroundImage:
+                                "repeating-linear-gradient(135deg, currentColor 0 1px, transparent 1px 7px)",
+                              opacity: 0.12,
+                            }}
+                          />
+                        )}
                       </td>
                     );
                   })}
