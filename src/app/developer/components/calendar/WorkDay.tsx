@@ -9,6 +9,7 @@ import { useDayHoliday } from "@/app/hooks/useDayHoliday";
 import { useAbsenceContext } from "@/app/context/AbsencesContext";
 import { useIsAbsentDay } from "@/app/hooks/useIsAbsentDay";
 import { useHolidayContext } from "@/app/context/HolidayContext";
+import { HOLIDAY_CALENDAR_COLORS, getAbsenceColorConfig } from "@/app/utils/absenceCalendarColors";
 
 export default function WorkDay({
   dayData,
@@ -65,10 +66,10 @@ export default function WorkDay({
       return "bg-slate-300/50 text-slate-400 cursor-not-allowed";
     }
     if (isHoliday) {
-      return "bg-emerald-100 text-emerald-700";
+      return HOLIDAY_CALENDAR_COLORS.workhourCellClass;
     }
     if (isAbsentDay) {
-      return "bg-amber-100 text-amber-700";
+      return getAbsenceColorConfig(absenceType).workhourCellClass;
     }
     if (isWeekendDay) {
       return "bg-slate-100/70 text-slate-500";

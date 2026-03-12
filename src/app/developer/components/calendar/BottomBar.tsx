@@ -10,6 +10,11 @@ import { useAbsenceContext } from "@/app/context/AbsencesContext";
 import { useIsAbsentDay } from "@/app/hooks/useIsAbsentDay";
 import { useHolidayContext } from "@/app/context/HolidayContext";
 import { useLanguage } from "@/app/context/LanguageContext";
+import {
+  HOLIDAY_CALENDAR_COLORS,
+  WEEKEND_CALENDAR_COLORS,
+  getAbsenceColorConfig,
+} from "@/app/utils/absenceCalendarColors";
 
 export default function BottomBar() {
   const { month, year } = useCalendar();
@@ -40,15 +45,16 @@ export default function BottomBar() {
         let bgColor = totalHours > 0 ? "bg-blue-50 text-blue-700" : "bg-slate-50 text-slate-500";
 
         let borderColor = "border-slate-300";
-        if (isAbsentDay) {
-          borderColor = "border-amber-400";
-          bgColor = "bg-amber-100 text-amber-700";
-        } else if (isHoliday) {
-          borderColor = "border-emerald-400";
-          bgColor = "bg-emerald-100 text-emerald-700";
+        if (isHoliday) {
+          borderColor = HOLIDAY_CALENDAR_COLORS.workhourBottomBarBorderClass;
+          bgColor = HOLIDAY_CALENDAR_COLORS.workhourBottomBarBgClass;
+        } else if (isAbsentDay) {
+          const typeColors = getAbsenceColorConfig(absenceType);
+          borderColor = typeColors.workhourBottomBarBorderClass;
+          bgColor = typeColors.workhourBottomBarBgClass;
         } else if (isWeekendDay) {
-          borderColor = "border-slate-400";
-          bgColor = "bg-slate-100 text-slate-500";
+          borderColor = WEEKEND_CALENDAR_COLORS.workhourBottomBarBorderClass;
+          bgColor = WEEKEND_CALENDAR_COLORS.workhourBottomBarBgClass;
         }
 
         const tooltip = [formattedDate, isHoliday && holidayTitle, isAbsentDay && `${t.absence}: ${absenceType}`]

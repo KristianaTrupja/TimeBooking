@@ -18,6 +18,12 @@ import ModifyAbsencesListView from "./ModifyAbsencesListView";
 import { useIsMobile } from "@/app/hooks/useIsMobile";
 import { Modal } from "@/app/components/ui/Modal";
 import { Button } from "@/components/ui/button";
+import {
+  HOLIDAY_CALENDAR_COLORS,
+  PENDING_CALENDAR_COLORS,
+  WEEKEND_CALENDAR_COLORS,
+  getAbsenceColorConfig,
+} from "@/app/utils/absenceCalendarColors";
 
 const ABSENCE_TYPES: (keyof typeof AbsenceType)[] = [
   "VACATION",
@@ -414,20 +420,14 @@ export default function ModifyAbsences() {
   }, [calendarYear, calendarMonth, dayOffTypeMap]);
 
   const getCellClass = useCallback((absenceType: string | null, isWeekend: boolean, isHoliday: boolean = false) => {
-    if (isHoliday) return "bg-sky-50/70 text-slate-300 border-r border-sky-200";
-    if (isWeekend) return "bg-slate-50/90 text-slate-300 border-r border-slate-100";
+    if (isHoliday) return HOLIDAY_CALENDAR_COLORS.leaveCellClass;
+    if (isWeekend) return WEEKEND_CALENDAR_COLORS.leaveCellClass;
     if (!absenceType) return "bg-white text-slate-300 border-r border-slate-100";
 
     if (absenceType.startsWith("PENDING_")) {
-      return "bg-yellow-100/90 text-yellow-900 font-semibold border-r border-yellow-300/60";
+      return PENDING_CALENDAR_COLORS.leaveCellClass;
     }
-    if (absenceType === "VACATION") return "bg-teal-200/90 text-teal-900 font-semibold border-r border-teal-300/40";
-    if (absenceType === "SICK") return "bg-rose-200/90 text-rose-900 font-semibold border-r border-rose-300/40";
-    if (absenceType === "PERSONAL") return "bg-violet-200/90 text-violet-900 font-semibold border-r border-violet-300/40";
-    if (absenceType === "PARENTAL") return "bg-amber-200/90 text-amber-900 font-semibold border-r border-amber-300/40";
-    if (absenceType === "MARRIAGE") return "bg-fuchsia-200/90 text-fuchsia-900 font-semibold border-r border-fuchsia-300/40";
-    if (absenceType === "BEREAVEMENT") return "bg-slate-300/90 text-slate-900 font-semibold border-r border-slate-400/40";
-    return "bg-blue-200/90 text-blue-900 font-semibold border-r border-blue-300/40";
+    return getAbsenceColorConfig(absenceType).leaveCellClass;
   }, []);
 
   const handleCalendarRequest = useCallback(

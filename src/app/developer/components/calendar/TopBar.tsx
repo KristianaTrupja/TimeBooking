@@ -7,6 +7,7 @@ import { useDayHoliday } from "@/app/hooks/useDayHoliday";
 import { useIsAbsentDay } from "@/app/hooks/useIsAbsentDay";
 import { useAbsenceContext } from "@/app/context/AbsencesContext";
 import { useHolidayContext } from "@/app/context/HolidayContext";
+import { HOLIDAY_CALENDAR_COLORS, getAbsenceColorConfig } from "@/app/utils/absenceCalendarColors";
 
 export default function TopBar({ hoveredColIndex }: { hoveredColIndex: number | null }) {
   const [holidays, loading] = useHolidayContext();
@@ -33,12 +34,15 @@ export default function TopBar({ hoveredColIndex }: { hoveredColIndex: number | 
         const { isAbsentDay, absenceType } = useIsAbsentDay(absences, date);
         const { isHoliday, holidayTitle } = useDayHoliday(year, month, day, holidays);
         const today = day === todayDate && month === todayMonth && year === todayYear
+        const absenceTopBarClass = !isHoliday && isAbsentDay
+          ? getAbsenceColorConfig(absenceType).workhourTopBarClass
+          : null;
 
         const classList = [
           "w-9 h-10 2xl:w-10 2xl:h-11 flex justify-center items-center border-r border-white/10 font-medium text-sm transition-colors",
           isWeekend(year, month, day) ? "bg-white/10 text-white/70" : "text-white",
-          isHoliday && "!bg-emerald-500/30 !text-emerald-200",
-          isAbsentDay && "!bg-amber-500/30 !text-amber-200",
+          isHoliday && HOLIDAY_CALENDAR_COLORS.workhourTopBarClass,
+          absenceTopBarClass,
           hoveredColIndex === colIndex && !isWeekend(year, month, day) && !isHoliday && !isAbsentDay && "!bg-white/20",
           today && "!bg-cyan-400 !text-[#244B77] font-bold shadow-lg shadow-cyan-400/30"
         ]

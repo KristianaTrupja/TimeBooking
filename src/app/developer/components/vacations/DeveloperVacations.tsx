@@ -27,6 +27,12 @@ import ModifyAbsencesCalendarView from "@/app/admin/components/modify-absences/M
 import AbsenceCard from "./AbsenceCard";
 import { useIsMobile } from "@/app/hooks/useIsMobile";
 import { toast } from "sonner";
+import {
+  HOLIDAY_CALENDAR_COLORS,
+  PENDING_CALENDAR_COLORS,
+  WEEKEND_CALENDAR_COLORS,
+  getAbsenceColorConfig,
+} from "@/app/utils/absenceCalendarColors";
 
 const ABSENCE_TYPES: (keyof typeof AbsenceType)[] = [
   "VACATION",
@@ -435,18 +441,12 @@ export default function DeveloperVacations() {
   }, [calendarYear, calendarMonth, dayOffTypeMap]);
 
   const getCellClass = useCallback((absenceType: string | null, isWeekend: boolean, isHoliday: boolean = false) => {
-    if (isHoliday) return "bg-sky-50 text-slate-300 border-r border-sky-200";
-    if (isWeekend) return "bg-slate-50 text-slate-300 border-r border-slate-100";
+    if (isHoliday) return HOLIDAY_CALENDAR_COLORS.leaveCellClass;
+    if (isWeekend) return WEEKEND_CALENDAR_COLORS.leaveCellClass;
     if (!absenceType) return "bg-white text-slate-300 border-r border-slate-100";
 
-    if (absenceType.startsWith("PENDING_")) return "bg-yellow-100 text-yellow-900 font-semibold border-r border-yellow-300";
-    if (absenceType === "VACATION") return "bg-teal-200 text-teal-900 font-semibold border-r border-teal-300";
-    if (absenceType === "SICK") return "bg-rose-200 text-rose-900 font-semibold border-r border-rose-300";
-    if (absenceType === "PERSONAL") return "bg-violet-200 text-violet-900 font-semibold border-r border-violet-300";
-    if (absenceType === "PARENTAL") return "bg-amber-200 text-amber-900 font-semibold border-r border-amber-300";
-    if (absenceType === "MARRIAGE") return "bg-fuchsia-200 text-fuchsia-900 font-semibold border-r border-fuchsia-300";
-    if (absenceType === "BEREAVEMENT") return "bg-slate-300 text-slate-900 font-semibold border-r border-slate-400";
-    return "bg-blue-200 text-blue-900 font-semibold border-r border-blue-300";
+    if (absenceType.startsWith("PENDING_")) return PENDING_CALENDAR_COLORS.leaveCellClass;
+    return getAbsenceColorConfig(absenceType).leaveCellClass;
   }, []);
 
   const handleCalendarRequest = useCallback(
