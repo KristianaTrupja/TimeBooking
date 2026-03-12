@@ -72,6 +72,15 @@ interface Translations {
   emailRequiredForAdmin: string;
   noEmail: string;
   role: string;
+  location: string;
+  allLocations: string;
+  selectLocation: string;
+  addLocation: string;
+  createLocation: string;
+  locationName: string;
+  locationNameExample: string;
+  locationRequired: string;
+  unassigned: string;
   
   // Vacations / Absences
   absences: string;
@@ -252,6 +261,7 @@ interface Translations {
   holidayName: string;
   noHolidaysFound: string;
   addHolidayToStart: string;
+  holidayExampleName: string;
   
   // Project Management
   newProject: string;
@@ -296,6 +306,11 @@ interface Translations {
   failedToSaveProjects: string;
   timesheetSubmitted: string;
   failedToSubmitTimesheet: string;
+  failedToLoadUsers: string;
+  failedToLoadLocations: string;
+  failedToCreateLocation: string;
+  locationCreatedSuccessfully: string;
+  selectLocationFirst: string;
   
   // Form placeholders
   selectAnOption: string;
@@ -424,6 +439,11 @@ interface Translations {
   switchToListView: string;
   switchToCalendarView: string;
   dateWithColon: string;
+  previousYear: string;
+  nextYear: string;
+  locationHolidayManagementHint: string;
+  noLocationSelected: string;
+  createOrChooseLocation: string;
 }
 
 const translations: Record<Language, Translations> = {
@@ -495,6 +515,15 @@ const translations: Record<Language, Translations> = {
     emailRequiredForAdmin: "Email is required for Admin users",
     noEmail: "No email",
     role: "Role",
+    location: "Location",
+    allLocations: "All locations",
+    selectLocation: "Select location",
+    addLocation: "Add location",
+    createLocation: "Create Location",
+    locationName: "Location name",
+    locationNameExample: "e.g., Albania, Germany, External Vendor",
+    locationRequired: "Location is required.",
+    unassigned: "Unassigned",
     
     // Vacations / Absences
     absences: "Absences",
@@ -675,6 +704,7 @@ const translations: Record<Language, Translations> = {
     holidayName: "Holiday Name",
     noHolidaysFound: "No holidays found",
     addHolidayToStart: "Add a new holiday to get started",
+    holidayExampleName: "e.g., Christmas Day",
     
     // Project Management
     newProject: "New Project",
@@ -719,6 +749,11 @@ const translations: Record<Language, Translations> = {
     failedToSaveProjects: "Failed to save projects",
     timesheetSubmitted: "Timesheet submitted successfully!",
     failedToSubmitTimesheet: "Failed to submit timesheet",
+    failedToLoadUsers: "Failed to load users.",
+    failedToLoadLocations: "Failed to load locations",
+    failedToCreateLocation: "Failed to create location",
+    locationCreatedSuccessfully: "Location created successfully.",
+    selectLocationFirst: "Select a location first.",
     
     // Form placeholders
     selectAnOption: "Select an option",
@@ -847,6 +882,11 @@ const translations: Record<Language, Translations> = {
     switchToListView: "Switch to list view",
     switchToCalendarView: "Switch to calendar view",
     dateWithColon: "Date:",
+    previousYear: "Previous year",
+    nextYear: "Next year",
+    locationHolidayManagementHint: "Holidays are managed per location. Select a location above, then add or edit holidays for that location.",
+    noLocationSelected: "No location selected.",
+    createOrChooseLocation: "Create or choose a location to manage its holidays.",
   },
   de: {
     // Navigation & Headers
@@ -916,6 +956,15 @@ const translations: Record<Language, Translations> = {
     emailRequiredForAdmin: "E-Mail ist für Admin-Benutzer erforderlich",
     noEmail: "Keine E-Mail",
     role: "Rolle",
+    location: "Standort",
+    allLocations: "Alle Standorte",
+    selectLocation: "Standort auswaehlen",
+    addLocation: "Standort hinzufuegen",
+    createLocation: "Standort erstellen",
+    locationName: "Standortname",
+    locationNameExample: "z.B. Albanien, Deutschland, Externer Anbieter",
+    locationRequired: "Standort ist erforderlich.",
+    unassigned: "Nicht zugewiesen",
     
     // Vacations / Absences
     absences: "Abwesenheiten",
@@ -1096,6 +1145,7 @@ const translations: Record<Language, Translations> = {
     holidayName: "Feiertagsname",
     noHolidaysFound: "Keine Feiertage gefunden",
     addHolidayToStart: "Fügen Sie einen neuen Feiertag hinzu",
+    holidayExampleName: "z.B. Weihnachtstag",
     
     // Project Management
     newProject: "Neues Projekt",
@@ -1140,6 +1190,11 @@ const translations: Record<Language, Translations> = {
     failedToSaveProjects: "Projekte konnten nicht gespeichert werden",
     timesheetSubmitted: "Zeiterfassung erfolgreich eingereicht!",
     failedToSubmitTimesheet: "Zeiterfassung konnte nicht eingereicht werden",
+    failedToLoadUsers: "Benutzer konnten nicht geladen werden.",
+    failedToLoadLocations: "Standorte konnten nicht geladen werden",
+    failedToCreateLocation: "Standort konnte nicht erstellt werden",
+    locationCreatedSuccessfully: "Standort erfolgreich erstellt.",
+    selectLocationFirst: "Waehlen Sie zuerst einen Standort aus.",
     
     // Form placeholders
     selectAnOption: "Option auswählen",
@@ -1268,6 +1323,11 @@ const translations: Record<Language, Translations> = {
     switchToListView: "Zur Listenansicht wechseln",
     switchToCalendarView: "Zur Kalenderansicht wechseln",
     dateWithColon: "Datum:",
+    previousYear: "Vorheriges Jahr",
+    nextYear: "Naechstes Jahr",
+    locationHolidayManagementHint: "Feiertage werden pro Standort verwaltet. Waehlen Sie oben einen Standort aus und fuegen Sie dann Feiertage fuer diesen Standort hinzu oder bearbeiten Sie sie.",
+    noLocationSelected: "Kein Standort ausgewaehlt.",
+    createOrChooseLocation: "Erstellen oder waehlen Sie einen Standort, um dessen Feiertage zu verwalten.",
   },
 };
 

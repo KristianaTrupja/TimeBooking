@@ -44,6 +44,8 @@ export function UserRow({
   isDeleting,
 }: Props) {
   const { t } = useLanguage();
+  const getRoleLabel = (role: string) =>
+    role === "Admin" ? t.admin : role === "Dev" ? t.developer : role === "Employee" ? t.employee : role;
   
   return (
     <tr className={`transition-all hover:bg-slate-50 ${isEditing ? "bg-blue-50" : ""}`}>
@@ -94,7 +96,7 @@ export function UserRow({
             >
               {ROLE_OPTIONS.map((role, idx) => (
                 <option key={idx} value={role}>
-                  {role}
+                  {getRoleLabel(role)}
                 </option>
               ))}
             </select>
@@ -129,7 +131,7 @@ export function UserRow({
               }`}
             >
               <option value="" disabled>
-                Select location
+                {t.selectLocation}
               </option>
               {locations.map((location) => (
                 <option key={location.id} value={location.id}>
@@ -185,7 +187,7 @@ export function UserRow({
           <td className="px-4 py-4">
             <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border ${roleBadgeStyles[emp.role] || "bg-slate-100 text-slate-700"}`}>
               {emp.role === "Admin" ? <Shield size={12} /> : null}
-              {emp.role}
+              {getRoleLabel(emp.role)}
             </span>
           </td>
           {/* Password */}
@@ -201,7 +203,7 @@ export function UserRow({
           <td className="px-4 py-4">
             <div className="flex items-center gap-2">
               <MapPin size={14} className="text-slate-500" />
-              <span className="text-slate-700">{emp.locationName || "Unassigned"}</span>
+              <span className="text-slate-700">{emp.locationName || t.unassigned}</span>
             </div>
           </td>
           {/* Vacations */}

@@ -51,7 +51,7 @@ export default function AddVacationModal({ isOpen, onClose, data, locationName, 
           <div className="relative">
             <Tag size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
-              placeholder="e.g., Christmas Day"
+              placeholder={t.holidayExampleName}
               type="text"
               className="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-700 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-colors placeholder:text-slate-400"
               value={data.holiday}

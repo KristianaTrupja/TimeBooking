@@ -58,7 +58,7 @@ export function AddUserModal({ open, onClose, formData, locations, onChange, onS
             name="username" 
             value={formData.username} 
             onChange={onChange} 
-            placeholder="e.g., John Doe"
+            placeholder={t.fullNameExample}
             className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
         </div>
@@ -77,7 +77,7 @@ export function AddUserModal({ open, onClose, formData, locations, onChange, onS
             type="email"
             value={formData.email} 
             onChange={onChange} 
-            placeholder="e.g., jdoe@example.com"
+            placeholder={t.emailExample}
             className={`w-full px-4 py-2.5 bg-slate-50 border rounded-lg text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
               formData.role === "Admin" && !formData.email ? "border-rose-400" : "border-slate-200"
             }`}
@@ -126,7 +126,7 @@ export function AddUserModal({ open, onClose, formData, locations, onChange, onS
         <div className="col-span-2">
           <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-2">
             <MapPin size={14} className="text-slate-400" />
-            Location
+            {t.location}
             <span className="text-rose-500 text-xs">*</span>
           </label>
           <select
@@ -138,7 +138,7 @@ export function AddUserModal({ open, onClose, formData, locations, onChange, onS
             }`}
           >
             <option value="" disabled>
-              Select location
+              {t.selectLocation}
             </option>
             {locations.map((location) => (
               <option key={location.id} value={location.id}>
@@ -147,7 +147,7 @@ export function AddUserModal({ open, onClose, formData, locations, onChange, onS
             ))}
           </select>
           {!formData.locationId && (
-            <p className="text-xs text-rose-500 mt-1">Location is required.</p>
+            <p className="text-xs text-rose-500 mt-1">{t.locationRequired}</p>
           )}
         </div>
       </div>

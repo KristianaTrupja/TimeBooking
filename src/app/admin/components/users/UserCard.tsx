@@ -41,6 +41,8 @@ export function UserCard({
   isDeleting,
 }: Props) {
   const { t } = useLanguage();
+  const getRoleLabel = (role: string) =>
+    role === "Admin" ? t.admin : role === "Dev" ? t.developer : role === "Employee" ? t.employee : role;
   
   return (
     <div className={`p-4 border border-slate-200 rounded-lg transition-all ${isEditing ? "bg-blue-50 border-blue-300 ring-2 ring-blue-200" : "bg-white"}`}>
@@ -111,14 +113,14 @@ export function UserCard({
           >
             {ROLE_OPTIONS.map((role, idx) => (
               <option key={idx} value={role}>
-                {role}
+                {getRoleLabel(role)}
               </option>
             ))}
           </select>
         ) : (
           <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border ml-0 sm:ml-6 ${roleBadgeStyles[emp.role] || "bg-slate-100 text-slate-700"}`}>
             {emp.role === "Admin" ? <Shield size={12} /> : null}
-            {emp.role}
+            {getRoleLabel(emp.role)}
           </span>
         )}
       </div>
@@ -155,7 +157,7 @@ export function UserCard({
       <div className="mb-4">
         <div className="flex items-center gap-2 mb-1">
           <MapPin size={14} className="text-slate-500" />
-          <span className="text-xs font-semibold uppercase text-slate-500">Location</span>
+          <span className="text-xs font-semibold uppercase text-slate-500">{t.location}</span>
         </div>
         {isEditing ? (
           <select
@@ -167,7 +169,7 @@ export function UserCard({
             }`}
           >
             <option value="" disabled>
-              Select location
+              {t.selectLocation}
             </option>
             {locations.map((location) => (
               <option key={location.id} value={location.id}>
@@ -177,7 +179,7 @@ export function UserCard({
           </select>
         ) : (
           <div className="flex items-center gap-2 ml-0 sm:ml-6">
-            <span className="text-slate-700">{emp.locationName || "Unassigned"}</span>
+            <span className="text-slate-700">{emp.locationName || t.unassigned}</span>
           </div>
         )}
       </div>

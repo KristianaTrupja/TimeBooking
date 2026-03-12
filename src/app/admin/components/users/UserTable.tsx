@@ -129,7 +129,7 @@ export function UserTable({
                 </button>
               </th>
               <th className="px-4 py-3 font-bold bg-slate-100">{t.password}</th>
-              <th className="px-4 py-3 font-bold bg-slate-100">Location</th>
+              <th className="px-4 py-3 font-bold bg-slate-100">{t.location}</th>
               <th className="px-4 py-3 font-bold bg-slate-100">
                 <button 
                   onClick={() => handleSort("totalVacations")}

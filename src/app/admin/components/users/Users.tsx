@@ -66,7 +66,7 @@ export default function Users() {
         setContainerHeight(null);
       }
     }
-  }, []);
+  }, [t.failedToLoadUsers]);
 
   useEffect(() => {
     calculateHeight();
@@ -83,7 +83,7 @@ export default function Users() {
         ]);
 
         if (!usersRes.ok) {
-          throw new Error("Failed to load users");
+          throw new Error(t.failedToLoadUsers);
         }
 
         const data = await usersRes.json();
@@ -100,7 +100,7 @@ export default function Users() {
         }
       } catch (error) {
         console.error(error);
-        toast.error("Failed to fetch users.");
+        toast.error(t.failedToLoadUsers);
         setUser({ users: [] });
         setLocations([]);
       } finally {
@@ -178,13 +178,13 @@ export default function Users() {
   const saveChanges = async () => {
     const { id, username, email, role, password, totalVacations, locationId } = formData;
     if (!id || !username || !role || !locationId || (!isPasswordStrong(password) && password.trim())) {
-      toast.error("Please fill-in the required fields!");
+      toast.error(t.pleaseFillRequiredFields);
       return;
     }
 
     // Email is required only for Admin role
     if (role === "Admin" && !email) {
-      toast.error("Email is required for Admin users.");
+      toast.error(t.emailRequiredForAdmin);
       return;
     }
     const payload: any = { id, username, email, role, locationId, totalVacations: Number(totalVacations) };
@@ -208,15 +208,15 @@ export default function Users() {
               u.id === updated.user.id ? updated.user : u
             ) || [],
         }));
-        toast.success("Employee was successfully updated.");
+        toast.success(t.employeeUpdatedSuccessfully);
         setEditingId(null);
         setFormData({ id: 0, username: "", email: "", password: "", role: "", locationId: 0, totalVacations: 0 });
       } else {
         const err = await res.json();
-        toast.error(err.message || "Updating failed!");
+        toast.error(err.message || t.updatingFailed);
       }
     } catch {
-      toast.error("An error occurred while attempting to update!");
+      toast.error(t.updateAttemptFailed);
     } finally {
       setIsSaving(false);
     }
@@ -226,18 +226,18 @@ export default function Users() {
     const { username, email, password, role, locationId } = formData;
 
     if (!username || !password || !role || !locationId) {
-      toast.error("Please fill-in all required fields.");
+      toast.error(t.pleaseFillAllFields);
       return;
     }
 
     // Email is required only for Admin role
     if (role === "Admin" && !email) {
-      toast.error("Email is required for Admin users.");
+      toast.error(t.emailRequiredForAdmin);
       return;
     }
 
     if (!isPasswordStrong(formData.password)) {
-      toast.error("Weak password. Meet the requirements.");
+      toast.error(t.weakPasswordMeetRequirements);
       return;
     }
     setIsAdding(true);
@@ -257,7 +257,7 @@ export default function Users() {
               locationName: data.user.locationName ?? data.user.location?.name ?? null,
             }
           : undefined;
-        toast.success(data?.message || "Employee was added successfully.");
+        toast.success(data?.message || t.employeeAddedSuccessfully);
         setOpen(false);
         if (createdUser?.id) {
           setUser((prev) => {
@@ -270,7 +270,7 @@ export default function Users() {
       } else {
         const err = await response.json();
         toast.error(
-          err.message || "Registration failed! Please try again."
+          err.message || t.registrationFailedTryAgain
         );
       }
     } finally {
@@ -281,7 +281,7 @@ export default function Users() {
   const createLocation = async () => {
     const trimmedName = newLocationName.trim();
     if (!trimmedName) {
-      toast.error("Location name is required.");
+      toast.error(t.locationRequired);
       return;
     }
 
@@ -295,7 +295,7 @@ export default function Users() {
 
       const data = await res.json();
       if (!res.ok) {
-        throw new Error(data.message || "Failed to create location");
+        throw new Error(data.message || t.failedToCreateLocation);
       }
 
       const createdLocation: LocationOption = data.location;
@@ -304,10 +304,10 @@ export default function Users() {
       );
       setNewLocationName("");
       setIsLocationModalOpen(false);
-      toast.success(data.message || "Location created successfully.");
+      toast.success(data.message || t.locationCreatedSuccessfully);
     } catch (error: any) {
       console.error(error);
-      toast.error(error?.message || "Failed to create location");
+      toast.error(error?.message || t.failedToCreateLocation);
     } finally {
       setIsCreatingLocation(false);
     }
@@ -361,7 +361,7 @@ export default function Users() {
                 onChange={(e) => setSelectedLocationFilter(e.target.value)}
                 className="bg-transparent text-sm font-medium text-slate-700 focus:outline-none"
               >
-                <option value="all">All locations</option>
+                <option value="all">{t.allLocations}</option>
                 {locations.map((location) => (
                   <option key={location.id} value={String(location.id)}>
                     {location.name}
@@ -372,8 +372,8 @@ export default function Users() {
                 type="button"
                 onClick={() => setIsLocationModalOpen(true)}
                 className="h-7 w-7 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-blue-600 hover:border-blue-300 transition-colors flex items-center justify-center"
-                title="Add location"
-                aria-label="Add location"
+                title={t.addLocation}
+                aria-label={t.addLocation}
               >
                 <Plus size={14} />
               </button>
@@ -385,8 +385,8 @@ export default function Users() {
                   ? "bg-gradient-to-br from-cyan-500 to-blue-600 text-white border-cyan-400 shadow-lg shadow-cyan-500/35 ring-2 ring-cyan-200/60"
                   : "bg-gradient-to-br from-white to-slate-50 text-slate-700 border-slate-300 shadow-sm hover:shadow-md hover:border-cyan-400 hover:text-cyan-700"
               }`}
-              aria-label={isTableExpanded ? "Collapse table view" : "Expand table view"}
-              title={isTableExpanded ? "Collapse table view" : "Expand table view"}
+              aria-label={isTableExpanded ? t.collapseTableView : t.expandTableView}
+              title={isTableExpanded ? t.collapseTableView : t.expandTableView}
             >
               {isTableExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
             </button>
@@ -483,7 +483,7 @@ export default function Users() {
           if (isCreatingLocation) return;
           setIsLocationModalOpen(false);
         }}
-        title="Create Location"
+        title={t.createLocation}
         className="max-w-md"
         footer={
           <div className="flex justify-end gap-3">
@@ -495,18 +495,18 @@ export default function Users() {
               {t.cancel}
             </Button>
             <Button onClick={createLocation} loading={isCreatingLocation}>
-              Create
+              {t.createLocation}
             </Button>
           </div>
         }
       >
         <label className="block text-sm font-medium text-slate-700 mb-2">
-          Location name
+          {t.locationName}
         </label>
         <input
           value={newLocationName}
           onChange={(e) => setNewLocationName(e.target.value)}
-          placeholder="e.g., Albania, Germany, External Vendor"
+          placeholder={t.locationNameExample}
           className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm text-slate-700 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400"
         />
       </Modal>

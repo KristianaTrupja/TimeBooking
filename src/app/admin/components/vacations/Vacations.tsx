@@ -85,7 +85,7 @@ export default function Vacations() {
     try {
       const res = await fetch("/api/locations", { cache: "no-store" });
       if (!res.ok) {
-        throw new Error("Failed to fetch locations");
+        throw new Error(t.failedToLoadLocations);
       }
       const data = await res.json();
       const locationList: LocationOption[] = data.locations || [];
@@ -98,11 +98,11 @@ export default function Vacations() {
       });
     } catch (error) {
       console.error(error);
-      toast.error("Failed to load locations");
+      toast.error(t.failedToLoadLocations);
       setLocations([]);
       setSelectedLocationId(null);
     }
-  }, []);
+  }, [t.failedToLoadLocations]);
 
   useEffect(() => {
     fetchLocations();
@@ -157,7 +157,7 @@ export default function Vacations() {
 
   const handleSave = async (id: number) => {
     if (!selectedLocationId) {
-      toast.error("Select a location first.");
+      toast.error(t.selectLocationFirst);
       return;
     }
 
@@ -168,7 +168,7 @@ export default function Vacations() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id, locationId: selectedLocationId, ...editedData }),
       });
-      if (!res.ok) throw new Error("Failed to update");
+      if (!res.ok) throw new Error(t.failedToUpdateHoliday);
 
       const updated = await res.json();
       const updatedItem = {
@@ -181,7 +181,7 @@ export default function Vacations() {
       setEditingId(null);
     } catch (error) {
       console.error(error);
-      toast.error("Failed to update holiday");
+      toast.error(t.failedToUpdateHoliday);
     } finally {
       setSavingId(null);
     }
@@ -203,12 +203,12 @@ export default function Vacations() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id }),
       });
-      if (!res.ok) throw new Error("Failed to delete");
+      if (!res.ok) throw new Error(t.failedToDeleteHoliday);
 
       setVacations((prev) => prev.filter((v) => v.id !== id));
     } catch (error) {
       console.error(error);
-      toast.error("Failed to delete holiday");
+      toast.error(t.failedToDeleteHoliday);
     } finally {
       setDeletingId(null);
       setHolidayToDelete(null);
@@ -224,12 +224,12 @@ export default function Vacations() {
 
   const handleAdd = async () => {
     if (!selectedLocationId) {
-      toast.error("Select a location first.");
+      toast.error(t.selectLocationFirst);
       return;
     }
 
     if (!newHoliday.date || !newHoliday.holiday) {
-      toast.error("Please fill-in the required fields!");
+      toast.error(t.pleaseFillRequiredFields);
       return;
     }
 
@@ -241,7 +241,7 @@ export default function Vacations() {
         body: JSON.stringify({ ...newHoliday, locationId: selectedLocationId }),
       });
 
-      if (!res.ok) throw new Error("Failed to add holiday");
+      if (!res.ok) throw new Error(t.failedToAddHoliday);
 
       const data = await res.json();
       const newItem = {
@@ -254,7 +254,7 @@ export default function Vacations() {
       setModalOpen(false);
     } catch (error) {
       console.error(error);
-      toast.error("Failed to add holiday");
+      toast.error(t.failedToAddHoliday);
     } finally {
       setIsAdding(false);
     }
@@ -268,7 +268,7 @@ export default function Vacations() {
   const createLocation = async () => {
     const trimmedName = newLocationName.trim();
     if (!trimmedName) {
-      toast.error("Location name is required.");
+      toast.error(t.locationRequired);
       return;
     }
 
@@ -282,7 +282,7 @@ export default function Vacations() {
 
       const data = await res.json();
       if (!res.ok) {
-        throw new Error(data.message || "Failed to create location");
+        throw new Error(data.message || t.failedToCreateLocation);
       }
 
       const createdLocation: LocationOption = data.location;
@@ -292,10 +292,10 @@ export default function Vacations() {
       setSelectedLocationId(createdLocation.id);
       setNewLocationName("");
       setIsLocationModalOpen(false);
-      toast.success(data.message || "Location created successfully.");
+      toast.success(data.message || t.locationCreatedSuccessfully);
     } catch (error: any) {
       console.error(error);
-      toast.error(error?.message || "Failed to create location");
+      toast.error(error?.message || t.failedToCreateLocation);
     } finally {
       setIsCreatingLocation(false);
     }
@@ -339,14 +339,14 @@ export default function Vacations() {
           <div className="flex items-center gap-2 flex-wrap justify-end">
             <div className="flex items-center gap-2 bg-slate-100 rounded-xl px-2 py-1">
               <MapPin size={14} className="text-slate-500" />
-              <span className="text-xs font-semibold uppercase tracking-wide text-slate-500 hidden sm:inline">Location</span>
+              <span className="text-xs font-semibold uppercase tracking-wide text-slate-500 hidden sm:inline">{t.location}</span>
               <select
                 value={selectedLocationId ?? ""}
                 onChange={(e) => setSelectedLocationId(Number(e.target.value) || null)}
                 className="bg-transparent text-sm font-medium text-slate-700 focus:outline-none"
               >
                 <option value="" disabled>
-                  Select location
+                  {t.selectLocation}
                 </option>
                 {locations.map((location) => (
                   <option key={location.id} value={location.id}>
@@ -358,11 +358,11 @@ export default function Vacations() {
                 type="button"
                 onClick={() => setIsLocationModalOpen(true)}
                 className="h-7 px-2 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-blue-600 hover:border-blue-300 transition-colors flex items-center justify-center gap-1"
-                title="Add location"
-                aria-label="Add location"
+                title={t.addLocation}
+                aria-label={t.addLocation}
               >
                 <Plus size={14} />
-                <span className="text-xs font-medium hidden sm:inline">Add</span>
+                <span className="text-xs font-medium hidden sm:inline">{t.add}</span>
               </button>
             </div>
             <button
@@ -372,8 +372,8 @@ export default function Vacations() {
                   ? "bg-gradient-to-br from-cyan-500 to-blue-600 text-white border-cyan-400 shadow-lg shadow-cyan-500/35 ring-2 ring-cyan-200/60"
                   : "bg-gradient-to-br from-white to-slate-50 text-slate-700 border-slate-300 shadow-sm hover:shadow-md hover:border-cyan-400 hover:text-cyan-700"
               }`}
-              aria-label={isTableExpanded ? "Collapse table view" : "Expand table view"}
-              title={isTableExpanded ? "Collapse table view" : "Expand table view"}
+              aria-label={isTableExpanded ? t.collapseTableView : t.expandTableView}
+              title={isTableExpanded ? t.collapseTableView : t.expandTableView}
             >
               {isTableExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
             </button>
@@ -384,7 +384,7 @@ export default function Vacations() {
               className="hover:bg-white rounded-lg h-9 w-9 p-0" 
               onClick={goToPreviousYear} 
               disabled={isTableLoading}
-              aria-label="Previous year"
+              aria-label={t.previousYear}
             >
               <ChevronLeft className="text-slate-600" size={18} />
             </Button>
@@ -395,7 +395,7 @@ export default function Vacations() {
               className="hover:bg-white rounded-lg h-9 w-9 p-0" 
               onClick={goToNextYear} 
               disabled={isTableLoading}
-              aria-label="Next year"
+              aria-label={t.nextYear}
             >
               <ChevronRight className="text-slate-600" size={18} />
             </Button>
@@ -453,7 +453,7 @@ export default function Vacations() {
           </div>
         </div>
         <div className="mb-4 p-3 rounded-xl bg-blue-50 border border-blue-200 text-sm text-blue-700">
-          Holidays are managed per location. Select a location above, then add or edit holidays for that location.
+          {t.locationHolidayManagementHint}
         </div>
       </div>
 
@@ -464,11 +464,11 @@ export default function Vacations() {
       >
         {!selectedLocationId ? (
           <div className="h-full min-h-[260px] flex flex-col items-center justify-center text-center px-4">
-            <p className="text-slate-700 font-semibold mb-1">No location selected.</p>
-            <p className="text-sm text-slate-500 mb-4">Create or choose a location to manage its holidays.</p>
+            <p className="text-slate-700 font-semibold mb-1">{t.noLocationSelected}</p>
+            <p className="text-sm text-slate-500 mb-4">{t.createOrChooseLocation}</p>
             <Button onClick={() => setIsLocationModalOpen(true)} className="gap-2">
               <Plus size={16} />
-              Add location
+              {t.addLocation}
             </Button>
           </div>
         ) : isTableLoading ? (
@@ -537,7 +537,7 @@ export default function Vacations() {
           if (isCreatingLocation) return;
           setIsLocationModalOpen(false);
         }}
-        title="Create Location"
+        title={t.createLocation}
         className="max-w-md"
         footer={
           <div className="flex justify-end gap-3">
@@ -549,18 +549,18 @@ export default function Vacations() {
               {t.cancel}
             </Button>
             <Button onClick={createLocation} loading={isCreatingLocation}>
-              Create
+              {t.createLocation}
             </Button>
           </div>
         }
       >
         <label className="block text-sm font-medium text-slate-700 mb-2">
-          Location name
+          {t.locationName}
         </label>
         <input
           value={newLocationName}
           onChange={(e) => setNewLocationName(e.target.value)}
-          placeholder="e.g., Germany, New York, External Vendor"
+          placeholder={t.locationNameExample}
           className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm text-slate-700 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400"
         />
       </Modal>
