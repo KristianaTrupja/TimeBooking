@@ -441,6 +441,7 @@ export default function ModifyAbsencesCalendarView({
                     const isHovered = isRowHovered || hoveredDay === day;
                     const holidayNameForUser = getHolidayName?.(user.id, dateIso) ?? holidayName;
                     const hasHoliday = !!holidayNameForUser;
+                    const showMarker = !isWeekend && (Boolean(absenceType) || hasHoliday);
                     const isCellSelected = isRangeDaySelected(user.id, dateIso);
                     const isAnchorCell = selectionAnchor?.userId === user.id && selectionAnchor.dateIso === dateIso;
                     const canSelectCell = rowInteractive && !absenceType;
@@ -458,7 +459,7 @@ export default function ModifyAbsencesCalendarView({
                         onMouseLeave={() => setHoveredDay(null)}
                         title={hasHoliday ? holidayNameForUser : undefined}
                       >
-                        <span className="relative z-10">{absenceType ? "*" : hasHoliday ? "*" : ""}</span>
+                        <span className="relative z-10">{showMarker ? "*" : ""}</span>
                       </td>
                     );
                   })}
