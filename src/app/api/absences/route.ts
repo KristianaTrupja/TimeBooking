@@ -176,11 +176,6 @@ export async function POST(req: Request) {
           endDate: { gte: start },
         },
       }),
-      db.user.findFirst({
-        where: {
-          id: targetUserId,
-        },
-      }),
       db.workHours.findFirst({
         where: {
           userId: targetUserId,
