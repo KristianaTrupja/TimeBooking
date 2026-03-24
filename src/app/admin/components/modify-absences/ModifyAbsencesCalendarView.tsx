@@ -441,7 +441,6 @@ export default function ModifyAbsencesCalendarView({
                     const isHovered = isRowHovered || hoveredDay === day;
                     const holidayNameForUser = getHolidayName?.(user.id, dateIso) ?? holidayName;
                     const hasHoliday = !!holidayNameForUser;
-                    const hasLineMarker = Boolean(absenceType || hasHoliday || isWeekend);
                     const isCellSelected = isRangeDaySelected(user.id, dateIso);
                     const isAnchorCell = selectionAnchor?.userId === user.id && selectionAnchor.dateIso === dateIso;
                     const canSelectCell = rowInteractive && !absenceType;
@@ -460,17 +459,6 @@ export default function ModifyAbsencesCalendarView({
                         title={hasHoliday ? holidayNameForUser : undefined}
                       >
                         <span className="relative z-10">{absenceType ? "*" : hasHoliday ? "*" : ""}</span>
-                        {hasLineMarker && (
-                          <div
-                            aria-hidden="true"
-                            className="pointer-events-none absolute inset-0 z-0"
-                            style={{
-                              backgroundImage:
-                                "repeating-linear-gradient(135deg, currentColor 0 1px, transparent 1px 7px)",
-                              opacity: 0.12,
-                            }}
-                          />
-                        )}
                       </td>
                     );
                   })}
