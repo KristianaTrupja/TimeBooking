@@ -19,6 +19,7 @@ export default function PWARegister() {
       register();
       return;
     }
+    
 
     window.addEventListener("load", register, { once: true });
     return () => window.removeEventListener("load", register);
