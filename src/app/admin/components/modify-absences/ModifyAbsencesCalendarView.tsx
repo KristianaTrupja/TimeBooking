@@ -313,7 +313,8 @@ export default function ModifyAbsencesCalendarView({
                 setSelectionAnchor(null);
                 setSelectionRange(null);
               }}
-              className="px-3 py-2 rounded-lg border border-slate-300 text-slate-700 text-sm font-medium hover:bg-white transition-colors"
+              disabled={!selectionAnchor && !selectionRange}
+              className="px-3 py-2 rounded-lg border border-slate-300 text-slate-700 text-sm font-medium hover:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent"
             >
               {t.reset}
             </button>
