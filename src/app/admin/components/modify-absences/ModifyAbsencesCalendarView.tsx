@@ -345,12 +345,12 @@ export default function ModifyAbsencesCalendarView({
               <col key={`col-${day}`} style={{ width: "var(--day-col-width)", minWidth: "var(--day-col-width)", maxWidth: "var(--day-col-width)" }} />
             ))}
           </colgroup>
-          <thead className="sticky top-0 z-20 border-b border-slate-200">
+          <thead className="sticky top-0 z-20 border-b border-slate-300">
             <tr className="text-xs uppercase tracking-wider text-slate-600">
               <th
                 scope="col"
                 style={{ width: "var(--employee-col-width)", minWidth: "var(--employee-col-width)", maxWidth: "var(--employee-col-width)" }}
-                className="px-2 sm:px-4 py-3 font-bold text-left sticky left-0 bg-slate-100 z-30 border-r border-slate-200 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.1)]"
+                className="px-2 sm:px-4 py-3 font-bold text-left sticky left-0 bg-slate-200 z-30 border-r border-slate-300 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.1)]"
               >
                 {employeeLabel}
               </th>
@@ -365,10 +365,10 @@ export default function ModifyAbsencesCalendarView({
                       isToday
                         ? "bg-gradient-to-b from-blue-500 to-blue-400 border-r-2 border-l-2 border-blue-600 shadow-md"
                         : hasHoliday
-                          ? "bg-gradient-to-b from-sky-200 to-sky-100 border-r border-sky-300"
+                          ? "bg-gradient-to-b from-sky-200 to-sky-100 border-r border-sky-500"
                           : isWeekend
-                            ? "bg-slate-200/70 border-r border-slate-200"
-                            : "bg-slate-100 border-r border-slate-200"
+                            ? "bg-slate-300/70 border-r border-slate-400"
+                            : "bg-slate-200 border-r border-slate-400"
                     } ${isColHovered && !isToday ? "!bg-blue-100 ring-2 ring-inset ring-blue-200" : ""}`}
                     onMouseEnter={() => setHoveredDay(day)}
                     onMouseLeave={() => setHoveredDay(null)}
@@ -397,7 +397,7 @@ export default function ModifyAbsencesCalendarView({
             </tr>
           </thead>
 
-          <tbody className="divide-y divide-slate-100 bg-white">
+          <tbody className="divide-y divide-slate-300 bg-white">
             {orderedEmployees.map((user) => {
               const isRowHovered = hoveredUserId === user.id;
               const isLoggedInUser = loggedInUserId === user.id;
@@ -412,8 +412,8 @@ export default function ModifyAbsencesCalendarView({
                   <th
                     scope="row"
                     style={{ width: "var(--employee-col-width)", minWidth: "var(--employee-col-width)", maxWidth: "var(--employee-col-width)" }}
-                    className={`px-2 sm:px-4 py-2 h-10 sticky left-0 z-10 border-r border-slate-200 transition-all duration-150 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.05)] ${
-                      isRowHovered ? "bg-blue-50" : isLoggedInUser ? "bg-blue-50/60" : "bg-white"
+                    className={`px-2 sm:px-4 py-2 h-10 sticky left-0 z-10 border-r border-b border-slate-300 transition-all duration-150 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.05)] ${
+                      isRowHovered ? "bg-blue-50" : isLoggedInUser ? "bg-blue-50/60" : "bg-slate-50"
                     }`}
                   >
                     <div className="flex items-center gap-2">
@@ -450,7 +450,7 @@ export default function ModifyAbsencesCalendarView({
                     return (
                       <td
                         key={`${user.id}-${day}`}
-                        className={`relative overflow-hidden px-1 py-2 h-10 text-center text-[11px] transition-all duration-150 ${getCellClass(absenceType, isWeekend, hasHoliday)} ${
+                        className={`relative overflow-hidden px-1 py-2 h-10 text-center text-[11px] border-r border-slate-300 transition-all duration-150 ${getCellClass(absenceType, isWeekend, hasHoliday)} ${
                           isHovered && !absenceType && !hasHoliday && !isWeekend
                             ? "!bg-blue-50 ring-1 ring-inset ring-blue-100"
                             : ""
