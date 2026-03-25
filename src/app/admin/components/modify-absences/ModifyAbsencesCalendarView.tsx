@@ -451,7 +451,9 @@ export default function ModifyAbsencesCalendarView({
                       <td
                         key={`${user.id}-${day}`}
                         className={`relative overflow-hidden px-1 py-2 h-10 text-center text-[11px] transition-all duration-150 ${getCellClass(absenceType, isWeekend, hasHoliday)} ${
-                          isHovered && !absenceType ? "!bg-blue-50 ring-1 ring-inset ring-blue-100" : ""
+                          isHovered && !absenceType && !hasHoliday && !isWeekend
+                            ? "!bg-blue-50 ring-1 ring-inset ring-blue-100"
+                            : ""
                         } ${canSelectCell ? "cursor-pointer" : "cursor-default"} ${
                           isCellSelected ? "!bg-cyan-100 ring-2 ring-inset ring-cyan-400" : ""
                         } ${isAnchorCell ? "!bg-cyan-200 ring-2 ring-inset ring-cyan-500" : ""}`}
