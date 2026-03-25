@@ -12,8 +12,6 @@ export default function AdminBackButton() {
 
   if (!adminId) return null;
 
-
-
   return (
     <Link href={`/admin/?adminId=${adminId}`}>
       <Button size="sm" className="mr-2">
