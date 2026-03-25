@@ -111,7 +111,7 @@ export default function TotalBar({ isOwner=false }: { isOwner:boolean }) {
 
   return (
     <>
-    <div className="h-full flex flex-col bg-gradient-to-b from-blue-50 to-blue-100 min-w-[90px] rounded-r-xl border-l border-slate-200 shadow-md overflow-hidden">
+    <div className="h-full flex flex-col bg-gradient-to-b from-blue-50 to-blue-100 min-w-[90px] rounded-r-xl border-l border-slate-300 shadow-md overflow-hidden">
       <div className="w-full h-10 2xl:h-11 flex justify-center items-center font-semibold text-sm bg-gradient-to-r from-[#1a3a5c] to-[#244B77] text-white rounded-tr-xl flex-shrink-0">
         {t.total}
       </div>
@@ -119,13 +119,13 @@ export default function TotalBar({ isOwner=false }: { isOwner:boolean }) {
         {sidebarProjects.map((group) => (
           <div key={group.company} className="w-full project-field">
             <div className="project-field__name flex items-center w-full h-9 2xl:h-10
-             font-semibold bg-slate-100 border-b border-slate-200" />
+             font-semibold bg-slate-100 border-b border-slate-300" />
             {group.projects.map((proj) => {
               const total = getEffectiveTotalForProject(proj.projectKey);
               const isInactive = !proj.isActive;
               return (
                 <div
-                  className={`total-field flex h-9 2xl:h-10 gap-2 items-center justify-center border-b border-slate-200 relative px-3 ${
+                  className={`total-field flex h-9 2xl:h-10 gap-2 items-center justify-center border-b border-slate-300 relative px-3 ${
                     isInactive ? 'bg-slate-300/50 opacity-60' : 'bg-white/50'
                   }`}
                   key={proj.projectKey}
@@ -143,7 +143,7 @@ export default function TotalBar({ isOwner=false }: { isOwner:boolean }) {
           </div>
         ))}
       </div>
-      <div className="w-full h-9 2xl:h-10 flex justify-center items-center font-bold text-blue-700 bg-blue-100 border-t border-blue-200 rounded-br-xl flex-shrink-0">
+      <div className="w-full h-9 2xl:h-10 flex justify-center items-center font-bold text-blue-700 bg-blue-100 border-t border-blue-300 rounded-br-xl flex-shrink-0">
         {sum.toFixed(2)}
       </div>
     </div>
