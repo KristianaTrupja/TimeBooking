@@ -230,24 +230,17 @@ export async function POST(req: Request) {
 
     const startLabel = formatDate(start);
     const endLabel = formatDate(end);
-
-    if (requestedStatus === "PENDING") {
-      await notifyUsersByRole({
-        role: "Admin",
-        title: "Leave Request Pending",
-        message: NotificationMessage.AbsenceRequested(newAbsence.user.username, type, startLabel, endLabel),
-        type: NotificationType.APPROVAL_REQUEST,
-        actionType: "VIEW_ABSENCE",
-        senderUserId: targetUserId,
-        actionData: { startDate: start.toISOString() },
-      });
-
+    const sendAdminLeaveNotificationEmail = async () => {
       try {
         const adminUsers = await db.user.findMany({
-          where: { role: "Admin" },
-          select: { email: true },
+          where: {
+            isActive: true,
+            email: { not: null },
+          },
+          select: { email: true, role: true },
         });
         const adminEmails = adminUsers
+          .filter((user) => typeof user.role === "string" && user.role.trim().toLowerCase() === "admin")
           .map((user) => user.email)
           .filter((email): email is string => !!email && email.trim() !== "");
 
@@ -263,9 +256,22 @@ export async function POST(req: Request) {
           console.error(`Failed to send leave request emails to admins. Failed: ${emailResult.failed}`);
         }
       } catch (emailError) {
-        // Keep request creation successful even if email fails.
+        // Keep absence creation successful even if email fails.
         console.error("Error sending leave request email notifications:", emailError);
       }
+    };
+
+    if (requestedStatus === "PENDING") {
+      await notifyUsersByRole({
+        role: "Admin",
+        title: "Leave Request Pending",
+        message: NotificationMessage.AbsenceRequested(newAbsence.user.username, type, startLabel, endLabel),
+        type: NotificationType.APPROVAL_REQUEST,
+        actionType: "VIEW_ABSENCE",
+        senderUserId: targetUserId,
+        actionData: { startDate: start.toISOString() },
+      });
+      await sendAdminLeaveNotificationEmail();
 
       await notifyUser(targetUserId, {
         title: "Leave Request Submitted",
@@ -306,6 +312,7 @@ export async function POST(req: Request) {
       senderUserId: requester.id,
       actionData: { startDate: start.toISOString() },
     });
+    await sendAdminLeaveNotificationEmail();
 
     return NextResponse.json(
       { absence: newAbsence, message: `${businessDays} days off successfully granted to ${employee.username}.` },
