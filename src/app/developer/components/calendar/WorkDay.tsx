@@ -96,7 +96,7 @@ export default function WorkDay({
           setHoveredProjectKey(null);
         }}
         title={title ?? displayData.note}
-        className={`relative w-9 h-9 2xl:w-10 2xl:h-10 flex items-center justify-center text-sm border-r border-b border-slate-300 transition-all duration-150
+        className={`relative w-9 h-9 2xl:w-10 2xl:h-10 flex items-center justify-center text-sm border-r border-b border-slate-200 transition-all duration-150
           ${getDayStyles()}
           ${!canClick ? "cursor-default" : ""}
           ${isHovered && canClick && "!bg-blue-100"}

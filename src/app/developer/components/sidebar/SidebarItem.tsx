@@ -15,7 +15,7 @@ export default function SidebarItem({ company, projects, isCollapsed = false }: 
 
   return (
     <div>
-      <h3 className={`bg-slate-100 w-full h-9 2xl:h-10 text-slate-700 flex items-center border-b border-slate-300 font-semibold text-sm whitespace-nowrap ${
+      <h3 className={`bg-slate-100 w-full h-9 2xl:h-10 text-slate-700 flex items-center border-b border-slate-200 font-semibold text-sm whitespace-nowrap ${
         isCollapsed ? "px-1.5" : "gap-2 px-3"
       }`}>
         {!isCollapsed && <Building2 size={16} className="text-slate-500 flex-shrink-0" />}
@@ -29,7 +29,7 @@ export default function SidebarItem({ company, projects, isCollapsed = false }: 
           return (
           <li
             key={project.projectKey}
-            className={`h-9 2xl:h-10 ${isCollapsed ? "pl-1.5 pr-1.5 gap-0" : "pl-5 pr-3 gap-2"} flex items-center border-b border-slate-300 text-sm transition-colors whitespace-nowrap ${
+            className={`h-9 2xl:h-10 ${isCollapsed ? "pl-1.5 pr-1.5 gap-0" : "pl-5 pr-3 gap-2"} flex items-center border-b border-slate-200 text-sm transition-colors whitespace-nowrap ${
               isInactive 
                 ? 'bg-slate-300/50 text-slate-500 opacity-60 cursor-not-allowed' 
                 : 'bg-white text-slate-600 hover:bg-blue-50'

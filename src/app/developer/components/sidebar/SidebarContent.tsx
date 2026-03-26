@@ -24,14 +24,14 @@ export default function SidebarContent({
   const hasProjects = sidebarProjects.length > 0;
   
   return (
-    <aside className={`h-full w-full bg-gradient-to-b from-slate-50 to-slate-100 rounded-l-xl border-r border-slate-300 flex flex-col shadow-md transition-all duration-300 overflow-hidden ${
+    <aside className={`h-full w-full bg-gradient-to-b from-slate-50 to-slate-100 rounded-l-xl border-r border-slate-200 flex flex-col shadow-md transition-all duration-300 overflow-hidden ${
       isCollapsed ? "min-w-[92px]" : "min-w-[160px]"
     }`}>
       <div className="flex-1 min-h-0 overflow-hidden">
         <SidebarList sidebarProjects={sidebarProjects} isCollapsed={isCollapsed} />
       </div>
       {isOwner && !isLocked && !isCollapsed && (
-        <div className="p-3 border-t border-slate-300 flex-shrink-0">
+        <div className="p-3 border-t border-slate-200 flex-shrink-0">
           <div className="flex gap-2">
             <Button 
               variant="outline"

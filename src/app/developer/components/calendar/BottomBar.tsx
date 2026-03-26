@@ -65,7 +65,7 @@ export default function BottomBar() {
           <div
             key={day}
             title={tooltip}
-            className={`border-t-3 ${borderColor} border-r border-slate-300 w-9 h-7 2xl:h-8 2xl:w-10 flex justify-center items-center text-xs font-medium rounded-b ${bgColor}`}
+            className={`border-t-3 ${borderColor} w-9 h-7 2xl:h-8 2xl:w-10 flex justify-center items-center text-xs font-medium rounded-b ${bgColor}`}
           >
             {totalHours.toFixed(2)}
           </div>

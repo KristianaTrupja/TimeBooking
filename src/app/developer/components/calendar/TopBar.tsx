@@ -39,7 +39,7 @@ export default function TopBar({ hoveredColIndex }: { hoveredColIndex: number | 
           : null;
 
         const classList = [
-          "w-9 h-10 2xl:w-10 2xl:h-11 flex justify-center items-center border-r border-white/25 font-medium text-sm transition-colors",
+          "w-9 h-10 2xl:w-10 2xl:h-11 flex justify-center items-center border-r border-white/10 font-medium text-sm transition-colors",
           isWeekend(year, month, day) ? "bg-white/10 text-white/70" : "text-white",
           isHoliday && HOLIDAY_CALENDAR_COLORS.workhourTopBarClass,
           absenceTopBarClass,
