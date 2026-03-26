@@ -663,7 +663,17 @@ export async function DELETE(req: Request) {
 
     const existing = await db.absence.findUnique({
       where: { id },
-      select: { id: true, userId: true, status: true },
+      select: {
+        id: true,
+        userId: true,
+        status: true,
+        type: true,
+        startDate: true,
+        endDate: true,
+        user: {
+          select: { username: true },
+        },
+      },
     });
 
     if (!existing) {
@@ -679,6 +689,36 @@ export async function DELETE(req: Request) {
     await db.absence.delete({
       where: { id },
     });
+
+    const startLabel = formatDate(existing.startDate);
+    const endLabel = formatDate(existing.endDate);
+
+    await notifyUsersByRole({
+      role: "Admin",
+      title: "Absence Deleted",
+      message: NotificationMessage.AbsenceDeleted(
+        requester.username,
+        existing.user.username,
+        existing.type,
+        startLabel,
+        endLabel
+      ),
+      type: NotificationType.INFO,
+      senderUserId: requester.id,
+      actionType: "VIEW_ABSENCE",
+      actionData: { startDate: existing.startDate.toISOString() },
+    });
+
+    if (existing.userId !== requester.id) {
+      await notifyUser(existing.userId, {
+        title: "Absence Deleted",
+        message: `Your ${existing.type} leave (${startLabel} to ${endLabel}) was deleted by ${requester.username}.`,
+        type: NotificationType.INFO,
+        senderUserId: requester.id,
+        actionType: "VIEW_ABSENCE",
+        actionData: { startDate: existing.startDate.toISOString() },
+      });
+    }
 
     return NextResponse.json({ message: "Absence deleted" }, { status: 200 });
   } catch (error) {

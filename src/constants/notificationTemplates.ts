@@ -53,4 +53,10 @@ export const NotificationMessage = {
      */
     AbsenceRejected: (reviewerName: string, leaveType: string, periodStart: string, periodEnd: string) =>
         `Your leave request (${leaveType}, ${periodStart} to ${periodEnd}) was rejected by **${reviewerName}**.`,
+
+    /**
+     * EXAMPLE: **John Doe** deleted **Tinna Smith**'s leave request (Vacation) from 03/03/2026 to 05/03/2026.
+     */
+    AbsenceDeleted: (actorName: string, employeeName: string, leaveType: string, periodStart: string, periodEnd: string) =>
+        `**${actorName}** deleted **${employeeName}**'s leave request (${leaveType}) from ${periodStart} to ${periodEnd}.`,
 }
