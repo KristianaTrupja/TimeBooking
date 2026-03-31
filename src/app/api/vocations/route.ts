@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { date, holiday } = body;
+    const { date, holiday, locationId } = body;
     // ✅ Validate before inserting into DB
     if (
       !date ||
@@ -14,9 +14,12 @@ export async function POST(req: Request) {
     ) {
       return NextResponse.json({ message: "Invalid input" }, { status: 400 });
     }
+    if (!locationId || !Number.isInteger(locationId) || locationId <= 0) {
+      return NextResponse.json({ message: "Valid locationId is required" }, { status: 400 });
+    }
 
     const newHoliday = await db.holidays.create({
-      data: { date, holiday },
+      data: { date, holiday, locationId },
     });
 
     return NextResponse.json(
