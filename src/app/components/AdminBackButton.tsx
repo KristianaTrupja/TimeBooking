@@ -15,8 +15,6 @@ export default function AdminBackButton() {
   return (
     <Link href={`/admin/?adminId=${adminId}`}>
       <Button size="sm" className="mr-2">
-
-        
         <UserCog />
       </Button>
     </Link>
