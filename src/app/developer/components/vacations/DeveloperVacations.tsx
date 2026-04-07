@@ -6,7 +6,6 @@ import {
   CalendarDays, 
   Palmtree, 
   Stethoscope, 
-  UserRound, 
   Baby,
   Calendar,
   Filter,
@@ -37,7 +36,6 @@ import {
 const ABSENCE_TYPES: (keyof typeof AbsenceType)[] = [
   "VACATION",
   "SICK",
-  "PERSONAL",
   "PARENTAL",
   "MARRIAGE",
   "BEREAVEMENT",
@@ -74,12 +72,6 @@ const leaveTypeStyles: Record<string, { icon: React.ReactNode; bgColor: string; 
     bgColor: "bg-rose-100", 
     textColor: "text-rose-700", 
     borderColor: "border-rose-300" 
-  },
-  PERSONAL: { 
-    icon: <UserRound size={14} />, 
-    bgColor: "bg-violet-100", 
-    textColor: "text-violet-700", 
-    borderColor: "border-violet-300" 
   },
   PARENTAL: { 
     icon: <Baby size={14} />, 
@@ -148,7 +140,6 @@ export default function DeveloperVacations() {
   const absenceTypeLabels: Record<string, string> = {
     VACATION: t.vacation,
     SICK: t.sick,
-    PERSONAL: t.personal,
     PARENTAL: t.parental,
     MARRIAGE: t.marriageLeave,
     BEREAVEMENT: t.bereavementLeave,
@@ -763,7 +754,6 @@ export default function DeveloperVacations() {
             requestTypeOptions={[
               { value: "VACATION", label: t.vacation },
               { value: "SICK", label: t.sick },
-              { value: "PERSONAL", label: t.personal },
               { value: "PARENTAL", label: t.parental },
               { value: "MARRIAGE", label: t.marriageLeave },
               { value: "BEREAVEMENT", label: t.bereavementLeave },

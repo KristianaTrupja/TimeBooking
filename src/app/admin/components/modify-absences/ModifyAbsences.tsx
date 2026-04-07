@@ -28,7 +28,6 @@ import {
 const ABSENCE_TYPES: (keyof typeof AbsenceType)[] = [
   "VACATION",
   "SICK",
-  "PERSONAL",
   "PARENTAL",
   "MARRIAGE",
   "BEREAVEMENT",
@@ -614,7 +613,6 @@ export default function ModifyAbsences() {
           requestTypeOptions={[
             { value: "VACATION", label: t.vacation },
             { value: "SICK", label: t.sick },
-            { value: "PERSONAL", label: t.personal },
             { value: "PARENTAL", label: t.parental },
             { value: "MARRIAGE", label: t.marriageLeave },
             { value: "BEREAVEMENT", label: t.bereavementLeave },

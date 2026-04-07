@@ -214,7 +214,6 @@ export default function ModifyAbsencesCalendarView({
   const absenceLegendItems = [
     { type: "VACATION", label: t.vacation },
     { type: "SICK", label: t.sick },
-    { type: "PERSONAL", label: t.personal },
     { type: "PARENTAL", label: t.parental },
     { type: "MARRIAGE", label: t.marriageLeave },
     { type: "BEREAVEMENT", label: t.bereavementLeave },

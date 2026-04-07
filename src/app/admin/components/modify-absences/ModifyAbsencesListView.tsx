@@ -47,7 +47,6 @@ type Props = {
 const ABSENCE_TYPES: (keyof typeof AbsenceType)[] = [
   "VACATION",
   "SICK",
-  "PERSONAL",
   "PARENTAL",
   "MARRIAGE",
   "BEREAVEMENT",

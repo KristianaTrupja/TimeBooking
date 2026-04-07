@@ -14,7 +14,6 @@ import {
   CalendarDays, 
   Send, 
   Users, 
-  UserRound,
   Palmtree, 
   Stethoscope, 
   Baby,
@@ -46,7 +45,6 @@ function isRemainingDaysPayload(value: unknown): value is APIRemainingDays {
 const absenceTypes: (keyof typeof AbsenceType)[] = [
   "VACATION",
   "SICK",
-  "PERSONAL",
   "PARENTAL",
   "MARRIAGE",
   "BEREAVEMENT",
@@ -55,7 +53,6 @@ const absenceTypes: (keyof typeof AbsenceType)[] = [
 const leaveTypeStyles: Record<string, { icon: React.ReactNode; gradient: string; glow: string; softBg: string; softText: string }> = {
   VACATION: { icon: <Palmtree size={20} />, gradient: "from-teal-400 to-emerald-400", glow: "shadow-teal-400/20", softBg: "bg-teal-50", softText: "text-teal-600" },
   SICK: { icon: <Stethoscope size={20} />, gradient: "from-rose-400 to-pink-400", glow: "shadow-rose-400/20", softBg: "bg-rose-50", softText: "text-rose-500" },
-  PERSONAL: { icon: <UserRound size={20} />, gradient: "from-violet-400 to-purple-400", glow: "shadow-violet-400/20", softBg: "bg-violet-50", softText: "text-violet-500" },
   PARENTAL: { icon: <Baby size={20} />, gradient: "from-amber-400 to-orange-400", glow: "shadow-amber-400/20", softBg: "bg-amber-50", softText: "text-amber-500" },
   MARRIAGE: { icon: <Heart size={20} />, gradient: "from-fuchsia-400 to-pink-500", glow: "shadow-fuchsia-400/20", softBg: "bg-fuchsia-50", softText: "text-fuchsia-600" },
   BEREAVEMENT: { icon: <HeartCrack size={20} />, gradient: "from-slate-500 to-slate-700", glow: "shadow-slate-500/20", softBg: "bg-slate-100", softText: "text-slate-700" },
@@ -77,7 +74,6 @@ export default function Absences() {
   const absenceTypeLabels = useMemo<Record<string, string>>(() => ({
     VACATION: t.vacation,
     SICK: t.sick,
-    PERSONAL: t.personal,
     PARENTAL: t.parental,
     MARRIAGE: t.marriageLeave,
     BEREAVEMENT: t.bereavementLeave,

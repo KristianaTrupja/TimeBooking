@@ -21,7 +21,6 @@ import { NextResponse } from "next/server";
 type AbsenceTypeValue =
   | "VACATION"
   | "SICK"
-  | "PERSONAL"
   | "PARENTAL"
   | "MARRIAGE"
   | "BEREAVEMENT";
@@ -30,7 +29,6 @@ type AbsenceStatusValue = "PENDING" | "APPROVED" | "REJECTED";
 const ABSENCE_TYPES: AbsenceTypeValue[] = [
   "VACATION",
   "SICK",
-  "PERSONAL",
   "PARENTAL",
   "MARRIAGE",
   "BEREAVEMENT",

@@ -16,7 +16,6 @@ export default function CalendarLegend() {
     { label: t.officialHoliday, color: HOLIDAY_CALENDAR_COLORS.legendChipClass },
     { label: t.vacation, color: getAbsenceColorConfig("VACATION").legendChipClass },
     { label: t.sick, color: getAbsenceColorConfig("SICK").legendChipClass },
-    { label: t.personal, color: getAbsenceColorConfig("PERSONAL").legendChipClass },
     { label: t.parental, color: getAbsenceColorConfig("PARENTAL").legendChipClass },
     { label: t.marriageLeave, color: getAbsenceColorConfig("MARRIAGE").legendChipClass },
     { label: t.bereavementLeave, color: getAbsenceColorConfig("BEREAVEMENT").legendChipClass },
