@@ -444,6 +444,14 @@ interface Translations {
   locationHolidayManagementHint: string;
   noLocationSelected: string;
   createOrChooseLocation: string;
+  leaveAdjustments: string;
+  overtimeCompensation: string;
+  unusedLeaveCashout: string;
+  cashoutAmount: string;
+  recordAdjustment: string;
+  adjustmentHistory: string;
+  noAdjustmentsYet: string;
+  adjustmentRecordedSuccessfully: string;
 }
 
 const translations: Record<Language, Translations> = {
@@ -887,6 +895,14 @@ const translations: Record<Language, Translations> = {
     locationHolidayManagementHint: "Holidays are managed per location. Select a location above, then add or edit holidays for that location.",
     noLocationSelected: "No location selected.",
     createOrChooseLocation: "Create or choose a location to manage its holidays.",
+    leaveAdjustments: "Leave Adjustments",
+    overtimeCompensation: "Overtime compensation",
+    unusedLeaveCashout: "Unused leave cashout",
+    cashoutAmount: "Cashout amount",
+    recordAdjustment: "Record adjustment",
+    adjustmentHistory: "Adjustment history",
+    noAdjustmentsYet: "No adjustments yet",
+    adjustmentRecordedSuccessfully: "Leave adjustment recorded successfully",
   },
   de: {
     // Navigation & Headers
@@ -1328,6 +1344,14 @@ const translations: Record<Language, Translations> = {
     locationHolidayManagementHint: "Feiertage werden pro Standort verwaltet. Waehlen Sie oben einen Standort aus und fuegen Sie dann Feiertage fuer diesen Standort hinzu oder bearbeiten Sie sie.",
     noLocationSelected: "Kein Standort ausgewaehlt.",
     createOrChooseLocation: "Erstellen oder waehlen Sie einen Standort, um dessen Feiertage zu verwalten.",
+    leaveAdjustments: "Urlaubsanpassungen",
+    overtimeCompensation: "Ueberstunden-Ausgleich",
+    unusedLeaveCashout: "Auszahlung ungenutzter Urlaubstage",
+    cashoutAmount: "Auszahlungsbetrag",
+    recordAdjustment: "Anpassung erfassen",
+    adjustmentHistory: "Anpassungsverlauf",
+    noAdjustmentsYet: "Noch keine Anpassungen",
+    adjustmentRecordedSuccessfully: "Urlaubsanpassung erfolgreich erfasst",
   },
 };
 

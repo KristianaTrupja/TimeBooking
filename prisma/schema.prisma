@@ -31,6 +31,7 @@ model User {
   location       Location @relation(fields: [locationId], references: [id], onDelete: Restrict)
   absences       Absence[]
   vacations      TotalVacationDays[]
+  leaveAdjustments LeaveAdjustment[]
   workHours      WorkHours[]
   SidebarProject SidebarProject[]
   notifications       Notifications[]
@@ -139,6 +140,25 @@ model TotalVacationDays {
   @@unique([userId, year])
   @@index([userId, year])
   @@index([year])
+}
+
+enum LeaveAdjustmentType {
+  OVERTIME_COMPENSATION
+  UNUSED_LEAVE_CASHOUT
+}
+
+model LeaveAdjustment {
+  id        Int                @id @default(autoincrement())
+  userId    Int
+  user      User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  year      Int
+  type      LeaveAdjustmentType
+  days      Int
+  note      String?            @db.VarChar(255)
+  createdAt DateTime           @default(now())
+
+  @@index([userId, year])
+  @@index([type])
 }
 
 model WorkHours {

@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import Selector from "@/app/components/Selector";
+import { Modal } from "@/app/components/ui/Modal";
 import { User } from "@/types/user";
 import Spinner from "@/components/ui/Spinner";
 import { AbsenceType } from "@/types/absence";
@@ -21,14 +22,38 @@ import {
   HeartCrack,
   Sparkles,
   TrendingUp,
-  Clock
+  Clock,
+  Coins,
+  ReceiptText
 } from "lucide-react";
 
 type APIRemainingDays = {
-    currentYear: { year:number, daysLeft:number, daysSpent:number },
-    lastYear: { year:number, daysLeft:number, daysSpent:number }
+    currentYear: {
+      year:number,
+      daysLeft:number,
+      daysSpent:number,
+      overtimeCompDays?: number,
+      cashedOutDays?: number,
+    },
+    lastYear: {
+      year:number,
+      daysLeft:number,
+      daysSpent:number,
+      overtimeCompDays?: number,
+      cashedOutDays?: number,
+    }
     totalDaysLeft: number
 }
+
+type LeaveAdjustmentItem = {
+  id: number;
+  userId: number;
+  year: number;
+  type: "OVERTIME_COMPENSATION" | "UNUSED_LEAVE_CASHOUT";
+  days: number;
+  note: string | null;
+  createdAt: string;
+};
 
 function isRemainingDaysPayload(value: unknown): value is APIRemainingDays {
   if (!value || typeof value !== "object") return false;
@@ -69,6 +94,14 @@ export default function Absences() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [remainingDays, setRemainingDays] = useState<APIRemainingDays | null>(null)
   const [holidays, setHolidays] = useState<string[]>([])
+  const [adjustments, setAdjustments] = useState<LeaveAdjustmentItem[]>([])
+  const [isAdjustmentsLoading, setIsAdjustmentsLoading] = useState(false)
+  const [isSubmittingAdjustment, setIsSubmittingAdjustment] = useState(false)
+  const [isAdjustmentModalOpen, setIsAdjustmentModalOpen] = useState(false)
+  const [adjustmentYear, setAdjustmentYear] = useState<number>(new Date().getFullYear())
+  const [adjustmentType, setAdjustmentType] = useState<"OVERTIME_COMPENSATION" | "UNUSED_LEAVE_CASHOUT">("OVERTIME_COMPENSATION")
+  const [adjustmentDays, setAdjustmentDays] = useState<string>("")
+  const [adjustmentNote, setAdjustmentNote] = useState<string>("")
   
   // Translation map for absence types - memoized to update when language changes
   const absenceTypeLabels = useMemo<Record<string, string>>(() => ({
@@ -79,48 +112,77 @@ export default function Absences() {
     BEREAVEMENT: t.bereavementLeave,
   }), [t]);
 
+  const selectedEmployeeData = useMemo(
+    () => employees?.find((employee) => employee.username === selectedEmployee) ?? null,
+    [employees, selectedEmployee]
+  );
+
+  const fetchLeaveBalanceAndHolidays = async (userId: number) => {
+    const [remainingRes, holidayRes] = await Promise.all([
+      fetch(`/api/absences/${userId}`, { cache: "no-store" }),
+      fetch(`/api/holidays?userId=${userId}`, { cache: "no-store" }),
+    ]);
+
+    if (remainingRes.ok) {
+      const remainingData = await remainingRes.json();
+      setRemainingDays(isRemainingDaysPayload(remainingData) ? remainingData : null);
+    } else {
+      setRemainingDays(null);
+    }
+
+    if (holidayRes.ok) {
+      const holidayData = await holidayRes.json();
+      const holidayDates =
+        holidayData.holidays?.map((holiday: { date: string }) =>
+          new Date(holiday.date).toISOString().split("T")[0]
+        ) || [];
+      setHolidays(holidayDates);
+    } else {
+      setHolidays([]);
+    }
+  };
+
+  const fetchAdjustments = async (userId: number, year: number) => {
+    setIsAdjustmentsLoading(true);
+    try {
+      const res = await fetch(
+        `/api/leave-adjustments?userId=${userId}&year=${year}`,
+        { cache: "no-store" }
+      );
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.message || t.somethingWentWrong);
+      }
+      setAdjustments(data.adjustments || []);
+    } catch (error) {
+      console.error("Failed to fetch leave adjustments:", error);
+      setAdjustments([]);
+    } finally {
+      setIsAdjustmentsLoading(false);
+    }
+  };
+
   useEffect(() => {
-    if(!selectedEmployee) {
-      setRemainingDays(null)
-      setHolidays([])
-      return
-    }
-    setRemainingDays(null)
-
-    const employee = employees?.find(v => v.username === selectedEmployee)
-    if(!employee) {
-      setHolidays([])
-      return
+    if (!selectedEmployeeData) {
+      setRemainingDays(null);
+      setHolidays([]);
+      setAdjustments([]);
+      return;
     }
 
-    Promise.all([
-      fetch(`/api/absences/${employee.id}`, { cache: "no-store" }),
-      fetch(`/api/holidays?userId=${employee.id}`, { cache: "no-store" }),
-    ])
-      .then(async ([remainingRes, holidayRes]) => {
-        if (remainingRes.ok) {
-          const remainingData = await remainingRes.json()
-          setRemainingDays(isRemainingDaysPayload(remainingData) ? remainingData : null)
-        } else {
-          setRemainingDays(null)
-        }
+    fetchLeaveBalanceAndHolidays(selectedEmployeeData.id).catch(() => {
+      setRemainingDays(null);
+      setHolidays([]);
+    });
+  }, [selectedEmployeeData]);
 
-        if (holidayRes.ok) {
-          const holidayData = await holidayRes.json()
-          const holidayDates = holidayData.holidays?.map((h: { date: string }) =>
-            new Date(h.date).toISOString().split('T')[0]
-          ) || []
-          setHolidays(holidayDates)
-        } else {
-          setHolidays([])
-        }
-      })
-      .catch(() => {
-        setRemainingDays(null)
-        setHolidays([])
-      })
-
-  }, [selectedEmployee, employees])
+  useEffect(() => {
+    if (!selectedEmployeeData) {
+      setAdjustments([]);
+      return;
+    }
+    fetchAdjustments(selectedEmployeeData.id, adjustmentYear);
+  }, [selectedEmployeeData, adjustmentYear]);
   
   useEffect(() => {
     const fetchData = async () => {
@@ -189,6 +251,50 @@ export default function Absences() {
     }
   };
 
+  async function handleCreateAdjustment() {
+    if (!selectedEmployeeData) {
+      flushError(new Error(t.selectEmployee));
+      return;
+    }
+    if (!adjustmentDays) {
+      flushError(new Error(t.pleaseFillRequiredFields));
+      return;
+    }
+
+    setIsSubmittingAdjustment(true);
+    try {
+      const response = await fetch("/api/leave-adjustments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: selectedEmployeeData.id,
+          year: adjustmentYear,
+          type: adjustmentType,
+          days: Number(adjustmentDays),
+          note: adjustmentNote,
+        }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || t.somethingWentWrong);
+      }
+
+      toast.success(data.message || t.adjustmentRecordedSuccessfully);
+      setAdjustmentDays("");
+      setAdjustmentNote("");
+      await Promise.all([
+        fetchLeaveBalanceAndHolidays(selectedEmployeeData.id),
+        fetchAdjustments(selectedEmployeeData.id, adjustmentYear),
+      ]);
+    } catch (error: unknown) {
+      console.error("Error recording leave adjustment:", error);
+      flushError(error, t.somethingWentWrong);
+    } finally {
+      setIsSubmittingAdjustment(false);
+    }
+  }
+
   // Calculate business days (excludes weekends and official holidays)
   const numberOfDays = useMemo(() => {
     if (!startDate || !endDate) return 0;
@@ -225,6 +331,14 @@ export default function Absences() {
             <span className="text-slate-800 font-bold">{employees?.length || 0}</span>
             <span className="text-slate-600 text-sm font-medium">{t.employees.toLowerCase()}</span>
           </div>
+          <Button
+            onClick={() => setIsAdjustmentModalOpen(true)}
+            disabled={!selectedEmployeeData}
+            className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-lg shadow-blue-500/25 disabled:opacity-40 disabled:shadow-none gap-2"
+          >
+            <ReceiptText size={16} />
+            {t.leaveAdjustments}
+          </Button>
         </div>
       </div>
 
@@ -350,6 +464,18 @@ export default function Absences() {
                     <span className="text-white/60 text-[10px] font-medium">{t.carriedOver}</span>
                   </div>
                 </div>
+                <div className="mt-3 text-[11px] text-white/80 space-y-1">
+                  <p>
+                    + {t.overtimeCompensation}:{" "}
+                    {(remainingDays.currentYear.overtimeCompDays || 0) +
+                      (remainingDays.lastYear.overtimeCompDays || 0)}
+                  </p>
+                  <p>
+                    - {t.unusedLeaveCashout}:{" "}
+                    {(remainingDays.currentYear.cashedOutDays || 0) +
+                      (remainingDays.lastYear.cashedOutDays || 0)}
+                  </p>
+                </div>
               </>
             ) : (
               <div className="py-6 text-center">
@@ -404,6 +530,118 @@ export default function Absences() {
           </div>
         </div>
       </div>
+      <Modal
+        isOpen={isAdjustmentModalOpen}
+        onClose={() => setIsAdjustmentModalOpen(false)}
+        title={
+          <div className="flex items-center justify-center gap-2">
+            <ReceiptText size={20} />
+            <span>{t.leaveAdjustments}</span>
+          </div>
+        }
+        className="max-w-3xl"
+      >
+        <div className="space-y-4">
+          <div className="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3">
+            <p className="text-sm text-blue-800">
+              <span className="font-semibold">{t.employee}:</span>{" "}
+              {selectedEmployeeData?.username || "—"}
+            </p>
+          </div>
+
+          <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-4 space-y-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs text-slate-600 font-medium mb-1 block">{t.year}</label>
+                <input
+                  type="number"
+                  value={adjustmentYear}
+                  onChange={(e) => setAdjustmentYear(Number(e.target.value))}
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#244B77]/20"
+                />
+              </div>
+              <div>
+                <label className="text-xs text-slate-600 font-medium mb-1 block">{t.type}</label>
+                <select
+                  value={adjustmentType}
+                  onChange={(e) =>
+                    setAdjustmentType(
+                      e.target.value as "OVERTIME_COMPENSATION" | "UNUSED_LEAVE_CASHOUT"
+                    )
+                  }
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#244B77]/20"
+                >
+                  <option value="OVERTIME_COMPENSATION">{t.overtimeCompensation}</option>
+                  <option value="UNUSED_LEAVE_CASHOUT">{t.unusedLeaveCashout}</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label className="text-xs text-slate-600 font-medium mb-1 block">{t.days}</label>
+              <input
+                type="number"
+                min={1}
+                value={adjustmentDays}
+                onChange={(e) => setAdjustmentDays(e.target.value)}
+                className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#244B77]/20"
+              />
+            </div>
+
+            <div>
+              <label className="text-xs text-slate-600 font-medium mb-1 block">{t.note}</label>
+              <input
+                type="text"
+                value={adjustmentNote}
+                onChange={(e) => setAdjustmentNote(e.target.value)}
+                placeholder={t.note}
+                className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#244B77]/20"
+              />
+            </div>
+
+            <Button
+              onClick={handleCreateAdjustment}
+              loading={isSubmittingAdjustment}
+              disabled={!selectedEmployeeData}
+              className="w-full bg-gradient-to-r from-[#244B77] to-[#1a3a5c] hover:from-[#2d5a8a] hover:to-[#244B77] text-white gap-2"
+            >
+              <Coins size={16} />
+              {t.recordAdjustment}
+            </Button>
+          </div>
+
+          <div className="rounded-xl border border-slate-200 p-4">
+            <p className="text-xs font-semibold text-slate-600 mb-2">{t.adjustmentHistory}</p>
+            <div className="space-y-2 max-h-64 overflow-y-auto custom-scrollbar">
+              {isAdjustmentsLoading ? (
+                <p className="text-sm text-slate-500">{t.loading}</p>
+              ) : adjustments.length === 0 ? (
+                <p className="text-sm text-slate-500">{t.noAdjustmentsYet}</p>
+              ) : (
+                adjustments.map((item) => (
+                  <div key={item.id} className="rounded-lg border border-slate-200 px-3 py-2 text-xs bg-white">
+                    <div className="flex justify-between items-center gap-2">
+                      <span className="font-semibold text-slate-800">
+                        {item.type === "OVERTIME_COMPENSATION"
+                          ? t.overtimeCompensation
+                          : t.unusedLeaveCashout}
+                      </span>
+                      <span className="text-slate-500">{item.year}</span>
+                    </div>
+                    <p className="text-slate-600">
+                      {item.days} {t.days.toLowerCase()}
+                    </p>
+                    {item.note ? <p className="text-slate-500 truncate">{item.note}</p> : null}
+                    <p className="text-[11px] text-slate-400 mt-1">
+                      {new Date(item.createdAt).toLocaleString("en-GB")}
+                    </p>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+      </Modal>
     </section>
   );
 }

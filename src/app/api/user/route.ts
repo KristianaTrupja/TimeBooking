@@ -186,10 +186,11 @@ export async function DELETE(req: Request) {
     }
 
     // Check if user has any related data
-    const [workHoursCount, absencesCount, vacationsCount, submissionsCount, notificationsCount, sidebarProjectsCount] = await Promise.all([
+    const [workHoursCount, absencesCount, vacationsCount, leaveAdjustmentsCount, submissionsCount, notificationsCount, sidebarProjectsCount] = await Promise.all([
       db.workHours.count({ where: { userId: id } }),
       db.absence.count({ where: { userId: id } }),
       db.totalVacationDays.count({ where: { userId: id } }),
+      db.leaveAdjustment.count({ where: { userId: id } }),
       db.timeSheetSubmission.count({ where: { userId: id } }),
       db.notifications.count({ where: { userId: id } }),
       db.sidebarProject.count({ where: { userId: id } }),
@@ -199,6 +200,7 @@ export async function DELETE(req: Request) {
       workHoursCount > 0 || 
       absencesCount > 0 || 
       vacationsCount > 0 || 
+      leaveAdjustmentsCount > 0 ||
       submissionsCount > 0 || 
       notificationsCount > 0 || 
       sidebarProjectsCount > 0;

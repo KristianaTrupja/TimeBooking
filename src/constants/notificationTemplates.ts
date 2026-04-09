@@ -59,4 +59,16 @@ export const NotificationMessage = {
      */
     AbsenceDeleted: (actorName: string, employeeName: string, leaveType: string, periodStart: string, periodEnd: string) =>
         `**${actorName}** deleted **${employeeName}**'s leave request (${leaveType}) from ${periodStart} to ${periodEnd}.`,
+
+    /**
+     * EXAMPLE: **Jane Admin** recorded an Overtime compensation adjustment (+2 day(s)) for **John Doe** (2026).
+     */
+    LeaveAdjustmentAdmin: (actorName: string, employeeName: string, adjustmentType: string, days: number, year: number) =>
+        `**${actorName}** recorded a ${adjustmentType} adjustment (+${days} day(s)) for **${employeeName}** (${year}).`,
+
+    /**
+     * EXAMPLE: **Jane Admin** recorded an Overtime compensation adjustment (+2 day(s)) for your leave balance (2026).
+     */
+    LeaveAdjustmentEmployee: (actorName: string, adjustmentType: string, days: number, year: number) =>
+        `**${actorName}** recorded a ${adjustmentType} adjustment (+${days} day(s)) for your leave balance (${year}).`,
 }

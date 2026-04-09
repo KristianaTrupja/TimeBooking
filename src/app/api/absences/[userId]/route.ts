@@ -31,8 +31,46 @@ export async function GET(req: Request, { params }: { params: Promise<{ userId: 
       }),
     ]);
 
+    const leaveAdjustments = await db.leaveAdjustment.findMany({
+      where: {
+        userId: userIdInt,
+        year: { in: [currentYear - 1, currentYear] },
+      },
+      select: {
+        year: true,
+        type: true,
+        days: true,
+      },
+    });
+
     const currentYearGrantedDays = currentYearRecord?.grantedDays || 0;
     const previousYearGrantedDays = prevYearRecord?.grantedDays || 0;
+
+    const adjustmentSummary = leaveAdjustments.reduce(
+      (acc, adjustment) => {
+        const targetYear = adjustment.year;
+        if (!acc[targetYear]) {
+          acc[targetYear] = { overtimeDays: 0, cashedOutDays: 0 };
+        }
+
+        if (adjustment.type === "OVERTIME_COMPENSATION") {
+          acc[targetYear].overtimeDays += adjustment.days;
+        } else if (adjustment.type === "UNUSED_LEAVE_CASHOUT") {
+          acc[targetYear].cashedOutDays += adjustment.days;
+        }
+        return acc;
+      },
+      {} as Record<number, { overtimeDays: number; cashedOutDays: number }>
+    );
+
+    const prevYearAdjustments = adjustmentSummary[currentYear - 1] ?? {
+      overtimeDays: 0,
+      cashedOutDays: 0,
+    };
+    const currentYearAdjustments = adjustmentSummary[currentYear] ?? {
+      overtimeDays: 0,
+      cashedOutDays: 0,
+    };
 
     // Fetch all vacation absences
     const vacationAbsences = await db.absence.findMany({
@@ -54,8 +92,17 @@ export async function GET(req: Request, { params }: { params: Promise<{ userId: 
     const usedPreviousYear = usedByYear[currentYear - 1] || 0;
     const usedCurrentYearTotal = usedByYear[currentYear] || 0;
 
+    const adjustedPreviousYearGrantedDays =
+      previousYearGrantedDays +
+      prevYearAdjustments.overtimeDays -
+      prevYearAdjustments.cashedOutDays;
+    const adjustedCurrentYearGrantedDays =
+      currentYearGrantedDays +
+      currentYearAdjustments.overtimeDays -
+      currentYearAdjustments.cashedOutDays;
+
     // Calculate carryover from previous year (valid throughout entire current year)
-    const carriedOverDays = Math.max(previousYearGrantedDays - usedPreviousYear, 0);
+    const carriedOverDays = Math.max(adjustedPreviousYearGrantedDays - usedPreviousYear, 0);
 
     // Deduct current year usage: first from carryover, then from current year allocation
     let lastYearDaysSpent = 0;
@@ -73,7 +120,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ userId: 
     }
 
     const lastYearDaysLeft = carriedOverDays - lastYearDaysSpent;
-    const currentYearDaysLeft = currentYearGrantedDays - currentYearDaysSpent;
+    const currentYearDaysLeft = adjustedCurrentYearGrantedDays - currentYearDaysSpent;
     const totalDaysLeft = lastYearDaysLeft + currentYearDaysLeft;
 
     const isOverdrawn = totalDaysLeft < 0;
@@ -84,11 +131,19 @@ export async function GET(req: Request, { params }: { params: Promise<{ userId: 
           year: currentYear,
           daysLeft: currentYearDaysLeft,
           daysSpent: currentYearDaysSpent,
+          grantedDays: currentYearGrantedDays,
+          overtimeCompDays: currentYearAdjustments.overtimeDays,
+          cashedOutDays: currentYearAdjustments.cashedOutDays,
+          effectiveGrantedDays: adjustedCurrentYearGrantedDays,
         },
         lastYear: {
           year: currentYear - 1,
           daysLeft: lastYearDaysLeft,
           daysSpent: lastYearDaysSpent,
+          grantedDays: previousYearGrantedDays,
+          overtimeCompDays: prevYearAdjustments.overtimeDays,
+          cashedOutDays: prevYearAdjustments.cashedOutDays,
+          effectiveGrantedDays: adjustedPreviousYearGrantedDays,
         },
         totalDaysLeft,
         isOverdrawn,
