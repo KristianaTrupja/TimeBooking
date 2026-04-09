@@ -42,8 +42,20 @@ const ABSENCE_TYPES: (keyof typeof AbsenceType)[] = [
 ];
 
 type APIRemainingDays = {
-  currentYear: { year: number; daysLeft: number; daysSpent: number };
-  lastYear: { year: number; daysLeft: number; daysSpent: number };
+  currentYear: {
+    year: number;
+    daysLeft: number;
+    daysSpent: number;
+    overtimeCompDays?: number;
+    cashedOutDays?: number;
+  };
+  lastYear: {
+    year: number;
+    daysLeft: number;
+    daysSpent: number;
+    overtimeCompDays?: number;
+    cashedOutDays?: number;
+  };
   totalDaysLeft: number;
 };
 
@@ -596,6 +608,12 @@ export default function DeveloperVacations() {
             <p className="text-xs text-slate-500 mt-1">
               {remainingDays?.currentYear?.daysSpent ?? 0} {t.usedDays.toLowerCase()}
             </p>
+            <p className="text-[11px] text-slate-500 mt-1">
+              + {t.overtimeCompensation}: {remainingDays?.currentYear?.overtimeCompDays ?? 0}
+            </p>
+            <p className="text-[11px] text-slate-500">
+              - {t.unusedLeaveCashout}: {remainingDays?.currentYear?.cashedOutDays ?? 0}
+            </p>
           </div>
 
           {/* Last Year (Carried Over) */}
@@ -609,6 +627,12 @@ export default function DeveloperVacations() {
             <p className="text-2xl font-bold text-amber-700">
               {remainingDays?.lastYear?.daysLeft ?? "—"}
               <span className="text-sm font-normal text-amber-600 ml-1">{t.days}</span>
+            </p>
+            <p className="text-[11px] text-amber-700/80 mt-1">
+              + {t.overtimeCompensation}: {remainingDays?.lastYear?.overtimeCompDays ?? 0}
+            </p>
+            <p className="text-[11px] text-amber-700/80">
+              - {t.unusedLeaveCashout}: {remainingDays?.lastYear?.cashedOutDays ?? 0}
             </p>
           </div>
 
