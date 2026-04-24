@@ -23,6 +23,11 @@ type AbsenceTypeValue =
   | "OFFICIAL_HOLIDAYS"
   | "SICK"
   | "OTHER";
+type DatabaseAbsenceTypeValue =
+  | "VACATION"
+  | "OFFICIAL_HOLIDAYS"
+  | "SICK"
+  | "OTHER";
 type AbsenceStatusValue = "PENDING" | "APPROVED" | "REJECTED";
 
 const ABSENCE_TYPES: AbsenceTypeValue[] = [
@@ -35,6 +40,40 @@ const ABSENCE_STATUSES: AbsenceStatusValue[] = ["PENDING", "APPROVED", "REJECTED
 
 function isAbsenceType(value: string): value is AbsenceTypeValue {
   return ABSENCE_TYPES.includes(value as AbsenceTypeValue);
+}
+
+function toDatabaseAbsenceType(type: AbsenceTypeValue): DatabaseAbsenceTypeValue {
+  switch (type) {
+    case "OFFICIAL_HOLIDAYS":
+      return "OFFICIAL_HOLIDAYS";
+    case "OTHER":
+      return "OTHER";
+    case "VACATION":
+      return "VACATION";
+    case "SICK":
+      return "SICK";
+    default:
+      return "VACATION";
+  }
+}
+
+function toPublicAbsenceType(type: string): AbsenceTypeValue {
+  switch (type) {
+    case "VACATION":
+      return "VACATION";
+    case "OFFICIAL_HOLIDAYS":
+    case "PERSONAL":
+      return "OFFICIAL_HOLIDAYS";
+    case "SICK":
+      return "SICK";
+    case "OTHER":
+    case "PARENTAL":
+    case "MARRIAGE":
+    case "BEREAVEMENT":
+      return "OTHER";
+    default:
+      return "OTHER";
+  }
 }
 
 function isAbsenceStatus(value: string): value is AbsenceStatusValue {
@@ -206,16 +245,21 @@ export async function POST(req: Request) {
       throw new ValidationError("Selected range does not contain business days", "startDate/endDate");
     }
 
+    const dbType = toDatabaseAbsenceType(type);
+    const createData = {
+      startDate: start,
+      endDate: end,
+      days: businessDays,
+      status: requestedStatus,
+      userId: targetUserId,
+      reviewedById: requestedStatus === "APPROVED" ? requester.id : null,
+      reviewedAt: requestedStatus === "APPROVED" ? new Date() : null,
+    };
+
     const newAbsence = await db.absence.create({
       data: {
-        startDate: start,
-        endDate: end,
-        days: businessDays,
-        type: type as any,
-        status: requestedStatus,
-        userId: targetUserId,
-        reviewedById: requestedStatus === "APPROVED" ? requester.id : null,
-        reviewedAt: requestedStatus === "APPROVED" ? new Date() : null,
+        ...createData,
+        type: dbType as any,
       },
       include: {
         user: {
@@ -283,7 +327,7 @@ export async function POST(req: Request) {
 
       return NextResponse.json(
         {
-          absence: newAbsence,
+          absence: { ...newAbsence, type: toPublicAbsenceType(String(newAbsence.type)) },
           message: `${businessDays} day request submitted and waiting for admin review.`,
         },
         { status: 201 }
@@ -311,7 +355,7 @@ export async function POST(req: Request) {
     await sendAdminLeaveNotificationEmail();
 
     return NextResponse.json(
-      { absence: newAbsence, message: `${businessDays} days off successfully granted to ${employee.username}.` },
+      { absence: { ...newAbsence, type: toPublicAbsenceType(String(newAbsence.type)) }, message: `${businessDays} days off successfully granted to ${employee.username}.` },
       { status: 201 }
     );
   } catch (error: unknown) {
@@ -351,9 +395,20 @@ export async function GET(req: Request) {
       AND: [{ startDate: { lte: queryEndDate } }, { endDate: { gte: queryStartDate } }],
     };
 
+    const mappedAbsenceTypeFilter =
+      absenceType === "OFFICIAL_HOLIDAYS"
+        ? { in: ["OFFICIAL_HOLIDAYS", "PERSONAL"] }
+        : absenceType === "OTHER"
+          ? { in: ["OTHER", "PARENTAL", "MARRIAGE", "BEREAVEMENT"] }
+          : absenceType === "VACATION"
+            ? "VACATION"
+            : absenceType === "SICK"
+              ? "SICK"
+              : undefined;
+
     const commonFilter = {
       ...baseRangeFilter,
-      type: absenceType,
+      type: mappedAbsenceTypeFilter as any,
     };
 
     let whereClause: any;
@@ -403,6 +458,7 @@ export async function GET(req: Request) {
       const overlapEnd = absence.endDate < queryEndDate ? absence.endDate : queryEndDate;
       return {
         ...absence,
+        type: toPublicAbsenceType(String(absence.type)),
         overlapBusinessDays:
           absence.startDate >= queryStartDate && absence.endDate <= queryEndDate
             ? absence.days
@@ -523,7 +579,7 @@ export async function PUT(req: Request) {
         if (existing.user.email) {
           const emailResult = await sendLeaveDecisionEmailToEmployee(existing.user.email, {
             employeeName: existing.user.username,
-            leaveType: existing.type,
+              leaveType: toPublicAbsenceType(String(existing.type)),
             startDate: formatDate(existing.startDate),
             endDate: formatDate(existing.endDate),
             businessDays: existing.days,
@@ -544,7 +600,7 @@ export async function PUT(req: Request) {
 
       return NextResponse.json(
         {
-          absence: updatedAbsence,
+          absence: { ...updatedAbsence, type: toPublicAbsenceType(String(updatedAbsence.type)) },
           message: status === "APPROVED" ? "Leave request approved successfully." : "Leave request rejected.",
         },
         { status: 200 }
@@ -625,19 +681,20 @@ export async function PUT(req: Request) {
     const holidayDates = holidays.map((h) => h.date);
     const businessDays = getBusinessDays(start, end, holidayDates);
 
+    const dbType = toDatabaseAbsenceType(type);
     const updatedAbsence = await db.absence.update({
       where: { id },
       data: {
         startDate: start,
         endDate: end,
         days: businessDays,
-        type: type as any,
+        type: dbType as any,
       },
     });
 
     return NextResponse.json(
       {
-        absence: updatedAbsence,
+        absence: { ...updatedAbsence, type: toPublicAbsenceType(String(updatedAbsence.type)) },
         message: `Absence updated (${businessDays} business days)`,
       },
       { status: 200 }
@@ -695,7 +752,7 @@ export async function DELETE(req: Request) {
       message: NotificationMessage.AbsenceDeleted(
         requester.username,
         existing.user.username,
-        existing.type,
+        toPublicAbsenceType(String(existing.type)),
         startLabel,
         endLabel
       ),
@@ -708,7 +765,7 @@ export async function DELETE(req: Request) {
     if (existing.userId !== requester.id) {
       await notifyUser(existing.userId, {
         title: "Absence Deleted",
-        message: `Your ${existing.type} leave (${startLabel} to ${endLabel}) was deleted by ${requester.username}.`,
+        message: `Your ${toPublicAbsenceType(String(existing.type))} leave (${startLabel} to ${endLabel}) was deleted by ${requester.username}.`,
         type: NotificationType.INFO,
         senderUserId: requester.id,
         actionType: "VIEW_ABSENCE",
