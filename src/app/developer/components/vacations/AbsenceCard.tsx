@@ -1,5 +1,5 @@
 import { ExtAbsence } from "@/types/absence";
-import { Palmtree, Stethoscope, Calendar, Sparkles } from "lucide-react";
+import { Palmtree, Stethoscope, Calendar, Sparkles, Clock } from "lucide-react";
 import { useLanguage } from "@/app/context/LanguageContext";
 
 type Props = {
