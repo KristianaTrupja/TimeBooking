@@ -6,7 +6,6 @@ import {
   CalendarDays, 
   Palmtree, 
   Stethoscope, 
-  Baby,
   Calendar,
   Filter,
   X,
@@ -35,10 +34,9 @@ import {
 
 const ABSENCE_TYPES: (keyof typeof AbsenceType)[] = [
   "VACATION",
+  "OFFICIAL_HOLIDAYS",
   "SICK",
-  "PARENTAL",
-  "MARRIAGE",
-  "BEREAVEMENT",
+  "OTHER",
 ];
 
 type APIRemainingDays = {
@@ -79,29 +77,23 @@ const leaveTypeStyles: Record<string, { icon: React.ReactNode; bgColor: string; 
     textColor: "text-teal-700", 
     borderColor: "border-teal-300" 
   },
+  OFFICIAL_HOLIDAYS: {
+    icon: <CalendarDays size={14} />,
+    bgColor: "bg-cyan-100",
+    textColor: "text-cyan-700",
+    borderColor: "border-cyan-300"
+  },
   SICK: { 
     icon: <Stethoscope size={14} />, 
     bgColor: "bg-rose-100", 
     textColor: "text-rose-700", 
     borderColor: "border-rose-300" 
   },
-  PARENTAL: { 
-    icon: <Baby size={14} />, 
-    bgColor: "bg-amber-100", 
-    textColor: "text-amber-700", 
-    borderColor: "border-amber-300" 
-  },
-  MARRIAGE: {
-    icon: <Calendar size={14} />,
-    bgColor: "bg-fuchsia-100",
-    textColor: "text-fuchsia-700",
-    borderColor: "border-fuchsia-300"
-  },
-  BEREAVEMENT: {
+  OTHER: {
     icon: <CalendarDays size={14} />,
-    bgColor: "bg-slate-200",
-    textColor: "text-slate-700",
-    borderColor: "border-slate-300"
+    bgColor: "bg-indigo-100",
+    textColor: "text-indigo-700",
+    borderColor: "border-indigo-300"
   },
 };
 
@@ -151,10 +143,9 @@ export default function DeveloperVacations() {
   // Translation map for absence types
   const absenceTypeLabels: Record<string, string> = {
     VACATION: t.vacation,
+    OFFICIAL_HOLIDAYS: t.officialHolidays,
     SICK: t.sick,
-    PARENTAL: t.parental,
-    MARRIAGE: t.marriageLeave,
-    BEREAVEMENT: t.bereavementLeave,
+    OTHER: t.other,
   };
 
   // Get user ID from URL
@@ -777,10 +768,9 @@ export default function DeveloperVacations() {
             isCompact={false}
             requestTypeOptions={[
               { value: "VACATION", label: t.vacation },
+              { value: "OFFICIAL_HOLIDAYS", label: t.officialHolidays },
               { value: "SICK", label: t.sick },
-              { value: "PARENTAL", label: t.parental },
-              { value: "MARRIAGE", label: t.marriageLeave },
-              { value: "BEREAVEMENT", label: t.bereavementLeave },
+              { value: "OTHER", label: t.other },
             ]}
             requestableUserIds={userId ? [Number(userId)] : undefined}
             onRequestRange={handleCalendarRequest}

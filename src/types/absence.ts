@@ -20,11 +20,9 @@ export interface ExtAbsence extends Absence {
 
 export enum AbsenceType {
   VACATION = "VACATION", 
+  OFFICIAL_HOLIDAYS = "OFFICIAL_HOLIDAYS",
   SICK = "SICK", 
-  PERSONAL = "PERSONAL", 
-  PARENTAL = "PARENTAL",
-  MARRIAGE = "MARRIAGE",
-  BEREAVEMENT = "BEREAVEMENT",
+  OTHER = "OTHER",
 }
 
 export enum AbsenceStatus {

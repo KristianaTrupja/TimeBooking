@@ -95,11 +95,9 @@ model Projects {
 
 enum AbsenceType {
   VACATION
+  OFFICIAL_HOLIDAYS
   SICK
-  PERSONAL
-  PARENTAL
-  MARRIAGE
-  BEREAVEMENT
+  OTHER
 }
 
 enum AbsenceStatus {

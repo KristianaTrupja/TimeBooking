@@ -27,10 +27,9 @@ import {
 
 const ABSENCE_TYPES: (keyof typeof AbsenceType)[] = [
   "VACATION",
+  "OFFICIAL_HOLIDAYS",
   "SICK",
-  "PARENTAL",
-  "MARRIAGE",
-  "BEREAVEMENT",
+  "OTHER",
 ]
 
 function getInitialFiltersState(): Filters {
@@ -263,11 +262,9 @@ export default function ModifyAbsences() {
   const getTypeBadge = (type: string) => {
     const styles: Record<string, string> = {
       VACATION: "bg-teal-100 text-teal-700 border-teal-300",
+      OFFICIAL_HOLIDAYS: "bg-cyan-100 text-cyan-700 border-cyan-300",
       SICK: "bg-rose-100 text-rose-700 border-rose-300",
-      PERSONAL: "bg-violet-100 text-violet-700 border-violet-300",
-      PARENTAL: "bg-amber-100 text-amber-700 border-amber-300",
-      MARRIAGE: "bg-fuchsia-100 text-fuchsia-700 border-fuchsia-300",
-      BEREAVEMENT: "bg-slate-200 text-slate-700 border-slate-300",
+      OTHER: "bg-indigo-100 text-indigo-700 border-indigo-300",
     };
     return styles[type] || "bg-slate-100 text-slate-700 border-slate-300";
   };
@@ -612,10 +609,9 @@ export default function ModifyAbsences() {
           isCompact={isTableExpanded}
           requestTypeOptions={[
             { value: "VACATION", label: t.vacation },
+            { value: "OFFICIAL_HOLIDAYS", label: t.officialHolidays },
             { value: "SICK", label: t.sick },
-            { value: "PARENTAL", label: t.parental },
-            { value: "MARRIAGE", label: t.marriageLeave },
-            { value: "BEREAVEMENT", label: t.bereavementLeave },
+            { value: "OTHER", label: t.other },
           ]}
           onRequestRange={handleCalendarRequest}
           isRequestSubmitting={isSubmittingRequest}

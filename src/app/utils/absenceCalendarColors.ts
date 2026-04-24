@@ -1,10 +1,8 @@
 export const ABSENCE_TYPE_ORDER = [
   "VACATION",
+  "OFFICIAL_HOLIDAYS",
   "SICK",
-  "PERSONAL",
-  "PARENTAL",
-  "MARRIAGE",
-  "BEREAVEMENT",
+  "OTHER",
 ] as const;
 
 type CalendarAbsenceType = (typeof ABSENCE_TYPE_ORDER)[number];
@@ -36,6 +34,14 @@ const ABSENCE_COLORS: Record<CalendarAbsenceType, AbsenceColorConfig> = {
     workhourBottomBarBgClass: "bg-emerald-100 text-emerald-800",
     workhourBottomBarBorderClass: "border-emerald-500",
   },
+  OFFICIAL_HOLIDAYS: {
+    legendChipClass: "bg-cyan-100 text-cyan-800 border border-cyan-300",
+    leaveCellClass: "bg-cyan-100 text-cyan-800 font-semibold border-r border-cyan-300",
+    workhourCellClass: "bg-cyan-100 text-cyan-800",
+    workhourTopBarClass: "!bg-cyan-500/40 !text-cyan-100",
+    workhourBottomBarBgClass: "bg-cyan-100 text-cyan-800",
+    workhourBottomBarBorderClass: "border-cyan-500",
+  },
   SICK: {
     legendChipClass: "bg-red-100 text-red-800 border border-red-300",
     leaveCellClass: "bg-red-100 text-red-800 font-semibold border-r border-red-300",
@@ -44,37 +50,13 @@ const ABSENCE_COLORS: Record<CalendarAbsenceType, AbsenceColorConfig> = {
     workhourBottomBarBgClass: "bg-red-100 text-red-800",
     workhourBottomBarBorderClass: "border-red-500",
   },
-  PERSONAL: {
+  OTHER: {
     legendChipClass: "bg-indigo-100 text-indigo-800 border border-indigo-300",
     leaveCellClass: "bg-indigo-100 text-indigo-800 font-semibold border-r border-indigo-300",
     workhourCellClass: "bg-indigo-100 text-indigo-800",
     workhourTopBarClass: "!bg-indigo-500/40 !text-indigo-100",
     workhourBottomBarBgClass: "bg-indigo-100 text-indigo-800",
     workhourBottomBarBorderClass: "border-indigo-500",
-  },
-  PARENTAL: {
-    legendChipClass: "bg-orange-100 text-orange-800 border border-orange-300",
-    leaveCellClass: "bg-orange-100 text-orange-800 font-semibold border-r border-orange-300",
-    workhourCellClass: "bg-orange-100 text-orange-800",
-    workhourTopBarClass: "!bg-orange-500/40 !text-orange-100",
-    workhourBottomBarBgClass: "bg-orange-100 text-orange-800",
-    workhourBottomBarBorderClass: "border-orange-500",
-  },
-  MARRIAGE: {
-    legendChipClass: "bg-pink-100 text-pink-800 border border-pink-300",
-    leaveCellClass: "bg-pink-100 text-pink-800 font-semibold border-r border-pink-300",
-    workhourCellClass: "bg-pink-100 text-pink-800",
-    workhourTopBarClass: "!bg-pink-500/40 !text-pink-100",
-    workhourBottomBarBgClass: "bg-pink-100 text-pink-800",
-    workhourBottomBarBorderClass: "border-pink-500",
-  },
-  BEREAVEMENT: {
-    legendChipClass: "bg-slate-200 text-slate-800 border border-slate-300",
-    leaveCellClass: "bg-slate-200 text-slate-800 font-semibold border-r border-slate-300",
-    workhourCellClass: "bg-slate-200 text-slate-800",
-    workhourTopBarClass: "!bg-slate-500/40 !text-slate-100",
-    workhourBottomBarBgClass: "bg-slate-200 text-slate-800",
-    workhourBottomBarBorderClass: "border-slate-500",
   },
 };
 

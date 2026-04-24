@@ -8,7 +8,6 @@ import { formatEmployeeName } from "@/app/utils/formatEmployeeName";
 import { useLanguage } from "@/app/context/LanguageContext";
 import {
   ABSENCE_TYPE_ORDER,
-  HOLIDAY_CALENDAR_COLORS,
   PENDING_CALENDAR_COLORS,
   getAbsenceColorConfig,
 } from "@/app/utils/absenceCalendarColors";
@@ -213,10 +212,9 @@ export default function ModifyAbsencesCalendarView({
 
   const absenceLegendItems = [
     { type: "VACATION", label: t.vacation },
+    { type: "OFFICIAL_HOLIDAYS", label: t.officialHolidays },
     { type: "SICK", label: t.sick },
-    { type: "PARENTAL", label: t.parental },
-    { type: "MARRIAGE", label: t.marriageLeave },
-    { type: "BEREAVEMENT", label: t.bereavementLeave },
+    { type: "OTHER", label: t.other },
   ];
 
   return (
@@ -272,7 +270,6 @@ export default function ModifyAbsencesCalendarView({
             );
           })}
           <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md ${PENDING_CALENDAR_COLORS.legendChipClass}`}>{t.pending}</span>
-          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md ${HOLIDAY_CALENDAR_COLORS.legendChipClass}`}>{t.officialHoliday}</span>
         </div>
       )}
 

@@ -125,6 +125,7 @@ interface Translations {
   
   // Vacations Page
   vacation: string;
+  other: string;
   sick: string;
   personal: string;
   parental: string;
@@ -576,6 +577,7 @@ const translations: Record<Language, Translations> = {
     
     // Vacations Page
     vacation: "Vacation",
+    other: "Other",
     sick: "Sick",
     personal: "Personal",
     parental: "Parental",
@@ -1025,6 +1027,7 @@ const translations: Record<Language, Translations> = {
     
     // Vacations Page
     vacation: "Urlaub",
+    other: "Andere",
     sick: "Krank",
     personal: "Persönlich",
     parental: "Elternzeit",

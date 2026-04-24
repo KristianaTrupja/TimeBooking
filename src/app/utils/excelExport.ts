@@ -271,7 +271,7 @@ export function exportTimesheetToExcel(data: EmployeeTimesheetData) {
     const cellB = `B${idx + 1}`;
 
     // Style absence type headers (VACATION:, SICK:, etc.)
-    if (row[0]?.toString().match(/^(VACATION|SICK|PERSONAL|PARENTAL|MARRIAGE|BEREAVEMENT):/)) {
+    if (row[0]?.toString().match(/^(VACATION|OFFICIAL_HOLIDAYS|SICK|OTHER):/)) {
       if (summarySheet[cellA]) {
         summarySheet[cellA].s = {
           font: { bold: true, sz: 11, color: { rgb: "FFFFFF" } },
@@ -562,7 +562,7 @@ export function exportTimesheetToExcel(data: EmployeeTimesheetData) {
       // Type headers (VACATION, SICK, etc.)
       if (
         row[0] &&
-        ["VACATION", "SICK", "PERSONAL", "PARENTAL", "MARRIAGE", "BEREAVEMENT"].includes(row[0].toString())
+        ["VACATION", "OFFICIAL_HOLIDAYS", "SICK", "OTHER"].includes(row[0].toString())
       ) {
         if (absencesSheet[cellA]) {
           absencesSheet[cellA].s = {

@@ -1,5 +1,5 @@
 import { ExtAbsence } from "@/types/absence";
-import { Palmtree, Stethoscope, UserRound, Baby, Calendar, Clock } from "lucide-react";
+import { Palmtree, Stethoscope, Calendar, Sparkles } from "lucide-react";
 import { useLanguage } from "@/app/context/LanguageContext";
 
 type Props = {
@@ -15,35 +15,23 @@ const leaveTypeStyles: Record<string, { icon: React.ReactNode; bgColor: string; 
     textColor: "text-teal-700", 
     borderColor: "border-teal-300" 
   },
+  OFFICIAL_HOLIDAYS: {
+    icon: <Calendar size={16} />,
+    bgColor: "bg-cyan-100",
+    textColor: "text-cyan-700",
+    borderColor: "border-cyan-300"
+  },
   SICK: { 
     icon: <Stethoscope size={16} />, 
     bgColor: "bg-rose-100", 
     textColor: "text-rose-700", 
     borderColor: "border-rose-300" 
   },
-  PERSONAL: { 
-    icon: <UserRound size={16} />, 
-    bgColor: "bg-violet-100", 
-    textColor: "text-violet-700", 
-    borderColor: "border-violet-300" 
-  },
-  PARENTAL: { 
-    icon: <Baby size={16} />, 
-    bgColor: "bg-amber-100", 
-    textColor: "text-amber-700", 
-    borderColor: "border-amber-300" 
-  },
-  MARRIAGE: {
-    icon: <Calendar size={16} />,
-    bgColor: "bg-fuchsia-100",
-    textColor: "text-fuchsia-700",
-    borderColor: "border-fuchsia-300"
-  },
-  BEREAVEMENT: {
-    icon: <Clock size={16} />,
-    bgColor: "bg-slate-200",
-    textColor: "text-slate-700",
-    borderColor: "border-slate-300"
+  OTHER: {
+    icon: <Sparkles size={16} />,
+    bgColor: "bg-indigo-100",
+    textColor: "text-indigo-700",
+    borderColor: "border-indigo-300"
   },
 };
 

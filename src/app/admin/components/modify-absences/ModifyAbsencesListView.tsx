@@ -46,10 +46,9 @@ type Props = {
 
 const ABSENCE_TYPES: (keyof typeof AbsenceType)[] = [
   "VACATION",
+  "OFFICIAL_HOLIDAYS",
   "SICK",
-  "PARENTAL",
-  "MARRIAGE",
-  "BEREAVEMENT",
+  "OTHER",
 ];
 
 export default function ModifyAbsencesListView({

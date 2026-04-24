@@ -2,7 +2,6 @@
 
 import { useLanguage } from "@/app/context/LanguageContext";
 import {
-  HOLIDAY_CALENDAR_COLORS,
   PENDING_UNSAVED_CALENDAR_COLORS,
   WEEKEND_CALENDAR_COLORS,
   getAbsenceColorConfig,
@@ -13,12 +12,10 @@ export default function CalendarLegend() {
   
   const legendItems = [
     { label: t.weekend, color: WEEKEND_CALENDAR_COLORS.legendChipClass },
-    { label: t.officialHoliday, color: HOLIDAY_CALENDAR_COLORS.legendChipClass },
     { label: t.vacation, color: getAbsenceColorConfig("VACATION").legendChipClass },
+    { label: t.officialHolidays, color: getAbsenceColorConfig("OFFICIAL_HOLIDAYS").legendChipClass },
     { label: t.sick, color: getAbsenceColorConfig("SICK").legendChipClass },
-    { label: t.parental, color: getAbsenceColorConfig("PARENTAL").legendChipClass },
-    { label: t.marriageLeave, color: getAbsenceColorConfig("MARRIAGE").legendChipClass },
-    { label: t.bereavementLeave, color: getAbsenceColorConfig("BEREAVEMENT").legendChipClass },
+    { label: t.other, color: getAbsenceColorConfig("OTHER").legendChipClass },
     { label: t.pendingUnsaved, color: PENDING_UNSAVED_CALENDAR_COLORS.legendChipClass },
   ];
 
