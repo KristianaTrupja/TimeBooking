@@ -10,7 +10,7 @@ type SidebarContextType = {
 
 const SidebarContext = createContext<SidebarContextType | undefined>(undefined);
 const SIDEBAR_COLLAPSED_STORAGE_KEY = "sidebar-collapsed";
-
+const desktopBreakpoint = 1280;
 export function SidebarProvider({ children }: { children: React.ReactNode }) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
@@ -22,8 +22,9 @@ export function SidebarProvider({ children }: { children: React.ReactNode }) {
     } else if (saved === "false") {
       setIsCollapsed(false);
     } else {
-      setIsCollapsed(window.innerWidth < 1280);
+      setIsCollapsed(window.innerWidth < desktopBreakpoint);
     }
+    
     setIsInitialized(true);
   }, []);
 
