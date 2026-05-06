@@ -108,44 +108,50 @@ export async function DELETE(req: Request) {
     
     const userId = Number(session.user.id);
     const { searchParams } = new URL(req.url);
-    const deleteRead = searchParams.get("readOnly");
-    
-    if (deleteRead === "true") {
-      // Delete all read notifications for this user
+    const selectedOnly = searchParams.get("selectedOnly") === "true";
+
+    if (selectedOnly) {
+      const body = await req.json().catch(() => null) as { ids?: string[] } | null;
+      const ids = Array.isArray(body?.ids)
+        ? body.ids.filter((id) => typeof id === "string" && id.trim().length > 0)
+        : [];
+
+      if (ids.length === 0) {
+        throw new ValidationError("No notification IDs were provided!", "ids");
+      }
+
       const result = await db.notifications.deleteMany({
         where: {
           userId,
-          isRead: true,
+          id: { in: ids },
         },
       });
 
       return NextResponse.json(
-        { 
-          message: `Deleted ${result.count} read notification(s) successfully`,
-          deletedCount: result.count 
+        {
+          message: `Deleted ${result.count} selected notification(s) successfully`,
+          deletedCount: result.count,
         },
-        { status: 200 }
-      );
-    } else {
-      // Delete a specific notification
-      const notificationId = searchParams.get("id");
-      
-      if (!notificationId) {
-        throw new ValidationError("No notification ID was provided!", "id");
-      }
-
-      await db.notifications.delete({
-        where: {
-          id: notificationId,
-          userId,
-        },
-      });
-
-      return NextResponse.json(
-        { message: "Notification deleted successfully" },
         { status: 200 }
       );
     }
+
+    const notificationId = searchParams.get("id");
+    if (!notificationId) {
+      throw new ValidationError("No notification ID was provided!", "id");
+    }
+
+    await db.notifications.delete({
+      where: {
+        id: notificationId,
+        userId,
+      },
+    });
+
+    return NextResponse.json(
+      { message: "Notification deleted successfully" },
+      { status: 200 }
+    );
   } catch (error) {
     return handleApiError(error);
   }

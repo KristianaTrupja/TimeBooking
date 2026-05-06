@@ -10,6 +10,8 @@ type NotificationProps = {
     children?: ReactNode,
     markAsRead: (notificationId:string) => void
     notification: Notif
+    onSelect: (notificationId: string) => void
+    isSelected?: boolean
 }
 
 // Parse message and render **text** as bold
@@ -59,7 +61,8 @@ const actionConfig = {
     VIEW_ABSENCE: { goTo: "/admin?tab=modify-absences", icon: Calendar }
 } as const;
 
-export default function Notification({ notification, markAsRead = ()=>{}, children }: NotificationProps) {
+export default function Notification({ notification, markAsRead = ()=>{}, children, onSelect = ()=>{}, isSelected = false }: NotificationProps) {
+    
     const { t } = useLanguage();
     const actionType = notification.actionType as keyof typeof actionConfig;
     const action = actionType ? actionConfig[actionType] : undefined;
@@ -69,10 +72,6 @@ export default function Notification({ notification, markAsRead = ()=>{}, childr
     };
     const ActionIcon = action?.icon;
     const router = useRouter();
-
-    function handleRead(){
-        if(!notification.isRead) markAsRead(notification.id)
-    }
 
     function handleActionClick() {
         if (!action) return;
@@ -89,11 +88,15 @@ export default function Notification({ notification, markAsRead = ()=>{}, childr
 
   return (
     <li 
-      onClick={handleRead} 
+      onClick={() => {
+        onSelect(notification.id);
+      }}
       className={`flex flex-col p-4 transition-colors cursor-pointer ${
-        notification.isRead 
-          ? 'bg-white hover:bg-slate-50' 
-          : 'bg-blue-50/50 hover:bg-blue-50'
+        isSelected
+          ? "bg-blue-100 ring-1 ring-blue-300"
+          : notification.isRead
+            ? "bg-white hover:bg-slate-50"
+            : "bg-blue-50/50 hover:bg-blue-50"
       }`}
     >
       <div className="flex items-start gap-3">

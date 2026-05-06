@@ -5,12 +5,12 @@ import { createContext, useContext, useState, ReactNode, useEffect, useMemo } fr
 type NotificationContextType = {
     notifications: Notification[]
     unreadNotificationsCount: number
-    createNotification: (type:keyof typeof NotificationType, notification: CreateNotificationInput) => void
+    createNotification: (type: keyof typeof NotificationType, notification: CreateNotificationInput) => void
     fetchAllNotifications: () => void
-    fetchNotification: (notificationId:string) => Promise<Notification | null>
-    markAsRead: (notificationId: string ) => void
+    fetchNotification: (notificationId: string) => Promise<Notification | null>
+    markAsRead: (notificationId: string) => void
     markAllAsRead: () => Promise<number>
-    deleteReadNotifications: () => Promise<void>
+    deleteSelectedNotifications: (notificationIds: string[]) => Promise<number>
 }
 
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
@@ -21,26 +21,26 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
 
     const unreadNotificationsCount = useMemo(() => notifications.filter(notification => !notification.isRead).length, [notifications])
 
-    function createNotification(type:keyof typeof NotificationType, notification: CreateNotificationInput){
-        
+    function createNotification(type: keyof typeof NotificationType, notification: CreateNotificationInput) {
+
     }
 
     async function fetchAllNotifications() {
         // Prevent concurrent fetches
         if (isFetching) return;
-        
+
         try {
             setIsFetching(true);
             const response = await fetch('/api/notifications', {
                 cache: 'no-store',
                 signal: AbortSignal.timeout(5000), // 5 second timeout
             });
-            
+
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            
-            const data: {notifications: Notification[]} = await response.json();
+
+            const data: { notifications: Notification[] } = await response.json();
             setNotifications((data?.notifications || []))
         } catch (err) {
             if (err instanceof Error && err.name !== 'AbortError') {
@@ -53,21 +53,21 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
 
     useEffect(() => {
         fetchAllNotifications()
-        
+
         // Optimize polling: only fetch when tab is visible
         const handleVisibilityChange = () => {
             if (!document.hidden) {
                 fetchAllNotifications();
             }
         };
-        
+
         // Poll every 5 minutes instead of 3 (reduce server load)
         const interval = setInterval(() => {
             if (!document.hidden) {
                 fetchAllNotifications();
             }
         }, 5 * 60 * 1000);
-        
+
         document.addEventListener('visibilitychange', handleVisibilityChange);
 
         return () => {
@@ -77,21 +77,21 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
     }, [])
 
 
-    async function fetchNotification(notificationId:string):Promise<Notification | null>{
+    async function fetchNotification(notificationId: string): Promise<Notification | null> {
         return await fetch('mock_notification_data.json')
-        .then(response => {
-            if(response.ok) return response.json()
-        })
-        .then((data:Notification[]) => {
-            const res =  data?.find(n => n.id === notificationId)
-            if(res) return res
-            return null
-        })
-        .catch(err => null)
+            .then(response => {
+                if (response.ok) return response.json()
+            })
+            .then((data: Notification[]) => {
+                const res = data?.find(n => n.id === notificationId)
+                if (res) return res
+                return null
+            })
+            .catch(err => null)
     }
 
 
-    async function markAsRead(notificationId: string ){
+    async function markAsRead(notificationId: string) {
         try {
             const response = await fetch(`/api/notifications?id=${notificationId}`, {
                 method: "PUT"
@@ -99,15 +99,15 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            const data: {message:string, notification:Notification} = await response.json()
+            const data: { message: string, notification: Notification } = await response.json()
             const updatedNotifications = notifications.map((n, i) => {
-                if(n.id === data.notification.id) return data.notification
+                if (n.id === data.notification.id) return data.notification
                 return n
             })
 
             setNotifications(updatedNotifications)
         }
-        catch(err){
+        catch (err) {
             console.error("Failed to read notification:", err)
         }
     }
@@ -120,43 +120,51 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            const data: {message:string, updatedCount:number, notifications:Notification[]} = await response.json()
+            const data: { message: string, updatedCount: number, notifications: Notification[] } = await response.json()
             setNotifications(Array.isArray(data.notifications) ? data.notifications : [])
             return data.updatedCount || 0
-        } catch(err){
+        } catch (err) {
             console.error("Failed to mark all notifications as read:", err)
             throw new Error("Failed to mark all notifications as read")
         }
     }
 
-    async function deleteReadNotifications() {
+    async function deleteSelectedNotifications(notificationIds: string[]): Promise<number> {
+        if (notificationIds.length === 0) return 0;
+
         try {
-            const response = await fetch('/api/notifications?readOnly=true', {
-                method: "DELETE"
+            const response = await fetch('/api/notifications?selectedOnly=true', {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ ids: notificationIds }),
             })
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            // Remove read notifications from state
-            const updatedNotifications = notifications.filter(n => !n.isRead)
-            setNotifications(updatedNotifications)
+            const data: { deletedCount?: number } = await response.json();
+            const notificationIdsSet = new Set(notificationIds);
+            setNotifications((prev) => prev.filter((n) => !notificationIdsSet.has(n.id)));
+            return data.deletedCount || 0;
         }
-        catch(err){
-            console.error("Failed to delete read notifications:", err)
+        catch (err) {
+            console.error("Failed to delete selected notifications:", err)
+            throw new Error("Failed to delete selected notifications")
         }
     }
 
-  return (
-    <NotificationContext.Provider value={{notifications, unreadNotificationsCount, createNotification, fetchAllNotifications, fetchNotification, markAsRead, markAllAsRead, deleteReadNotifications}}>
-      {children}
-    </NotificationContext.Provider>
-  );
+    return (
+        <NotificationContext.Provider value={{ notifications, unreadNotificationsCount, createNotification, fetchAllNotifications, fetchNotification, markAsRead, markAllAsRead, deleteSelectedNotifications }}>
+            {children}
+        </NotificationContext.Provider>
+    );
 };
 
 export const useNotifications = (): NotificationContextType => {
-  const context = useContext(NotificationContext);
-  if (!context) {
-    throw new Error("useNotifications must be used within a NotificationProvider");
-  }
-  return context;
+    const context = useContext(NotificationContext);
+    if (!context) {
+        throw new Error("useNotifications must be used within a NotificationProvider");
+    }
+    return context;
 };
