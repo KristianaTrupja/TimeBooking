@@ -9,6 +9,7 @@ type NotificationContextType = {
     fetchAllNotifications: () => void
     fetchNotification: (notificationId:string) => Promise<Notification | null>
     markAsRead: (notificationId: string ) => void
+    markAllAsRead: () => Promise<number>
     deleteReadNotifications: () => Promise<void>
 }
 
@@ -107,7 +108,24 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
             setNotifications(updatedNotifications)
         }
         catch(err){
+            console.error("Failed to read notification:", err)
+        }
+    }
 
+    async function markAllAsRead(): Promise<number> {
+        try {
+            const response = await fetch('/api/notifications?markAllAsRead=true', {
+                method: "POST"
+            })
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data: {message:string, updatedCount:number, notifications:Notification[]} = await response.json()
+            setNotifications(Array.isArray(data.notifications) ? data.notifications : [])
+            return data.updatedCount || 0
+        } catch(err){
+            console.error("Failed to mark all notifications as read:", err)
+            throw new Error("Failed to mark all notifications as read")
         }
     }
 
@@ -129,7 +147,7 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
     }
 
   return (
-    <NotificationContext.Provider value={{notifications, unreadNotificationsCount, createNotification, fetchAllNotifications, fetchNotification, markAsRead, deleteReadNotifications}}>
+    <NotificationContext.Provider value={{notifications, unreadNotificationsCount, createNotification, fetchAllNotifications, fetchNotification, markAsRead, markAllAsRead, deleteReadNotifications}}>
       {children}
     </NotificationContext.Provider>
   );

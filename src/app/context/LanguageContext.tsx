@@ -235,6 +235,7 @@ interface Translations {
   noNotifications: string;
   youreAllCaughtUp: string;
   deleteRead: string;
+  markAllAsRead: string;
   
   // Login Page
   welcomeBack: string;
@@ -686,7 +687,8 @@ const translations: Record<Language, Translations> = {
     unread: "unread",
     noNotifications: "No notifications",
     youreAllCaughtUp: "You're all caught up!",
-    deleteRead: "Delete Read",
+    deleteRead: "Delete",
+    markAllAsRead: "Mark all as read",
     
     // Login Page
     welcomeBack: "Welcome back",

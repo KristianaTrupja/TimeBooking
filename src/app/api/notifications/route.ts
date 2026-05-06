@@ -23,16 +23,54 @@ export async function GET(req: Request) {
   }
 }
 
+// export async function POST(req: Request) {
+//   try {
+//     return NextResponse.json(
+//       { message: "Notification Creation API hit!" },
+//       { status: 201 }
+//     );
+//   } catch (error: any) {
+//     return handleApiError(error)
+//   }
+// }
+
+
 export async function POST(req: Request) {
   try {
-    return NextResponse.json(
-      { message: "Notification Creation API hit!" },
-      { status: 201 }
-    );
-  } catch (error: any) {
-    return handleApiError(error)
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) throw new AuthenticationError("Unauthorized");
+
+    const userId = Number(session.user.id);
+    const { searchParams } = new URL(req.url);
+    const markAllAsRead = searchParams.get("markAllAsRead") === "true";
+
+    if (markAllAsRead) {
+      const result = await db.notifications.updateMany({
+        where: { userId, isRead: false },
+        data: { isRead: true },
+      });
+
+      const notifications = await db.notifications.findMany({
+        where: { userId },
+        orderBy: { createdAt: "desc" },
+      });
+
+      return NextResponse.json(
+        {
+          message: `Marked ${result.count} notification(s) as read`,
+          updatedCount: result.count,
+          notifications,
+        },
+        { status: 200 }
+      );
+    }
+
+    return NextResponse.json({ message: "Mark all notifications as read API hit!" }, { status: 200 });
+  } catch (error) {
+    return handleApiError(error);
   }
 }
+
 
 export async function PUT(req: Request) {
   try {
