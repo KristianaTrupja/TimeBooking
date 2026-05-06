@@ -1139,6 +1139,7 @@ const translations: Record<Language, Translations> = {
     noNotifications: "Keine Benachrichtigungen",
     youreAllCaughtUp: "Alles erledigt!",
     deleteRead: "Gelesene löschen",
+    markAllAsRead: "Alle als gelesen markieren",
     
     // Login Page
     welcomeBack: "Willkommen zurück",
