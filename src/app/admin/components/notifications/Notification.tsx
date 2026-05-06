@@ -123,6 +123,7 @@ export default function Notification({ notification, markAsRead = ()=>{}, childr
             <button 
               onClick={(e) => {
                 e.stopPropagation();
+                markAsRead(notification.id);
                 handleActionClick();
               }}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 mt-1 text-xs font-medium text-blue-600 bg-blue-100 rounded-lg hover:bg-blue-200 transition-colors"

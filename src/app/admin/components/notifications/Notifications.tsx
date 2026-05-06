@@ -21,7 +21,7 @@ export default function Notifications() {
   const notificationsContainerRef = useRef<HTMLDivElement>(null);
   const isMobileLayout = useIsMobile(1024);
 
-  const unreadCount = notifications?.filter(n => !n.isRead).length;
+  const unreadNotificationsCount = notifications?.filter(n => !n.isRead).length;
   const [selectedNotificationsIds, setSelectedNotificationsIds] = useState<string[]>([]);
 
   const handleDeleteSelected = () => {
@@ -134,7 +134,7 @@ export default function Notifications() {
               {t.notifications}
             </h2>
             <p className="text-sm text-slate-500">
-              {unreadCount > 0 ? `${unreadCount} ${t.unread}` : t.allCaughtUp}
+              {unreadNotificationsCount > 0 ? `${unreadNotificationsCount } ${t.unread}` : t.allCaughtUp}
             </p>
           </div>
         </div>
@@ -161,6 +161,7 @@ export default function Notifications() {
             </span>
           )}
 
+          {unreadNotificationsCount > 0 && (
           <Button
             variant="link"
             onClick={handleReadAllNotifications}
@@ -169,6 +170,7 @@ export default function Notifications() {
           >
             {t.markAllAsRead}
           </Button>
+          )}
         </div>
       </div>
 
