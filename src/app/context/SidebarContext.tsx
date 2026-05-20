@@ -9,23 +9,29 @@ type SidebarContextType = {
 };
 
 const SidebarContext = createContext<SidebarContextType | undefined>(undefined);
-
+const SIDEBAR_COLLAPSED_STORAGE_KEY = "sidebar-collapsed";
+const desktopBreakpoint = 1280;
 export function SidebarProvider({ children }: { children: React.ReactNode }) {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
 
-  // Auto-collapse on screens smaller than XL (1280px)
   useEffect(() => {
-    const checkScreenSize = () => {
-      setIsCollapsed(window.innerWidth < 1280);
-    };
-
-    // Check on mount
-    checkScreenSize();
-
-    // Listen for resize
-    window.addEventListener("resize", checkScreenSize);
-    return () => window.removeEventListener("resize", checkScreenSize);
+    const saved = localStorage.getItem(SIDEBAR_COLLAPSED_STORAGE_KEY);
+    if (saved === "true") {
+      setIsCollapsed(true);
+    } else if (saved === "false") {
+      setIsCollapsed(false);
+    } else {
+      setIsCollapsed(window.innerWidth < desktopBreakpoint);
+    }
+    
+    setIsInitialized(true);
   }, []);
+
+  useEffect(() => {
+    if (!isInitialized) return;
+    localStorage.setItem(SIDEBAR_COLLAPSED_STORAGE_KEY, String(isCollapsed));
+  }, [isCollapsed, isInitialized]);
 
   const toggleSidebar = useCallback(() => {
     setIsCollapsed(prev => !prev);
