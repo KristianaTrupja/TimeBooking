@@ -6,7 +6,7 @@ import { SidebarProvider } from "@/app/context/SidebarContext";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import Link from "next/link";
-import { Clock } from "lucide-react";
+import Image from "next/image";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
  
@@ -29,28 +29,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
       <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-white/80 border-b border-slate-200 px-3 sm:px-6 py-3 sm:py-4 shadow-sm" role="banner">
         <div className="flex justify-between items-center">
           <Link href="/admin?tab=raport" className="group flex items-center gap-2 sm:gap-3 hover:opacity-90 transition-all duration-300">
-            {/* Logo Icon */}
-            <div className="relative">
-              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-[#244B77] to-[#1a3a5c] flex items-center justify-center shadow-lg shadow-[#244B77]/25 group-hover:shadow-[#244B77]/40 transition-shadow duration-300">
-                <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
-              </div>
-              <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 sm:w-3 sm:h-3 bg-gradient-to-r from-cyan-400 to-blue-400 rounded-full border-2 border-white" />
-            </div>
-            {/* Logo Text */}
-            <div className="flex flex-col leading-none">
-              <span 
-                className="text-lg sm:text-xl font-bold tracking-tight text-slate-800"
-                style={{ fontFamily: "var(--font-inter), system-ui, sans-serif" }}
-              >
-                Work<span className="bg-gradient-to-r from-[#244B77] to-cyan-600 bg-clip-text text-transparent">Time</span>
-              </span>
-              <span 
-                className="text-[9px] sm:text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-500"
-                style={{ fontFamily: "var(--font-inter), system-ui, sans-serif" }}
-              >
-                Hub
-              </span>
-            </div>
+           <Image src="/icons/logo.png" alt="logo" width={150} height={100} />
           </Link>
           <div className="flex items-center gap-2 sm:gap-4">
             <Suspense fallback={null}>
