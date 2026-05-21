@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { signIn, getSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { toast } from "sonner";
 import { Loader2, Clock, Calendar, Eye, EyeOff } from "lucide-react";
 import { useLanguage } from "@/app/context/LanguageContext";
@@ -97,9 +98,7 @@ export default function Login() {
       <div className={`relative z-10 w-full max-w-md transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
         {/* Logo/Header */}
         <div className="text-center mb-8">
-          <div className={`inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 mb-6 transition-all duration-500 delay-100 ${mounted ? 'opacity-100 scale-100' : 'opacity-0 scale-75'}`}>
-            <Clock className="w-8 h-8 text-white" />
-          </div>
+          <Image src="/icons/login.png" alt="logo" width={96} height={96} className="mx-auto mb-4" />
           <h1 className={`text-4xl md:text-5xl font-bold text-white tracking-tight transition-all duration-500 delay-200 ${mounted ? 'opacity-100' : 'opacity-0'}`}>
             DELA<span className="text-cyan-400">tech</span>
           </h1>
