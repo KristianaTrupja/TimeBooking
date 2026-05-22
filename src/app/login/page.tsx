@@ -17,6 +17,7 @@ export default function Login() {
   const { t } = useLanguage();
 
   useEffect(() => {
+    
     setMounted(true);
   }, []);
 

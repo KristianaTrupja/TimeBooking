@@ -9,7 +9,7 @@ import { HolidayProvider } from "@/app/context/HolidayContext";
 import { AbsenceProvider } from "@/app/context/AbsencesContext";
 import { SidebarProvider } from "@/app/context/SidebarContext";
 import Link from "next/link";
-import { Clock } from "lucide-react";
+import Image from "next/image";
 import DeveloperHeaderActions from "../components/header/DeveloperHeaderActions";
 
 export default async function DashboardLayout({
@@ -81,27 +81,7 @@ export default async function DashboardLayout({
                     <div className="flex justify-between items-center">
                       <Link href={`/developer/${currentUserId}`} className="group flex items-center gap-2 sm:gap-3 hover:opacity-90 transition-all duration-300">
                         {/* Logo Icon */}
-                        <div className="relative">
-                          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-[#244B77] to-[#1a3a5c] flex items-center justify-center shadow-lg shadow-[#244B77]/25 group-hover:shadow-[#244B77]/40 transition-shadow duration-300">
-                            <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
-                          </div>
-                          <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 sm:w-3 sm:h-3 bg-gradient-to-r from-cyan-400 to-blue-400 rounded-full border-2 border-white" />
-                        </div>
-                        {/* Logo Text */}
-                        <div className="flex flex-col leading-none">
-                          <span 
-                            className="text-lg sm:text-xl font-bold tracking-tight text-slate-800"
-                            style={{ fontFamily: "var(--font-inter), system-ui, sans-serif" }}
-                          >
-                            Work<span className="bg-gradient-to-r from-[#244B77] to-cyan-600 bg-clip-text text-transparent">Time</span>
-                          </span>
-                          <span 
-                            className="text-[9px] sm:text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-500"
-                            style={{ fontFamily: "var(--font-inter), system-ui, sans-serif" }}
-                          >
-                            Hub
-                          </span>
-                        </div>
+                        <Image src="/icons/logo.png" alt="logo" width={150} height={100} />
                       </Link>
                       <DeveloperHeaderActions 
                         displayedUsername={displayedUsername} 
