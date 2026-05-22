@@ -22,11 +22,13 @@ type AbsenceTypeValue =
   | "VACATION"
   | "OFFICIAL_HOLIDAYS"
   | "SICK"
+  | "HOME_OFFICE"
   | "OTHER";
 type DatabaseAbsenceTypeValue =
   | "VACATION"
   | "OFFICIAL_HOLIDAYS"
   | "SICK"
+  | "HOME_OFFICE"
   | "OTHER";
 type AbsenceStatusValue = "PENDING" | "APPROVED" | "REJECTED";
 
@@ -34,6 +36,7 @@ const ABSENCE_TYPES: AbsenceTypeValue[] = [
   "VACATION",
   "OFFICIAL_HOLIDAYS",
   "SICK",
+  "HOME_OFFICE",
   "OTHER",
 ];
 const ABSENCE_STATUSES: AbsenceStatusValue[] = ["PENDING", "APPROVED", "REJECTED"];
@@ -52,6 +55,8 @@ function toDatabaseAbsenceType(type: AbsenceTypeValue): DatabaseAbsenceTypeValue
       return "VACATION";
     case "SICK":
       return "SICK";
+    case "HOME_OFFICE":
+      return "HOME_OFFICE";
     default:
       return "VACATION";
   }
@@ -66,6 +71,8 @@ function toPublicAbsenceType(type: string): AbsenceTypeValue {
       return "OFFICIAL_HOLIDAYS";
     case "SICK":
       return "SICK";
+    case "HOME_OFFICE":
+      return "HOME_OFFICE";
     case "OTHER":
     case "PARENTAL":
     case "MARRIAGE":
@@ -404,6 +411,8 @@ export async function GET(req: Request) {
             ? "VACATION"
             : absenceType === "SICK"
               ? "SICK"
+              : absenceType === "HOME_OFFICE"
+                ? "HOME_OFFICE"
               : undefined;
 
     const commonFilter = {

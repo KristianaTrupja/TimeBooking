@@ -97,6 +97,7 @@ enum AbsenceType {
   VACATION
   OFFICIAL_HOLIDAYS
   SICK
+  HOME_OFFICE
   OTHER
 }
 

@@ -214,6 +214,7 @@ export default function ModifyAbsencesCalendarView({
     { type: "VACATION", label: t.vacation },
     { type: "OFFICIAL_HOLIDAYS", label: t.officialHolidays },
     { type: "SICK", label: t.sick },
+    { type: "HOME_OFFICE", label: t.homeOffice },
     { type: "OTHER", label: t.other },
   ];
 

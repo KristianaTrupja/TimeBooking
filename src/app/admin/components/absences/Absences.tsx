@@ -17,6 +17,7 @@ import {
   Users, 
   Palmtree, 
   Stethoscope, 
+  House,
   Calendar,
   Sparkles,
   TrendingUp,
@@ -69,6 +70,7 @@ const absenceTypes: (keyof typeof AbsenceType)[] = [
   "VACATION",
   "OFFICIAL_HOLIDAYS",
   "SICK",
+  "HOME_OFFICE",
   "OTHER",
 ]
 
@@ -76,6 +78,7 @@ const leaveTypeStyles: Record<string, { icon: React.ReactNode; gradient: string;
   VACATION: { icon: <Palmtree size={20} />, gradient: "from-teal-400 to-emerald-400", glow: "shadow-teal-400/20", softBg: "bg-teal-50", softText: "text-teal-600" },
   OFFICIAL_HOLIDAYS: { icon: <Calendar size={20} />, gradient: "from-cyan-400 to-sky-500", glow: "shadow-cyan-400/20", softBg: "bg-cyan-50", softText: "text-cyan-600" },
   SICK: { icon: <Stethoscope size={20} />, gradient: "from-rose-400 to-pink-400", glow: "shadow-rose-400/20", softBg: "bg-rose-50", softText: "text-rose-500" },
+  HOME_OFFICE: { icon: <House size={20} />, gradient: "from-violet-400 to-purple-500", glow: "shadow-violet-400/20", softBg: "bg-violet-50", softText: "text-violet-600" },
   OTHER: { icon: <Sparkles size={20} />, gradient: "from-indigo-400 to-violet-500", glow: "shadow-indigo-400/20", softBg: "bg-indigo-50", softText: "text-indigo-600" },
 }
 
@@ -104,6 +107,7 @@ export default function Absences() {
     VACATION: t.vacation,
     OFFICIAL_HOLIDAYS: t.officialHolidays,
     SICK: t.sick,
+    HOME_OFFICE: t.homeOffice,
     OTHER: t.other,
   }), [t]);
 

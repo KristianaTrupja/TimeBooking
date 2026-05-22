@@ -2,6 +2,7 @@ export const ABSENCE_TYPE_ORDER = [
   "VACATION",
   "OFFICIAL_HOLIDAYS",
   "SICK",
+  "HOME_OFFICE",
   "OTHER",
 ] as const;
 
@@ -49,6 +50,14 @@ const ABSENCE_COLORS: Record<CalendarAbsenceType, AbsenceColorConfig> = {
     workhourTopBarClass: "!bg-red-500/40 !text-red-100",
     workhourBottomBarBgClass: "bg-red-100 text-red-800",
     workhourBottomBarBorderClass: "border-red-500",
+  },
+  HOME_OFFICE: {
+    legendChipClass: "bg-violet-100 text-violet-800 border border-violet-300",
+    leaveCellClass: "bg-violet-100 text-violet-800 font-semibold border-r border-violet-300",
+    workhourCellClass: "bg-violet-100 text-violet-800",
+    workhourTopBarClass: "!bg-violet-500/40 !text-violet-100",
+    workhourBottomBarBgClass: "bg-violet-100 text-violet-800",
+    workhourBottomBarBorderClass: "border-violet-500",
   },
   OTHER: {
     legendChipClass: "bg-indigo-100 text-indigo-800 border border-indigo-300",

@@ -1,5 +1,5 @@
 import { ExtAbsence } from "@/types/absence";
-import { Palmtree, Stethoscope, Calendar, Sparkles, Clock } from "lucide-react";
+import { Palmtree, Stethoscope, House, Calendar, Sparkles, Clock } from "lucide-react";
 import { useLanguage } from "@/app/context/LanguageContext";
 
 type Props = {
@@ -26,6 +26,12 @@ const leaveTypeStyles: Record<string, { icon: React.ReactNode; bgColor: string; 
     bgColor: "bg-rose-100", 
     textColor: "text-rose-700", 
     borderColor: "border-rose-300" 
+  },
+  HOME_OFFICE: {
+    icon: <House size={16} />,
+    bgColor: "bg-violet-100",
+    textColor: "text-violet-700",
+    borderColor: "border-violet-300"
   },
   OTHER: {
     icon: <Sparkles size={16} />,

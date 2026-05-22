@@ -6,6 +6,7 @@ import {
   CalendarDays, 
   Palmtree, 
   Stethoscope, 
+  House,
   Calendar,
   Filter,
   X,
@@ -36,6 +37,7 @@ const ABSENCE_TYPES: (keyof typeof AbsenceType)[] = [
   "VACATION",
   "OFFICIAL_HOLIDAYS",
   "SICK",
+  "HOME_OFFICE",
   "OTHER",
 ];
 
@@ -88,6 +90,12 @@ const leaveTypeStyles: Record<string, { icon: React.ReactNode; bgColor: string; 
     bgColor: "bg-rose-100", 
     textColor: "text-rose-700", 
     borderColor: "border-rose-300" 
+  },
+  HOME_OFFICE: {
+    icon: <House size={14} />,
+    bgColor: "bg-violet-100",
+    textColor: "text-violet-700",
+    borderColor: "border-violet-300"
   },
   OTHER: {
     icon: <CalendarDays size={14} />,
@@ -145,6 +153,7 @@ export default function DeveloperVacations() {
     VACATION: t.vacation,
     OFFICIAL_HOLIDAYS: t.officialHolidays,
     SICK: t.sick,
+    HOME_OFFICE: t.homeOffice,
     OTHER: t.other,
   };
 
@@ -770,6 +779,7 @@ export default function DeveloperVacations() {
               { value: "VACATION", label: t.vacation },
               { value: "OFFICIAL_HOLIDAYS", label: t.officialHolidays },
               { value: "SICK", label: t.sick },
+              { value: "HOME_OFFICE", label: t.homeOffice },
               { value: "OTHER", label: t.other },
             ]}
             requestableUserIds={userId ? [Number(userId)] : undefined}

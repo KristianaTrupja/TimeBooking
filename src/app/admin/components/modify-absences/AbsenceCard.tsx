@@ -32,6 +32,7 @@ const ABSENCE_TYPES: (keyof typeof AbsenceType)[] = [
   "VACATION",
   "OFFICIAL_HOLIDAYS",
   "SICK",
+  "HOME_OFFICE",
   "OTHER",
 ];
 

@@ -29,6 +29,7 @@ const ABSENCE_TYPES: (keyof typeof AbsenceType)[] = [
   "VACATION",
   "OFFICIAL_HOLIDAYS",
   "SICK",
+  "HOME_OFFICE",
   "OTHER",
 ]
 
@@ -264,6 +265,7 @@ export default function ModifyAbsences() {
       VACATION: "bg-teal-100 text-teal-700 border-teal-300",
       OFFICIAL_HOLIDAYS: "bg-cyan-100 text-cyan-700 border-cyan-300",
       SICK: "bg-rose-100 text-rose-700 border-rose-300",
+      HOME_OFFICE: "bg-violet-100 text-violet-700 border-violet-300",
       OTHER: "bg-indigo-100 text-indigo-700 border-indigo-300",
     };
     return styles[type] || "bg-slate-100 text-slate-700 border-slate-300";
@@ -611,6 +613,7 @@ export default function ModifyAbsences() {
             { value: "VACATION", label: t.vacation },
             { value: "OFFICIAL_HOLIDAYS", label: t.officialHolidays },
             { value: "SICK", label: t.sick },
+            { value: "HOME_OFFICE", label: t.homeOffice },
             { value: "OTHER", label: t.other },
           ]}
           onRequestRange={handleCalendarRequest}

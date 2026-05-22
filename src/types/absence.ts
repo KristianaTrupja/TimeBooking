@@ -22,6 +22,7 @@ export enum AbsenceType {
   VACATION = "VACATION", 
   OFFICIAL_HOLIDAYS = "OFFICIAL_HOLIDAYS",
   SICK = "SICK", 
+  HOME_OFFICE = "HOME_OFFICE",
   OTHER = "OTHER",
 }
 
