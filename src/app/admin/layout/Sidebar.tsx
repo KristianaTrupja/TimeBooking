@@ -33,6 +33,8 @@ export default function Sidebar() {
     signOut({ callbackUrl: `${window.location.origin}/login` });
   };
 
+
+  
   return (
     <>
       {/* Mobile Horizontal Navigation */}
