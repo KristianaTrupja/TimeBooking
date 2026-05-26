@@ -81,7 +81,7 @@ export default function WorkDay({
     return "bg-white hover:bg-blue-200 cursor-pointer text-slate-700";
   };
 
-  const canClick = !isAbsentDay && !isDisabled && !isHoliday && !isWeekendDay && !isProjectInactive;
+  const canClick = !isDisabled && !isProjectInactive;
 
   return (
     <>
