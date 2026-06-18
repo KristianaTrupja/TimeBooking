@@ -131,13 +131,23 @@ async function getRequesterOrThrow() {
 }
 
 function parseDateRange(startDate: string, endDate: string) {
-  const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
-  if (!dateRegex.test(startDate) || !dateRegex.test(endDate)) {
+  const normalizeToYyyyMmDd = (value: string) => {
+    const strictDateRegex = /^\d{4}-\d{2}-\d{2}$/;
+    if (strictDateRegex.test(value)) return value;
+    const parsed = new Date(value);
+    if (Number.isNaN(parsed.getTime())) return null;
+    return parsed.toISOString().slice(0, 10);
+  };
+
+  const normalizedStart = normalizeToYyyyMmDd(startDate);
+  const normalizedEnd = normalizeToYyyyMmDd(endDate);
+
+  if (!normalizedStart || !normalizedEnd) {
     throw new ValidationError("Invalid date format. Expected YYYY-MM-DD", "startDate/endDate");
   }
 
-  const start = new Date(`${startDate}T00:00:00.000Z`);
-  const end = new Date(`${endDate}T00:00:00.000Z`);
+  const start = new Date(`${normalizedStart}T00:00:00.000Z`);
+  const end = new Date(`${normalizedEnd}T00:00:00.000Z`);
 
   if (start > end) {
     throw new InvalidDateRangeError();

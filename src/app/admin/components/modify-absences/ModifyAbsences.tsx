@@ -43,6 +43,13 @@ function getInitialFiltersState(): Filters {
   }
 }
 
+function toYyyyMmDd(dateValue: string) {
+  if (/^\d{4}-\d{2}-\d{2}$/.test(dateValue)) return dateValue;
+  const parsed = new Date(dateValue);
+  if (Number.isNaN(parsed.getTime())) return dateValue;
+  return parsed.toISOString().slice(0, 10);
+}
+
 
 export default function ModifyAbsences() {
   const searchParams = useSearchParams();
@@ -234,10 +241,16 @@ export default function ModifyAbsences() {
 
     setIsSaving(true);
     try {
+      const payload = {
+        ...editingAbsence,
+        startDate: toYyyyMmDd(editingAbsence.startDate),
+        endDate: toYyyyMmDd(editingAbsence.endDate),
+      };
+
       const res = await fetch("/api/absences", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(editingAbsence),
+        body: JSON.stringify(payload),
       });
 
       if (res.ok) {
