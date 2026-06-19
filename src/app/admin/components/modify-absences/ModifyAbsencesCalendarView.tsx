@@ -409,7 +409,7 @@ export default function ModifyAbsencesCalendarView({
                   <th
                     scope="row"
                     style={{ width: "var(--employee-col-width)", minWidth: "var(--employee-col-width)", maxWidth: "var(--employee-col-width)" }}
-                    className={`px-2 sm:px-4 py-2 h-10 sticky left-0 z-10 border-r border-slate-200 transition-all duration-150 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.05)] ${
+                    className={`px-2 sm:px-4 py-2 h-10 sticky left-0 z-20 border-r border-slate-200 transition-all duration-150 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.05)] ${
                       isRowHovered ? "bg-blue-50" : isLoggedInUser ? "bg-blue-50/60" : "bg-white"
                     }`}
                   >
@@ -459,7 +459,7 @@ export default function ModifyAbsencesCalendarView({
                         onMouseLeave={() => setHoveredDay(null)}
                         title={hasHoliday ? holidayNameForUser : undefined}
                       >
-                        <span className="relative z-10">{showMarker ? "*" : ""}</span>
+                        <span className="relative z-0">{showMarker ? "*" : ""}</span>
                       </td>
                     );
                   })}
