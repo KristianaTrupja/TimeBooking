@@ -5,9 +5,13 @@ import nodemailer from "nodemailer";
  * @returns Configured transporter
  */
 function createTransporter() {
+  console.log("[email] createTransporter: OUTLOOK_USER set:", !!process.env.OUTLOOK_USER);
+  console.log("[email] createTransporter: OUTLOOK_PASSWORD set:", !!process.env.OUTLOOK_PASSWORD);
+
   if (!process.env.OUTLOOK_USER || !process.env.OUTLOOK_PASSWORD) {
+    console.error("[email] createTransporter: Missing SMTP credentials — aborting");
     throw new Error(
-      "Outlook credentials not configured. Please set OUTLOOK_USER and OUTLOOK_PASSWORD environment variables."
+      "Outlook credentials not configured. Please set OUTLOOK_USER and OUTLOOK_PASSWORD environment variables.",
     );
   }
 
@@ -36,25 +40,36 @@ export async function sendEmail(
   text: string,
   html?: string
 ): Promise<{ success: boolean; messageId?: string; error?: string }> {
+  const recipients = Array.isArray(to) ? to.join(", ") : to;
+  console.log("[email] sendEmail: attempting to send");
+  console.log("[email] sendEmail: to =", recipients);
+  console.log("[email] sendEmail: subject =", subject);
+
   try {
     const transporter = createTransporter();
     const fromEmail = process.env.OUTLOOK_USER || "noreply@outlook.com";
 
+    console.log("[email] sendEmail: from =", fromEmail);
+
     const info = await transporter.sendMail({
       from: `"Timesheets" <${fromEmail}>`,
-      to: Array.isArray(to) ? to.join(", ") : to,
+      to: recipients,
       subject,
       text,
       html: html || text,
     });
 
-    console.log("Email sent successfully:", info.messageId);
+    console.log("[email] sendEmail: SUCCESS — messageId:", info.messageId);
+    console.log("[email] sendEmail: response:", info.response);
     return {
       success: true,
       messageId: info.messageId,
     };
   } catch (error: any) {
-    console.error("Failed to send email:", error);
+    console.error("[email] sendEmail: FAILED");
+    console.error("[email] sendEmail: error message:", error.message);
+    console.error("[email] sendEmail: error code:", error.code);
+    console.error("[email] sendEmail: error stack:", error.stack);
     return {
       success: false,
       error: error.message || "Unknown error",
@@ -74,8 +89,11 @@ export async function sendTimesheetConfirmationEmail(
   developerName: string,
   month: string
 ): Promise<{ success: boolean; sent: number; failed: number }> {
+  console.log("[email] sendTimesheetConfirmationEmail: developerName =", developerName, "| month =", month);
+  console.log("[email] sendTimesheetConfirmationEmail: adminEmails =", adminEmails);
+
   if (adminEmails.length === 0) {
-    console.warn("No admin emails provided for timesheet confirmation notification");
+    console.warn("[email] sendTimesheetConfirmationEmail: no admin emails provided — skipping");
     return { success: true, sent: 0, failed: 0 };
   }
 
@@ -92,8 +110,10 @@ export async function sendTimesheetConfirmationEmail(
   const result = await sendEmail(adminEmails, subject, text, html);
 
   if (result.success) {
+    console.log("[email] sendTimesheetConfirmationEmail: sent to", adminEmails.length, "admin(s)");
     return { success: true, sent: adminEmails.length, failed: 0 };
   } else {
+    console.error("[email] sendTimesheetConfirmationEmail: failed — error:", result.error);
     return { success: false, sent: 0, failed: adminEmails.length };
   }
 }
@@ -113,8 +133,12 @@ export async function sendLeaveRequestEmailToAdmins(
     businessDays: number;
   }
 ): Promise<{ success: boolean; sent: number; failed: number }> {
+  console.log("[email] sendLeaveRequestEmailToAdmins: employee =", payload.employeeName, "| leaveType =", payload.leaveType);
+  console.log("[email] sendLeaveRequestEmailToAdmins: period =", payload.startDate, "→", payload.endDate, "| days =", payload.businessDays);
+  console.log("[email] sendLeaveRequestEmailToAdmins: adminEmails =", adminEmails);
+
   if (adminEmails.length === 0) {
-    console.warn("No admin emails provided for leave request notification");
+    console.warn("[email] sendLeaveRequestEmailToAdmins: no admin emails provided — skipping");
     return { success: true, sent: 0, failed: 0 };
   }
 
@@ -139,8 +163,10 @@ export async function sendLeaveRequestEmailToAdmins(
 
   const result = await sendEmail(adminEmails, subject, text, html);
   if (result.success) {
+    console.log("[email] sendLeaveRequestEmailToAdmins: sent to", adminEmails.length, "admin(s)");
     return { success: true, sent: adminEmails.length, failed: 0 };
   }
+  console.error("[email] sendLeaveRequestEmailToAdmins: failed — error:", result.error);
   return { success: false, sent: 0, failed: adminEmails.length };
 }
 
@@ -159,8 +185,11 @@ export async function sendLeaveDecisionEmailToEmployee(
     reviewerName: string;
   }
 ): Promise<{ success: boolean; sent: number; failed: number }> {
+  console.log("[email] sendLeaveDecisionEmailToEmployee: employee =", payload.employeeName, "| status =", payload.status);
+  console.log("[email] sendLeaveDecisionEmailToEmployee: to =", employeeEmail, "| reviewer =", payload.reviewerName);
+
   if (!employeeEmail || employeeEmail.trim() === "") {
-    console.warn("No employee email provided for leave decision notification");
+    console.warn("[email] sendLeaveDecisionEmailToEmployee: no employee email provided — skipping");
     return { success: true, sent: 0, failed: 0 };
   }
 
@@ -186,11 +215,9 @@ export async function sendLeaveDecisionEmailToEmployee(
 
   const result = await sendEmail(employeeEmail, subject, text, html);
   if (result.success) {
+    console.log("[email] sendLeaveDecisionEmailToEmployee: sent to", employeeEmail);
     return { success: true, sent: 1, failed: 0 };
   }
+  console.error("[email] sendLeaveDecisionEmailToEmployee: failed — error:", result.error);
   return { success: false, sent: 0, failed: 1 };
 }
-
-
-
-
