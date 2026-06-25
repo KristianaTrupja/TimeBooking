@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import HolidaysTable from "./holidaysTable";
+import HolidaysTable from "./HolidaysTable";
 import AddHolidayModal from "./AddHolidayModal";
 import { Holiday } from "@/types/holiday";
 import Spinner from "@/components/ui/Spinner";
