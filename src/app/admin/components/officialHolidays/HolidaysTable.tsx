@@ -1,5 +1,5 @@
-import VocationRow from "./VocationRow";
-import VocationEditRow from "./VocationEditRow";
+import HolidayRow from "./HolidayRow";
+import HolidayEditRow from "./HolidayEditRow";
 import { Holiday } from "@/types/holiday";
 
 type Props = {
@@ -11,7 +11,7 @@ type Props = {
   onChange: (e: React.ChangeEvent<HTMLInputElement>, field: "date" | "holiday") => void;
   onSave: (id: number) => void;
 };
-export default function VocationTable({
+export default function HolidaysTable({
   vocations,
   editingId,
   editedData,
@@ -34,7 +34,7 @@ export default function VocationTable({
       <tbody>
         {vocations?.map((emp, index) =>
           editingId === emp.id ? (
-            <VocationEditRow
+            <HolidayEditRow
               key={emp.id}
               index={index}
               editedData={editedData}
@@ -42,7 +42,7 @@ export default function VocationTable({
               onSave={() => onSave(emp.id)}
             />
           ) : (
-            <VocationRow
+            <HolidayRow
               key={emp.id}
               index={index}
               emp={emp}

@@ -9,7 +9,7 @@ type Props = {
   onSubmit: () => void;
 };
 
-export default function AddVocationModal({ isOpen, onClose, data, onChange, onSubmit }: Props) {
+export default function AddHolidayModal({ isOpen, onClose, data, onChange, onSubmit }: Props) {
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <h2 className="text-xl font-bold mb-4 text-[#244B77]">Shto Pushim</h2>

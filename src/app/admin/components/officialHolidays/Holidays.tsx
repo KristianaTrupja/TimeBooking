@@ -2,12 +2,12 @@
 
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import VocationTable from "./VocationTable";
-import AddVocationModal from "./AddVocationModal";
+import HolidaysTable from "./holidaysTable";
+import AddHolidayModal from "./AddHolidayModal";
 import { Holiday } from "@/types/holiday";
 import Spinner from "@/components/ui/Spinner";
 
-export default function Vocations() {
+export default function Holidays() {
   const [vocations, setVocations] = useState<Holiday[]>([]);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editedData, setEditedData] = useState({ date: "", holiday: "" });
@@ -129,7 +129,7 @@ export default function Vocations() {
   return (
     <section className="rounded-md">
       <div className="overflow-y-auto max-h-[400px] 2xl:max-h-[520px] pb-10">
-        <VocationTable
+        <HolidaysTable
           vocations={vocations}
           editingId={editingId}
           editedData={editedData}
@@ -146,7 +146,7 @@ export default function Vocations() {
         </Button>
       </div>
 
-      <AddVocationModal
+      <AddHolidayModal
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
         onChange={handleNewChange}

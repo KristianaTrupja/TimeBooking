@@ -5,15 +5,19 @@ import nodemailer from "nodemailer";
  * @returns Configured transporter
  */
 function createTransporter() {
-  if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
-    throw new Error("Gmail credentials not configured. Please set GMAIL_USER and GMAIL_APP_PASSWORD environment variables.");
+  if (!process.env.OUTLOOK_USER || !process.env.OUTLOOK_PASSWORD) {
+    throw new Error(
+      "Outlook credentials not configured. Please set OUTLOOK_USER and OUTLOOK_PASSWORD environment variables."
+    );
   }
 
   return nodemailer.createTransport({
-    service: "gmail",
+    host: "smtp.office365.com",
+    port: 587,
+    secure: false,
     auth: {
-      user: process.env.GMAIL_USER,
-      pass: process.env.GMAIL_APP_PASSWORD,
+      user: process.env.OUTLOOK_USER,
+      pass: process.env.OUTLOOK_PASSWORD,
     },
   });
 }
@@ -34,7 +38,7 @@ export async function sendEmail(
 ): Promise<{ success: boolean; messageId?: string; error?: string }> {
   try {
     const transporter = createTransporter();
-    const fromEmail = process.env.GMAIL_USER || "noreply@gmail.com";
+    const fromEmail = process.env.OUTLOOK_USER || "noreply@outlook.com";
 
     const info = await transporter.sendMail({
       from: `"Timesheets" <${fromEmail}>`,

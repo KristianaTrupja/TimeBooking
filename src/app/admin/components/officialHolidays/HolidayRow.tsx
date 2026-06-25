@@ -7,7 +7,7 @@ type Props = {
   onDelete: () => void;
 };
 
-export default function VocationRow({ emp, index, onEdit, onDelete }: Props) {
+export default function HolidayRow({ emp, index, onEdit, onDelete }: Props) {
   return (
     <tr className="border-t border-[#d1d1d1] font-semibold text-lg bg-[#E3F0FF]" key={emp.id}>
       <td className="px-4 py-2 bg-[#244B77] text-white font-semibold rounded-sm text-xl">
