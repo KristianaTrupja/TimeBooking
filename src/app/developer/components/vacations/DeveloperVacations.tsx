@@ -777,7 +777,6 @@ export default function DeveloperVacations() {
             isCompact={false}
             requestTypeOptions={[
               { value: "VACATION", label: t.vacation },
-              { value: "OFFICIAL_HOLIDAYS", label: t.officialHolidays },
               { value: "SICK", label: t.sick },
               { value: "HOME_OFFICE", label: t.homeOffice },
               { value: "OTHER", label: t.other },

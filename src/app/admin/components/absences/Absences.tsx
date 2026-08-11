@@ -68,7 +68,6 @@ function isRemainingDaysPayload(value: unknown): value is APIRemainingDays {
 
 const absenceTypes: (keyof typeof AbsenceType)[] = [
   "VACATION",
-  "OFFICIAL_HOLIDAYS",
   "SICK",
   "HOME_OFFICE",
   "OTHER",
